@@ -46,6 +46,16 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         return barButton
     }()
 
+
+    lazy var customBarButtonItem: UIBarButtonItem = {
+        let barButton = UIBarButtonItem(
+            image: configuration.customRightNavBarImageForConversationListView,
+            style: .plain,
+            target: self, action: #selector(customButtonEvent))
+        return barButton
+    }()
+
+
     fileprivate var tapToDismiss:UITapGestureRecognizer!
     fileprivate var alMqttConversationService: ALMQTTConversationService!
     fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
@@ -201,8 +211,18 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
         title = localizedString(forKey: "ConversationListVCTitle", withDefaultValue: SystemMessage.ChatList.title, fileName: localizedStringFileName)
 
+        var rightBarButtonItems : [UIBarButtonItem] = []
+
         if !configuration.hideStartChatButton {
-            navigationItem.rightBarButtonItem = rightBarButtonItem
+            rightBarButtonItems.append(rightBarButtonItem)
+        }
+
+        if(configuration.isCutomNavButtonEnabled){
+            rightBarButtonItems.append(customBarButtonItem)
+        }
+
+        if(!rightBarButtonItems.isEmpty){
+            navigationItem.rightBarButtonItems =  rightBarButtonItems
         }
 
         let back = localizedString(forKey: "Back", withDefaultValue: SystemMessage.ChatList.leftBarBackButton, fileName: localizedStringFileName)
@@ -252,6 +272,11 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         }
         let newChatVC = ALKNewChatViewController(configuration: configuration, viewModel: ALKNewChatViewModel(localizedStringFileName: configuration.localizedStringFileName))
         navigationController?.pushViewController(newChatVC, animated: true)
+    }
+
+
+    @objc func customButtonEvent() {
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: configuration.NotificationForCustomButtonNavIconClick), object: self)
     }
 
     func sync(message: ALMessage) {
