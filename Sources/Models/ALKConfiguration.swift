@@ -9,9 +9,6 @@ import Foundation
 
 public struct ALKConfiguration {
 
-    /// NSNotification name for custom navigation button click
-    public var NotificationForCustomButtonNavIconClick = "NotificationForCustomButtonNavIconClick"
-
     /// If enabled then tapping on navigation bar in
     /// conversation view will open the group detail screen.
     /// - NOTE: Only works in case of groups.
@@ -132,11 +129,10 @@ public struct ALKConfiguration {
     /// If true, swipe action in chatcell to delete/mute conversation will be disabled.
     public var disableSwipeInChatCell: Bool = false
 
-    /// conversationlist view navigation icon for custom button.
-    public var customRightNavBarImageForConversationListView = UIImage(named: "fill_214", in: Bundle.applozic, compatibleWith: nil)
-
     /// If true,custom navigation right button will show
     public var isCutomNavButtonEnabled = false
+    /// Right  Navigation bar items in conversation list view 
+    public var navigationItems = [ALKNavigationItem]()
 
     public init() { }
 }

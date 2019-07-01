@@ -44,6 +44,8 @@ public class ALKPushNotificationHandler: Localizable {
 
         self.configuration = configuration
 
+        ALKPushNotificationHandler.observeListControllerNavigationStartNewButton(configuration: self.configuration)
+
         // No need to add removeObserver() as it is present in pushAssist.
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "showNotificationAndLaunchChat"), object: nil, queue: nil, using: {[weak self] notification in
             print("launch chat push notification received")
@@ -115,4 +117,25 @@ public class ALKPushNotificationHandler: Localizable {
         launchIndividualChatWith(userId: userId, groupId: groupId)
     }
 
+    class  func observeListControllerNavigationStartNewButton(configuration: ALKConfiguration) {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("NSNotificationForStartNewButton"),
+            object: nil,
+            queue: nil) {
+                notification in
+                self.launchContactScreen(configuration: configuration)
+        }
+    }
+
+    class func launchContactScreen(configuration: ALKConfiguration) {
+
+        let alPushAssist = ALPushAssist()
+
+        guard let topViewController = alPushAssist.topViewController, let navigationController = topViewController.navigationController else {
+            return
+        }
+
+        let newChatVC = ALKNewChatViewController(configuration: configuration, viewModel: ALKNewChatViewModel(localizedStringFileName: configuration.localizedStringFileName))
+        navigationController.pushViewController(newChatVC, animated: true)
+    }
 }

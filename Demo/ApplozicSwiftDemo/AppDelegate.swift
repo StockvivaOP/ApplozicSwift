@@ -19,6 +19,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var config = ALKConfiguration()
         // Change config based on requirement like:
         // config.isTapOnNavigationBarEnabled = false
+        var starNewButton = ALKNavigationItem(identifier: "NSNotificationForStartNewButton", buttonImage:  UIImage(named: "fill_214", in: Bundle(for: ALKConversationListViewController.self), compatibleWith: nil), buttonText: nil)
+        var navigationItems = [ALKNavigationItem]()
+        navigationItems.append(starNewButton)
+        config.navigationItems = navigationItems
 
         return config
     }()
@@ -38,6 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ALKPushNotificationHandler.shared.dataConnectionNotificationHandlerWith(AppDelegate.config)
         let alApplocalNotificationHnadler : ALAppLocalNotifications =  ALAppLocalNotifications.appLocalNotificationHandler()
         alApplocalNotificationHnadler.dataConnectionNotificationHandler()
+
 
         if (ALUserDefaultsHandler.isLoggedIn())
         {

@@ -46,16 +46,6 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         return barButton
     }()
 
-
-    lazy var customBarButtonItem: UIBarButtonItem = {
-        let barButton = UIBarButtonItem(
-            image: configuration.customRightNavBarImageForConversationListView,
-            style: .plain,
-            target: self, action: #selector(customButtonEvent))
-        return barButton
-    }()
-
-
     fileprivate var tapToDismiss:UITapGestureRecognizer!
     fileprivate var alMqttConversationService: ALMQTTConversationService!
     fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
@@ -209,21 +199,8 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
     private func setupView() {
 
+        setUpNavigationRightButtons()
         title = localizedString(forKey: "ConversationListVCTitle", withDefaultValue: SystemMessage.ChatList.title, fileName: localizedStringFileName)
-
-        var rightBarButtonItems : [UIBarButtonItem] = []
-
-        if !configuration.hideStartChatButton {
-            rightBarButtonItems.append(rightBarButtonItem)
-        }
-
-        if(configuration.isCutomNavButtonEnabled){
-            rightBarButtonItems.append(customBarButtonItem)
-        }
-
-        if(!rightBarButtonItems.isEmpty){
-            navigationItem.rightBarButtonItems =  rightBarButtonItems
-        }
 
         let back = localizedString(forKey: "Back", withDefaultValue: SystemMessage.ChatList.leftBarBackButton, fileName: localizedStringFileName)
         let leftBarButtonItem = UIBarButtonItem(title: back, style: .plain, target: self, action: #selector(customBackAction))
@@ -233,19 +210,64 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         }
 
         #if DEVELOPMENT
-            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
-            indicator.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-            indicator.hidesWhenStopped = true
-            indicator.stopAnimating()
-            let indicatorButton = UIBarButtonItem(customView: indicator)
+        let indicator = UIActivityIndicatorView(activityIndicatorStyle: .white)
+        indicator.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        indicator.hidesWhenStopped = true
+        indicator.stopAnimating()
+        let indicatorButton = UIBarButtonItem(customView: indicator)
 
-            navigationItem.leftBarButtonItem = indicatorButton
+        navigationItem.leftBarButtonItem = indicatorButton
         #endif
 
         add(conversationListTableViewController)
         conversationListTableViewController.view.frame = self.view.bounds
         conversationListTableViewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         conversationListTableViewController.view.translatesAutoresizingMaskIntoConstraints = true
+    }
+
+    func setUpNavigationRightButtons() {
+
+        let navigationItems =   configuration.navigationItems
+        var rightBarButtonItems : [UIBarButtonItem] = []
+
+        var position = 0
+        for item in navigationItems {
+
+            let uiBarButtonItem =   createUIBarButton(navigationItem: item, position: position)
+
+            rightBarButtonItems.append(uiBarButtonItem)
+
+            position = position + 1
+        }
+
+        if(!rightBarButtonItems.isEmpty){
+            navigationItem.rightBarButtonItems =  rightBarButtonItems
+        }
+    }
+
+    func createUIBarButton(navigationItem: ALKNavigationItem, position: Int) -> UIBarButtonItem {
+
+        guard let image =  navigationItem.buttonImage else {
+
+            guard let text = navigationItem.buttonText  else {
+
+                return UIBarButtonItem()
+            }
+
+            let barButton = UIBarButtonItem(
+                title: text,
+                style: .plain,
+                target: self, action: #selector(customButtonEvent(_:)))
+            barButton.tag = position
+            return barButton
+        }
+
+        let barButton = UIBarButtonItem(
+            image: image,
+            style: .plain,
+            target: self, action: #selector(customButtonEvent(_:)))
+        barButton.tag = position
+        return barButton
     }
 
     func launchChat(contactId: String?, groupId: NSNumber?, conversationId: NSNumber? = nil) {
@@ -275,8 +297,16 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
     }
 
 
-    @objc func customButtonEvent() {
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: configuration.NotificationForCustomButtonNavIconClick), object: self)
+    @objc func customButtonEvent(_ sender: AnyObject) {
+
+        let navigationItems = configuration.navigationItems
+
+        guard let position = sender.tag, position < navigationItems.count  else {
+            return
+        }
+
+        let navigationItem =   navigationItems[position];
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: navigationItem.identifier), object: self)
     }
 
     func sync(message: ALMessage) {
