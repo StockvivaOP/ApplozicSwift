@@ -2,6 +2,11 @@
 
 The changelog for [ApplozicSwift](https://github.com/AppLozic/ApplozicSwift). Also see the [releases](https://github.com/AppLozic/ApplozicSwift/releases) on Github.
 
+3.1.0(Upcoming)
+---
+### Enhancements
+- [AL-3577] Added Option to report a message
+
 3.0.0
 ---
 ### Enhancements
