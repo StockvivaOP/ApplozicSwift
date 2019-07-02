@@ -12,6 +12,7 @@ import UIKit
 open class ALKBaseCell<T>: UITableViewCell {
 
     var viewModel: T?
+    var configration : ALKConfiguration?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

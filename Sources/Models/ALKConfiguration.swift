@@ -129,5 +129,8 @@ public struct ALKConfiguration {
     /// If true, swipe action in chatcell to delete/mute conversation will be disabled.
     public var disableSwipeInChatCell: Bool = false
 
+    /// If true, User can report the message to cosole admin for review.
+    public var isReportMessageEnabled: Bool = false
+
     public init() { }
 }

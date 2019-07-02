@@ -85,7 +85,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
                 menus.append(replyMenu)
             }
 
-            if !isMyMessage , let reportMessageMenu = getReportMessageItem(reportMessageItem: self) {
+            if let config =  configration,config.isReportMessageEnabled, !isMyMessage , let reportMessageMenu = getReportMessageItem(reportMessageItem: self) {
                 menus.append(reportMessageMenu)
             }
 
