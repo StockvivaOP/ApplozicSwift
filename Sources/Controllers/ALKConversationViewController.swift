@@ -1020,16 +1020,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         navigationController?.pushViewController(conversationVC, animated: true)
     }
 
-    func menuItemSelected(action: ALKChatBaseCell<ALKMessageViewModel>.MenuActionType,
-                          message: ALKMessageViewModel) {
-        switch action {
-        case .reply:
-            print("Reply selected")
-            viewModel.setSelectedMessageToReply(message)
-            replyMessageView.update(message: message)
-            showReplyMessageView()
-        }
-    }
 
     func showReplyMessageView() {
         replyMessageView.constraint(
@@ -1919,4 +1909,39 @@ extension ALKConversationViewController: NavigationBarCallbacks {
         return ALContactService().loadContact(byKey: "userId", value: contactId)
     }
 
+}
+
+extension ALKConversationViewController: ALAlertButtonClickProtocol {
+
+    func confirmButtonClick(action: String,messageKey: String) {
+
+        if(action == ALKAlertViewController.Action.reportMessage){
+            let userservice = ALUserService()
+            userservice.reportUser(withMessageKey: messageKey) { (apiResponse, error) in
+               let alPushAssist =  ALPushAssist()
+                alPushAssist.topViewController.dismiss(animated: false, completion: nil)
+            }
+        }
+    }
+
+    func menuItemSelected(action: ALKChatBaseCell<ALKMessageViewModel>.MenuActionType,
+                          message: ALKMessageViewModel) {
+        switch action {
+        case .reply:
+            print("Reply selected")
+            viewModel.setSelectedMessageToReply(message)
+            replyMessageView.update(message: message)
+            showReplyMessageView()
+        case .reportMessage:
+            let muteConversationVC = ALKAlertViewController(action:ALKAlertViewController.Action.reportMessage, delegate: self, messageKey: message.identifier,  configuration: configuration)
+
+            let title = localizedString(forKey: "ReportAlertTitle", withDefaultValue: SystemMessage.Information.ReportAlertTitle, fileName: configuration.localizedStringFileName)
+
+            let message = localizedString(forKey: "ReportAlertMessage", withDefaultValue: SystemMessage.Information.ReportAlertMessage, fileName: configuration.localizedStringFileName)
+            
+            muteConversationVC.updateTitleAndMessage(title, message: message)
+            muteConversationVC.modalPresentationStyle = .overCurrentContext
+            self.present(muteConversationVC, animated: true, completion: nil)
+        }
+    }
 }

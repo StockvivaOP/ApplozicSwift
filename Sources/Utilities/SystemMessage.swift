@@ -46,6 +46,8 @@ struct SystemMessage : Localizable {
         static let UnblockToEnableChat = localizedString(forKey: "UnblockToEnableChat")
         static let ChatHere = localizedString(forKey: "ChatHere")
         static let LoadingIndicatorText = localizedString(forKey: "LoadingIndicatorText")
+        static let ReportAlertTitle = localizedString(forKey: "ReportAlertTitle")
+        static let ReportAlertMessage = localizedString(forKey: "ReportAlertMessage")
     }
 
     struct Update {
@@ -93,6 +95,7 @@ struct SystemMessage : Localizable {
         static let Done = localizedString(forKey: "DoneButton")
         static let Invite = localizedString(forKey: "InviteButton")
         static let Confirm = localizedString(forKey: "ConfirmButton")
+        static let ReportMessage = localizedString(forKey: "ReportMessage")
         static let Delete = localizedString(forKey: "DeleteButtonName")
         static let ok = localizedString(forKey: "OkMessage")
     }
@@ -153,6 +156,7 @@ struct SystemMessage : Localizable {
         static let NotNow = localizedString(forKey: "NotNow")
         static let Copy = localizedString(forKey: "Copy")
         static let Reply = localizedString(forKey: "Reply")
+        static let Report = localizedString(forKey: "Report")
         static let You = localizedString(forKey: "You")
         static let Admin = localizedString(forKey: "Admin")
     }

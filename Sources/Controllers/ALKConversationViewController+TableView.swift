@@ -48,6 +48,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 let cell: ALKFriendMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
+                cell.isMyMessage = false
                 cell.update(chatBar: self.chatBar)
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
@@ -77,6 +78,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 let cell: ALKFriendMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
+                cell.isMyMessage = false
                 cell.update(chatBar: self.chatBar)
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
@@ -144,6 +146,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
                 } else {
                     let cell: ALKFriendPhotoLandscapeCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
+                    cell.isMyMessage = false
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
                     return cell
@@ -171,6 +174,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.downloadTapped = {[weak self] value in
                     self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
                 }
+                cell.isMyMessage = false
                 cell.update(viewModel: message)
                 cell.setCellDelegate(delegate: self)
                 cell.avatarTapped = {[weak self] in
@@ -195,6 +199,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 let cell: ALKFriendLocationCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
+                cell.isMyMessage = false
                 cell.setDelegate(locDelegate: self)
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
@@ -234,6 +239,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 let cell: ALKFriendVideoCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
+                cell.isMyMessage = false
                 cell.downloadTapped = {[weak self]
                     value in
                     self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
@@ -259,6 +265,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 let cell: ALKFriendGenericCardCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.register(cell: ALKGenericCardCell.self)
+                cell.isMyMessage = false
                 cell.update(viewModel: message, width: UIScreen.main.bounds.width)
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
@@ -296,6 +303,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 guard let template = message.payloadFromMetadata() else {
                     return cell
                 }
+                cell.isMyMessage = false
                 cell.quickReplyView.quickReplySelected = {[weak self] tag, title, metadata in
                     guard let weakSelf = self,
                         let index = tag else { return }
@@ -376,6 +384,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 let cell: ALKFriendDocumentCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
+                cell.isMyMessage = false
                 cell.update(chatBar: self.chatBar)
                 cell.uploadTapped = {[weak self]
                     value in
@@ -415,6 +424,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 if let filePath = message.filePath {
                     cell.updateContactDetails(key: message.identifier, filePath: filePath)
                 }
+                cell.isMyMessage = false
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 if message.filePath == nil {
                     attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
