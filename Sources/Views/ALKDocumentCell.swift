@@ -11,7 +11,7 @@ import Kingfisher
 import Applozic
 
 class ALKDocumentCell:ALKChatBaseCell<ALKMessageViewModel>,
-ALKReplyMenuItemProtocol {
+ALKReplyMenuItemProtocol,ALKReportMessageMenuItemProtocol {
 
     struct CommonPadding {
         struct FrameUIView {
@@ -122,6 +122,10 @@ ALKReplyMenuItemProtocol {
 
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
+    }
+
+    func menuReport(_ sender: Any) {
+        menuAction?(.reportMessage)
     }
 
     override func setupStyle() {

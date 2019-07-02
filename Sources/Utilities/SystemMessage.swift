@@ -46,6 +46,8 @@ struct SystemMessage : Localizable {
         static let UnblockToEnableChat = localizedString(forKey: "UnblockToEnableChat")
         static let ChatHere = localizedString(forKey: "ChatHere")
         static let LoadingIndicatorText = localizedString(forKey: "LoadingIndicatorText")
+        static let ReportMessageSuccess = localizedString(forKey: "ReportMessageSuccess")
+        static let ReportMessageError = localizedString(forKey: "ReportMessageError")
         static let ReportAlertTitle = localizedString(forKey: "ReportAlertTitle")
         static let ReportAlertMessage = localizedString(forKey: "ReportAlertMessage")
     }
@@ -66,6 +68,7 @@ struct SystemMessage : Localizable {
         static let CamNotAvaiable = localizedString(forKey: "CamNotAvaiable")
         static let Cancelled = localizedString(forKey: "CancelMessage")
         static let PleaseTryAgain = localizedString(forKey: "ConnectionFailedMessage")
+        static let NetworkAccessFailedMessage = localizedString(forKey: "NetworkAccessFailedMessage")
         static let FetchFail = localizedString(forKey: "FetchFailedMessage")
         static let OperationFail = localizedString(forKey: "OperationFailedMessage")
         static let DeleteSingleConversation = localizedString(forKey: "DeleteSingleConversation")

@@ -144,3 +144,6 @@ VideoExportError = "Some error occured while exporting files";
 ReportAlertTitle = "Are you sure you want to report this message?";
 ReportAlertMessage = "If you report the message, it will be sent to admin of this application for review";
 ReportMessage = "REPORT MESSAGE";
+ReportMessageSuccess = "Message has been reported";
+ReportMessageError = "Failed to report the message";
+NetworkAccessFailedMessage = "No internet access";
