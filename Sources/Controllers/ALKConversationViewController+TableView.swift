@@ -126,12 +126,15 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 } else {
                     let cell: ALKMyPhotoLandscapeCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.configration = configuration
+                    cell.isMyMessage = true
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
                     cell.uploadCompleted = {[weak self]
                         responseDict in
                         self?.attachmentUploadDidCompleteWith(response: responseDict, indexPath: indexPath)
                     }
+                    cell.menuAction = {[weak self] action in
+                        self?.menuItemSelected(action: action, message: message) }
                     return cell
                 }
 
@@ -141,7 +144,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     let cell: ALKFriendPhotoPortalCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
-                    cell.isMyMessage = true
+                    cell.isMyMessage = false
                     cell.configration = configuration
                     cell.downloadTapped = {[weak self]
                         value in
@@ -159,6 +162,8 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     let cell: ALKFriendPhotoLandscapeCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.isMyMessage = false
                     cell.configration = configuration
+                    cell.menuAction = {[weak self] action in
+                        self?.menuItemSelected(action: action, message: message) }
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
                     return cell
