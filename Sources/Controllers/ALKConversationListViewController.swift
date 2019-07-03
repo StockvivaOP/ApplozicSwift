@@ -227,10 +227,15 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
     func setUpNavigationRightButtons() {
 
-        let navigationItems =   configuration.navigationItems
+        let navigationItems =   configuration.navigationItemsForConversationList
         var rightBarButtonItems : [UIBarButtonItem] = []
 
+        if !configuration.hideStartChatButton {
+            rightBarButtonItems.append(rightBarButtonItem)
+        }
+
         var position = 0
+
         for item in navigationItems {
 
             let uiBarButtonItem =   createUIBarButton(navigationItem: item, position: position)
@@ -299,7 +304,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
     @objc func customButtonEvent(_ sender: AnyObject) {
 
-        let navigationItems = configuration.navigationItems
+        let navigationItems = configuration.navigationItemsForConversationList
 
         guard let position = sender.tag, position < navigationItems.count  else {
             return

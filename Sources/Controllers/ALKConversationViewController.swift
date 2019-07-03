@@ -343,7 +343,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
         activityIndicator.color = UIColor.lightGray
         tableView.addSubview(activityIndicator)
-        addRefreshButton()
+        setUpRightNavigationButtons()
         if let listVC = self.navigationController?.viewControllers.first as? ALKConversationListViewController, listVC.isViewLoaded, individualLaunch  {
             individualLaunch = false
         }
@@ -1526,7 +1526,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 style: UIBarButtonItem.Style.plain,
                 target: self,
                 action: notificationSelector)
-        }else {
+        } else {
             var selector = notificationSelector
             if configuration.rightNavBarSystemIconForConversationView == .refresh {
                 selector = #selector(ALKConversationViewController.refreshButtonAction(_:))
@@ -1540,8 +1540,64 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         return button
     }
 
-    func addRefreshButton() {
-        self.navigationItem.rightBarButtonItem = rightNavbarButton()
+    func setUpRightNavigationButtons()  {
+
+        let navigationItems =   configuration.navigationItemsForConversationView
+        var rightBarButtonItems : [UIBarButtonItem] = []
+
+        var position = 0
+        if configuration.isRefreshButtonEnabled, let refreshButton = rightNavbarButton() {
+            rightBarButtonItems.append(refreshButton)
+        }
+
+        for item in navigationItems {
+
+            let uiBarButtonItem =   createUIBarButton(navigationItem: item, position: position)
+
+            rightBarButtonItems.append(uiBarButtonItem)
+
+            position = position + 1
+        }
+
+        if(!rightBarButtonItems.isEmpty){
+            navigationItem.rightBarButtonItems =  rightBarButtonItems
+        }
+    }
+
+    func createUIBarButton(navigationItem: ALKNavigationItem, position: Int) -> UIBarButtonItem {
+
+        guard let image =  navigationItem.buttonImage else {
+
+            guard let text = navigationItem.buttonText  else {
+                return UIBarButtonItem()
+            }
+
+            let barButton = UIBarButtonItem(
+                title: text,
+                style: .plain,
+                target: self, action: #selector(customButtonEvent(_:)))
+            barButton.tag = position
+            return barButton
+        }
+
+        let barButton = UIBarButtonItem(
+            image: image,
+            style: .plain,
+            target: self, action: #selector(customButtonEvent(_:)))
+        barButton.tag = position
+        return barButton
+    }
+
+    @objc func customButtonEvent(_ sender: AnyObject) {
+
+        let navigationItems = configuration.navigationItemsForConversationView
+
+        guard let position = sender.tag, position < navigationItems.count  else {
+            return
+        }
+
+        let navigationItem =   navigationItems[position];
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: navigationItem.identifier), object: self)
     }
 
     @objc func refreshButtonAction(_ selector: UIBarButtonItem) {

@@ -129,10 +129,15 @@ public struct ALKConfiguration {
     /// If true, swipe action in chatcell to delete/mute conversation will be disabled.
     public var disableSwipeInChatCell: Bool = false
 
-    /// If true,custom navigation right button will show
-    public var isCutomNavButtonEnabled = false
-    /// Right  Navigation bar items in conversation list view 
-    public var navigationItems = [ALKNavigationItem]()
+    /// Right  Navigation bar items in conversation list view
+    public var navigationItemsForConversationList = [ALKNavigationItem]()
+
+    /// Right  Navigation bar items in conversation  view controller
+    public var navigationItemsForConversationView = [ALKNavigationItem]()
+
+    // If false, Then  you can disbale the deafult refresh button in chat view
+    public var isRefreshButtonEnabled : Bool = true
+
 
     public init() { }
 }
