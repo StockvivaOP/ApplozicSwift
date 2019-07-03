@@ -35,6 +35,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
                 let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.configration = configuration
+                cell.isMyMessage = true
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
@@ -70,6 +71,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
                 let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.configration = configuration
+                cell.isMyMessage = true
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
@@ -101,6 +103,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     // Set the value to nil so that previous image gets removed before reuse
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.photoView.image = nil
+                    cell.isMyMessage = true
                     cell.configration = configuration
                     cell.update(viewModel: message)
                     cell.uploadTapped = {[weak self]
@@ -138,6 +141,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     let cell: ALKFriendPhotoPortalCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
+                    cell.isMyMessage = true
                     cell.configration = configuration
                     cell.downloadTapped = {[weak self]
                         value in
@@ -167,6 +171,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
             if message.isMyMessage {
                 let cell: ALKMyVoiceCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
+                cell.isMyMessage = true
                 cell.configration = configuration
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.downloadTapped = {[weak self] value in
@@ -198,6 +203,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
         case .location:
             if message.isMyMessage {
                 let cell: ALKMyLocationCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
+                cell.isMyMessage = true
                 cell.configration = configuration
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -229,6 +235,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
         case .video:
             if message.isMyMessage {
                 let cell: ALKMyVideoCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
+                cell.isMyMessage = true
                 cell.configration = configuration
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -269,6 +276,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
         case .genericCard, .cardTemplate:
             if message.isMyMessage {
                 let cell: ALKMyGenericCardCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
+                cell.isMyMessage = true
                 cell.configration = configuration
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.register(cell: ALKGenericCardCell.self)
@@ -307,6 +315,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
         case .quickReply:
             if message.isMyMessage {
                 let cell: ALKMyQuickReplyCell  = tableView.dequeueReusableCell(forIndexPath: indexPath)
+                cell.isMyMessage = true
                 cell.configration = configuration
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
