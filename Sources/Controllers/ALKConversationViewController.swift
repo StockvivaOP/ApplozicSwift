@@ -94,6 +94,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     fileprivate enum ConstraintIdentifier {
         static let contextTitleView = "contextTitleView"
         static let replyMessageViewHeight = "replyMessageViewHeight"
+        static let discrimationViewHeight = "discrimationViewHeight"
     }
 
     fileprivate enum Padding {
@@ -108,7 +109,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     let cardTemplateMargin: CGFloat = 150
 
-      var tableView : UITableView = {
+    var tableView : UITableView = {
         let tv = UITableView(frame: .zero, style: .grouped)
         tv.separatorStyle   = .none
         tv.allowsSelection  = false
@@ -149,7 +150,18 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }()
 
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
-
+    
+    //tag: stockviva
+    private var discrimationViewHeightConstraint: NSLayoutConstraint?
+    open var discrimationView: UIButton = {
+        let view = UIButton()
+        view.backgroundColor = UIColor.SVGreyColor245()
+        view.setTitleColor(UIColor.SVGreyColor102(), for: .normal)
+        view.setFont(font: UIFont.systemFont(ofSize: 8))
+        view.titleLabel?.textAlignment = .center
+        return view
+    }()
+    
     required public init(configuration: ALKConfiguration) {
         super.init(configuration: configuration)
         self.localizedStringFileName = configuration.localizedStringFileName
@@ -387,6 +399,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     override open func viewDidLoad() {
         super.viewDidLoad()
         setupConstraints()
+        //tag: stockviva
+        self.chatBar.delegate = self
+        
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
         setRichMessageKitTheme()
@@ -449,6 +464,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         prepareTable()
         prepareMoreBar()
         prepareChatBar()
+        //tag: stockviva - set up discrimation view
+        self.prepareDiscrimationView()
         replyMessageView.closeButtonTapped = {[weak self] _ in
             self?.hideReplyMessageView()
         }
@@ -509,7 +526,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
 
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, replyMessageView]
+        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, replyMessageView, discrimationView]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -533,8 +550,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.topAnchor.constraint(equalTo: contextTitleView.bottomAnchor).isActive = true
         tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: (templateView != nil) ? templateView!.topAnchor:typingNoticeView.topAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: (templateView != nil) ? templateView!.topAnchor:discrimationView.topAnchor).isActive = true
 
+        //tag: stockviva
+        discrimationView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        discrimationView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        discrimationView.bottomAnchor.constraint(equalTo: autocompletionView.topAnchor,constant: 0).isActive = true
+        self.discrimationViewHeightConstraint = discrimationView.heightAnchor.constraintEqualToAnchor(constant: 20, identifier: ConstraintIdentifier.discrimationViewHeight)
+        self.discrimationViewHeightConstraint?.isActive = true
+        
         autocompletionView.bottomAnchor
             .constraint(equalTo: typingNoticeView.topAnchor).isActive = true
         autocompletionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
@@ -567,7 +591,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         unreadScrollButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         unreadScrollButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -10).isActive = true
-        unreadScrollButton.bottomAnchor.constraint(equalTo: replyMessageView.topAnchor, constant: -10).isActive = true
+        unreadScrollButton.bottomAnchor.constraint(equalTo: discrimationView.topAnchor, constant: -10).isActive = true
 
         leftMoreBarConstraint = moreBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 56)
         leftMoreBarConstraint?.isActive = true
@@ -655,12 +679,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     private func configureChatBar() {
-        if viewModel.isOpenGroup {
-            hideMediaOptions()
-            chatBar.hideMicButton()
-        } else {
-            if configuration.hideAllOptionsInChatBar {hideMediaOptions()} else {showMediaOptions()}
-        }
+        chatBar.updateWithConfig(isOpenGroup: viewModel.isOpenGroup, config: configuration)
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -988,6 +1007,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.scrollToBottom()
         unreadScrollButton.isHidden = true
     }
+    
+    @objc func discrimationToucUpInside(_ sender: UIButton) {
+        self.configuration.delegateConversationChatContentAction?.discrimationClicked(chatView: self)
+    }
+
 
     func attachmentViewDidTapDownload(view: UIView, indexPath: IndexPath) {
         guard let message = viewModel.messageForRow(indexPath: indexPath) else { return }
@@ -1919,4 +1943,35 @@ extension ALKConversationViewController: NavigationBarCallbacks {
         return ALContactService().loadContact(byKey: "userId", value: contactId)
     }
 
+}
+
+//MARK: - stockviva
+extension ALKConversationViewController {
+    private func prepareDiscrimationView() {
+        self.discrimationView.addTarget(self, action: #selector(discrimationToucUpInside(_:)), for: .touchUpInside)
+        if let _discInfo = self.configuration.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
+            self.discrimationView.isHidden = false
+            self.discrimationViewHeightConstraint?.constant = 20
+            self.discrimationView.setTitle("", for: .normal)
+        }else{
+            self.discrimationView.isHidden = true
+            self.discrimationViewHeightConstraint?.constant = 0
+            self.discrimationView.setTitle("", for: .normal)
+        }
+    }
+}
+
+//MARK: - stockviva (ConversationChatBarActionDelegate)
+extension ALKConversationViewController: ConversationChatBarActionDelegate{
+    public func getTextViewPashHolder(chatBar: ALKChatBar) -> String? {
+        return self.configuration.delegateConversationChatBarAction?.getTextViewPashHolder(chatBar: chatBar)
+    }
+    
+    public func processOnOffJoinGroupButton(chatBar:ALKChatBar) {
+        self.configuration.delegateConversationChatBarAction?.processOnOffJoinGroupButton(chatBar: chatBar)
+    }
+    
+    public func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
+        self.configuration.delegateConversationChatBarAction?.joinGroupButtonClicked(chatBar: chatBar, chatView:self)
+    }
 }

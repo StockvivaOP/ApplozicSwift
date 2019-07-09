@@ -24,6 +24,8 @@ public struct AutoCompleteItem {
 open class ALKChatBar: UIView, Localizable {
 
     var configuration: ALKConfiguration!
+    
+    var delegate:ConversationChatBarActionDelegate?
 
     public var isMicButtonHidden: Bool!
 
@@ -89,11 +91,17 @@ open class ALKChatBar: UIView, Localizable {
         let style = NSMutableParagraphStyle()
         style.lineSpacing = 4.0
         let tv = ALKChatBarTextView()
-        tv.setBackgroundColor(UIColor.color(.none))
+        tv.setBackgroundColor(UIColor.SVGreyColor245())
         tv.scrollsToTop = false
         tv.autocapitalizationType = .sentences
         tv.accessibilityIdentifier = "chatTextView"
         tv.typingAttributes = [NSAttributedString.Key.paragraphStyle: style, NSAttributedString.Key.font: UIFont.font(.normal(size: 16.0))]
+        tv.layer.cornerRadius = 37.0 / 2.0
+        tv.layer.borderColor = UIColor.SVGreyColor207().cgColor
+        tv.textContainerInset.top = 10.0
+        tv.textContainerInset.left = 15.0
+        tv.textContainerInset.right = 15.0
+        tv.layer.borderWidth = 1
         return tv
     }()
 
@@ -114,15 +122,15 @@ open class ALKChatBar: UIView, Localizable {
     }()
 
     lazy open var placeHolder: UITextView = {
-
         let view = UITextView()
-        view.setFont(UIFont.font(.normal(size: 14)))
-        view.setTextColor(.color(Color.Text.gray9B))
-        view.text = localizedString(forKey: "ChatHere", withDefaultValue: SystemMessage.Information.ChatHere, fileName: configuration.localizedStringFileName)
+        view.setFont(UIFont.font(.normal(size: 16)))
+        view.setTextColor(UIColor.SVGreyColor153())
+        view.text = ""
         view.isUserInteractionEnabled = false
         view.isScrollEnabled = false
         view.scrollsToTop = false
         view.setBackgroundColor(.color(.none))
+        view.contentInset = UIEdgeInsets(top: 0, left: 15.0, bottom: 0, right: 15.0)
         return view
     }()
 
@@ -202,7 +210,7 @@ open class ALKChatBar: UIView, Localizable {
 
     open var bottomGrayView: UIView = {
         let view = UIView()
-        view.setBackgroundColor(.background(.grayEF))
+        view.setBackgroundColor(UIColor.SVGreyColor245())
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -214,7 +222,25 @@ open class ALKChatBar: UIView, Localizable {
         button.setImage(image, for: .normal)
         return button
     }()
-
+    
+    open var joinGroupView: UIView = {
+        let view = UIView()
+        view.setBackgroundColor(UIColor.white)
+        view.clipsToBounds = true
+        return view
+    }()
+    
+    open var joinGroupButton: UIButton = {
+        let view = UIButton()
+        view.backgroundColor = UIColor.SVStockColorRed()
+        view.setTitleColor(UIColor.white, for: .normal)
+        view.setFont(font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.semibold))
+        view.titleLabel?.textAlignment = .center
+        view.semanticContentAttribute = .forceRightToLeft
+        view.layer.cornerRadius = 18.5
+        return view
+    }()
+    
     /// Returns true if the textView is first responder.
     open var isTextViewFirstResponder: Bool {
         return textView.isFirstResponder
@@ -251,7 +277,8 @@ open class ALKChatBar: UIView, Localizable {
             action?(.showLocation())
         case contactButton:
             action?(.shareContact())
-
+        case joinGroupButton:
+            self.delegate?.joinGroupButtonClicked(chatBar: self, chatView:nil)
         default: break
 
         }
@@ -268,6 +295,7 @@ open class ALKChatBar: UIView, Localizable {
     private weak var comingSoonDelegate: UIView?
 
     var chatIdentifier: String?
+    private var pashHolderStr = ""
 
     private func initializeView() {
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
@@ -277,7 +305,7 @@ open class ALKChatBar: UIView, Localizable {
         micButton.setAudioRecDelegate(recorderDelegate: self)
         soundRec.setAudioRecViewDelegate(recorderDelegate: self)
         textView.delegate = self
-        backgroundColor = .background(.grayEF)
+        backgroundColor = UIColor.SVGreyColor245()
         translatesAutoresizingMaskIntoConstraints = false
 
         plusButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
@@ -287,9 +315,23 @@ open class ALKChatBar: UIView, Localizable {
         galleryButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         locationButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
-
+        joinGroupButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        
+        //set PashHolder
+        if let _tempPashHolder = self.delegate?.getTextViewPashHolder(chatBar: self){
+            self.pashHolderStr = _tempPashHolder
+        }else{
+            self.pashHolderStr = ""
+        }
+        self.placeHolder.text = self.pashHolderStr
+        
         setupConstraints()
 
+        //off join button
+        self.hiddenJoinGroupButton()
+        //on, off join button
+        self.delegate?.processOnOffJoinGroupButton(chatBar: self)
+        
         if configuration.hideLineImageFromChatBar {
             lineImageView.isHidden = true
         }
@@ -336,6 +378,7 @@ open class ALKChatBar: UIView, Localizable {
         galleryButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         locationButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        joinGroupButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
     }
 
     private var isNeedInitText = true
@@ -355,7 +398,7 @@ open class ALKChatBar: UIView, Localizable {
     }
 
     fileprivate var textViewHeighConstrain: NSLayoutConstraint?
-    fileprivate let textViewHeigh: CGFloat = 40.0
+    fileprivate let textViewHeigh: CGFloat = 37.0
     fileprivate let textViewHeighMax: CGFloat = 102.2 + 8.0
 
     fileprivate var textViewTrailingWithSend: NSLayoutConstraint?
@@ -401,8 +444,9 @@ open class ALKChatBar: UIView, Localizable {
             frameView,
             placeHolder,
             soundRec,
-            poweredByMessageLabel])
-
+            poweredByMessageLabel,
+            joinGroupView])
+        
         lineView.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
         lineView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         lineView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
@@ -457,12 +501,12 @@ open class ALKChatBar: UIView, Localizable {
         lineImageView.topAnchor.constraint(equalTo: textView.topAnchor, constant: 10).isActive = true
         lineImageView.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -10).isActive = true
 
-        sendButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10).isActive = true
+        sendButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20).isActive = true
         sendButton.widthAnchor.constraint(equalToConstant: 28).isActive = true
         sendButton.heightAnchor.constraint(equalToConstant: 28).isActive = true
         sendButton.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -7).isActive = true
 
-        micButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10).isActive = true
+        micButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20).isActive = true
         micButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         micButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         micButton.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -10).isActive = true
@@ -473,9 +517,9 @@ open class ALKChatBar: UIView, Localizable {
             sendButton.isHidden = true
         }
 
-        textView.topAnchor.constraint(equalTo: poweredByMessageLabel.bottomAnchor, constant: 0).isActive = true
-        textView.bottomAnchor.constraint(equalTo: bottomGrayView.topAnchor, constant: 0).isActive = true
-        textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 3).isActive = true
+        textView.topAnchor.constraint(equalTo: poweredByMessageLabel.bottomAnchor, constant: 11).isActive = true
+        textView.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: -11).isActive = true
+        textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7).isActive = true
         poweredByMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         poweredByMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         poweredByMessageLabel.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.poweredByMessageHeight.rawValue).isActive = true
@@ -486,7 +530,7 @@ open class ALKChatBar: UIView, Localizable {
         textViewHeighConstrain = textView.heightAnchor.constraint(equalToConstant: textViewHeigh)
         textViewHeighConstrain?.isActive = true
 
-        placeHolder.heightAnchor.constraint(equalToConstant: 35).isActive = true
+        placeHolder.heightAnchor.constraint(equalToConstant: 37).isActive = true
         placeHolder.centerYAnchor.constraint(equalTo: textView.centerYAnchor, constant: 0).isActive = true
         placeHolder.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: 0).isActive = true
         placeHolder.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: 0).isActive = true
@@ -498,7 +542,7 @@ open class ALKChatBar: UIView, Localizable {
         soundRec.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: 0).isActive = true
 
         frameView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 0).isActive = true
-        frameView.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: 0).isActive = true
+        frameView.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: 11).isActive = true
         frameView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: -4).isActive = true
         frameView.rightAnchor.constraint(equalTo: rightAnchor, constant: 2).isActive = true
 
@@ -507,11 +551,24 @@ open class ALKChatBar: UIView, Localizable {
         grayView.leftAnchor.constraint(equalTo: frameView.leftAnchor, constant: 0).isActive = true
         grayView.rightAnchor.constraint(equalTo: frameView.rightAnchor, constant: 0).isActive = true
 
+        bottomGrayView.topAnchor.constraint(equalTo: grayView.bottomAnchor, constant: 0).isActive = true
         bottomGrayView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0).isActive = true
         bottomGrayView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue).isActive = true
         bottomGrayView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0).isActive = true
         bottomGrayView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0).isActive = true
 
+        joinGroupView.topAnchor.constraint(equalTo: topAnchor, constant: 0).isActive = true
+        joinGroupView.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: 0).isActive = true
+        joinGroupView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0).isActive = true
+        joinGroupView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0).isActive = true
+        
+        self.joinGroupButton.translatesAutoresizingMaskIntoConstraints = false
+        joinGroupView.addSubview(self.joinGroupButton)
+        joinGroupButton.leftAnchor.constraint(equalTo: leftAnchor, constant: 20).isActive = true
+        joinGroupButton.rightAnchor.constraint(equalTo: rightAnchor, constant: -20).isActive = true
+        joinGroupButton.centerYAnchor.constraint(equalTo: joinGroupView.centerYAnchor, constant: 0).isActive = true
+        joinGroupButton.heightAnchor.constraint(equalToConstant: 37).isActive = true
+        
         bringSubviewToFront(frameView)
     }
 
@@ -521,6 +578,7 @@ open class ALKChatBar: UIView, Localizable {
 
     public func hideMediaView() {
         bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
+        backgroundColor = UIColor.white
         galleryButton.isHidden = true
         locationButton.isHidden = true
         hideAudioOptionInChatBar()
@@ -531,6 +589,7 @@ open class ALKChatBar: UIView, Localizable {
 
     public func showMediaView() {
         bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
+        backgroundColor = UIColor.SVGreyColor245()
         galleryButton.isHidden = false
         locationButton.isHidden = false
         hideAudioOptionInChatBar()
@@ -555,7 +614,7 @@ open class ALKChatBar: UIView, Localizable {
         } else {
             micButton.isSelected = false
             soundRec.isHidden = true
-            placeHolder.text = localizedString(forKey: "ChatHere", withDefaultValue: SystemMessage.Information.ChatHere, fileName: configuration.localizedStringFileName)
+            placeHolder.text = self.pashHolderStr
         }
     }
 
@@ -563,7 +622,7 @@ open class ALKChatBar: UIView, Localizable {
         soundRec.userDidStopRecording()
         micButton.isSelected = false
         soundRec.isHidden = true
-        placeHolder.text = localizedString(forKey: "ChatHere", withDefaultValue: SystemMessage.Information.ChatHere, fileName: configuration.localizedStringFileName)
+        placeHolder.text = self.pashHolderStr
     }
 
     func hideAudioOptionInChatBar() {
@@ -609,7 +668,7 @@ open class ALKChatBar: UIView, Localizable {
     func enableChat() {
         guard soundRec.isHidden else { return }
         toggleUserInteractionForViews(enabled: true)
-        placeHolder.text = NSLocalizedString("ChatHere", value: SystemMessage.Information.ChatHere, comment: "")
+        placeHolder.text = self.pashHolderStr
     }
 
     func updateTextViewHeight(textView: UITextView, text: String) {
@@ -633,6 +692,45 @@ open class ALKChatBar: UIView, Localizable {
 
             textView.layoutIfNeeded()
         }
+    }
+    
+    func showJoinGroupButton(title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?){
+        self.joinGroupView.isHidden = false
+        self.hideMediaView()
+        self.joinGroupButton.setTitle(title ?? "", for: .normal)
+        self.joinGroupButton.backgroundColor = backgroundColor
+        self.joinGroupButton.setTextColor(color: textColor, forState: .normal)
+        if let _img = rightIcon {
+            self.joinGroupButton.setImage(_img, for: .normal)
+        }
+    }
+    
+    func hiddenJoinGroupButton(){
+        self.showMediaView()
+        self.joinGroupView.isHidden = true
+        self.joinGroupButton.setTitle("", for: .normal)
+        self.joinGroupButton.setImage(nil, for: .normal)
+    }
+    
+    func updateWithConfig(isOpenGroup:Bool, config: ALKConfiguration){
+        if isOpenGroup {
+            hideMediaView()
+            hideMicButton()
+        } else {
+            if self.joinGroupView.isHidden == false {
+                hideMediaView()
+            }else{
+                if config.hideAllOptionsInChatBar {
+                    hideMediaView()
+                } else {
+                    showMediaView()
+                }
+            }
+        }
+    }
+    
+    func isJoinGroup() -> Bool {
+        return self.joinGroupView.isHidden == false
     }
 }
 

@@ -29,19 +29,19 @@ public struct ALKConfiguration {
 
     /// Navigation bar's background color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
-    public var navigationBarBackgroundColor = UIColor.navigationOceanBlue()
+    public var navigationBarBackgroundColor = UIColor.SVMainColorPurple()
 
     /// Navigation bar's tint color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
-    public var navigationBarItemColor = UIColor.navigationTextOceanBlue()
+    public var navigationBarItemColor = UIColor.white
 
     /// Navigation bar's title color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
-    public var navigationBarTitleColor = UIColor.black
+    public var navigationBarTitleColor = UIColor.white
 
     /// ChatBar's bottom view color. This is the view which contains
     /// all the attachment and other options.
-    public var chatBarAttachmentViewBackgroundColor = UIColor.background(.grayEF)
+    public var chatBarAttachmentViewBackgroundColor = UIColor.SVGreyColor245()
 
     /// If true then all the media options in Chat bar will be hidden.
     public var hideAllOptionsInChatBar = false
@@ -81,7 +81,7 @@ public struct ALKConfiguration {
     public var nsNotificationNameForNavIconClick = "handleNavigationItemClick"
 
     /// If true then line between send button and text view will be hidden.
-    public var hideLineImageFromChatBar = false
+    public var hideLineImageFromChatBar = true
 
     /// If true then typing status will show user names.
     public var showNameWhenUserTypesInGroup = true
@@ -129,5 +129,35 @@ public struct ALKConfiguration {
     /// If true, swipe action in chatcell to delete/mute conversation will be disabled.
     public var disableSwipeInChatCell: Bool = false
 
+    //tag: stockviva - start
+    //static obj
+    public static let share = ALKConfiguration()
+    //delegate object
+    public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
+    public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
+    
+    /// Conversation View background color
+    public var conversationViewBackgroundColor = UIColor.gray
+    
+    /// chat box cell background color
+    public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
+    //tag: stockviva - end
+    
     public init() { }
+}
+
+//tag: stockviva - start
+public protocol ConversationChatContentActionDelegate: class{
+    func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
+    func discrimationClicked(chatView:ALKConversationViewController)
+}
+
+public protocol ConversationChatBarActionDelegate: class{
+    func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
+    func processOnOffJoinGroupButton(chatBar:ALKChatBar)
+    func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+}
+
+extension ALKConfiguration {
+    
 }
