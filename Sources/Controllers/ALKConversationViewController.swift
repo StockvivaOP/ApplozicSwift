@@ -116,7 +116,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tv.clipsToBounds    = true
         tv.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
         tv.accessibilityIdentifier = "InnerChatScreenTableView"
-        tv.backgroundColor = UIColor.clear
+        tv.backgroundColor = ALKConfiguration.share.conversationViewBackgroundColor
         return tv
     }()
 
@@ -1952,7 +1952,7 @@ extension ALKConversationViewController {
         if let _discInfo = self.configuration.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
             self.discrimationView.isHidden = false
             self.discrimationViewHeightConstraint?.constant = 20
-            self.discrimationView.setTitle("", for: .normal)
+            self.discrimationView.setTitle(_discInfo.title, for: .normal)
         }else{
             self.discrimationView.isHidden = true
             self.discrimationViewHeightConstraint?.constant = 0

@@ -137,7 +137,7 @@ public struct ALKConfiguration {
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     
     /// Conversation View background color
-    public var conversationViewBackgroundColor = UIColor.gray
+    public var conversationViewBackgroundColor = UIColor.SVGreyColor245()
     
     /// chat box cell background color
     public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
