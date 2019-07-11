@@ -155,11 +155,12 @@ public protocol ALKViewLifeCycleDelegate: class{
 public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
     func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
     func discrimationClicked(chatView:ALKConversationViewController)
+    func getJoinGroupButtonInfo(chatView:ALKConversationViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
     func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
-    func processOnOffJoinGroupButton(chatBar:ALKChatBar)
+    func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
     func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
 }
 

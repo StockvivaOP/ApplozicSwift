@@ -152,6 +152,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
     
     //tag: stockviva
+    var enableShowJoinGroupMode: Bool = false
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
@@ -354,7 +355,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             tableView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
-        self.edgesForExtendedLayout = []
+        //self.edgesForExtendedLayout = []
         activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
         activityIndicator.color = UIColor.lightGray
         tableView.addSubview(activityIndicator)
@@ -401,6 +402,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         setupConstraints()
         //tag: stockviva
         self.chatBar.delegate = self
+        //tag: on / off join group button
+        if self.enableShowJoinGroupMode, let _btnInfo = self.configuration.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
+            self.chatBar.showJoinGroupButton(title: _btnInfo.title, backgroundColor: _btnInfo.backgroundColor, textColor: _btnInfo.textColor, rightIcon: _btnInfo.rightIcon)
+        }else{
+            self.chatBar.hiddenJoinGroupButton()
+        }
         
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
@@ -1967,8 +1974,8 @@ extension ALKConversationViewController: ConversationChatBarActionDelegate{
         return self.configuration.delegateConversationChatBarAction?.getTextViewPashHolder(chatBar: chatBar)
     }
     
-    public func processOnOffJoinGroupButton(chatBar:ALKChatBar) {
-        self.configuration.delegateConversationChatBarAction?.processOnOffJoinGroupButton(chatBar: chatBar)
+    public func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool) {
+        self.configuration.delegateConversationChatBarAction?.isHiddenJoinGroupButton(chatBar: chatBar, isHidden:isHidden)
     }
     
     public func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {

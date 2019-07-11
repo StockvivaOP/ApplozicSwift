@@ -330,8 +330,6 @@ open class ALKChatBar: UIView, Localizable {
 
         //off join button
         self.hiddenJoinGroupButton()
-        //on, off join button
-        self.delegate?.processOnOffJoinGroupButton(chatBar: self)
         
         if configuration.hideLineImageFromChatBar {
             lineImageView.isHidden = true
@@ -702,6 +700,8 @@ open class ALKChatBar: UIView, Localizable {
         if let _img = rightIcon {
             self.joinGroupButton.setImage(_img, for: .normal)
         }
+        //on, off join button
+        self.delegate?.isHiddenJoinGroupButton(chatBar: self, isHidden:false)
     }
     
     func hiddenJoinGroupButton(){
@@ -709,6 +709,8 @@ open class ALKChatBar: UIView, Localizable {
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
+        //on, off join button
+        self.delegate?.isHiddenJoinGroupButton(chatBar: self, isHidden:true)
     }
     
     func updateWithConfig(isOpenGroup:Bool, config: ALKConfiguration){
