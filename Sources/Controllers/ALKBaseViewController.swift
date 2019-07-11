@@ -27,6 +27,8 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.configuration.delegateConversationChatContentAction?.viewWillAppear()
+        
         self.navigationController?.navigationBar.barTintColor = configuration.navigationBarBackgroundColor
         self.navigationController?.navigationBar.tintColor = configuration.navigationBarItemColor
 
@@ -40,6 +42,10 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
         }
         if configuration.hideNavigationBarBottomLine {
             navigationController?.navigationBar.hideBottomHairline()}
+    }
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.configuration.delegateConversationChatContentAction?.viewDidDisappear()
     }
 
     override open func viewDidLoad() {

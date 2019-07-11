@@ -147,7 +147,12 @@ public struct ALKConfiguration {
 }
 
 //tag: stockviva - start
-public protocol ConversationChatContentActionDelegate: class{
+public protocol ALKViewLifeCycleDelegate: class{
+    func viewWillAppear()
+    func viewDidDisappear()
+}
+
+public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
     func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
     func discrimationClicked(chatView:ALKConversationViewController)
 }
