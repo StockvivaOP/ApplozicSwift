@@ -152,7 +152,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
     
     //tag: stockviva
-    var enableShowJoinGroupMode: Bool = false
+    public var enableShowJoinGroupMode: Bool = false
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
