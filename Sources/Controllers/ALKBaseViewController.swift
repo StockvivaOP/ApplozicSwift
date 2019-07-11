@@ -27,7 +27,7 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.configuration.delegateConversationChatContentAction?.alkViewWillAppear()
+        self.configuration.delegateConversationChatContentAction?.alkViewWillAppear(self)
         
         self.navigationController?.navigationBar.barTintColor = configuration.navigationBarBackgroundColor
         self.navigationController?.navigationBar.tintColor = configuration.navigationBarItemColor
@@ -45,7 +45,7 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
     }
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.configuration.delegateConversationChatContentAction?.alkViewDidDisappear()
+        self.configuration.delegateConversationChatContentAction?.alkViewDidDisappear(self)
     }
 
     override open func viewDidLoad() {

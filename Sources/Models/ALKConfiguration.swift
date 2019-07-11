@@ -148,8 +148,8 @@ public struct ALKConfiguration {
 
 //tag: stockviva - start
 public protocol ALKViewLifeCycleDelegate: class{
-    func alkViewWillAppear()
-    func alkViewDidDisappear()
+    func alkViewWillAppear(_ viewController:UIViewController)
+    func alkViewDidDisappear(_ viewController:UIViewController)
 }
 
 public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
