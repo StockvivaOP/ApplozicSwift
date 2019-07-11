@@ -301,6 +301,7 @@ open class ALKChatBar: UIView, Localizable {
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             textView.textAlignment = .right
         }
+        backgroundColor = UIColor.SVGreyColor245()
 
         micButton.setAudioRecDelegate(recorderDelegate: self)
         soundRec.setAudioRecViewDelegate(recorderDelegate: self)
@@ -578,7 +579,6 @@ open class ALKChatBar: UIView, Localizable {
 
     public func hideMediaView() {
         bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
-        backgroundColor = UIColor.white
         galleryButton.isHidden = true
         locationButton.isHidden = true
         hideAudioOptionInChatBar()
@@ -589,7 +589,6 @@ open class ALKChatBar: UIView, Localizable {
 
     public func showMediaView() {
         bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
-        backgroundColor = UIColor.SVGreyColor245()
         galleryButton.isHidden = false
         locationButton.isHidden = false
         hideAudioOptionInChatBar()
@@ -713,10 +712,10 @@ open class ALKChatBar: UIView, Localizable {
     }
     
     func updateWithConfig(isOpenGroup:Bool, config: ALKConfiguration){
-        if isOpenGroup {
-            hideMediaView()
-            hideMicButton()
-        } else {
+//        if isOpenGroup {
+//            hideMediaView()
+//            hideMicButton()
+//        } else {
             if self.joinGroupView.isHidden == false {
                 hideMediaView()
             }else{
@@ -726,7 +725,7 @@ open class ALKChatBar: UIView, Localizable {
                     showMediaView()
                 }
             }
-        }
+//        }
     }
     
     func isJoinGroup() -> Bool {
