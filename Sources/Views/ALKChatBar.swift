@@ -302,7 +302,6 @@ open class ALKChatBar: UIView, Localizable {
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             textView.textAlignment = .right
         }
-        backgroundColor = UIColor.SVGreyColor245()
 
         micButton.setAudioRecDelegate(recorderDelegate: self)
         soundRec.setAudioRecViewDelegate(recorderDelegate: self)
@@ -695,6 +694,7 @@ open class ALKChatBar: UIView, Localizable {
     public func showJoinGroupButton(title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?){
         self.joinGroupView.isHidden = false
         self.hideMediaView()
+        backgroundColor = UIColor.white
         self.joinGroupButton.setTitle(title ?? "", for: .normal)
         self.joinGroupButton.backgroundColor = backgroundColor
         self.joinGroupButton.setTextColor(color: textColor, forState: .normal)
@@ -707,6 +707,7 @@ open class ALKChatBar: UIView, Localizable {
     
     public func hiddenJoinGroupButton(){
         self.showMediaView()
+        backgroundColor = UIColor.SVGreyColor245()
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
