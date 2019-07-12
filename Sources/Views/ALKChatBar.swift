@@ -694,7 +694,7 @@ open class ALKChatBar: UIView, Localizable {
     public func showJoinGroupButton(title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?){
         self.joinGroupView.isHidden = false
         self.hideMediaView()
-        backgroundColor = UIColor.white
+        bottomGrayView.backgroundColor = UIColor.white
         self.joinGroupButton.setTitle(title ?? "", for: .normal)
         self.joinGroupButton.backgroundColor = backgroundColor
         self.joinGroupButton.setTextColor(color: textColor, forState: .normal)
@@ -707,7 +707,7 @@ open class ALKChatBar: UIView, Localizable {
     
     public func hiddenJoinGroupButton(){
         self.showMediaView()
-        backgroundColor = UIColor.SVGreyColor245()
+        bottomGrayView.backgroundColor = UIColor.SVGreyColor245()
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
