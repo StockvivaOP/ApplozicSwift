@@ -284,13 +284,12 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
     fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
         let messageService = ALMessageDBService()
         let alHandler = ALDBHandler.sharedInstance()
-        if let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as? DB_Message {
-            dbMessage.filePath = filePath
-            do {
-                try alHandler?.managedObjectContext.save()
-            } catch {
-                NSLog("Not saved due to error")
-            }
+        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
+        dbMessage.filePath = filePath
+        do {
+            try alHandler?.managedObjectContext.save()
+        } catch {
+            NSLog("Not saved due to error")
         }
     }
 
