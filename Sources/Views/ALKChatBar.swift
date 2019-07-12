@@ -238,7 +238,7 @@ open class ALKChatBar: UIView, Localizable {
         view.titleLabel?.textAlignment = .center
         view.semanticContentAttribute = .forceRightToLeft
         view.layer.cornerRadius = 18.5
-        view.imageEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 0)
+        view.imageEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
         return view
     }()
     
@@ -694,7 +694,7 @@ open class ALKChatBar: UIView, Localizable {
     public func showJoinGroupButton(title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?){
         self.joinGroupView.isHidden = false
         self.hideMediaView()
-        bottomGrayView.backgroundColor = UIColor.white
+        self.backgroundColor = UIColor.white
         self.joinGroupButton.setTitle(title ?? "", for: .normal)
         self.joinGroupButton.backgroundColor = backgroundColor
         self.joinGroupButton.setTextColor(color: textColor, forState: .normal)
@@ -707,7 +707,7 @@ open class ALKChatBar: UIView, Localizable {
     
     public func hiddenJoinGroupButton(){
         self.showMediaView()
-        bottomGrayView.backgroundColor = UIColor.SVGreyColor245()
+        self.backgroundColor = UIColor.SVGreyColor245()
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
