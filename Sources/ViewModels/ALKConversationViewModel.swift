@@ -29,6 +29,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     // MARK: - Inputs
     open var contactId: String?
     open var channelKey: NSNumber?
+    open var channelInfo: ALChannel?
 
     // For topic based chat
     open var conversationProxy: ALConversationProxy?
@@ -95,11 +96,13 @@ open class ALKConversationViewModel: NSObject, Localizable {
         contactId: String?,
         channelKey: NSNumber?,
         conversationProxy: ALConversationProxy? = nil,
-        localizedStringFileName: String!) {
+        localizedStringFileName: String!,
+        channelInfo: ALChannel? = nil) {
         self.contactId = contactId
         self.channelKey = channelKey
         self.conversationProxy = conversationProxy
         self.localizedStringFileName = localizedStringFileName
+        self.channelInfo = channelInfo
     }
 
     // MARK: - Public methods
