@@ -351,7 +351,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        self.navigationController?.navigationBar.isTranslucent = false
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             tableView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
