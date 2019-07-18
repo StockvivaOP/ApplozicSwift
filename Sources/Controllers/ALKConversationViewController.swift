@@ -151,8 +151,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
     
-    //tag: stockviva
+    //tag: stockviva start
     public var enableShowJoinGroupMode: Bool = false
+    public var groupRuleURL: String?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
@@ -162,6 +163,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.titleLabel?.textAlignment = .center
         return view
     }()
+    //tag: stockviva end
     
     required public init(configuration: ALKConfiguration) {
         super.init(configuration: configuration)
