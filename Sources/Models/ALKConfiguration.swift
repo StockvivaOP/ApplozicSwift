@@ -156,6 +156,11 @@ public protocol ALKViewLifeCycleDelegate: class{
     func alkViewDidDisappear(_ viewController:UIViewController)
 }
 
+extension ALKViewLifeCycleDelegate {
+    func alkViewWillAppear(_ viewController:UIViewController){/*none*/}
+    func alkViewDidDisappear(_ viewController:UIViewController){/*none*/}
+}
+
 public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
     func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
     func discrimationClicked(chatView:ALKConversationViewController)
