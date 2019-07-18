@@ -404,6 +404,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         setupConstraints()
         //tag: stockviva
         self.chatBar.delegate = self
+        self.chatBar.setUpViewConfig()
         //tag: on / off join group button
         self.enableJoinGroupButton(self.enableShowJoinGroupMode)
         

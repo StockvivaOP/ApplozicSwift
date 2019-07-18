@@ -318,12 +318,6 @@ open class ALKChatBar: UIView, Localizable {
         contactButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         joinGroupButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         
-        //set PashHolder
-        if let _tempPashHolder = self.delegate?.getTextViewPashHolder(chatBar: self){
-            self.pashHolderStr = _tempPashHolder
-        }else{
-            self.pashHolderStr = ""
-        }
         self.placeHolder.text = self.pashHolderStr
         
         setupConstraints()
@@ -725,7 +719,18 @@ open class ALKChatBar: UIView, Localizable {
         self.delegate?.isHiddenJoinGroupButton(chatBar: self, isHidden:true)
     }
     
+    func setUpViewConfig(){
+        //set PashHolder
+        if let _tempPashHolder = self.delegate?.getTextViewPashHolder(chatBar: self){
+            self.pashHolderStr = _tempPashHolder
+        }else{
+            self.pashHolderStr = ""
+        }
+        self.placeHolder.text = self.pashHolderStr
+    }
+    
     func updateWithConfig(isOpenGroup:Bool, config: ALKConfiguration){
+        
         if isOpenGroup {
             hideMediaView()
             hideMicButton()
