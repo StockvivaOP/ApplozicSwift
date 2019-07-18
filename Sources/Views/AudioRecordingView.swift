@@ -29,15 +29,17 @@ open class ALKAudioRecorderView: UIView, Localizable {
 
     lazy var slideToCancel: UILabel = {
         let label = self.commonLabel()
-        label.font = UIFont(name: "HelveticaNeue", size: 15)
-        label.textColor = UIColor(red: 140, green: 137, blue: 137)
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor.ALKSVGreyColor153()
         return label
     }()
 
     let leftArrow: UIImageView = {
         let image = UIImage(named: "leftArrow", in: Bundle.applozic, compatibleWith: nil)
         let imageView = UIImageView(image: image)
-        imageView.heightAnchor.constraint(equalToConstant: 11).isActive = true
+        imageView.contentMode = .scaleAspectFit
+        imageView.widthAnchor.constraint(equalToConstant: 4).isActive = true
+        imageView.heightAnchor.constraint(equalToConstant: 7).isActive = true
         return imageView
     }()
 
@@ -46,32 +48,35 @@ open class ALKAudioRecorderView: UIView, Localizable {
         stackView.alignment = .fill
         stackView.axis = .horizontal
         stackView.distribution = .fill
-        stackView.spacing = 10.0
+        stackView.spacing = 7.0
+        stackView.heightAnchor.constraint(equalToConstant: 20).isActive = true
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
 
-    let redDot: UIView = {
-        let view = UIView()
-        view.layer.cornerRadius = 4
-        view.clipsToBounds = true
-        view.backgroundColor = UIColor(red: 255, green: 14, blue: 0)
+    let redDot: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(named: "icon_mic_active", in: Bundle.applozic, compatibleWith: nil)
+        view.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        view.widthAnchor.constraint(equalToConstant: 30).isActive = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
     lazy var recordingLabel: UILabel = {
         let label = self.commonLabel()
-        label.font = UIFont(name: "HelveticaNeue", size: 13)
+        label.font = UIFont.systemFont(ofSize: 13)
         label.textColor = UIColor(red: 255, green: 14, blue: 0)
+        label.isHidden = true
         return label
     }()
 
     lazy var recordingValue: UILabel = {
         let label = self.commonLabel()
-        label.font = UIFont(name: "HelveticaNeue-Thin", size: 13)
-        label.textColor = UIColor(red: 0, green: 0, blue: 0)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = UIColor.ALKSVGreyColor102()
         label.text = "00:00"
+        label.heightAnchor.constraint(equalToConstant: 20).isActive = true
         return label
     }()
 
@@ -90,7 +95,7 @@ open class ALKAudioRecorderView: UIView, Localizable {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.backgroundColor = UIColor.clear
         label.alpha = 0.0
-        label.textAlignment = .center
+        label.textAlignment = .left
         label.textColor = UIColor.black
         return label
     }
@@ -115,7 +120,7 @@ open class ALKAudioRecorderView: UIView, Localizable {
         self.configuration = configuration
         self.translatesAutoresizingMaskIntoConstraints = false
         setupUI()
-        layer.cornerRadius = 12
+        layer.cornerRadius = 0
         animateView()
     }
 
@@ -127,13 +132,11 @@ open class ALKAudioRecorderView: UIView, Localizable {
         addSubview(redDot)
         addSubview(slideView)
         addSubview(recordingView)
-
-        redDot.widthAnchor.constraint(equalToConstant: 8).isActive = true
-        redDot.heightAnchor.constraint(equalToConstant: 8).isActive = true
+        
         redDot.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
-        redDot.bottomAnchor.constraint(equalTo: self.centerYAnchor, constant: -5).isActive = true
+        redDot.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
 
-        recordingView.leadingAnchor.constraint(equalTo: redDot.leadingAnchor, constant: 20).isActive = true
+        recordingView.leadingAnchor.constraint(equalTo: redDot.trailingAnchor, constant: 13).isActive = true
         recordingView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
 
         slideView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
@@ -151,7 +154,7 @@ open class ALKAudioRecorderView: UIView, Localizable {
         self.backgroundColor = UIColor.color(.none)
         slideToCancel.text = localizedString(forKey: "SlideToCancelMessage", withDefaultValue: SystemMessage.Microphone.SlideToCancel, fileName: configuration.localizedStringFileName)
         recordingLabel.text = localizedString(forKey: "RecordingMessage", withDefaultValue: SystemMessage.Microphone.Recording, fileName: configuration.localizedStringFileName)
-        redDot.backgroundColor = UIColor(red: 255, green: 14, blue: 0)
+        redDot.backgroundColor = UIColor.clear
         recordingValue.text = "00:00"
         previousGestureLocation = 0.0
 

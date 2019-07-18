@@ -158,8 +158,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
-        view.backgroundColor = UIColor.SVGreyColor245()
-        view.setTitleColor(UIColor.SVGreyColor102(), for: .normal)
+        view.backgroundColor = UIColor.ALKSVGreyColor245()
+        view.setTitleColor(UIColor.ALKSVGreyColor102(), for: .normal)
         view.setFont(font: UIFont.systemFont(ofSize: 8))
         view.titleLabel?.textAlignment = .center
         return view
@@ -1554,7 +1554,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
         let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
 
-        if let imageCustom = configuration.conversationViewChatBoxCustomRightNavBarView {
+        if let imageCustom = configuration.conversationViewCustomRightNavBarView {
             button = UIBarButtonItem(
                 image: imageCustom,
                 style: UIBarButtonItem.Style.plain,

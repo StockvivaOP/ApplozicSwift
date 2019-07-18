@@ -91,13 +91,13 @@ open class ALKChatBar: UIView, Localizable {
         let style = NSMutableParagraphStyle()
         style.lineSpacing = 4.0
         let tv = ALKChatBarTextView()
-        tv.setBackgroundColor(UIColor.SVGreyColor245())
+        tv.setBackgroundColor(UIColor.ALKSVGreyColor245())
         tv.scrollsToTop = false
         tv.autocapitalizationType = .sentences
         tv.accessibilityIdentifier = "chatTextView"
         tv.typingAttributes = [NSAttributedString.Key.paragraphStyle: style, NSAttributedString.Key.font: UIFont.font(.normal(size: 16.0))]
         tv.layer.cornerRadius = 37.0 / 2.0
-        tv.layer.borderColor = UIColor.SVGreyColor207().cgColor
+        tv.layer.borderColor = UIColor.ALKSVGreyColor207().cgColor
         tv.textContainerInset.top = 10.0
         tv.textContainerInset.left = 15.0
         tv.textContainerInset.right = 15.0
@@ -124,7 +124,7 @@ open class ALKChatBar: UIView, Localizable {
     lazy open var placeHolder: UITextView = {
         let view = UITextView()
         view.setFont(UIFont.font(.normal(size: 16)))
-        view.setTextColor(UIColor.SVGreyColor153())
+        view.setTextColor(UIColor.ALKSVGreyColor153())
         view.text = ""
         view.isUserInteractionEnabled = false
         view.isScrollEnabled = false
@@ -210,7 +210,7 @@ open class ALKChatBar: UIView, Localizable {
 
     open var bottomGrayView: UIView = {
         let view = UIView()
-        view.setBackgroundColor(UIColor.SVGreyColor245())
+        view.setBackgroundColor(UIColor.ALKSVGreyColor245())
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -232,7 +232,7 @@ open class ALKChatBar: UIView, Localizable {
     
     open var joinGroupButton: UIButton = {
         let view = UIButton()
-        view.backgroundColor = UIColor.SVStockColorRed()
+        view.backgroundColor = UIColor.ALKSVStockColorRed()
         view.setTitleColor(UIColor.white, for: .normal)
         view.setFont(font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.semibold))
         view.titleLabel?.textAlignment = .center
@@ -306,7 +306,7 @@ open class ALKChatBar: UIView, Localizable {
         micButton.setAudioRecDelegate(recorderDelegate: self)
         soundRec.setAudioRecViewDelegate(recorderDelegate: self)
         textView.delegate = self
-        backgroundColor = UIColor.SVGreyColor245()
+        backgroundColor = UIColor.ALKSVGreyColor245()
         translatesAutoresizingMaskIntoConstraints = false
 
         plusButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
@@ -463,52 +463,59 @@ open class ALKChatBar: UIView, Localizable {
             contactButton.isHidden = true
             photoLeadingSpace = 0
         } else {
-            contactButton.widthAnchor.constraint(equalToConstant: 25).isActive = true
+            contactButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
             contactButton.isHidden = false
             photoLeadingSpace = buttonSpacing
         }
-        contactButton.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        contactButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         contactButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
 
         photoButton.leadingAnchor.constraint(equalTo: contactButton.trailingAnchor, constant: photoLeadingSpace).isActive = true
         photoButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        photoButton.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        photoButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         photoButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
 
         plusButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0).isActive = true
-        plusButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        plusButton.widthAnchor.constraint(equalToConstant: 38).isActive = true
+        plusButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        plusButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         plusButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0).isActive = true
 
         videoButton.leadingAnchor.constraint(equalTo: galleryButton.trailingAnchor, constant: buttonSpacing).isActive = true
-        videoButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        videoButton.widthAnchor.constraint(equalToConstant: 34).isActive = true
+        videoButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        videoButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         videoButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
 
         galleryButton.leadingAnchor.constraint(equalTo: photoButton.trailingAnchor, constant: buttonSpacing).isActive = true
-        galleryButton.heightAnchor.constraint(equalToConstant: 25).isActive = true
-        galleryButton.widthAnchor.constraint(equalToConstant: 25).isActive = true
+        galleryButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        galleryButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         galleryButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
 
-        locationButton.leadingAnchor.constraint(equalTo: videoButton.trailingAnchor, constant: buttonSpacing).isActive = true
-        locationButton.widthAnchor.constraint(equalToConstant: 25).isActive = true
-        locationButton.heightAnchor.constraint(equalToConstant: 25).isActive = true
+        locationButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
         locationButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
-
+        if configuration.hideLocalInChatBar {
+            locationButton.widthAnchor.constraint(equalToConstant: 0).isActive = true
+            locationButton.leadingAnchor.constraint(equalTo: videoButton.trailingAnchor, constant: 0).isActive = true
+        }else{
+            locationButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
+            locationButton.leadingAnchor.constraint(equalTo: videoButton.trailingAnchor, constant: buttonSpacing).isActive = true
+        }
+        
         lineImageView.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -15).isActive = true
         lineImageView.widthAnchor.constraint(equalToConstant: 2).isActive = true
         lineImageView.topAnchor.constraint(equalTo: textView.topAnchor, constant: 10).isActive = true
         lineImageView.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -10).isActive = true
 
         sendButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 28).isActive = true
-        sendButton.heightAnchor.constraint(equalToConstant: 28).isActive = true
-        sendButton.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -7).isActive = true
+        sendButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        sendButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        sendButton.centerYAnchor.constraint(equalTo:textView.centerYAnchor).isActive = true
+        //sendButton.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -7).isActive = true
 
         micButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20).isActive = true
         micButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        micButton.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        micButton.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -10).isActive = true
+        micButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        micButton.centerYAnchor.constraint(equalTo:textView.centerYAnchor).isActive = true
+        //micButton.bottomAnchor.constraint(equalTo: textView.bottomAnchor, constant: -10).isActive = true
 
         if isMicButtonHidden {
             micButton.isHidden = true
@@ -601,6 +608,7 @@ open class ALKChatBar: UIView, Localizable {
 
     private func changeButton() {
         if soundRec.isHidden {
+            textView.isHidden = true
             soundRec.isHidden = false
             placeHolder.text = nil
             if placeHolder.isFirstResponder {
@@ -610,6 +618,7 @@ open class ALKChatBar: UIView, Localizable {
             }
         } else {
             micButton.isSelected = false
+            textView.isHidden = false
             soundRec.isHidden = true
             placeHolder.text = self.pashHolderStr
         }
@@ -618,6 +627,7 @@ open class ALKChatBar: UIView, Localizable {
     func stopRecording() {
         soundRec.userDidStopRecording()
         micButton.isSelected = false
+        textView.isHidden = false
         soundRec.isHidden = true
         placeHolder.text = self.pashHolderStr
     }
@@ -707,7 +717,7 @@ open class ALKChatBar: UIView, Localizable {
     
     public func hiddenJoinGroupButton(){
         self.showMediaView()
-        self.backgroundColor = UIColor.SVGreyColor245()
+        self.backgroundColor = UIColor.ALKSVGreyColor245()
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)

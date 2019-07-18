@@ -29,7 +29,7 @@ public struct ALKConfiguration {
 
     /// Navigation bar's background color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
-    public var navigationBarBackgroundColor = UIColor.SVMainColorPurple()
+    public var navigationBarBackgroundColor = UIColor.ALKSVMainColorPurple()
 
     /// Navigation bar's tint color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
@@ -41,7 +41,7 @@ public struct ALKConfiguration {
 
     /// ChatBar's bottom view color. This is the view which contains
     /// all the attachment and other options.
-    public var chatBarAttachmentViewBackgroundColor = UIColor.SVGreyColor245()
+    public var chatBarAttachmentViewBackgroundColor = UIColor.ALKSVGreyColor245()
 
     /// If true then all the media options in Chat bar will be hidden.
     public var hideAllOptionsInChatBar = false
@@ -136,14 +136,17 @@ public struct ALKConfiguration {
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     
+    /// If true, contact share option in chatbar will be hidden.
+    public var hideLocalInChatBar: Bool = false
+    
     /// Conversation View background color
-    public var conversationViewBackgroundColor = UIColor.SVGreyColor245()
+    public var conversationViewBackgroundColor = UIColor.ALKSVGreyColor245()
+    
+    /// chat view Right Nav Bar Button
+    public var conversationViewCustomRightNavBarView:UIImage?
     
     /// chat box cell background color
     public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
-    
-    /// chat box Right Nav Bar Button
-    public var conversationViewChatBoxCustomRightNavBarView:UIImage?
     
     //tag: stockviva - end
     

@@ -80,27 +80,27 @@ public extension UIColor {
     }
     
     //tag: stockviva
-    static func SVMainColorPurple()-> UIColor {
+    static func ALKSVMainColorPurple()-> UIColor {
         return UIColor.makeColotRGBA(red:118, green: 85, blue: 255)
     }
     
-    static func SVStockColorRed()-> UIColor {
+    static func ALKSVStockColorRed()-> UIColor {
         return UIColor.makeColotRGBA(red:248, green: 70, blue: 92)
     }
     
-    static func SVGreyColor102()-> UIColor {
+    static func ALKSVGreyColor102()-> UIColor {
         return UIColor.makeColotRGBA(red:102, green: 102, blue: 102)
     }
     
-    static func SVGreyColor245()-> UIColor {
+    static func ALKSVGreyColor245()-> UIColor {
         return UIColor.makeColotRGBA(red:245, green: 245, blue: 245)
     }
     
-    static func SVGreyColor207()-> UIColor {
+    static func ALKSVGreyColor207()-> UIColor {
         return UIColor.makeColotRGBA(red:207, green: 207, blue: 207)
     }
     
-    static func SVGreyColor153()-> UIColor {
+    static func ALKSVGreyColor153()-> UIColor {
         return UIColor.makeColotRGBA(red:153, green: 153, blue: 153)
     }
 }
