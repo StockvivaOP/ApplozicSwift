@@ -351,7 +351,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.isTranslucent = false
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             tableView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
@@ -1554,8 +1553,15 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         var button: UIBarButtonItem
 
         let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
+        let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
 
-        if let image = configuration.rightNavBarImageForConversationView {
+        if let imageCustom = configuration.conversationViewChatBoxCustomRightNavBarView {
+            button = UIBarButtonItem(
+                image: imageCustom,
+                style: UIBarButtonItem.Style.plain,
+                target: self,
+                action: notificationCustomSelector)
+        }else if let image = configuration.rightNavBarImageForConversationView {
             button = UIBarButtonItem(
                 image: image,
                 style: UIBarButtonItem.Style.plain,
@@ -1954,6 +1960,17 @@ extension ALKConversationViewController: NavigationBarCallbacks {
 
 //MARK: - stockviva
 extension ALKConversationViewController {
+    
+    //menu button clicked
+    @objc func sendRightNavBarButtonCustomSelectionNotification(_ selector: UIBarButtonItem) {
+        self.configuration.delegateConversationChatContentAction?.rightMenuClicked(chatView: self)
+    }
+    
+    //navigationBar control
+    public func hiddenGroupMuteButton(_ hidden:Bool){
+        self.navigationBar.groupMuteImage.isHidden = hidden
+    }
+    
     private func prepareDiscrimationView() {
         self.discrimationView.addTarget(self, action: #selector(discrimationToucUpInside(_:)), for: .touchUpInside)
         if let _discInfo = self.configuration.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {

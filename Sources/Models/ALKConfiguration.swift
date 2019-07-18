@@ -141,6 +141,10 @@ public struct ALKConfiguration {
     
     /// chat box cell background color
     public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
+    
+    /// chat box Right Nav Bar Button
+    public var conversationViewChatBoxCustomRightNavBarView:UIImage?
+    
     //tag: stockviva - end
     
     public init() { }
@@ -156,6 +160,7 @@ public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
     func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
     func discrimationClicked(chatView:ALKConversationViewController)
     func getJoinGroupButtonInfo(chatView:ALKConversationViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
+    func rightMenuClicked(chatView:ALKConversationViewController)
 }
 
 public protocol ConversationChatBarActionDelegate: class{

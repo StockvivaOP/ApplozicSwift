@@ -75,6 +75,6 @@ public enum ALKMessageStyle {
         }
     }
 
-    public static var sentBubble = Bubble(color: UIColor(netHex: 0xF1F0F0), style: .edge)
-    public static var receivedBubble = Bubble(color: UIColor(netHex: 0xF1F0F0), style: .edge)
+    public static var sentBubble = Bubble(color: UIColor(netHex: 0xFFFFFF), style: .edge)//0xF1F0F0
+    public static var receivedBubble = Bubble(color: UIColor(netHex: 0xFFFFFF), style: .edge)
 }
