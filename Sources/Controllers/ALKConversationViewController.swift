@@ -405,11 +405,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         //tag: stockviva
         self.chatBar.delegate = self
         //tag: on / off join group button
-        if self.enableShowJoinGroupMode, let _btnInfo = self.configuration.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
-            self.chatBar.showJoinGroupButton(title: _btnInfo.title, backgroundColor: _btnInfo.backgroundColor, textColor: _btnInfo.textColor, rightIcon: _btnInfo.rightIcon)
-        }else{
-            self.chatBar.hiddenJoinGroupButton()
-        }
+        self.enableJoinGroupButton(self.enableShowJoinGroupMode)
         
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
@@ -1972,6 +1968,17 @@ extension ALKConversationViewController {
     //navigationBar control
     public func hiddenGroupMuteButton(_ hidden:Bool){
         self.navigationBar.groupMuteImage.isHidden = hidden
+    }
+    
+    public func enableJoinGroupButton(_ isEnable:Bool){
+        //tag: on / off join group button
+        if isEnable, let _btnInfo = self.configuration.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
+            self.enableShowJoinGroupMode = true
+            self.chatBar.showJoinGroupButton(title: _btnInfo.title, backgroundColor: _btnInfo.backgroundColor, textColor: _btnInfo.textColor, rightIcon: _btnInfo.rightIcon)
+        }else{
+            self.enableShowJoinGroupMode = false
+            self.chatBar.hiddenJoinGroupButton()
+        }
     }
     
     private func prepareDiscrimationView() {
