@@ -155,6 +155,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public var enableShowJoinGroupMode: Bool = false
     public var groupRuleURL: String? = nil
     public var groupURL: String? = nil
+    public var groupMetaDataURL: [String:Any]?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
@@ -1934,7 +1935,7 @@ extension ALKConversationViewController: NavigationBarCallbacks {
 
     func titleTapped() {
         //for custom show detail view
-        if let channelKey = viewModel.channelKey, let channel = ALChannelService().getChannelByKey(channelKey), channel.type == 1 {
+        if self.configuration.enableCustomeGroupDetail {
             guard isGroupDetailActionEnabled else { return }
             self.configuration.delegateConversationChatContentAction?.groupTitleViewClicked(chatView: self)
             return

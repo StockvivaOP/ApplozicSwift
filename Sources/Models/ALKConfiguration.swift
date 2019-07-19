@@ -137,6 +137,9 @@ public struct ALKConfiguration {
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     
     /// If true, contact share option in chatbar will be hidden.
+    public var enableCustomeGroupDetail: Bool = false
+    
+    /// If true, contact share option in chatbar will be hidden.
     public var hideLocalInChatBar: Bool = false
     
     /// Conversation View background color
@@ -147,6 +150,12 @@ public struct ALKConfiguration {
     
     /// chat box cell background color
     public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
+    /// chat box cell user name color
+    public var conversationViewChatBoxDefaultAdminNameColor = UIColor.ALKSVGreyColor207()
+    /// chat box cell member user name color
+    public var conversationViewChatBoxDefaultMemberNameColor = UIColor.ALKSVGreyColor207()
+    /// chat box cell user name color mapping
+    public var chatBoxCustomCellUserNameColorMapping:[String:UIColor] = [:]
     
     //tag: stockviva - end
     

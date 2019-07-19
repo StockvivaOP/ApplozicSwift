@@ -185,6 +185,7 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
 
         actionButton.setImage(UIImage(named: "icon_play", in: Bundle.applozic, compatibleWith: nil), for: .normal)
         actionButton.setImage(UIImage(named: "icon_pause", in: Bundle.applozic, compatibleWith: nil), for: .selected)
+        actionButton.tintColor = UIColor.ALKSVMainColorPurple()
 
         frameView.addGestureRecognizer(longPressGesture)
         actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)

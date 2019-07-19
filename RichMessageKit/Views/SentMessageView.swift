@@ -114,7 +114,7 @@ public class SentMessageView: UIView {
             case .pending:
                 statusImage.pending = statusImage.pending?.withRenderingMode(.alwaysTemplate)
                 stateView.image = statusImage.pending
-                stateView.tintColor = UIColor.red
+                stateView.tintColor = UIColor.ALKSVMainColorPurple()
             case .sent:
                 stateView.image = statusImage.sent
             case .delivered:

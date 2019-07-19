@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
-    <customFonts key="customFonts">
-        <array key="HelveticaNeue.ttc">
-            <string>HelveticaNeue</string>
-        </array>
-    </customFonts>
     <scenes>
         <!--Camera-->
         <scene sceneID="2DX-2n-Pdk">
@@ -38,6 +31,7 @@
                                     <constraint firstAttribute="height" constant="33" id="RZc-GB-dhr"/>
                                     <constraint firstAttribute="width" constant="33" id="YqP-lO-07q"/>
                                 </constraints>
+                                <color key="tintColor" red="0.46274509803921571" green="0.33333333333333331" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" image="icon_switch_camera"/>
                                 <connections>
                                     <action selector="switchCamPress:" destination="Wqs-0E-ffm" eventType="touchUpInside" id="Q5r-7w-hQW"/>
@@ -88,11 +82,12 @@
                                         </connections>
                                     </collectionView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jId-WF-wsf">
-                                        <rect key="frame" x="148.5" y="103" width="79" height="79"/>
+                                        <rect key="frame" x="148" y="103" width="79" height="79"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="79" id="3dM-vc-Mik"/>
                                             <constraint firstAttribute="width" secondItem="jId-WF-wsf" secondAttribute="height" multiplier="1:1" id="cvu-Pd-rzB"/>
                                         </constraints>
+                                        <color key="tintColor" red="0.46274509803921571" green="0.33333333333333331" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <state key="normal" image="button_capture">
                                             <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
@@ -194,7 +189,7 @@
                                             </button>
                                         </subviews>
                                     </stackView>
-                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7qw-wr-Qzj">
+                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7qw-wr-Qzj">
                                         <rect key="frame" x="22" y="56" width="331" height="331"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="7qw-wr-Qzj" secondAttribute="height" multiplier="1:1" id="GsP-UK-mgG"/>

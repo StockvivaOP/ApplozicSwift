@@ -233,7 +233,7 @@ open class ALKMyMessageCell: ALKMessageCell {
             stateView.tintColor = nil
         } else {
             stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = UIColor.red
+            stateView.tintColor = UIColor.ALKSVMainColorPurple()
         }
     }
 
