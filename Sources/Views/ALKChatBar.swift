@@ -204,7 +204,14 @@ open class ALKChatBar: UIView, Localizable {
     open var lineView: UIView = {
         let view = UIView()
         let layer = view.layer
-        view.backgroundColor = UIColor(red: 217.0/255.0, green: 217.0/255.0, blue: 217.0/255.0, alpha: 1.0)
+        view.backgroundColor = UIColor.ALKSVGreyColor207()
+        return view
+    }()
+    
+    open var lineBottomView: UIView = {
+        let view = UIView()
+        let layer = view.layer
+        view.backgroundColor = UIColor.ALKSVGreyColor207()
         return view
     }()
 
@@ -434,6 +441,7 @@ open class ALKChatBar: UIView, Localizable {
             locationButton,
             contactButton,
             lineView,
+            lineBottomView,
             frameView,
             placeHolder,
             soundRec,
@@ -444,7 +452,12 @@ open class ALKChatBar: UIView, Localizable {
         lineView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         lineView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         lineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-
+        
+        lineBottomView.topAnchor.constraint(equalTo: grayView.bottomAnchor).isActive = true
+        lineBottomView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        lineBottomView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        lineBottomView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        
         headerView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         headerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         headerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true

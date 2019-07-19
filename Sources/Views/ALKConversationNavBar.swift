@@ -48,7 +48,7 @@ class ALKConversationNavBar: UIView, Localizable {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 19, weight: .medium) //UIFont(name: "HelveticaNeue", size: 16) ?? UIFont.systemFont(ofSize: 16)
         label.textColor = UIColor.white //UIColor(96, green: 94, blue: 94)
-        label.textAlignment = .center
+        label.textAlignment = .left
         return label
     }()
     

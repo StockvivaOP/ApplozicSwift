@@ -168,6 +168,7 @@ public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
     func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
     func discrimationClicked(chatView:ALKConversationViewController)
     func getJoinGroupButtonInfo(chatView:ALKConversationViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
+    func groupTitleViewClicked(chatView:ALKConversationViewController)
     func rightMenuClicked(chatView:ALKConversationViewController)
 }
 
