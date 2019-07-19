@@ -65,12 +65,14 @@ public enum ALKMessageStyle {
 
         /// Width padding which will be used for message view's
         /// right and left padding.
+        public let leftPadding: CGFloat
         public let widthPadding: CGFloat
 
         public init(color: UIColor, style: BubbleStyle) {
             self.color = color
             self.style = style
-            self.widthPadding = 10.0
+            self.widthPadding = 7.0
+            self.leftPadding = 7.0
             self.cornerRadius = 12
         }
     }
