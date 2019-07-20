@@ -30,11 +30,15 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     var timeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
     var fileSizeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
@@ -49,7 +53,7 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         let button = UIButton(type: .custom)
         let image = UIImage(named: "DownloadiOS", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.backgroundColor = UIColor.black
+        button.backgroundColor = UIColor.clear
         return button
     }()
 
@@ -64,14 +68,15 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         let button = UIButton(type: .custom)
         let image = UIImage(named: "UploadiOS2", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.backgroundColor = UIColor.black
+        button.backgroundColor = UIColor.clear
         return button
     }()
 
-    var bubbleView: UIView = {
-        let bv = UIView()
+    var bubbleView: ALKImageView = {
+        let bv = ALKImageView()
         bv.clipsToBounds = true
-        bv.isUserInteractionEnabled = false
+        bv.isUserInteractionEnabled = true
+        bv.isOpaque = true
         return bv
     }()
 
@@ -179,11 +184,6 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         frontView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
         frontView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
         frontView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
-
-        bubbleView.topAnchor.constraint(equalTo: photoView.topAnchor).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: photoView.bottomAnchor).isActive = true
-        bubbleView.leftAnchor.constraint(equalTo: photoView.leftAnchor).isActive = true
-        bubbleView.rightAnchor.constraint(equalTo: photoView.rightAnchor).isActive = true
 
         downloadButton.centerXAnchor.constraint(equalTo: photoView.centerXAnchor).isActive = true
         downloadButton.centerYAnchor.constraint(equalTo: photoView.centerYAnchor).isActive = true

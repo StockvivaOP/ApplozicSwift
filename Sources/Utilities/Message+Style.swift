@@ -10,36 +10,36 @@ import Foundation
 public enum ALKMessageStyle {
 
     public static var displayName = Style(
-        font: UIFont.font(.normal(size: 14)),
-        text: .text(.gray9B)
+        font: UIFont.systemFont(ofSize: 14, weight: .medium),
+        text: UIColor.ALKSVOrangeColor()
     )
 
     public static var playTime = Style(
-        font: UIFont.font(.normal(size: 16)),
-        text: .text(.black00)
+        font: UIFont.systemFont(ofSize: 14, weight: .medium),
+        text: UIColor.ALKSVOrangeColor()
     )
 
     public static var time = Style(
-        font: UIFont.font(.italic(size: 12)),
-        text: .text(.grayCC)
+        font: UIFont.systemFont(ofSize: 11, weight: .medium),
+        text: UIColor.ALKSVGreyColor153()
     )
 
     // Received message text style
     public static var receivedMessage = Style(
-        font: UIFont.font(.normal(size: 14)),
-        text: .text(.black00)
+        font: UIFont.systemFont(ofSize: 16, weight: .medium),
+        text: UIColor.ALKSVPrimaryDarkGrey()
     )
 
     // Sent message text style
     public static var sentMessage = Style(
-        font: UIFont.font(.normal(size: 14)),
-        text: .text(.black00)
+        font: UIFont.systemFont(ofSize: 16, weight: .medium),
+        text: UIColor.ALKSVPrimaryDarkGrey()
     )
 
     @available(*, deprecated, message: "Use `receivedMessage` and `sentMessage`")
     public static var message = Style(
-        font: UIFont.font(.normal(size: 14)),
-        text: .text(.black00)
+        font: UIFont.systemFont(ofSize: 16, weight: .medium),
+        text: UIColor.ALKSVPrimaryDarkGrey()
     ) {
         didSet {
             receivedMessage = message

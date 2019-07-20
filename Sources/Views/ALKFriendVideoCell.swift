@@ -16,7 +16,7 @@ class ALKFriendVideoCell: ALKVideoCell {
         imv.contentMode = .scaleAspectFill
         imv.clipsToBounds = true
         let layer = imv.layer
-        layer.cornerRadius = 18.5
+        layer.cornerRadius = 22.5
         layer.backgroundColor = UIColor.lightGray.cgColor
         layer.masksToBounds = true
         imv.isUserInteractionEnabled = true
@@ -39,12 +39,14 @@ class ALKFriendVideoCell: ALKVideoCell {
         super.setupStyle()
         nameLabel.setStyle(ALKMessageStyle.displayName)
         if(ALKMessageStyle.receivedBubble.style == .edge) {
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
+            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+            //bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
+            photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
         } else {
             photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
         }
+        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
     }
 
     override func setupViews() {
@@ -55,29 +57,32 @@ class ALKFriendVideoCell: ALKVideoCell {
 
         contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel])
 
-        nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6).isActive = true
-        nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 57).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 7).isActive = true
+        nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 7).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -11).isActive = true
+        nameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
-        nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -56).isActive = true
-        nameLabel.bottomAnchor.constraint(equalTo: photoView.topAnchor, constant: -6).isActive = true
-        nameLabel.heightAnchor.constraint(equalToConstant: 16).isActive = true
-
-        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 18).isActive = true
+        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
         avatarImageView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: 0).isActive = true
-
-        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 9).isActive = true
-        avatarImageView.trailingAnchor.constraint(equalTo: photoView.leadingAnchor, constant: -10).isActive = true
-
-        avatarImageView.heightAnchor.constraint(equalToConstant: 37).isActive = true
+        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 7).isActive = true
+        avatarImageView.trailingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -7).isActive = true
+        avatarImageView.heightAnchor.constraint(equalToConstant: 45).isActive = true
         avatarImageView.widthAnchor.constraint(equalTo: avatarImageView.heightAnchor).isActive = true
 
-        photoView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -56).isActive = true
-        photoView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16).isActive = true
+        bubbleView.topAnchor.constraint(equalTo: avatarImageView.topAnchor).isActive = true
+        bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -56).isActive = true
+        
+        photoView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 7).isActive = true
+        photoView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor).isActive = true
+        photoView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        photoView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
 
-        timeLabel.leadingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 2).isActive = true
-        timeLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 2).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
+        timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 7).isActive = true
+        timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 13).isActive = true
 
-        fileSizeLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 0).isActive = true
+        fileSizeLabel.leftAnchor.constraint(equalTo: photoView.leftAnchor, constant: 12).isActive = true
     }
 
     override func update(viewModel: ALKMessageViewModel) {
@@ -94,6 +99,18 @@ class ALKFriendVideoCell: ALKVideoCell {
 
     }
 
+    override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
+        let heigh: CGFloat
+        if viewModel.ratio < 1 {
+            heigh = viewModel.ratio == 0 ? (width*0.48) : ceil((width*0.48)/viewModel.ratio)
+        } else {
+            heigh = ceil((width*0.64)/viewModel.ratio)
+        }
+        //34(user name label) + height(video content) + 23(timeLabel)
+        return 34+heigh+23
+    }
+    
+    
     @objc private func avatarTappedAction() {
         avatarTapped?()
     }

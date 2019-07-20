@@ -105,7 +105,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
         timeLabel.heightAnchor.constraint(equalToConstant: 13).isActive = true
 
-        fileSizeLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 0).isActive = true
+        fileSizeLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 12).isActive = true
     }
 
     override func update(viewModel: ALKMessageViewModel) {
