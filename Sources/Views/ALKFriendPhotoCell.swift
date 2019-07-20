@@ -138,8 +138,8 @@ class ALKFriendPhotoCell: ALKPhotoCell {
                 font: messageTextFont).height.rounded(.up) + Padding.CaptionLabel.bottom
         }
         
-        //34(user name label) + height(photo content) + 34(captionLabel) + 23(timeLabel)
-        return 34+height+34+23
+        //10(top padding) + 34(user name label) + height(photo content) + 34(captionLabel) + 23(timeLabel)
+        return 10+34+height+34+23
     }
     
     @objc private func avatarTappedAction() {

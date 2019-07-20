@@ -15,8 +15,8 @@ public enum ALKMessageStyle {
     )
 
     public static var playTime = Style(
-        font: UIFont.systemFont(ofSize: 14, weight: .medium),
-        text: UIColor.ALKSVOrangeColor()
+        font: UIFont.systemFont(ofSize: 11, weight: .medium),
+        text: UIColor.ALKSVGreyColor102()
     )
 
     public static var time = Style(

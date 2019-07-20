@@ -106,8 +106,8 @@ class ALKFriendVideoCell: ALKVideoCell {
         } else {
             heigh = ceil((width*0.64)/viewModel.ratio)
         }
-        //34(user name label) + height(video content) + 23(timeLabel)
-        return 34+heigh+23
+        //10(top padding) + 34(user name label) + height(video content) + 23(timeLabel)
+        return 10+34+heigh+23
     }
     
     
