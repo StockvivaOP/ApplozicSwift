@@ -84,6 +84,10 @@ public extension UIColor {
         return UIColor.makeColotRGBA(red:118, green: 85, blue: 255)
     }
     
+    static func ALKSVColorLightPurple()-> UIColor {
+        return UIColor.makeColotRGBA(red:208, green: 211, blue: 252)
+    }
+    
     static func ALKSVPrimaryDarkGrey()-> UIColor {
         return UIColor.makeColotRGBA(red:39, green: 39, blue: 39)
     }

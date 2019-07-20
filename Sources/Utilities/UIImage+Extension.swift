@@ -98,4 +98,13 @@ extension UIImage {
         return newImage
     }
 
+    static func createCircleImage(color: UIColor, frame:CGRect = CGRect(x: 0, y: 0, width: 1, height: 1) ) -> UIImage {
+        UIGraphicsBeginImageContext(frame.size)
+        let context = UIGraphicsGetCurrentContext()
+        context!.setFillColor(color.cgColor)
+        context!.fillEllipse(in: frame)
+        let img = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return img!
+    }
 }
