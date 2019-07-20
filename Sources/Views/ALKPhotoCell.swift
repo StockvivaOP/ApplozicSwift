@@ -25,17 +25,23 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     var timeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
     var fileSizeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
-    var bubbleView: UIView = {
-        let bv = UIView()
-        bv.isUserInteractionEnabled = false
+    var bubbleView: ALKImageView = {
+        let bv = ALKImageView()
+        bv.clipsToBounds = true
+        bv.isUserInteractionEnabled = true
+        bv.isOpaque = true
         return bv
     }()
 
@@ -51,7 +57,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         let button = UIButton(type: .custom)
         let image = UIImage(named: "DownloadiOS", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.backgroundColor = UIColor.black
+        button.backgroundColor = UIColor.clear
         return button
     }()
 
@@ -59,7 +65,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         let button = UIButton(type: .custom)
         let image = UIImage(named: "UploadiOS2", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.backgroundColor = UIColor.black
+        button.backgroundColor = UIColor.clear
         return button
     }()
 
@@ -68,13 +74,15 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     var captionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = UIColor.ALKSVPrimaryDarkGrey()
         return label
     }()
     static var maxWidth = UIScreen.main.bounds.width
 
     // To be changed from the class that is subclassing `ALKPhotoCell`
     class var messageTextFont: UIFont {
-        return Font.normal(size: 12).font()
+        return UIFont.systemFont(ofSize: 16, weight: .medium)
     }
 
     // This will be used to calculate the size of the photo view.
@@ -83,9 +91,11 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     struct Padding {
         struct CaptionLabel {
-            static var bottom: CGFloat = 10.0
-            static var left: CGFloat = 5.0
-            static var right: CGFloat = 5.0
+            static var top: CGFloat = 7.0
+            static var bottom: CGFloat = 7.0
+            static var left: CGFloat = 7.0
+            static var right: CGFloat = 7.0
+            static var height: CGFloat = 7.0
         }
     }
 
@@ -103,6 +113,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     var uploadCompleted: ((_ responseDict: Any?) ->Void)?
 
     var downloadTapped:((Bool) ->Void)?
+    
+    var captionLabelTopConst:NSLayoutConstraint?
+    var captionLabelHeightConst:NSLayoutConstraint?
+    var captionLabelBottomConst:NSLayoutConstraint?
 
     class func topPadding() -> CGFloat {
         return 12
@@ -155,6 +169,15 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         timeLabel.text   = viewModel.time
         captionLabel.text = viewModel.message
 
+        if captionLabel.text?.count ?? 0 > 0 {
+            captionLabelTopConst?.constant = Padding.CaptionLabel.top
+            captionLabelHeightConst?.constant = Padding.CaptionLabel.height
+            captionLabelBottomConst?.constant = -Padding.CaptionLabel.bottom
+        }else{
+            captionLabelTopConst?.constant = 0
+            captionLabelHeightConst?.constant = 0
+            captionLabelBottomConst?.constant = 0
+        }
     }
 
     @objc func actionTapped(button: UIButton) {
@@ -183,7 +206,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     override func setupStyle() {
         super.setupStyle()
 
-        timeLabel.setStyle(ALKMessageStyle.time)
+        //timeLabel.setStyle(ALKMessageStyle.time)
         fileSizeLabel.setStyle(ALKMessageStyle.time)
     }
 
@@ -218,11 +241,6 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         frontView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
         frontView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
 
-        bubbleView.topAnchor.constraint(equalTo: photoView.topAnchor).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: captionLabel.bottomAnchor).isActive = true
-        bubbleView.leftAnchor.constraint(equalTo: photoView.leftAnchor).isActive = true
-        bubbleView.rightAnchor.constraint(equalTo: photoView.rightAnchor).isActive = true
-
         fileSizeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 2).isActive = true
         activityIndicator.heightAnchor.constraint(equalToConstant: 40).isActive = true
         activityIndicator.widthAnchor.constraint(equalToConstant: 50).isActive = true
@@ -249,13 +267,23 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         //
         // CaptionLabelBottom -> (contentView - bottomPadding) which is equal to
         // (CaptionLabel + captionLabelBottom)
-
-        captionLabel.layout {
-            $0.leading == photoView.leadingAnchor + Padding.CaptionLabel.left
-            $0.trailing == photoView.trailingAnchor - Padding.CaptionLabel.right
-            $0.top == photoView.bottomAnchor
-            $0.bottom == contentView.bottomAnchor - ALKPhotoCell.bottomPadding()
-        }
+        
+        captionLabelTopConst = captionLabel.topAnchor.constraint(
+                equalTo: photoView.bottomAnchor,
+                constant: Padding.CaptionLabel.top)
+        captionLabelTopConst?.isActive = true
+        captionLabel.leadingAnchor.constraint(
+                equalTo: bubbleView.leadingAnchor,
+                constant: Padding.CaptionLabel.left).isActive = true
+        captionLabel.trailingAnchor.constraint(
+                equalTo:bubbleView.trailingAnchor,
+                constant: -Padding.CaptionLabel.right).isActive = true
+        captionLabelBottomConst = captionLabel.bottomAnchor.constraint(
+                equalTo: bubbleView.bottomAnchor,
+                constant: -Padding.CaptionLabel.bottom)
+        captionLabelBottomConst?.isActive = true
+        captionLabelHeightConst = captionLabel.heightAnchor.constraint(equalToConstant: Padding.CaptionLabel.height)
+        captionLabelHeightConst?.isActive = true
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {

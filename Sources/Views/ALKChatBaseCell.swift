@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
 
@@ -142,5 +143,24 @@ extension ALKCopyMenuItemProtocol {
 extension ALKReplyMenuItemProtocol {
     var selector: Selector {
         return #selector(menuReply(_:))
+    }
+}
+
+extension ALKChatBaseCell {
+    func setBubbleViewImage(for style: ALKMessageStyle.BubbleStyle, isReceiverSide: Bool = false,showHangOverImage:Bool) -> UIImage? {
+        var imageTitle = showHangOverImage ? "chat_bubble_red_hover":"chat_bubble_red"
+        // We can rotate the above image but loading the required
+        // image would be faster and we already have both the images.
+        if isReceiverSide {imageTitle = showHangOverImage ? "chat_bubble_grey_hover":"chat_bubble_grey"}
+        
+        guard let bubbleImage = UIImage.init(named: imageTitle, in: Bundle.applozic, compatibleWith: nil)
+            else {return nil}
+        
+        // This API is from the Kingfisher so instead of directly using
+        // imageFlippedForRightToLeftLayoutDirection() we are using this as it handles
+        // platform availability and future updates for us.
+        let modifier = FlipsForRightToLeftLayoutDirectionImageModifier()
+        return modifier.modify(bubbleImage)
+        
     }
 }
