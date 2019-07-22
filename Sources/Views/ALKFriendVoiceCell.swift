@@ -68,8 +68,6 @@ class ALKFriendVoiceCell: ALKVoiceCell {
 
         contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel])
 
-        bubbleView.backgroundColor = UIColor.hex8(Color.Background.grayF2.rawValue).withAlphaComponent(0.26)
-
         let width = 245
 
         soundPlayerView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 0).isActive = true

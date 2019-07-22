@@ -32,6 +32,7 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         mv.contentMode = .scaleAspectFill
         mv.clipsToBounds = true
         mv.layer.cornerRadius = 12
+        mv.backgroundColor = UIColor.clear
         return mv
     }()
 
@@ -115,7 +116,7 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
 
         let heigh: CGFloat
-        heigh = 37
+        heigh = 52
         return topPadding()+heigh+bottomPadding()
     }
 
