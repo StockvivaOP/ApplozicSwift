@@ -24,26 +24,32 @@ class ALKMyVoiceCell: ALKVoiceCell {
 
     override func setupViews() {
         super.setupViews()
-
-        let width = UIScreen.main.bounds.width
-
+        
+        let width = 245
+        
         contentView.addViewsForAutolayout(views: [stateView])
-
-        soundPlayerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6).isActive = true
-        soundPlayerView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 48).isActive = true
-        soundPlayerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14).isActive = true
-        soundPlayerView.widthAnchor.constraint(equalToConstant: width*0.48).isActive = true
-        soundPlayerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6).isActive = true
-
-        bubbleView.backgroundColor = UIColor.hex8(Color.Background.grayF2.rawValue).withAlphaComponent(0.26)
-
-        stateView.widthAnchor.constraint(equalToConstant: 17.0).isActive = true
-        stateView.heightAnchor.constraint(equalToConstant: 9.0).isActive = true
-        stateView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -1.0).isActive = true
-        stateView.trailingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -2.0).isActive = true
-
-        timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -2.0).isActive = true
-        timeLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 0).isActive = true
+        
+        soundPlayerView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor).isActive = true
+        soundPlayerView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
+        soundPlayerView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        soundPlayerView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
+        //        soundPlayerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
+        bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -7).isActive = true
+        bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width)).isActive = true
+        bubbleView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        stateView.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
+        stateView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8).isActive = true
+        stateView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        stateView.widthAnchor.constraint(equalToConstant: 17).isActive = true
+        stateView.heightAnchor.constraint(equalToConstant: 15).isActive = true
+        
+        timeLabel.topAnchor.constraint(equalTo: stateView.topAnchor, constant: 0).isActive = true
+        timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -6).isActive = true
+        timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
     }
 
     override func update(viewModel: ALKMessageViewModel) {
@@ -54,10 +60,10 @@ class ALKMyVoiceCell: ALKVoiceCell {
             stateView.tintColor = UIColor(netHex: 0x0578FF)
         } else if viewModel.isAllReceived {
             stateView.image = UIImage(named: "read_state_2", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = nil
+            stateView.tintColor = UIColor.ALKSVGreyColor153()
         } else if viewModel.isSent {
             stateView.image = UIImage(named: "read_state_1", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = nil
+            stateView.tintColor = UIColor.ALKSVGreyColor153()
         } else {
             stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
             stateView.tintColor = UIColor.ALKSVMainColorPurple()
@@ -70,16 +76,24 @@ class ALKMyVoiceCell: ALKVoiceCell {
 
     override func setupStyle() {
         super.setupStyle()
-        if(ALKMessageStyle.sentBubble.style == .edge) {
-            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
-            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-        } else {
-            soundPlayerView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.tintColor = ALKMessageStyle.sentBubble.color
-            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
-            soundPlayerView.backgroundColor = ALKMessageStyle.sentBubble.color
-        }
+//        if(ALKMessageStyle.sentBubble.style == .edge) {
+//            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//        } else {
+//            soundPlayerView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//            bubbleView.tintColor = ALKMessageStyle.sentBubble.color
+//            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
+//            soundPlayerView.backgroundColor = ALKMessageStyle.sentBubble.color
+//        }
+        soundPlayerView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
     }
 
+    override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
+        let heigh: CGFloat
+        heigh = 52
+        //10(top pedding) + height(voic content) + 25(statusLabel)
+        return 10+heigh+25
+    }
 }

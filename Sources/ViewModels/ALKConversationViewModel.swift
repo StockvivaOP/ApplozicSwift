@@ -265,7 +265,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         case .voice:
             var height: CGFloat =  0
             if messageModel.isMyMessage {
-                height = ALKVoiceCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                height = ALKMyVoiceCell.rowHeigh(viewModel: messageModel, width: maxWidth)
             } else {
                 height = ALKFriendVoiceCell.rowHeigh(viewModel: messageModel, width: maxWidth)
             }

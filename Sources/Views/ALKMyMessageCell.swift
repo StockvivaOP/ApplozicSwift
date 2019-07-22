@@ -31,45 +31,68 @@ open class ALKMyMessageCell: ALKMessageCell {
 
     struct Padding {
         struct ReplyView {
-            static let height: CGFloat = 80.0
+            static let left: CGFloat = 7.0
+            static let right: CGFloat = 7.0
+            static let top: CGFloat = 7.0
+            static let height: CGFloat = 50.0
+        }
+        
+        struct ReplyIndicatorView {
+            static let width: CGFloat = 4.0
+            static let height: CGFloat = 50.0
+        }
+        
+        struct ReplyNameLabel {
+            static let top: CGFloat = 5.0
             static let left: CGFloat = 5.0
             static let right: CGFloat = 5.0
-            static let top: CGFloat = 5.0
+            static let height: CGFloat = 20.0
         }
-
-        struct ReplyNameLabel {
-            static let right: CGFloat = 10.0
-            static let height: CGFloat = 30.0
+        
+        struct ReplyMessageTypeImageView {
+            static let left: CGFloat = 5.0
+            static let width: CGFloat = 20.0
+            static let height: CGFloat = 20.0
         }
-
+        
         struct ReplyMessageLabel {
-            static let right: CGFloat = 10.0
-            static let top: CGFloat = 5.0
-            static let height: CGFloat = 30.0
+            static let left: CGFloat = 5.0
+            static let right: CGFloat = 20.0
+            static let top: CGFloat = 0.0
+            static let height: CGFloat = 20.0
         }
-
+        
         struct PreviewImageView {
-            static let height: CGFloat = 50.0
-            static let width: CGFloat = 70.0
-            static let right: CGFloat = 10.0
+            static let height: CGFloat = 40.0
+            static let width: CGFloat = 48.0
+            static let right: CGFloat = 9.5
             static let top: CGFloat = 5.0
             static let bottom: CGFloat = 5.0
         }
+        
         struct MessageView {
             static let top: CGFloat = 5
-            static let bottom: CGFloat = 10.0
+            static let bottom: CGFloat = 7
         }
 
         struct BubbleView {
+            static let top: CGFloat = 10
             static let left: CGFloat = 95.0
-            static let bottom: CGFloat = 8.0
-            static let right: CGFloat = 10.0
+            static let right: CGFloat = 7.0
         }
 
+        struct TimeLabel {
+            static let top: CGFloat = 0
+            static let right: CGFloat = 6
+            static let height: CGFloat = 15
+        }
+        
         struct StateView {
-            static let height: CGFloat = 9.0
+            static let height: CGFloat = 15.0
             static let width: CGFloat = 17.0
-            static let right: CGFloat = 2.0
+            static let top: CGFloat = 5.0
+            static let bottom: CGFloat = 5
+            static let right: CGFloat = 8.0
         }
     }
 
@@ -86,18 +109,39 @@ open class ALKMyMessageCell: ALKMessageCell {
             static let width = "ReplyPreviewImageWidth"
         }
         static let replyViewHeightIdentifier = "ReplyViewHeight"
+        static let replyMessageTypeImageViewHeight = "replyMessageTypeImageViewHeight"
+        static let replyIndicatorViewHeight = "replyIndicatorViewHeight"
     }
+    var replyViewTopConst:NSLayoutConstraint?
+    var replyViewInnerTopConst:NSLayoutConstraint?
+    var replyViewInnerImgTopConst:NSLayoutConstraint?
+    var replyViewInnerImgBottomConst:NSLayoutConstraint?
 
     override func setupViews() {
         super.setupViews()
 
         contentView.addViewsForAutolayout(views: [stateView])
+        
+        replyViewTopConst = replyView.topAnchor.constraint(
+            equalTo: bubbleView.bottomAnchor,
+            constant: Padding.ReplyView.top)
+        replyViewInnerTopConst = replyNameLabel.topAnchor.constraint(
+            equalTo: replyView.topAnchor,
+            constant: Padding.ReplyNameLabel.top)
+        replyViewInnerImgTopConst = previewImageView.topAnchor.constraint(
+            equalTo: replyView.topAnchor,
+            constant: Padding.PreviewImageView.top)
+        replyViewInnerImgBottomConst = previewImageView.bottomAnchor.constraint(
+            lessThanOrEqualTo: replyView.bottomAnchor,
+            constant: -Padding.PreviewImageView.bottom)
+        replyMessageTypeImagewidthConst = replyMessageTypeImageView.widthAnchor.constraint(equalToConstant: Padding.ReplyMessageTypeImageView.width)
+        replyMessageLabelConst = replyMessageLabel.leadingAnchor.constraint(
+            equalTo: replyMessageTypeImageView.trailingAnchor,
+            constant: Padding.ReplyMessageLabel.left)
 
         NSLayoutConstraint.activate([
-            bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            bubbleView.bottomAnchor.constraint(
-                equalTo: contentView.bottomAnchor,
-                constant: -Padding.BubbleView.bottom),
+            bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor,
+                                            constant: Padding.BubbleView.top),
             bubbleView.leadingAnchor.constraint(
                 greaterThanOrEqualTo: contentView.leadingAnchor,
                 constant: Padding.BubbleView.left),
@@ -117,30 +161,51 @@ open class ALKMyMessageCell: ALKMessageCell {
             replyView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
                 constant: -Padding.ReplyView.right),
+            
+            replyIndicatorView.topAnchor.constraint(
+                equalTo: replyView.topAnchor),
+            replyIndicatorView.leadingAnchor.constraint(
+                equalTo: replyView.leadingAnchor),
+            replyIndicatorView.bottomAnchor.constraint(
+                equalTo: replyView.bottomAnchor),
+            replyIndicatorView.widthAnchor.constraint(equalToConstant: Padding.ReplyIndicatorView.width),
+            replyIndicatorView.heightAnchor.constraintEqualToAnchor(
+                constant: 0,
+                identifier: ConstraintIdentifier.replyIndicatorViewHeight),
 
-            previewImageView.topAnchor.constraint(
-                equalTo: replyNameLabel.topAnchor,
-                constant: Padding.PreviewImageView.top),
+            replyViewInnerImgTopConst!,
             previewImageView.trailingAnchor.constraint(
-                equalTo: replyView.trailingAnchor,
+                lessThanOrEqualTo: replyView.trailingAnchor,
                 constant: -Padding.PreviewImageView.right),
+            replyViewInnerImgBottomConst!,
             previewImageView.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
                 identifier: ConstraintIdentifier.PreviewImage.height),
             previewImageView.widthAnchor.constraintEqualToAnchor(
                 constant: 0,
                 identifier: ConstraintIdentifier.PreviewImage.width),
-
-            replyNameLabel.leadingAnchor.constraint(equalTo: replyView.leadingAnchor),
-            replyNameLabel.topAnchor.constraint(equalTo: replyView.topAnchor),
+            
+            replyNameLabel.leadingAnchor.constraint(
+                equalTo:replyIndicatorView.trailingAnchor,
+                constant: Padding.ReplyNameLabel.left),
+            replyViewInnerTopConst!,
             replyNameLabel.trailingAnchor.constraint(
                 lessThanOrEqualTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyNameLabel.right),
             replyNameLabel.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
                 identifier: ConstraintIdentifier.ReplyNameLabel.height),
-
-            replyMessageLabel.leadingAnchor.constraint(equalTo: replyView.leadingAnchor),
+            
+            replyMessageTypeImageView.leadingAnchor.constraint(
+                equalTo: replyIndicatorView.trailingAnchor,
+                constant: Padding.ReplyMessageTypeImageView.left),
+            replyMessageTypeImageView.centerYAnchor.constraint(equalTo: replyMessageLabel.centerYAnchor),
+            replyMessageTypeImagewidthConst!,
+            replyMessageTypeImageView.heightAnchor.constraintEqualToAnchor(
+                constant: 0,
+                identifier: ConstraintIdentifier.replyMessageTypeImageViewHeight),
+            
+            replyMessageLabelConst!,
             replyMessageLabel.topAnchor.constraint(
                 equalTo: replyNameLabel.bottomAnchor,
                 constant: Padding.ReplyMessageLabel.top),
@@ -150,49 +215,55 @@ open class ALKMyMessageCell: ALKMessageCell {
             replyMessageLabel.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
                 identifier: ConstraintIdentifier.ReplyMessageLabel.height),
-
+            
             emailTopView.topAnchor.constraint(
                 equalTo: replyView.bottomAnchor,
                 constant: Padding.MessageView.top),
-            emailTopView.leadingAnchor.constraint(
-                equalTo: bubbleView.leadingAnchor,
-                constant: ALKMessageStyle.sentBubble.widthPadding),
             emailTopView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
-                constant: -ALKMyMessageCell.bubbleViewRightPadding),
+                constant: -ALKMessageStyle.receivedBubble.widthPadding),
+            emailTopView.leadingAnchor.constraint(
+                equalTo: bubbleView.leadingAnchor,
+                constant: ALKFriendMessageCell.bubbleViewLeftPadding),
             emailTopHeight,
 
             messageView.topAnchor.constraint(
                 equalTo: emailTopView.bottomAnchor),
-            messageView.leadingAnchor.constraint(
-                equalTo: bubbleView.leadingAnchor,
-                constant: ALKMessageStyle.sentBubble.widthPadding),
-            messageView.trailingAnchor.constraint(
-                equalTo: bubbleView.trailingAnchor,
-                constant: -ALKMyMessageCell.bubbleViewRightPadding),
             messageView.bottomAnchor.constraint(
                 equalTo: bubbleView.bottomAnchor,
                 constant: -Padding.MessageView.bottom),
-
-            stateView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
-            stateView.trailingAnchor.constraint(
+            messageView.trailingAnchor.constraint(
+                equalTo: bubbleView.trailingAnchor,
+                constant: -ALKMessageStyle.receivedBubble.widthPadding),
+            messageView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
+                constant: ALKFriendMessageCell.bubbleViewLeftPadding),
+
+            stateView.topAnchor.constraint(
+                equalTo: bubbleView.bottomAnchor,
+                constant: Padding.StateView.top),
+            stateView.trailingAnchor.constraint(
+                equalTo: bubbleView.trailingAnchor,
                 constant: -Padding.StateView.right),
+            stateView.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor,
+                constant: -Padding.StateView.bottom),
             stateView.widthAnchor.constraint(equalToConstant: Padding.StateView.width),
             stateView.heightAnchor.constraint(equalToConstant: Padding.StateView.height),
-
+            
+            timeLabel.topAnchor.constraint(
+                equalTo: stateView.topAnchor,
+                constant: Padding.TimeLabel.top),
             timeLabel.trailingAnchor.constraint(
                 equalTo: stateView.leadingAnchor,
-                constant: -2.0),
-            timeLabel.bottomAnchor.constraint(
-                equalTo: bubbleView.bottomAnchor,
-                constant: 2)
+                constant: -Padding.TimeLabel.right),
+            timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height),
             ])
     }
 
     open  override func setupStyle() {
         super.setupStyle()
-        messageView.setStyle(ALKMessageStyle.sentMessage)
+        //messageView.setStyle(ALKMessageStyle.sentMessage)
         if ALKMessageStyle.sentBubble.style == .edge {
             bubbleView.tintColor = ALKMessageStyle.sentBubble.color
             bubbleView.image = bubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
@@ -227,10 +298,10 @@ open class ALKMyMessageCell: ALKMessageCell {
             stateView.tintColor = UIColor(netHex: 0x0578FF)
         } else if viewModel.isAllReceived {
             stateView.image = UIImage(named: "read_state_2", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = nil
+            stateView.tintColor = UIColor.ALKSVGreyColor153()
         } else if viewModel.isSent {
             stateView.image = UIImage(named: "read_state_1", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = nil
+            stateView.tintColor = UIColor.ALKSVGreyColor153()
         } else {
             stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
             stateView.tintColor = UIColor.ALKSVMainColorPurple()
@@ -244,7 +315,7 @@ open class ALKMyMessageCell: ALKMessageCell {
         let rightSpacing = Padding.BubbleView.right + bubbleViewRightPadding
         let messageWidth = width - (leftSpacing + rightSpacing)
         let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.sentMessage.font)
-        let heightPadding = Padding.MessageView.top + Padding.MessageView.bottom + Padding.BubbleView.bottom + Padding.ReplyView.top
+        let heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + Padding.MessageView.top + Padding.MessageView.bottom + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
 
         let totalHeight = messageHeight + heightPadding
         guard
@@ -273,9 +344,24 @@ open class ALKMyMessageCell: ALKMessageCell {
         previewImageView
             .constraint(withIdentifier: ConstraintIdentifier.PreviewImage.width)?
             .constant = show ? Padding.PreviewImageView.width : 0
-
+        
+        replyMessageTypeImageView
+            .constraint(withIdentifier: ConstraintIdentifier.replyMessageTypeImageViewHeight)?
+            .constant = show ? Padding.ReplyMessageTypeImageView.height : 0
+        replyIndicatorView
+            .constraint(withIdentifier: ConstraintIdentifier.replyIndicatorViewHeight)?
+            .constant = show ? Padding.ReplyIndicatorView.height : 0
+        
+        //paddnig
+        replyViewTopConst?.constant = show ? Padding.ReplyView.top : 0
+        replyViewInnerTopConst?.constant = show ? Padding.ReplyNameLabel.top : 0
+        replyViewInnerImgTopConst?.constant = show ? Padding.PreviewImageView.top : 0
+        replyViewInnerImgBottomConst?.constant = show ? -Padding.PreviewImageView.bottom : 0
+        
         replyView.isHidden = !show
+        replyIndicatorView.isHidden = !show
         replyNameLabel.isHidden = !show
+        replyMessageTypeImageView.isHidden = !show
         replyMessageLabel.isHidden = !show
         previewImageView.isHidden = !show
     }
