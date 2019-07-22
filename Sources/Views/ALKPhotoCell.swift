@@ -98,6 +98,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             static var height: CGFloat = 7.0
         }
     }
+    
+    struct ViewOffset {
+        static var height: CGFloat = 0.0
+    }
 
     var url: URL?
     enum State {
@@ -139,7 +143,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                 font: messageTextFont).height.rounded(.up) + Padding.CaptionLabel.bottom
         }
 
-        return topPadding()+height+bottomPadding()
+        return (topPadding()+height+bottomPadding()) - ViewOffset.height
     }
 
     override func update(viewModel: ALKMessageViewModel) {
@@ -173,10 +177,12 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             captionLabelTopConst?.constant = Padding.CaptionLabel.top
             captionLabelHeightConst?.constant = Padding.CaptionLabel.height
             captionLabelBottomConst?.constant = -Padding.CaptionLabel.bottom
+            ViewOffset.height = 0
         }else{
             captionLabelTopConst?.constant = 0
             captionLabelHeightConst?.constant = 0
             captionLabelBottomConst?.constant = 0
+            ViewOffset.height = Padding.CaptionLabel.top + Padding.CaptionLabel.height + Padding.CaptionLabel.bottom
         }
     }
 

@@ -132,6 +132,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     let previewImageView: UIImageView = {
         let imageView = UIImageView(frame: CGRect.zero)
         imageView.backgroundColor = .clear
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
 

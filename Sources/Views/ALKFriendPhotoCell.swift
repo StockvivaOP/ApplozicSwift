@@ -94,10 +94,10 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         
         photoView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 7).isActive = true
         photoView.leadingAnchor
-            .constraint(lessThanOrEqualTo: bubbleView.leadingAnchor, constant: 0)
+            .constraint(equalTo: bubbleView.leadingAnchor, constant: 0)
             .isActive = true
         photoView.trailingAnchor
-            .constraint(lessThanOrEqualTo: bubbleView.trailingAnchor, constant: 0)
+            .constraint(equalTo: bubbleView.trailingAnchor, constant: 0)
             .isActive = true
 
         timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
@@ -139,7 +139,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         }
         
         //10(top padding) + 34(user name label) + height(photo content) + 34(captionLabel) + 23(timeLabel)
-        return 10+34+height+34+23
+        return (10+34+height+34+23) - ViewOffset.height
     }
     
     @objc private func avatarTappedAction() {
