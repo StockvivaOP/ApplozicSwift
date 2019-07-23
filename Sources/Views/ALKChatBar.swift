@@ -54,7 +54,7 @@ open class ALKChatBar: UIView, Localizable {
 
     open var poweredByMessageLabel: ALKHyperLabel = {
         let label = ALKHyperLabel(frame: CGRect.zero)
-        label.backgroundColor = UIColor.darkGray
+        label.backgroundColor = UIColor.ALKSVGreyColor245()
         label.numberOfLines = 1
         label.textAlignment = NSTextAlignment.center
         label.textColor = .white
@@ -116,7 +116,7 @@ open class ALKChatBar: UIView, Localizable {
 
     open var grayView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = UIColor.ALKSVGreyColor250()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -724,7 +724,7 @@ open class ALKChatBar: UIView, Localizable {
     
     public func hiddenJoinGroupButton(){
         self.showMediaView()
-        self.backgroundColor = UIColor.ALKSVGreyColor245()
+        self.backgroundColor = UIColor.ALKSVGreyColor250()
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
@@ -762,6 +762,10 @@ open class ALKChatBar: UIView, Localizable {
     
     func isJoinGroup() -> Bool {
         return self.joinGroupView.isHidden == false
+    }
+    
+    func hiddenLineView(_ isHidden:Bool){
+        self.lineView.isHidden = isHidden
     }
 }
 

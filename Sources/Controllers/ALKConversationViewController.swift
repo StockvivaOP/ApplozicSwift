@@ -103,7 +103,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             static let height: CGFloat = 100.0
         }
         enum ReplyMessageView {
-            static let height: CGFloat = 70.0
+            static let height: CGFloat = 50.0
         }
     }
 
@@ -145,7 +145,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     lazy open var replyMessageView: ALKReplyMessageView = {
         let view = ALKReplyMessageView(frame: CGRect.zero, configuration: configuration)
-        view.backgroundColor = UIColor.gray
+        view.backgroundColor = UIColor.ALKSVGreyColor250()
         return view
     }()
 
@@ -408,7 +408,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.chatBar.setUpViewConfig()
         //tag: on / off join group button
         self.enableJoinGroupButton(self.enableShowJoinGroupMode)
-        
+        self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
         setRichMessageKitTheme()
@@ -1066,12 +1066,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         replyMessageView.constraint(
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
             .constant = Padding.ReplyMessageView.height
+        replyMessageView.isHidden = false
+        self.chatBar.hiddenLineView(true)
     }
 
     func hideReplyMessageView() {
         replyMessageView.constraint(
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
             .constant = 0
+        replyMessageView.isHidden = true
+        self.chatBar.hiddenLineView(false)
     }
 
     func scrollTo(message: ALKMessageViewModel) {

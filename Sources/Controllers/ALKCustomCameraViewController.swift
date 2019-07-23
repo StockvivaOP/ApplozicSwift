@@ -216,6 +216,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
         var backImage = UIImage.init(named: "icon_back", in: Bundle.applozic, compatibleWith: nil)
         backImage = backImage?.imageFlippedForRightToLeftLayoutDirection()
         self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(image: backImage, style: .plain, target: self, action: #selector(dismissCameraPress(_:)))
+        self.navigationController?.navigationBar.tintColor = UIColor.white
     }
 
     private func setupView() {

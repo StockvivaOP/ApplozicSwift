@@ -167,8 +167,8 @@ class ALKConversationNavBar: UIView, Localizable {
         profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5).isActive = true
         profileImage.widthAnchor.constraint(equalToConstant: 35).isActive = true
 
-        statusIconBackground.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 0).isActive = true
-        statusIconBackground.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: -10).isActive = true
+        statusIconBackground.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -2).isActive = true
+        statusIconBackground.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: -5).isActive = true
         statusIconBackground.widthAnchor.constraint(equalToConstant: 12).isActive = true
         statusIconBackground.heightAnchor.constraint(equalToConstant: 12).isActive = true
 
@@ -177,7 +177,7 @@ class ALKConversationNavBar: UIView, Localizable {
         onlineStatusIcon.widthAnchor.constraint(equalToConstant: 10).isActive = true
         onlineStatusIcon.heightAnchor.constraint(equalToConstant: 10).isActive = true
         
-        profileView.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: 5).isActive = true
+        profileView.leadingAnchor.constraint(equalTo: statusIconBackground.trailingAnchor, constant: 5).isActive = true
         profileView.topAnchor.constraint(equalTo: profileImage.topAnchor).isActive = true
         profileView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor).isActive = true
         profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
