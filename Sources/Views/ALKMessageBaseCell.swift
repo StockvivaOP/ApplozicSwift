@@ -93,16 +93,21 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         return bv
     }()
 
-    var replyView: UIView = {
-        let view = UIView(frame: CGRect.zero)
-        view.backgroundColor = UIColor.ALKSVGreyColor250()
+    var replyView: ALKImageView = {
+        let view = ALKImageView()
+        view.backgroundColor = UIColor.clear
+        view.tintColor = UIColor.ALKSVGreyColor250()
         view.isUserInteractionEnabled = true
         return view
     }()
 
-    var replyIndicatorView: UIView = {
-        let view = UIView(frame: CGRect.zero)
+    var replyIndicatorView: ALKImageView = {
+        let view = ALKImageView()
+        view.clipsToBounds = true
+        view.isOpaque = true
         view.backgroundColor = UIColor.ALKSVOrangeColor()
+        view.tintColor = UIColor.ALKSVOrangeColor()
+        view.contentMode = .scaleToFill
         return view
     }()
     
@@ -205,8 +210,17 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyMessageTypeImagewidthConst?.constant = 20
             replyMessageLabelConst?.constant = 5
         }
-        
-        replyIndicatorView.backgroundColor = replyIndicatorColor
+        if viewModel.isMyMessage {
+            replyView.image = setReplyViewImage(isReceiverSide: false)
+            replyIndicatorView.image = UIImage.init(named: "sv_button_chatroom_reply_orange", in: Bundle.applozic, compatibleWith: nil)
+            replyIndicatorView.backgroundColor = UIColor.clear
+            replyIndicatorView.tintColor = replyIndicatorColor
+        }else{
+            replyView.image = setReplyViewImage(isReceiverSide: true)
+            replyIndicatorView.backgroundColor = replyIndicatorColor
+            replyIndicatorView.tintColor = replyIndicatorColor
+            replyIndicatorView.image = nil
+        }
 
         self.timeLabel.text   = viewModel.time
         resetTextView(style)

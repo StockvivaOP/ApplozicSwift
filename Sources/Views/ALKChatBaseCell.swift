@@ -163,4 +163,20 @@ extension ALKChatBaseCell {
         return modifier.modify(bubbleImage)
         
     }
+    
+    func setReplyViewImage(isReceiverSide: Bool = false) -> UIImage? {
+        guard let bubbleImage = UIImage.init(named: "sv_button_chatroom_reply_grey", in: Bundle.applozic, compatibleWith: nil)
+            else {return nil}
+
+        // This API is from the Kingfisher so instead of directly using
+        // imageFlippedForRightToLeftLayoutDirection() we are using this as it handles
+        // platform availability and future updates for us.
+        if isReceiverSide {
+            guard let rightBubbleImage = UIImage.init(named: "sv_button_chatroom_right_reply_grey", in: Bundle.applozic, compatibleWith: nil)
+                else {return bubbleImage}
+            return rightBubbleImage
+        }
+        return bubbleImage
+
+    }
 }
