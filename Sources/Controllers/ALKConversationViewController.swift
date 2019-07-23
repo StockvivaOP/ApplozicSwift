@@ -656,10 +656,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func configureChatBar() {
         if viewModel.isOpenGroup {
-            hideMediaOptions()
+            chatBar.updateMediaViewVisibility(hide: true)
             chatBar.hideMicButton()
         } else {
-            if configuration.hideAllOptionsInChatBar {hideMediaOptions()} else {showMediaOptions()}
+            chatBar.updateMediaViewVisibility()
         }
     }
 
@@ -1198,14 +1198,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         let value = contentOffsetDictionary[index]
         let horizontalOffset = CGFloat(value != nil ? value!.floatValue : 0)
         return horizontalOffset
-    }
-
-    fileprivate func hideMediaOptions() {
-        chatBar.hideMediaView()
-    }
-
-    fileprivate func showMediaOptions() {
-        chatBar.showMediaView()
     }
 
     private func showMoreBar() {
@@ -1919,4 +1911,26 @@ extension ALKConversationViewController: NavigationBarCallbacks {
         return ALContactService().loadContact(byKey: "userId", value: contactId)
     }
 
+}
+
+extension ALKConversationViewController: AttachmentDelegate {
+    func tapAction(message: ALKMessageViewModel) {
+        let storyboard = UIStoryboard.name(
+            storyboard: UIStoryboard.Storyboard.mediaViewer,
+            bundle: Bundle.applozic)
+        guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
+        let vc = nav.viewControllers.first as? ALKMediaViewerViewController
+
+        let messageModels = viewModel.messageModels.filter {
+            ($0.messageType == .photo || $0.messageType == .video) && ($0.downloadPath() != nil) && ($0.downloadPath()!.1 != nil)
+        }
+
+        guard let msg = message as? ALKMessageModel,
+            let currentIndex = messageModels.index(of: msg) else { return }
+        vc?.viewModel = ALKMediaViewerViewModel(
+            messages: messageModels,
+            currentIndex: currentIndex,
+            localizedStringFileName: localizedStringFileName)
+        self.present(nav, animated: true, completion: nil)
+    }
 }

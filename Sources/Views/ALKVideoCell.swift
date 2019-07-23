@@ -13,12 +13,7 @@ import AVKit
 class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
                     ALKReplyMenuItemProtocol {
 
-    enum State {
-        case download
-        case downloading(progress: Double, totalCount: Int64)
-        case downloaded(filePath: String)
-        case upload
-    }
+    var delegate: AttachmentDelegate?
 
     var photoView: UIImageView = {
         let imageView = UIImageView()
@@ -119,28 +114,10 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     override func update(viewModel: ALKMessageViewModel) {
-
         self.viewModel = viewModel
         timeLabel.text = viewModel.time
-
-        if viewModel.isMyMessage {
-            if viewModel.isSent || viewModel.isAllRead || viewModel.isAllReceived {
-                if let filePath = viewModel.filePath, !filePath.isEmpty {
-                    updateView(for: State.downloaded(filePath: filePath))
-                } else {
-                    updateView(for: State.download)
-                }
-            } else {
-                updateView(for: .upload)
-            }
-        } else {
-            if let filePath = viewModel.filePath, !filePath.isEmpty {
-                updateView(for: State.downloaded(filePath: filePath))
-            } else {
-                updateView(for: State.download)
-            }
-        }
-
+        guard let state = viewModel.attachmentState() else { return }
+        updateView(for: state)
     }
 
     @objc func actionTapped(button: UIButton) {
@@ -221,32 +198,15 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     @objc private func playButtonAction(_ selector: UIButton) {
-        let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mediaViewer, bundle: Bundle.applozic)
-
-        let nav = storyboard.instantiateInitialViewController() as? UINavigationController
-        let vc = nav?.viewControllers.first as? ALKMediaViewerViewController
-        let dbService = ALMessageDBService()
-        guard let messages = dbService.getAllMessagesWithAttachment(
-            forContact: viewModel?.contactId,
-            andChannelKey: viewModel?.channelKey,
-            onlyDownloadedAttachments: true) as? [ALMessage] else { return }
-
-        let messageModels = messages.map { $0.messageModel }
-        NSLog("Messages with attachment: ", messages )
-
-        guard let viewModel = viewModel as? ALKMessageModel,
-            let currentIndex = messageModels.index(of: viewModel) else { return }
-        vc?.viewModel = ALKMediaViewerViewModel(messages: messageModels, currentIndex: currentIndex, localizedStringFileName: localizedStringFileName)
-        UIViewController.topViewController()?.present(nav!, animated: true, completion: {
-            self.playButton.isEnabled = true
-        })
+        guard let viewModel = self.viewModel else { return }
+        delegate?.tapAction(message: viewModel)
     }
 
     @objc private func uploadButtonAction(_ selector: UIButton) {
         uploadTapped?(true)
     }
 
-    fileprivate func updateView(for state: State) {
+    fileprivate func updateView(for state: AttachmentState) {
         switch state {
         case .download:
             uploadButton.isHidden = true
@@ -277,19 +237,8 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
             playButton.isHidden = true
             photoView.image = UIImage(named: "VIDEO", in: Bundle.applozic, compatibleWith: nil)
             uploadButton.isHidden = false
-
-        }
-    }
-
-    fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
-        let messageService = ALMessageDBService()
-        let alHandler = ALDBHandler.sharedInstance()
-        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
-        dbMessage.filePath = filePath
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {
-            NSLog("Not saved due to error")
+        default:
+            print("Not handled")
         }
     }
 
@@ -311,7 +260,6 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         let divergence = Double(total)/360.0
         let degree = Double(written)/divergence
         return degree
-
     }
 }
 
@@ -326,7 +274,7 @@ extension ALKVideoCell: ALKHTTPManagerUploadDelegate {
         NSLog("VIDEO CELL DATA UPLOADED FOR PATH: %@", viewModel?.filePath ?? "")
         if task.uploadError == nil && task.completed == true && task.filePath != nil {
             DispatchQueue.main.async {
-                self.updateView(for: State.downloaded(filePath: task.filePath ?? ""))
+                self.updateView(for: .downloaded(filePath: task.filePath ?? ""))
             }
         } else {
             DispatchQueue.main.async {
@@ -349,7 +297,7 @@ extension ALKVideoCell: ALKHTTPManagerDownloadDelegate {
             updateView(for: .download)
             return
         }
-        self.updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))
         }
