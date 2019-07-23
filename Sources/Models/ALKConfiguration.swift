@@ -90,10 +90,10 @@ public struct ALKConfiguration {
     public var hideEmptyStateStartNewButtonInConversationList = false
 
     /// Date cell and  information cell  background color
-    public var conversationViewCustomCellBackgroundColor = UIColor.gray
+    public var conversationViewCustomCellBackgroundColor = UIColor.ALKSVGreyColor229()
 
     /// Date cell and  information cell  text color
-    public var conversationViewCustomCellTextColor = UIColor.white
+    public var conversationViewCustomCellTextColor = UIColor.ALKSVGreyColor102()
 
     /// Additional information you can pass in message metadata in all the messages.
     public var messageMetadata : [AnyHashable : Any]?
