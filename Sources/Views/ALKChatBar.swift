@@ -41,6 +41,7 @@ open class ALKChatBar: UIView, Localizable {
         case sendVoice(NSData)
         case startVideoRecord()
         case startVoiceRecord()
+        case showUploadAttachmentFile()
         case showImagePicker()
         case showLocation()
         case noVoiceRecordPermission()
@@ -230,6 +231,13 @@ open class ALKChatBar: UIView, Localizable {
         return button
     }()
     
+    open var attachmentButton: UIButton = {
+        let button = UIButton(type: .custom)
+        var image = UIImage(named: "icon_send_file", in: Bundle.applozic, compatibleWith: nil)
+        button.setImage(image, for: .normal)
+        return button
+    }()
+    
     open var joinGroupView: UIView = {
         let view = UIView()
         view.setBackgroundColor(UIColor.white)
@@ -274,9 +282,11 @@ open class ALKChatBar: UIView, Localizable {
         case photoButton:
             action?(.cameraButtonClicked(button))
             break
-
         case videoButton:
             action?(.startVideoRecord())
+            break
+        case attachmentButton:
+            action?(.showUploadAttachmentFile())
             break
         case galleryButton:
             action?(.showImagePicker())
@@ -320,6 +330,7 @@ open class ALKChatBar: UIView, Localizable {
         photoButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         sendButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         videoButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        attachmentButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         galleryButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         locationButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
@@ -375,6 +386,7 @@ open class ALKChatBar: UIView, Localizable {
         photoButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         sendButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         videoButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        attachmentButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         galleryButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         locationButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
@@ -437,6 +449,7 @@ open class ALKChatBar: UIView, Localizable {
             micButton,
             lineImageView,
             videoButton,
+            attachmentButton,
             galleryButton,
             locationButton,
             contactButton,
@@ -492,6 +505,11 @@ open class ALKChatBar: UIView, Localizable {
         videoButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         videoButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
 
+        attachmentButton.leadingAnchor.constraint(equalTo: videoButton.trailingAnchor, constant: buttonSpacing).isActive = true
+        attachmentButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        attachmentButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        attachmentButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
+        
         galleryButton.leadingAnchor.constraint(equalTo: photoButton.trailingAnchor, constant: buttonSpacing).isActive = true
         galleryButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         galleryButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
@@ -501,10 +519,10 @@ open class ALKChatBar: UIView, Localizable {
         locationButton.centerYAnchor.constraint(equalTo: bottomGrayView.centerYAnchor, constant: 0).isActive = true
         if configuration.hideLocalInChatBar {
             locationButton.widthAnchor.constraint(equalToConstant: 0).isActive = true
-            locationButton.leadingAnchor.constraint(equalTo: videoButton.trailingAnchor, constant: 0).isActive = true
+            locationButton.leadingAnchor.constraint(equalTo: attachmentButton.trailingAnchor, constant: 0).isActive = true
         }else{
             locationButton.widthAnchor.constraint(equalToConstant: 20).isActive = true
-            locationButton.leadingAnchor.constraint(equalTo: videoButton.trailingAnchor, constant: buttonSpacing).isActive = true
+            locationButton.leadingAnchor.constraint(equalTo: attachmentButton.trailingAnchor, constant: buttonSpacing).isActive = true
         }
         
         lineImageView.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor, constant: -15).isActive = true
@@ -597,6 +615,7 @@ open class ALKChatBar: UIView, Localizable {
         photoButton.isHidden = true
         contactButton.isHidden = true
         videoButton.isHidden = true
+        attachmentButton.isHidden = true
     }
 
     public func showMediaView() {
@@ -607,6 +626,7 @@ open class ALKChatBar: UIView, Localizable {
         photoButton.isHidden = false
         contactButton.isHidden = false
         videoButton.isHidden = false
+        attachmentButton.isHidden = false
     }
 
     public func showPoweredByMessage() {
@@ -660,6 +680,7 @@ open class ALKChatBar: UIView, Localizable {
         soundRec.isUserInteractionEnabled = enabled
         photoButton.isUserInteractionEnabled = enabled
         videoButton.isUserInteractionEnabled = enabled
+        attachmentButton.isUserInteractionEnabled = enabled
         locationButton.isUserInteractionEnabled = enabled
         galleryButton.isUserInteractionEnabled = enabled
         plusButton.isUserInteractionEnabled = enabled

@@ -14,33 +14,29 @@ class ALKDocumentCell:ALKChatBaseCell<ALKMessageViewModel>,
 ALKReplyMenuItemProtocol {
 
     struct CommonPadding {
-        struct FrameUIView {
-            static let top: CGFloat = 5
-            static let leading: CGFloat = 5
-            static let height: CGFloat = 40
-            static let trailing: CGFloat = 5
-        }
-
+        
         struct DocumentView {
-            static let top: CGFloat = 7
-            static let leading: CGFloat = 10
-            static let height: CGFloat = 22
-            static let width: CGFloat = 14
+            static let left: CGFloat = 23
+            static let height: CGFloat = 25
+            static let width: CGFloat = 26
         }
 
         struct FileNameLabel {
-            static let leading: CGFloat = 5
-            static let trailing: CGFloat = 40
+            static let top: CGFloat = 15
+            static let bottom: CGFloat = 15
+            static let left: CGFloat = 10
+            static let height: CGFloat = 20
         }
 
         struct DownloadButton {
-            static let top: CGFloat = 5
-            static let trailing: CGFloat = 5
+            static let left: CGFloat = 10
+            static let right: CGFloat = 5
             static let height: CGFloat = 27
             static let width: CGFloat = 27
         }
         struct FileTypeView {
-            static let height: CGFloat = 20
+            static let bottom: CGFloat = 7
+            static let height: CGFloat = 15
         }
     }
 
@@ -70,19 +66,21 @@ ALKReplyMenuItemProtocol {
         button.setImage(image, for: .normal)
         return button
     }()
-
-    var bubbleView: UIImageView = {
-        let imv = UIImageView()
-        imv.backgroundColor = .clear
-        imv.contentMode = .scaleAspectFill
-        imv.clipsToBounds = true
-        return imv
+    
+    var bubbleView: ALKImageView = {
+        let bv = ALKImageView()
+        bv.clipsToBounds = true
+        bv.isUserInteractionEnabled = true
+        bv.isOpaque = true
+        return bv
     }()
 
     var fileNameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = UIFont.systemFont(ofSize: 12)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVPrimaryDarkGrey()
+        label.textAlignment = .center
         label.isOpaque = true
         return label
     }()
@@ -90,19 +88,23 @@ ALKReplyMenuItemProtocol {
     var sizeAndFileType: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = UIFont.systemFont(ofSize: 12)
+        label.font = UIFont.systemFont(ofSize: 11)
+        label.textColor = UIColor.ALKSVGreyColor153()
+        label.textAlignment = .right
         label.isOpaque = true
         return label
     }()
 
     var timeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
     var frameUIView: UIView = {
         let uiView = UIView()
-        uiView.backgroundColor = UIColor.init(231, green: 231, blue: 232)
+        uiView.backgroundColor = UIColor.clear
         return uiView
     }()
 
@@ -145,43 +147,36 @@ ALKReplyMenuItemProtocol {
 
         downloadButton.addTarget(self, action: #selector(self.downloadButtonAction(_:)), for: UIControl.Event.touchUpInside)
 
-        frameUIView.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: CommonPadding.FrameUIView.top).isActive = true
-
-        frameUIView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: CommonPadding.FrameUIView.leading).isActive = true
-
-        frameUIView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -CommonPadding.FrameUIView.trailing).isActive = true
-
-        frameUIView.heightAnchor.constraint(equalToConstant: CommonPadding.FrameUIView.height).isActive = true
-
         frontView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
         frontView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
         frontView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
         frontView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
 
-        docImageView.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.DocumentView.top).isActive = true
-        docImageView.leadingAnchor.constraint(equalTo: frameUIView.leadingAnchor, constant: CommonPadding.DocumentView.leading).isActive = true
+        docImageView.centerYAnchor.constraint(equalTo: frameUIView.centerYAnchor).isActive = true
+        docImageView.leadingAnchor.constraint(equalTo: frameUIView.leadingAnchor, constant: CommonPadding.DocumentView.left).isActive = true
         docImageView.widthAnchor.constraint(equalToConstant: CommonPadding.DocumentView.width).isActive = true
         docImageView.heightAnchor.constraint(equalToConstant: CommonPadding.DocumentView.height).isActive = true
 
-        fileNameLabel.centerYAnchor.constraint(equalTo: frameUIView.centerYAnchor).isActive = true
-        fileNameLabel.leadingAnchor.constraint(equalTo: docImageView.trailingAnchor, constant: CommonPadding.FileNameLabel.leading).isActive = true
-        fileNameLabel.trailingAnchor.constraint(equalTo: frameUIView.trailingAnchor, constant: -CommonPadding.FileNameLabel.trailing).isActive = true
+        fileNameLabel.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.FileNameLabel.top).isActive = true
+        fileNameLabel.leadingAnchor.constraint(equalTo: docImageView.trailingAnchor, constant: CommonPadding.FileNameLabel.left).isActive = true
+        fileNameLabel.heightAnchor.constraint(equalToConstant: CommonPadding.FileNameLabel.height).isActive = true
 
-        downloadButton.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.DownloadButton.top).isActive = true
-        downloadButton.trailingAnchor.constraint(equalTo: frameUIView.trailingAnchor, constant: -CommonPadding.DownloadButton.trailing).isActive = true
-
+        downloadButton.centerYAnchor.constraint(equalTo: frameUIView.centerYAnchor).isActive = true
+        downloadButton.leadingAnchor.constraint(equalTo: fileNameLabel.trailingAnchor, constant: CommonPadding.DownloadButton.left).isActive = true
+        downloadButton.trailingAnchor.constraint(equalTo: frameUIView.trailingAnchor, constant: -CommonPadding.DownloadButton.right).isActive = true
         downloadButton.widthAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.width).isActive = true
         downloadButton.heightAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.height).isActive = true
 
-        sizeAndFileType.topAnchor.constraint(equalTo: frameUIView.bottomAnchor).isActive = true
-        sizeAndFileType.leadingAnchor.constraint(equalTo: frameUIView.leadingAnchor).isActive = true
-        sizeAndFileType.trailingAnchor.constraint(equalTo: frameUIView.trailingAnchor).isActive = true
+        sizeAndFileType.topAnchor.constraint(equalTo: fileNameLabel.bottomAnchor).isActive = true
+        sizeAndFileType.leadingAnchor.constraint(equalTo: fileNameLabel.leadingAnchor).isActive = true
+        sizeAndFileType.trailingAnchor.constraint(equalTo: fileNameLabel.trailingAnchor).isActive = true
+        sizeAndFileType.bottomAnchor.constraint(equalTo: frameUIView.bottomAnchor, constant: -CommonPadding.FileTypeView.bottom).isActive = true
         sizeAndFileType.heightAnchor.constraint(equalToConstant: CommonPadding.FileTypeView.height).isActive = true
 
         progressView.topAnchor.constraint(equalTo: downloadButton.topAnchor).isActive = true
         progressView.trailingAnchor.constraint(equalTo: downloadButton.trailingAnchor).isActive = true
-        progressView.heightAnchor.constraint(equalToConstant: 27).isActive = true
-        progressView.widthAnchor.constraint(equalToConstant: 27).isActive = true
+        progressView.heightAnchor.constraint(equalTo: downloadButton.widthAnchor).isActive = true
+        progressView.widthAnchor.constraint(equalTo: downloadButton.heightAnchor).isActive = true
 
     }
 
@@ -206,8 +201,7 @@ ALKReplyMenuItemProtocol {
     }
 
     class func commonHeightPadding() -> CGFloat {
-        return CommonPadding.FrameUIView.height + CommonPadding.FrameUIView.top
-            + CommonPadding.FileTypeView.height
+        return CommonPadding.FileNameLabel.top + CommonPadding.FileNameLabel.height + CommonPadding.FileTypeView.height + CommonPadding.FileTypeView.bottom
     }
 
     override func update(viewModel: ALKMessageViewModel) {

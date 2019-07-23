@@ -15,31 +15,35 @@ class ALKFriendDocumentCell: ALKDocumentCell {
 
     struct Padding {
 
-        struct  NameLabel {
-            static let top: CGFloat = 6
-            static let leading: CGFloat = 57
-            static let height: CGFloat = 16
-            static let trailing: CGFloat = 56
+        struct NameLabel {
+            static let top: CGFloat = 7.0
+            static let left: CGFloat = 7.0
+            static let right: CGFloat = 11.0
+            static let height: CGFloat = 20.0
+        }
+        
+        struct AvatarImage {
+            static let top: CGFloat = 10.0
+            static let left: CGFloat = 7.0
+            static let width: CGFloat = 45.0
+            static let height: CGFloat = 45.0
+        }
+        
+        struct TimeLabel {
+            static let top: CGFloat = 5
+            static let bottom: CGFloat = 5
+            static let left: CGFloat = 7
+            static let height: CGFloat = 13
+        }
+        
+        struct BubbleView {
+            static let left: CGFloat = 7.0
+            static let width: CGFloat = 254
         }
 
-        struct  AvatarImageView {
-            static let top: CGFloat = 18
-            static let leading: CGFloat = 9
-            static let height: CGFloat = 37
+        struct FrameUIView {
+            static let top: CGFloat = 7.0
         }
-
-        struct  TimeLabel {
-            static let left: CGFloat = 2
-            static let bottom: CGFloat = 2
-        }
-
-        struct  BubbleView {
-            static let top: CGFloat = 1
-            static let leading: CGFloat = 5
-            static let bottom: CGFloat = 8
-            static let trailing: CGFloat = 48
-        }
-
     }
 
     private var avatarImageView: UIImageView = {
@@ -47,18 +51,18 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         imv.contentMode = .scaleAspectFill
         imv.clipsToBounds = true
         let layer = imv.layer
-        layer.cornerRadius = 18.5
-        layer.backgroundColor = UIColor.lightGray.cgColor
+        layer.cornerRadius = 22.5
         layer.masksToBounds = true
         imv.isUserInteractionEnabled = true
         return imv
     }()
-
+    
     private var nameLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 1
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.ALKSVOrangeColor()
+        label.numberOfLines = 1
+        label.isOpaque = true
         return label
     }()
 
@@ -69,27 +73,30 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         avatarImageView.addGestureRecognizer(tapGesture)
 
         contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel,timeLabel])
-
-        nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Padding.NameLabel.top).isActive = true
-        nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Padding.NameLabel.leading).isActive = true
-
-        nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Padding.NameLabel.trailing).isActive = true
+        
+        nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: Padding.NameLabel.top).isActive = true
+        nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.NameLabel.left).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.NameLabel.right).isActive = true
         nameLabel.heightAnchor.constraint(equalToConstant: Padding.NameLabel.height).isActive = true
+        
+        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Padding.AvatarImage.top).isActive = true
+        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Padding.AvatarImage.left).isActive = true
+        avatarImageView.heightAnchor.constraint(equalToConstant: Padding.AvatarImage.height).isActive = true
+        avatarImageView.widthAnchor.constraint(equalToConstant: Padding.AvatarImage.width).isActive = true
 
-        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Padding.AvatarImageView.top).isActive = true
-
-        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant:  Padding.AvatarImageView.leading).isActive = true
-        avatarImageView.heightAnchor.constraint(equalToConstant: Padding.AvatarImageView.height).isActive = true
-        avatarImageView.widthAnchor.constraint(equalTo: avatarImageView.heightAnchor).isActive = true
-
-        timeLabel.leftAnchor.constraint(equalTo: bubbleView.rightAnchor, constant: Padding.TimeLabel.left).isActive = true
-        timeLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -Padding.TimeLabel.bottom).isActive = true
-
-        bubbleView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Padding.BubbleView.top).isActive = true
-        bubbleView.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Padding.BubbleView.leading).isActive = true
-        bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Padding.BubbleView.trailing).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.BubbleView.bottom).isActive = true
-
+        timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.TimeLabel.left).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.TimeLabel.top).isActive = true
+        timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.TimeLabel.bottom).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height).isActive = true
+        
+        bubbleView.topAnchor.constraint(equalTo: avatarImageView.topAnchor).isActive = true
+        bubbleView.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: Padding.BubbleView.left).isActive = true
+        bubbleView.widthAnchor.constraint(equalToConstant:Padding.BubbleView.width).isActive = true
+        
+        frameUIView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Padding.FrameUIView.top).isActive = true
+        frameUIView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor).isActive = true
+        frameUIView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
+        frameUIView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
     }
 
     override func update(viewModel: ALKMessageViewModel) {
@@ -107,9 +114,9 @@ class ALKFriendDocumentCell: ALKDocumentCell {
 
     override func setupStyle() {
         super.setupStyle()
-        timeLabel.setStyle(ALKMessageStyle.time)
-        nameLabel.setStyle(ALKMessageStyle.displayName)
-        bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
+        //timeLabel.setStyle(ALKMessageStyle.time)
+        //nameLabel.setStyle(ALKMessageStyle.displayName)
+        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
     }
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
@@ -119,7 +126,7 @@ class ALKFriendDocumentCell: ALKDocumentCell {
     }
 
     class func heightPadding() -> CGFloat {
-        return commonHeightPadding()+Padding.NameLabel.height+Padding.NameLabel.top+Padding.BubbleView.bottom+Padding.BubbleView.top
+        return commonHeightPadding() + Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.FrameUIView.top + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
     }
 
     @objc private func avatarTappedAction() {
