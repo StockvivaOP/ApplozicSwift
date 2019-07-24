@@ -800,17 +800,15 @@ open class ALKChatBar: UIView, Localizable {
     
     func updateWithConfig(isOpenGroup:Bool, config: ALKConfiguration){
         if isOpenGroup {
-            self.updateMediaViewVisibility(hide: false)
             //chatBar.hideMicButton()
-        } else {
-            if self.joinGroupView.isHidden == false {
+        }
+        if self.joinGroupView.isHidden == false {
+            self.updateMediaViewVisibility(hide: true)
+        }else{
+            if config.hideAllOptionsInChatBar {
                 self.updateMediaViewVisibility(hide: true)
-            }else{
-                if config.hideAllOptionsInChatBar {
-                    self.updateMediaViewVisibility(hide: true)
-                } else {
-                    self.updateMediaViewVisibility()
-                }
+            } else {
+                self.updateMediaViewVisibility()
             }
         }
     }
