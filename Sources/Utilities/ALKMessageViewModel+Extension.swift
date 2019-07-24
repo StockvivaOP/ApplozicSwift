@@ -7,6 +7,15 @@
 
 import Foundation
 
+enum AttachmentState {
+    case download
+    case downloading(progress: Double, totalCount: Int64)
+    case downloaded(filePath: String)
+    case upload
+    case uploading
+    case uploaded
+}
+
 extension ALKMessageViewModel {
 
     private func messageDetails() -> Message {
@@ -67,6 +76,36 @@ extension ALKMessageViewModel {
             return .sent
         } else {
             return .pending
+        }
+    }
+
+    func downloadPath() -> (String, NSData?)? {
+        guard
+            let name = fileMetaInfo?.name,
+            let fileExtension = name.components(separatedBy: ".").last
+            else {
+                return nil
+        }
+        let filePath = String(format: "%@_local.%@", identifier, fileExtension)
+        let url = FileManager.default.urls(for: .documentDirectory,
+                                           in: .userDomainMask)[0]
+        let data = NSData(contentsOfFile: url.appendingPathComponent(filePath).path)
+        return (filePath, data)
+    }
+
+    func attachmentState() -> AttachmentState? {
+        guard let file = downloadPath() else {
+            return nil
+        }
+        switch isMyMessage {
+        case true:
+            if isSent || isAllRead || isAllReceived {
+                return file.1 != nil ? .downloaded(filePath: file.0) : .download
+            } else {
+                return .upload
+            }
+        case false:
+            return file.1 != nil ? .downloaded(filePath: file.0) : .download
         }
     }
 }

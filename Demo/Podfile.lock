@@ -26,7 +26,7 @@ PODS:
   - SDWebImage (4.4.7):
     - SDWebImage/Core (= 4.4.7)
   - SDWebImage/Core (4.4.7)
-  - SwiftLint (0.33.0)
+  - SwiftLint (0.34.0)
 
 DEPENDENCIES:
   - ApplozicSwift (from `../ApplozicSwift.podspec`)
@@ -61,7 +61,7 @@ SPEC CHECKSUMS:
   Nimble-Snapshots: 2ec985281eef0eb9fc69a469deee851363a50d0e
   Quick: 4be43f6634acfa727dd106bdf3929ce125ffa79d
   SDWebImage: c10d14a8883ebd89664f02a422006f66a85c0c5d
-  SwiftLint: fed9c66336e41fc74dc48a73678380718f0c8b0e
+  SwiftLint: 79d48a17c6565dc286c37efb8322c7b450f95c67
 
 PODFILE CHECKSUM: 6e7de6068aa53db2a6eb8bf4ed55a07d26a9dbfb
 
