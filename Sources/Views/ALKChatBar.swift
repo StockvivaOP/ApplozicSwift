@@ -527,7 +527,7 @@ open class ALKChatBar: UIView, Localizable {
             attachmentButtonStackView.leadingAnchor.constraint(equalTo: bottomGrayView.leadingAnchor, constant: 18),
             attachmentButtonStackView.trailingAnchor.constraint(lessThanOrEqualTo: bottomGrayView.trailingAnchor, constant: -18),
             attachmentButtonStackView.heightAnchor.constraintEqualToAnchor(
-                constant: 45,
+                constant: 0,
                 identifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)
         ]
         stackViewConstraints.append(contentsOf: buttonheightConstraints)
@@ -805,11 +805,7 @@ open class ALKChatBar: UIView, Localizable {
         if self.joinGroupView.isHidden == false {
             self.updateMediaViewVisibility(hide: true)
         }else{
-            if config.hideAllOptionsInChatBar {
-                self.updateMediaViewVisibility(hide: true)
-            } else {
-                self.updateMediaViewVisibility()
-            }
+            self.updateMediaViewVisibility()
         }
     }
     
