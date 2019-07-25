@@ -247,7 +247,20 @@ open class ALKChatBar: UIView, Localizable {
     open var isTextViewFirstResponder: Bool {
         return textView.isFirstResponder
     }
-    
+
+    var isMediaViewHidden = false {
+        didSet {
+            if isMediaViewHidden {
+                bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
+                attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 0
+
+            } else {
+                bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
+                attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 45
+            }
+        }
+    }
+
     private var attachmentButtonStackView: UIStackView = {
         let attachmentStack = UIStackView(frame: CGRect.zero)
         return attachmentStack
@@ -619,16 +632,9 @@ open class ALKChatBar: UIView, Localizable {
     /// value.
     public func updateMediaViewVisibility(hide: Bool = false) {
         if hide {
-            bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
-            attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 0
-        } else {
-            if configuration.chatBar.optionsToShow != .none {
-                bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
-                attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 45
-            }else{
-                bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
-                attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 0
-            }
+            isMediaViewHidden = true
+        } else if configuration.chatBar.optionsToShow != .none {
+            isMediaViewHidden = false
         }
     }
 
