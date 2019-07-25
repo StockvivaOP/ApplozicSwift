@@ -686,6 +686,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     private func configureChatBar() {
+        self.enableJoinGroupButton(self.enableShowJoinGroupMode)
         chatBar.updateWithConfig(isOpenGroup: viewModel.isOpenGroup, config: configuration)
     }
 
