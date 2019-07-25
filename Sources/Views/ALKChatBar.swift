@@ -247,20 +247,7 @@ open class ALKChatBar: UIView, Localizable {
     open var isTextViewFirstResponder: Bool {
         return textView.isFirstResponder
     }
-
-    var isMediaViewHidden = false {
-        didSet {
-            if isMediaViewHidden {
-                bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
-                attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 0
-
-            } else {
-                bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
-                attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 45
-            }
-        }
-    }
-
+    
     private var attachmentButtonStackView: UIStackView = {
         let attachmentStack = UIStackView(frame: CGRect.zero)
         return attachmentStack
