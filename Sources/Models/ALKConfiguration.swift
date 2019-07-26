@@ -180,6 +180,7 @@ public struct ALKConfiguration {
 
 //tag: stockviva - start
 public protocol ALKViewLifeCycleDelegate: class{
+    func alkViewDidLoad(_ viewController:UIViewController)
     func alkViewWillAppear(_ viewController:UIViewController)
     func alkViewDidDisappear(_ viewController:UIViewController)
 }

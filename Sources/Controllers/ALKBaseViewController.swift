@@ -51,6 +51,7 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
     override open func viewDidLoad() {
         super.viewDidLoad()
         checkPricingPackage()
+        self.configuration.delegateConversationChatContentAction?.alkViewDidLoad(self)
     }
 
     @objc func backTapped() {
