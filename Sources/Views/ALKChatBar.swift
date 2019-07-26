@@ -298,10 +298,13 @@ open class ALKChatBar: UIView, Localizable {
             break
         case locationButton:
             action?(.showLocation)
+            break
         case contactButton:
             action?(.shareContact)
+            break
         case joinGroupButton:
             self.delegate?.joinGroupButtonClicked(chatBar: self, chatView:nil)
+            break
         default: break
         }
     }

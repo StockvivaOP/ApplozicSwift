@@ -1195,9 +1195,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 self.delegate?.loadingFinished(error: nil)
                 return
             }
-            self.alMessages = messages
-            self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: messages))
-            let models = messages.map { $0.messageModel }
+            let sortedArray = messages.sorted { Int(truncating: $0.createdAtTime) < Int(truncating: $1.createdAtTime) }
+            guard !sortedArray.isEmpty else { return }
+            self.alMessages = sortedArray
+            self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: sortedArray))
+            let models = sortedArray.map { $0.messageModel }
             self.messageModels = models
             if self.isFirstTime {
                 self.delegate?.loadingFinished(error: nil)

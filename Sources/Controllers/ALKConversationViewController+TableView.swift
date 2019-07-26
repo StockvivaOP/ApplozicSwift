@@ -376,9 +376,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     value in
                     self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
                 }
-
-                cell.menuAction = {[weak self] action in
-                    self?.menuItemSelected(action: action, message: message) }
+                
                 return cell
             } else {
                 let cell: ALKFriendDocumentCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
