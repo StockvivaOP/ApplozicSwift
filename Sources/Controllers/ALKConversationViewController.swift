@@ -507,7 +507,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             chatBar.enableChat()
         }
         // Disable group details for support group, open group and when user is not a member.
-        navigationBar.disableTitleAction = channel.type == 10 || channel.type == 6 || channel.type == 1 || !members.contains(ALUserDefaultsHandler.getUserId())
+        navigationBar.disableTitleAction = channel.type == 10 || channel.type == 6 || !members.contains(ALUserDefaultsHandler.getUserId())
     }
 
     func prepareContextView() {
