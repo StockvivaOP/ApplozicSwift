@@ -181,6 +181,9 @@ class ALKConversationNavBar: UIView, Localizable {
         profileView.topAnchor.constraint(equalTo: profileImage.topAnchor).isActive = true
         profileView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor).isActive = true
         profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        
+        groupMuteImage.widthAnchor.constraint(equalToConstant: 15).isActive = true
+        groupMuteImage.heightAnchor.constraint(equalToConstant: 15).isActive = true
     }
 
     private func hideStatus(_ hide: Bool) {
