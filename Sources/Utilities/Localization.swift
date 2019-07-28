@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol Localizable {
+public protocol Localizable {
     static func localizedString(forKey: String) -> String
     func localizedString(forKey: String, withDefaultValue: String, fileName: String) -> String
 }
