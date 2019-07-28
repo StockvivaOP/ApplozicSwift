@@ -12,7 +12,7 @@ import Applozic
 import SafariServices
 
 // swiftlint:disable:next type_body_length
-public class ALKConversationViewController: ALKBaseViewController, Localizable {
+open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     var timerTask = Timer()
 

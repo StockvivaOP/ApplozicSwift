@@ -21,7 +21,7 @@ public protocol ALKConversationListDelegate: class {
     )
 }
 
-public class ALKConversationListViewController: ALKBaseViewController, Localizable {
+open class ALKConversationListViewController: ALKBaseViewController, Localizable {
 
     public var conversationViewController: ALKConversationViewController?
     public var conversationViewModelType = ALKConversationViewModel.self
