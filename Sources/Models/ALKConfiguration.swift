@@ -195,9 +195,9 @@ public protocol ConversationChatBarActionDelegate: class{
 
 //framework use only
 public protocol BetweenConversationChatBarActionDelegate: class{
-    func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
-    func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
-    func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+    func chatBarRequestGetTextViewPashHolder(chatBar:ALKChatBar) -> String?
+    func chatBarRequestIsHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
+    func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
 }
 
 extension ALKConfiguration {

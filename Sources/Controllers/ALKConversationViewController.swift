@@ -2061,15 +2061,15 @@ extension ALKConversationViewController: UIDocumentPickerDelegate {
 
 //MARK: - stockviva (BetweenConversationChatBarActionDelegate)
 extension ALKConversationViewController: BetweenConversationChatBarActionDelegate{
-    public func getTextViewPashHolder(chatBar: ALKChatBar) -> String? {
+    public func chatBarRequestGetTextViewPashHolder(chatBar: ALKChatBar) -> String? {
         return self.configuration.delegateConversationChatBarAction?.getTextViewPashHolder(chatBar: chatBar)
     }
     
-    public func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool) {
+    public func chatBarRequestIsHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool) {
         self.configuration.delegateConversationChatBarAction?.isHiddenJoinGroupButton(chatBar: chatBar, isHidden:isHidden)
     }
     
-    public func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
+    public func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
         self.configuration.delegateConversationChatBarAction?.joinGroupButtonClicked(chatBar: chatBar, chatView:self)
     }
 }
