@@ -2059,8 +2059,8 @@ extension ALKConversationViewController: UIDocumentPickerDelegate {
     }
 }
 
-//MARK: - stockviva (ConversationChatBarActionDelegate)
-extension ALKConversationViewController: ConversationChatBarActionDelegate{
+//MARK: - stockviva (BetweenConversationChatBarActionDelegate)
+extension ALKConversationViewController: BetweenConversationChatBarActionDelegate{
     public func getTextViewPashHolder(chatBar: ALKChatBar) -> String? {
         return self.configuration.delegateConversationChatBarAction?.getTextViewPashHolder(chatBar: chatBar)
     }

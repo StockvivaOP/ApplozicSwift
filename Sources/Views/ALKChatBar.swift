@@ -25,7 +25,7 @@ open class ALKChatBar: UIView, Localizable {
 
     var configuration: ALKConfiguration!
     
-    var delegate:ConversationChatBarActionDelegate?
+    var delegate:BetweenConversationChatBarActionDelegate?
 
     public var chatBarConfiguration: ALKChatBarConfiguration {
         return configuration.chatBar
