@@ -179,12 +179,23 @@ public struct ALKConfiguration {
 }
 
 //tag: stockviva - start
-public protocol ConversationChatContentActionDelegate: class{
-    func isShowDiscrimation(chatView:UIViewController) -> (isShow: Bool, title: String)?
-    func discrimationClicked(chatView:UIViewController)
-    func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
-    func groupTitleViewClicked(chatView:UIViewController)
-    func rightMenuClicked(chatView:UIViewController)
+public protocol ALKViewLifeCycleDelegate: class{
+    func alkViewDidLoad(_ viewController:UIViewController)
+    func alkViewWillAppear(_ viewController:UIViewController)
+    func alkViewDidDisappear(_ viewController:UIViewController)
+}
+
+extension ALKViewLifeCycleDelegate {
+    func alkViewWillAppear(_ viewController:UIViewController){/*none*/}
+    func alkViewDidDisappear(_ viewController:UIViewController){/*none*/}
+}
+
+public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
+    func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
+    func discrimationClicked(chatView:ALKConversationViewController)
+    func getJoinGroupButtonInfo(chatView:ALKConversationViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
+    func groupTitleViewClicked(chatView:ALKConversationViewController)
+    func rightMenuClicked(chatView:ALKConversationViewController)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
