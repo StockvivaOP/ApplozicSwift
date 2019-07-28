@@ -9,7 +9,7 @@
 import UIKit
 import Applozic
 
-open class ALKBaseViewController: UIViewController, ALKConfigurable {
+public class ALKBaseViewController: UIViewController, ALKConfigurable {
 
     public var configuration: ALKConfiguration!
 
