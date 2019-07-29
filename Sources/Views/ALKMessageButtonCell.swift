@@ -86,7 +86,7 @@ class ALKFriendMessageButtonCell: ALKChatBaseCell<ALKMessageViewModel> {
             (ChatCellPadding.ReceivedMessage.Message.left + ChatCellPadding.ReceivedMessage.Message.right)
         let height = ALKFriendMessageView.rowHeight(viewModel: viewModel, width: messageWidth)
         messageViewHeight.constant = height
-        messageView.update(viewModel: viewModel)
+        messageView.update(viewModel: viewModel, configuration: self.systemConfig)
 
         guard let dict = viewModel.payloadFromMetadata() else {
             self.layoutIfNeeded()

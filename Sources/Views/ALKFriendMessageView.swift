@@ -10,6 +10,7 @@ import Kingfisher
 
 class ALKFriendMessageView: UIView {
 
+    var configuration: ALKConfiguration!
     private var widthPadding: CGFloat = CGFloat(ALKMessageStyle.receivedBubble.widthPadding)
 
     fileprivate lazy var messageView: ALKHyperLabel = {
@@ -117,8 +118,8 @@ class ALKFriendMessageView: UIView {
         timeLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 2).isActive = true
     }
 
-    func update(viewModel: ALKMessageViewModel) {
-
+    func update(viewModel: ALKMessageViewModel, configuration: ALKConfiguration) {
+        self.configuration = configuration
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
 
         if let url = viewModel.avatarURL {
@@ -133,7 +134,7 @@ class ALKFriendMessageView: UIView {
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         //set color
         if let _messageUserId = viewModel.contactId,
-            let _nameLabelColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            let _nameLabelColor = self.configuration.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _nameLabelColor
         }
         

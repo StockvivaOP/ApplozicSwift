@@ -116,7 +116,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tv.clipsToBounds    = true
         tv.keyboardDismissMode = UIScrollView.KeyboardDismissMode.onDrag
         tv.accessibilityIdentifier = "InnerChatScreenTableView"
-        tv.backgroundColor = ALKConfiguration.share.conversationViewBackgroundColor
+        tv.backgroundColor = UIColor.ALKSVGreyColor245()
         return tv
     }()
 
@@ -412,6 +412,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
+        //update color
+        tableView.backgroundColor = self.configuration.conversationViewBackgroundColor
         setRichMessageKitTheme()
 
         guard !configuration.restrictedWordsFileName.isEmpty else {

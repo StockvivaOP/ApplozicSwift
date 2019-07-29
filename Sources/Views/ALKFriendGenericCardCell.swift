@@ -23,7 +23,7 @@ open class ALKFriendGenericCardCell: ALKGenericCardBaseCell {
     }
 
     override open func update(viewModel: ALKMessageViewModel, width: CGFloat) {
-        messageView.update(viewModel: viewModel)
+        messageView.update(viewModel: viewModel, configuration: self.systemConfig)
         let messageWidth = width - (ChatCellPadding.ReceivedMessage.Message.left +
             ChatCellPadding.ReceivedMessage.Message.right)
         let height = ALKFriendMessageView.rowHeight(viewModel: viewModel, width: messageWidth)

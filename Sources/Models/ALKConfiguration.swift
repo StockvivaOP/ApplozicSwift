@@ -147,7 +147,7 @@ public struct ALKConfiguration {
 
     //tag: stockviva - start
     //static obj
-    public static var share = ALKConfiguration()
+    //public static var share = ALKConfiguration()
     
     /// If true, contact share option in chatbar will be hidden.
     public var enableCustomeGroupDetail: Bool = false

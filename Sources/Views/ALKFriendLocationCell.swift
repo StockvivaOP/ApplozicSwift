@@ -78,7 +78,7 @@ final class ALKFriendLocationCell: ALKLocationCell {
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         //set color
         if let _messageUserId = viewModel.contactId,
-            let _nameLabelColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            let _nameLabelColor = self.systemConfig.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _nameLabelColor
         }
 

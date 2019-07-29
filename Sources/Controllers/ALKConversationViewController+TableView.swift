@@ -35,6 +35,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
                 let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -49,6 +50,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -71,6 +73,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
                 let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -82,6 +85,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -101,6 +105,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     print("image messsage called")
                     let cell: ALKMyPhotoPortalCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                    cell.systemConfig = self.configuration
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     // Set the value to nil so that previous image gets removed before reuse
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
@@ -127,6 +132,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 } else {
                     let cell: ALKMyPhotoLandscapeCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                    cell.systemConfig = self.configuration
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
@@ -143,6 +149,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
                     let cell: ALKFriendPhotoPortalCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                    cell.systemConfig = self.configuration
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
@@ -162,6 +169,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 } else {
                     let cell: ALKFriendPhotoLandscapeCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                     cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                    cell.systemConfig = self.configuration
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
@@ -177,6 +185,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyVoiceCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.downloadTapped = {[weak self] value in
@@ -190,6 +199,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendVoiceCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.downloadTapped = {[weak self] value in
@@ -209,6 +219,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyLocationCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -220,6 +231,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendLocationCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -241,6 +253,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyVideoCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -264,6 +277,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendVideoCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -284,6 +298,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyGenericCardCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.register(cell: ALKGenericCardCell.self)
@@ -294,6 +309,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendGenericCardCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.register(cell: ALKGenericCardCell.self)
@@ -323,6 +339,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyQuickReplyCell  = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
@@ -331,6 +348,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendQuickReplyCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
@@ -356,6 +374,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 /// No button action if message sent by same user.
                 let cell: ALKMyMessageButtonCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
@@ -364,6 +383,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendMessageButtonCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
@@ -382,6 +402,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyListTemplateCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
@@ -390,6 +411,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendListTemplateCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
@@ -404,6 +426,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyDocumentCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
 
@@ -427,6 +450,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendDocumentCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -450,6 +474,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             if message.isMyMessage {
                 let cell: ALKMyContactMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
@@ -467,6 +492,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ALKFriendContactMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
