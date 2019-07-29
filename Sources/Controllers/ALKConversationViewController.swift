@@ -155,7 +155,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public var enableShowJoinGroupMode: Bool = false
     public var groupRuleURL: String? = nil
     public var groupURL: String? = nil
-    public var groupMetaDataURL: [String:Any] = []
+    public var groupMetaDataURL: [String:Any] = [:]
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
