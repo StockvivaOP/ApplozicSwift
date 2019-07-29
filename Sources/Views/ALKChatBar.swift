@@ -25,7 +25,7 @@ open class ALKChatBar: UIView, Localizable {
 
     var configuration: ALKConfiguration!
     
-    var delegate:ConversationChatBarActionDelegate?
+    var delegate:ChatBarRequestActionDelegate?
 
     public var chatBarConfiguration: ALKChatBarConfiguration {
         return configuration.chatBar
@@ -303,7 +303,7 @@ open class ALKChatBar: UIView, Localizable {
             action?(.shareContact)
             break
         case joinGroupButton:
-            self.delegate?.joinGroupButtonClicked(chatBar: self, chatView:nil)
+            self.delegate?.chatBarRequestJoinGroupButtonClicked(chatBar: self, chatView:nil)
             break
         default: break
         }
@@ -778,7 +778,7 @@ open class ALKChatBar: UIView, Localizable {
             self.joinGroupButton.setImage(_img, for: .normal)
         }
         //on, off join button
-        self.delegate?.isHiddenJoinGroupButton(chatBar: self, isHidden:false)
+        self.delegate?.chatBarRequestIsHiddenJoinGroupButton(chatBar: self, isHidden:false)
     }
     
     public func hiddenJoinGroupButton(){
@@ -788,12 +788,12 @@ open class ALKChatBar: UIView, Localizable {
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
         //on, off join button
-        self.delegate?.isHiddenJoinGroupButton(chatBar: self, isHidden:true)
+        self.delegate?.chatBarRequestIsHiddenJoinGroupButton(chatBar: self, isHidden:true)
     }
     
     func setUpViewConfig(){
         //set PashHolder
-        if let _tempPashHolder = self.delegate?.getTextViewPashHolder(chatBar: self){
+        if let _tempPashHolder = self.delegate?.chatBarRequestGetTextViewPashHolder(chatBar: self){
             self.pashHolderStr = _tempPashHolder
         }else{
             self.pashHolderStr = ""

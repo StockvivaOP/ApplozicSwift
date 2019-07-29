@@ -153,9 +153,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     
     //tag: stockviva start
     public var enableShowJoinGroupMode: Bool = false
-    public var groupRuleURL: String? = nil
-    public var groupURL: String? = nil
-    public var groupMetaDataURL: [String:Any] = [:]
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
@@ -2063,16 +2060,16 @@ extension ALKConversationViewController: UIDocumentPickerDelegate {
 }
 
 //MARK: - stockviva (ConversationChatBarActionDelegate)
-extension ALKConversationViewController: ConversationChatBarActionDelegate{
-    public func getTextViewPashHolder(chatBar: ALKChatBar) -> String? {
+extension ALKConversationViewController: ChatBarRequestActionDelegate{
+    public func chatBarRequestGetTextViewPashHolder(chatBar: ALKChatBar) -> String? {
         return self.configuration.delegateConversationChatBarAction?.getTextViewPashHolder(chatBar: chatBar)
     }
     
-    public func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool) {
+    public func chatBarRequestIsHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool) {
         self.configuration.delegateConversationChatBarAction?.isHiddenJoinGroupButton(chatBar: chatBar, isHidden:isHidden)
     }
     
-    public func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
+    public func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
         self.configuration.delegateConversationChatBarAction?.joinGroupButtonClicked(chatBar: chatBar, chatView:self)
     }
 }

@@ -183,18 +183,7 @@ public struct ALKConfiguration {
 }
 
 //tag: stockviva - start
-public protocol ALKViewLifeCycleDelegate: class{
-    func alkViewDidLoad(_ viewController:UIViewController)
-    func alkViewWillAppear(_ viewController:UIViewController)
-    func alkViewDidDisappear(_ viewController:UIViewController)
-}
-
-extension ALKViewLifeCycleDelegate {
-    func alkViewWillAppear(_ viewController:UIViewController){/*none*/}
-    func alkViewDidDisappear(_ viewController:UIViewController){/*none*/}
-}
-
-public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
+public protocol ConversationChatContentActionDelegate: class{
     func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
     func discrimationClicked(chatView:ALKConversationViewController)
     func getJoinGroupButtonInfo(chatView:ALKConversationViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
@@ -206,6 +195,12 @@ public protocol ConversationChatBarActionDelegate: class{
     func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
     func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
     func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+}
+
+public protocol ChatBarRequestActionDelegate: class{
+    func chatBarRequestGetTextViewPashHolder(chatBar:ALKChatBar) -> String?
+    func chatBarRequestIsHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
+    func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{
