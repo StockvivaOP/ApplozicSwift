@@ -184,11 +184,11 @@ public struct ALKConfiguration {
 
 //tag: stockviva - start
 public protocol ConversationChatContentActionDelegate: class{
-    func isShowDiscrimation(chatView:ALKConversationViewController) -> (isShow: Bool, title: String)?
-    func discrimationClicked(chatView:ALKConversationViewController)
-    func getJoinGroupButtonInfo(chatView:ALKConversationViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
-    func groupTitleViewClicked(chatView:ALKConversationViewController)
-    func rightMenuClicked(chatView:ALKConversationViewController)
+    func isShowDiscrimation(chatView:UIViewController) -> (isShow: Bool, title: String)?
+    func discrimationClicked(chatView:UIViewController)
+    func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
+    func groupTitleViewClicked(chatView:UIViewController)
+    func rightMenuClicked(chatView:UIViewController)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
