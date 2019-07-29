@@ -143,10 +143,11 @@ open class ALKReplyMessageView: UIView, Localizable {
         fatalError("init(coder:) has not been implemented")
     }
 
-    open func update(message: ALKMessageViewModel, indicatorColor:UIColor = UIColor.ALKSVOrangeColor()) {
+    open func update(message: ALKMessageViewModel) {
         self.message = message
         nameLabel.text = message.isMyMessage ?
             selfNameText:message.displayName
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
         messageLabel.text = getMessageText()
 
         if let imageURL = getURLForPreviewImage(message: message) {
@@ -174,7 +175,14 @@ open class ALKReplyMessageView: UIView, Localizable {
             messageTypeImagewidthConst?.constant = 20
             messageLabelLeadingConst?.constant = 5
         }
-        indicatorView.backgroundColor = indicatorColor
+        indicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
+        
+        //set color
+        if let _messageUserId = message.contactId,
+            let _userColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _userColor
+            indicatorView.backgroundColor = _userColor
+        }
     }
 
     // MARK: - Internal methods

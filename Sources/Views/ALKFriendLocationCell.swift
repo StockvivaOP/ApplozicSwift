@@ -75,6 +75,12 @@ final class ALKFriendLocationCell: ALKLocationCell {
         super.update(viewModel: viewModel)
 
         nameLabel.text = viewModel.displayName
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
+        //set color
+        if let _messageUserId = viewModel.contactId,
+            let _nameLabelColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _nameLabelColor
+        }
 
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
 

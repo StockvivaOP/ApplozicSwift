@@ -78,6 +78,12 @@ class ALKFriendContactMessageCell: ALKContactMessageBaseCell {
 
         nameLabel.text = viewModel.displayName
         nameLabel.setStyle(ALKMessageStyle.displayName)
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
+        //set color
+        if let _messageUserId = viewModel.contactId,
+            let _nameLabelColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _nameLabelColor
+        }
     }
 
     override func setupStyle() {

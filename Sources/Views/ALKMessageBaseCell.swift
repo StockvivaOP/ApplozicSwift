@@ -166,7 +166,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     var replyMessageTypeImagewidthConst:NSLayoutConstraint?
     var replyMessageLabelConst:NSLayoutConstraint?
 
-    func update(viewModel: ALKMessageViewModel, style: Style, replyIndicatorColor:UIColor = UIColor.ALKSVOrangeColor()) {
+    func update(viewModel: ALKMessageViewModel, style: Style) {
         self.viewModel = viewModel
 
         if viewModel.isReplyMessage {
@@ -211,15 +211,29 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyMessageLabelConst?.constant = 5
         }
         if viewModel.isMyMessage {
+            replyNameLabel.textColor = UIColor.ALKSVOrangeColor()
             replyView.image = setReplyViewImage(isReceiverSide: false)
             replyIndicatorView.image = UIImage.init(named: "sv_button_chatroom_reply_orange", in: Bundle.applozic, compatibleWith: nil)
             replyIndicatorView.backgroundColor = UIColor.clear
-            replyIndicatorView.tintColor = replyIndicatorColor
+            replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
+            //set color
+            if let _messageUserId = viewModel.contactId,
+                let _userColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+                replyNameLabel.textColor = _userColor
+                replyIndicatorView.tintColor = _userColor
+            }
         }else{
             replyView.image = setReplyViewImage(isReceiverSide: true)
-            replyIndicatorView.backgroundColor = replyIndicatorColor
-            replyIndicatorView.tintColor = replyIndicatorColor
+            replyIndicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
+            replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.image = nil
+            //set color
+            if let _messageUserId = viewModel.contactId,
+                let _userColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+                replyNameLabel.textColor = _userColor
+                replyIndicatorView.backgroundColor = _userColor
+                replyIndicatorView.tintColor = _userColor
+            }
         }
 
         self.timeLabel.text   = viewModel.time

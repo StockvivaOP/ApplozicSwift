@@ -110,6 +110,12 @@ class ALKFriendDocumentCell: ALKDocumentCell {
             self.avatarImageView.image = placeHolder
         }
         nameLabel.text = viewModel.displayName
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
+        //set color
+        if let _messageUserId = viewModel.contactId,
+            let _nameLabelColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _nameLabelColor
+        }
     }
 
     override func setupStyle() {

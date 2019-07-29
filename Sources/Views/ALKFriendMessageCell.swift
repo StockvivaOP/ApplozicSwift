@@ -327,6 +327,12 @@ open class ALKFriendMessageCell: ALKMessageCell {
         }
         
         nameLabel.text = viewModel.displayName
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
+        //set color
+        if let _messageUserId = viewModel.contactId,
+            let _nameLabelColor = ALKConfiguration.share.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _nameLabelColor
+        }
     }
     
     override class func rowHeigh(viewModel: ALKMessageViewModel,
