@@ -13,6 +13,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
 
     var clientChannelKey: String?
     var localizedStringFileName: String!
+    var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
 
     public func setLocalizedStringFileName(_ localizedStringFileName: String) {
         self.localizedStringFileName = localizedStringFileName

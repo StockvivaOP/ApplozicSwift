@@ -153,6 +153,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     
     //tag: stockviva start
     public var enableShowJoinGroupMode: Bool = false
+    //delegate object
+    public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
+    public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
+    public var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     open var discrimationView: UIButton = {
         let view = UIButton()
@@ -1023,7 +1027,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
     
     @objc func discrimationToucUpInside(_ sender: UIButton) {
-        self.configuration.delegateConversationChatContentAction?.discrimationClicked(chatView: self)
+        self.delegateConversationChatContentAction?.discrimationClicked(chatView: self)
     }
 
 
@@ -1940,7 +1944,7 @@ extension ALKConversationViewController: NavigationBarCallbacks {
         //for custom show detail view
         if self.configuration.enableCustomeGroupDetail {
             guard isGroupDetailActionEnabled else { return }
-            self.configuration.delegateConversationChatContentAction?.groupTitleViewClicked(chatView: self)
+            self.delegateConversationChatContentAction?.groupTitleViewClicked(chatView: self)
             return
         }
         
@@ -1996,7 +2000,7 @@ extension ALKConversationViewController {
     
     //menu button clicked
     @objc func sendRightNavBarButtonCustomSelectionNotification(_ selector: UIBarButtonItem) {
-        self.configuration.delegateConversationChatContentAction?.rightMenuClicked(chatView: self)
+        self.delegateConversationChatContentAction?.rightMenuClicked(chatView: self)
     }
     
     //navigationBar control
@@ -2006,7 +2010,7 @@ extension ALKConversationViewController {
     
     public func enableJoinGroupButton(_ isEnable:Bool){
         //tag: on / off join group button
-        if isEnable, let _btnInfo = self.configuration.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
+        if isEnable, let _btnInfo = self.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
             self.enableShowJoinGroupMode = true
             self.chatBar.showJoinGroupButton(title: _btnInfo.title, backgroundColor: _btnInfo.backgroundColor, textColor: _btnInfo.textColor, rightIcon: _btnInfo.rightIcon)
         }else{
@@ -2017,7 +2021,7 @@ extension ALKConversationViewController {
     
     private func prepareDiscrimationView() {
         self.discrimationView.addTarget(self, action: #selector(discrimationToucUpInside(_:)), for: .touchUpInside)
-        if let _discInfo = self.configuration.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
+        if let _discInfo = self.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
             self.discrimationView.isHidden = false
             self.discrimationViewHeightConstraint?.constant = 20
             self.discrimationView.setTitle(_discInfo.title, for: .normal)
@@ -2062,14 +2066,14 @@ extension ALKConversationViewController: UIDocumentPickerDelegate {
 //MARK: - stockviva (ConversationChatBarActionDelegate)
 extension ALKConversationViewController: ChatBarRequestActionDelegate{
     public func chatBarRequestGetTextViewPashHolder(chatBar: ALKChatBar) -> String? {
-        return self.configuration.delegateConversationChatBarAction?.getTextViewPashHolder(chatBar: chatBar)
+        return self.delegateConversationChatBarAction?.getTextViewPashHolder(chatBar: chatBar)
     }
     
     public func chatBarRequestIsHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool) {
-        self.configuration.delegateConversationChatBarAction?.isHiddenJoinGroupButton(chatBar: chatBar, isHidden:isHidden)
+        self.delegateConversationChatBarAction?.isHiddenJoinGroupButton(chatBar: chatBar, isHidden:isHidden)
     }
     
     public func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
-        self.configuration.delegateConversationChatBarAction?.joinGroupButtonClicked(chatBar: chatBar, chatView:self)
+        self.delegateConversationChatBarAction?.joinGroupButtonClicked(chatBar: chatBar, chatView:self)
     }
 }
