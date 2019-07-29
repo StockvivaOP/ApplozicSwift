@@ -156,6 +156,9 @@ public struct ALKConfiguration {
     /// If true, contact share option in chatbar will be hidden.
     public var enableCustomeGroupDetail: Bool = false
     
+    /// If true, mic feature will disable in chat bar
+    public var hideMicInChatBar: Bool = false
+    
     /// If true, contact share option in chatbar will be hidden.
     public var hideLocalInChatBar: Bool = false
     

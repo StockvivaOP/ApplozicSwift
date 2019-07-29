@@ -805,6 +805,9 @@ open class ALKChatBar: UIView, Localizable {
         if isOpenGroup {
             //chatBar.hideMicButton()
         }
+        if config.hideMicInChatBar {
+            self.hideMicButton()
+        }
         if self.joinGroupView.isHidden == false {
             self.updateMediaViewVisibility(hide: true)
         }else{
