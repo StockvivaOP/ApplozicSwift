@@ -1999,7 +1999,7 @@ extension ALKConversationViewController {
     
     //menu button clicked
     @objc func sendRightNavBarButtonCustomSelectionNotification(_ selector: UIBarButtonItem) {
-        self.configuration.delegateConversationChatContentAction?.rightMenuClicked(chatView: self, menuButton:selector)
+        self.configuration.delegateConversationChatContentAction?.rightMenuClicked(chatView: self)
     }
     
     //navigationBar control

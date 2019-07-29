@@ -199,7 +199,7 @@ public protocol ConversationChatContentActionDelegate: ALKViewLifeCycleDelegate{
     func discrimationClicked(chatView:ALKConversationViewController)
     func getJoinGroupButtonInfo(chatView:ALKConversationViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func groupTitleViewClicked(chatView:ALKConversationViewController)
-    func rightMenuClicked(chatView:ALKConversationViewController, menuButton: UIBarButtonItem)
+    func rightMenuClicked(chatView:ALKConversationViewController)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
