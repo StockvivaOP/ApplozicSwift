@@ -147,7 +147,7 @@ public struct ALKConfiguration {
 
     //tag: stockviva - start
     //static obj
-    public static let share = ALKConfiguration()
+    public static var share = ALKConfiguration()
     //delegate object
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
