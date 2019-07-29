@@ -18,7 +18,7 @@ class ALKImageView: UIImageView {
     }
 }
 
-open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol {
+open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
     /// Dummy view required to calculate height for normal text.
     fileprivate static var dummyMessageView: ALKTextView = {
@@ -333,6 +333,14 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     func menuCopy(_ sender: Any) {
         UIPasteboard.general.string = self.viewModel?.message ?? ""
+    }
+    
+    func menuAppeal(_ sender: Any) {
+        if let _chatGroupID = self.clientChannelKey,
+            let _userID = self.viewModel?.contactId,
+            let _msgID = self.viewModel?.identifier {
+            ALKConfiguration.share.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID)
+        }
     }
 
     func menuReply(_ sender: Any) {

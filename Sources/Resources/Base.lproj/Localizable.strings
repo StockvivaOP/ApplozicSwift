@@ -101,6 +101,7 @@ IsTyping = "%@ is typing";
 AreTyping = " are typing";
 Copy = "Copy";
 Reply = "Reply";
+Appeal = "Appeal";
 You = "You";
 
 NotPartOfGroup = "You are not part of this group";

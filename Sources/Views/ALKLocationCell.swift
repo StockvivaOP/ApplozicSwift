@@ -15,7 +15,7 @@ protocol ALKLocationCellDelegate: class {
 }
 
 class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
-                        ALKReplyMenuItemProtocol {
+                        ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol{
 
     weak var delegate:ALKLocationCellDelegate?
 
@@ -177,6 +177,13 @@ class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
         menuAction?(.reply)
     }
 
+    func menuAppeal(_ sender: Any) {
+        if let _chatGroupID = self.clientChannelKey,
+            let _userID = self.viewModel?.contactId,
+            let _msgID = self.viewModel?.identifier {
+            ALKConfiguration.share.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID)
+        }
+    }
 }
 
 class ALKTappableView: UIView {

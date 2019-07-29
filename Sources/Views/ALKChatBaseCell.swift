@@ -11,6 +11,7 @@ import Kingfisher
 
 open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
 
+    var clientChannelKey: String?
     var localizedStringFileName: String!
 
     public func setLocalizedStringFileName(_ localizedStringFileName: String) {
@@ -82,6 +83,10 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             if let replyMenu = getReplyMenuItem(replyItem: self) {
                 menus.append(replyMenu)
             }
+            
+            if let appealMenu = getAppealMenuItem(appealItem: self) {
+                menus.append(appealMenu)
+            }
 
             menuController.menuItems = menus
             menuController.setTargetRect(gestureView.frame, in: superView)
@@ -98,6 +103,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case let menuItem as ALKCopyMenuItemProtocol where action == menuItem.selector:
             return true
         case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
+            return true
+        case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
             return true
         default:
             return false
@@ -121,6 +128,15 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         let replyMenu = UIMenuItem(title: title, action: replyMenuItem.selector)
         return replyMenu
     }
+    
+    private func getAppealMenuItem(appealItem: Any) -> UIMenuItem? {
+        guard let appealMenuItem = appealItem as? ALKAppealMenuItemProtocol else {
+            return nil
+        }
+        let title = localizedString(forKey: "Appeal", withDefaultValue: SystemMessage.LabelName.Appeal, fileName: localizedStringFileName)
+        let appealMenu = UIMenuItem(title: title, action: appealMenuItem.selector)
+        return appealMenu
+    }
 }
 
 // MARK: - ALKCopyMenuItemProtocol
@@ -131,6 +147,17 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
 extension ALKCopyMenuItemProtocol {
     var selector: Selector {
         return #selector(menuCopy(_:))
+    }
+}
+
+// MARK: - ALKAppealMenuItemProtocol
+@objc protocol ALKAppealMenuItemProtocol {
+    func menuAppeal(_ sender: Any)
+}
+
+extension ALKAppealMenuItemProtocol {
+    var selector: Selector {
+        return #selector(menuAppeal(_:))
     }
 }
 

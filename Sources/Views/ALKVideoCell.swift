@@ -11,7 +11,7 @@ import Applozic
 import AVKit
 
 class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
     var delegate: AttachmentDelegate?
 
@@ -191,6 +191,14 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
+    }
+    
+    func menuAppeal(_ sender: Any) {
+        if let _chatGroupID = self.clientChannelKey,
+            let _userID = self.viewModel?.contactId,
+            let _msgID = self.viewModel?.identifier {
+            ALKConfiguration.share.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID)
+        }
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {

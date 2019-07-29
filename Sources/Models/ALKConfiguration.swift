@@ -151,6 +151,7 @@ public struct ALKConfiguration {
     //delegate object
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
+    public var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
     
     /// If true, contact share option in chatbar will be hidden.
     public var enableCustomeGroupDetail: Bool = false
@@ -202,6 +203,10 @@ public protocol ConversationChatBarActionDelegate: class{
     func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
     func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
     func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+}
+
+public protocol ConversationMessageBoxActionDelegate: class{
+    func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String)
 }
 
 extension ALKConfiguration {
