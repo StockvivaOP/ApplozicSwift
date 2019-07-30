@@ -76,9 +76,9 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
     }
 
     func checkPricingPackage() {
-        if ALApplicationInfo().isChatSuspended() {
-            showAccountSuspensionView()
-        }
+//        if ALApplicationInfo().isChatSuspended() {
+//            showAccountSuspensionView()
+//        }
     }
 
     func showAccountSuspensionView() {}
