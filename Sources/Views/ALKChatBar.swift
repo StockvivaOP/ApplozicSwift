@@ -253,10 +253,11 @@ open class ALKChatBar: UIView, Localizable {
             if isMediaViewHidden {
                 bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
                 attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 0
-
+                self.lineBottomView.isHidden = true
             } else {
                 bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
                 attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 45
+                self.lineBottomView.isHidden = false
             }
         }
     }
