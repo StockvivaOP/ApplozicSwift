@@ -149,6 +149,9 @@ public struct ALKConfiguration {
     //static obj
     //public static var share = ALKConfiguration()
     
+    /// delegate for get text from app
+    public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
+    
     /// If true, contact share option in chatbar will be hidden.
     public var enableCustomeGroupDetail: Bool = false
     
@@ -201,6 +204,11 @@ public protocol ChatBarRequestActionDelegate: class{
 
 public protocol ConversationMessageBoxActionDelegate: class{
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String)
+}
+
+public protocol SystemTextLocalizableRequestDelegate: class{
+    func getSystemLocaleName() -> String
+    func getSystemTextLocalizable(key:String) -> String
 }
 
 extension ALKConfiguration {

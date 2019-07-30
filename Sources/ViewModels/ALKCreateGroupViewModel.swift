@@ -52,7 +52,7 @@ enum Options: String, Localizable {
                 delegate.sendMessage(at: index)
             })
         case .info:
-            let title = localizedString(forKey: "Info", withDefaultValue: SystemMessage.GroupDetails.Info, fileName: localizationFileName)
+            let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_info") ?? localizedString(forKey: "Info", withDefaultValue: SystemMessage.GroupDetails.Info, fileName: localizationFileName)
             return UIAlertAction(title: title, style: .default, handler: { (_) in
                 delegate.info(at: index)
             })
@@ -178,7 +178,7 @@ class ALKCreateGroupViewModel: Localizable {
 
     private func getCurrentUserInfo() -> GroupMemberInfo {
         let currentUser = ALContactDBService().loadContact(byKey: "userId", value: ALUserDefaultsHandler.getUserId())!
-        let name = localizedString(forKey: "You", withDefaultValue: SystemMessage.LabelName.You, fileName: localizationFileName)
+        let name = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_you") ??  localizedString(forKey: "You", withDefaultValue: SystemMessage.LabelName.You, fileName: localizationFileName)
         return GroupMemberInfo(
             id: currentUser.userId,
             name: name,

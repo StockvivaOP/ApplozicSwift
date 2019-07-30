@@ -300,7 +300,7 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         deleteButton.accessibilityIdentifier = "SwippableDeleteIcon"
         deleteButton.frame = CGRect.init(x: 0, y: 0, width: 69, height: 69)
         if (!viewModel.isGroupChat || (viewModel.channelKey != nil && ALChannelService().isChannelLeft(viewModel.channelKey))) {
-            let leaveTitle = localizedString(forKey: "DeleteButtonName", withDefaultValue: SystemMessage.ButtonName.Delete, fileName: localizationFileName)
+            let leaveTitle = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_delete") ?? localizedString(forKey: "DeleteButtonName", withDefaultValue: SystemMessage.ButtonName.Delete, fileName: localizationFileName)
             deleteButton.setTitle(leaveTitle, for: .normal)
         } else {
             let leaveTitle = localizedString(forKey: "LeaveButtonName", withDefaultValue: SystemMessage.ButtonName.Leave, fileName: localizationFileName)

@@ -85,17 +85,17 @@ extension ALMessage: ALKChatViewModelProtocol {
         case .text:
             return message
         case .photo:
-            return "Photo"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Photo"
         case .location:
-            return "Location"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_location") ?? "Location"
         case .voice:
-            return "Audio"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_audio") ?? "Audio"
         case .information:
-            return "Update"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Update"
         case .video:
-            return "Video"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_video") ?? "Video"
         case .html:
-            return "Text"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_link") ?? "Text"
         case .genericCard:
             return message
         case .faqTemplate:
@@ -109,7 +109,7 @@ extension ALMessage: ALKChatViewModelProtocol {
         case .cardTemplate:
             return message
         case .imageMessage:
-            return message ?? "Photo"
+            return message ?? ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Photo"
         case .email:
             guard let channelMetadata = alChannel?.metadata,
                 let messageText = channelMetadata[ChannelMetadataKey.conversationSubject]
@@ -118,9 +118,9 @@ extension ALMessage: ALKChatViewModelProtocol {
             }
             return messageText as? String
         case .document:
-            return "Document"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_attachment") ?? "Document"
         case .contact:
-            return "Contact"
+            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_contact") ?? "Contact"
         }
     }
 

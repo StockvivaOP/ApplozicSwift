@@ -157,8 +157,8 @@ open class ALKAudioRecorderView: UIView, Localizable {
     
     private func initializeParameters() {
         self.backgroundColor = UIColor.color(.none)
-        slideToCancel.text = localizedString(forKey: "SlideToCancelMessage", withDefaultValue: SystemMessage.Microphone.SlideToCancel, fileName: configuration.localizedStringFileName)
-        recordingLabel.text = localizedString(forKey: "RecordingMessage", withDefaultValue: SystemMessage.Microphone.Recording, fileName: configuration.localizedStringFileName)
+        slideToCancel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_slide_to_cancel") ?? localizedString(forKey: "SlideToCancelMessage", withDefaultValue: SystemMessage.Microphone.SlideToCancel, fileName: configuration.localizedStringFileName)
+        recordingLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_tap_on_mac_to_record_audio") ?? localizedString(forKey: "RecordingMessage", withDefaultValue: SystemMessage.Microphone.Recording, fileName: configuration.localizedStringFileName)
         redDot.backgroundColor = UIColor.clear
         recordingValue.text = "00:00"
         previousGestureLocation = 0.0

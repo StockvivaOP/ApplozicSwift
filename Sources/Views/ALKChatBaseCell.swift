@@ -117,7 +117,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         guard let copyMenuItem = copyItem as? ALKCopyMenuItemProtocol else {
             return nil
         }
-        let title = localizedString(forKey: "Copy", withDefaultValue: SystemMessage.LabelName.Copy, fileName: localizedStringFileName)
+        let title =  ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_copy") ?? localizedString(forKey: "Copy", withDefaultValue: SystemMessage.LabelName.Copy, fileName: localizedStringFileName)
         let copyMenu = UIMenuItem(title: title, action: copyMenuItem.selector)
         return copyMenu
     }
@@ -126,7 +126,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         guard let replyMenuItem = replyItem as? ALKReplyMenuItemProtocol else {
             return nil
         }
-        let title = localizedString(forKey: "Reply", withDefaultValue: SystemMessage.LabelName.Reply, fileName: localizedStringFileName)
+        let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_reply") ?? localizedString(forKey: "Reply", withDefaultValue: SystemMessage.LabelName.Reply, fileName: localizedStringFileName)
         let replyMenu = UIMenuItem(title: title, action: replyMenuItem.selector)
         return replyMenu
     }
@@ -135,7 +135,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         guard let appealMenuItem = appealItem as? ALKAppealMenuItemProtocol else {
             return nil
         }
-        let title = localizedString(forKey: "Appeal", withDefaultValue: SystemMessage.LabelName.Appeal, fileName: localizedStringFileName)
+        let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_report") ?? localizedString(forKey: "Appeal", withDefaultValue: SystemMessage.LabelName.Appeal, fileName: localizedStringFileName)
         let appealMenu = UIMenuItem(title: title, action: appealMenuItem.selector)
         return appealMenu
     }
