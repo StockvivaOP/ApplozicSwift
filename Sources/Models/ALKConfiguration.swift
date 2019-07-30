@@ -208,7 +208,7 @@ public protocol ConversationMessageBoxActionDelegate: class{
 
 public protocol SystemTextLocalizableRequestDelegate: class{
     func getSystemLocaleName() -> String
-    func getSystemTextLocalizable(key:String) -> String
+    func getSystemTextLocalizable(key:String) -> String?
 }
 
 extension ALKConfiguration {
