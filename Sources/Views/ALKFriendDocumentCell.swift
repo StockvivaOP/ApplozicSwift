@@ -113,7 +113,7 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         //set color
         if let _messageUserId = viewModel.contactId,
-            let _nameLabelColor = self.systemConfig.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _nameLabelColor
         }
     }

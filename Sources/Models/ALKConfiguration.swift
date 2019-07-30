@@ -152,14 +152,17 @@ public struct ALKConfiguration {
     /// delegate for get text from app
     public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
     
-    /// If true, contact share option in chatbar will be hidden.
+    /// If true, open group detail action will call into your app, refer "ConversationChatContentActionDelegate" groupTitleViewClicked
     public var enableCustomeGroupDetail: Bool = false
     
     /// If true, mic feature will disable in chat bar
     public var hideMicInChatBar: Bool = false
     
-    /// If true, contact share option in chatbar will be hidden.
+    /// If true, local option in chatbar will be hidden.
     public var hideLocalInChatBar: Bool = false
+    
+    /// If true, contact share option in chatbar will be hidden.
+    public var hideConversationBubbleState: Bool = false
     
     /// Conversation View background color
     public var conversationViewBackgroundColor = UIColor.ALKSVGreyColor245()

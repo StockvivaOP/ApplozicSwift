@@ -44,16 +44,24 @@ class ALKMyDocumentCell: ALKDocumentCell {
         super.setupViews()
 
         contentView.addViewsForAutolayout(views: [timeLabel, stateView])
-        stateView.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.StateView.top).isActive = true
-        stateView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.StateView.right).isActive = true
-        stateView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.StateView.bottom).isActive = true
-        stateView.widthAnchor.constraint(equalToConstant: Padding.StateView.width).isActive = true
-        stateView.heightAnchor.constraint(equalToConstant: Padding.StateView.height).isActive = true
-
-        timeLabel.topAnchor.constraint(equalTo: stateView.topAnchor, constant: Padding.TimeLabel.top).isActive = true
-        timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -Padding.TimeLabel.right).isActive = true
+        
+        stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
+        if stateView.isHidden {
+            timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.StateView.top).isActive = true
+            timeLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.StateView.right).isActive = true
+            timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.StateView.bottom).isActive = true
+        }else{
+            stateView.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.StateView.top).isActive = true
+            stateView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.StateView.right).isActive = true
+            stateView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.StateView.bottom).isActive = true
+            stateView.widthAnchor.constraint(equalToConstant: Padding.StateView.width).isActive = true
+            stateView.heightAnchor.constraint(equalToConstant: Padding.StateView.height).isActive = true
+            
+            timeLabel.topAnchor.constraint(equalTo: stateView.topAnchor, constant: Padding.TimeLabel.top).isActive = true
+            timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -Padding.TimeLabel.right).isActive = true
+        }
         timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height).isActive = true
-
+        
         bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Padding.BubbleView.top).isActive = true
         bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Padding.BubbleView.right).isActive = true
         bubbleView.widthAnchor.constraint(equalToConstant:Padding.BubbleView.width).isActive = true
