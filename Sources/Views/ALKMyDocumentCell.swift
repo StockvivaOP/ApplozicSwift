@@ -40,27 +40,25 @@ class ALKMyDocumentCell: ALKDocumentCell {
         return sv
     }()
     
+    var statusViewWidthConst:NSLayoutConstraint?
+    var timeLabelRightConst:NSLayoutConstraint?
+    
     override func setupViews() {
         super.setupViews()
 
         contentView.addViewsForAutolayout(views: [timeLabel, stateView])
         
-        stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
-        if stateView.isHidden {
-            timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.StateView.top).isActive = true
-            timeLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.StateView.right).isActive = true
-            timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.StateView.bottom).isActive = true
-        }else{
-            stateView.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.StateView.top).isActive = true
-            stateView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.StateView.right).isActive = true
-            stateView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.StateView.bottom).isActive = true
-            stateView.widthAnchor.constraint(equalToConstant: Padding.StateView.width).isActive = true
-            stateView.heightAnchor.constraint(equalToConstant: Padding.StateView.height).isActive = true
-            
-            timeLabel.topAnchor.constraint(equalTo: stateView.topAnchor, constant: Padding.TimeLabel.top).isActive = true
-            timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -Padding.TimeLabel.right).isActive = true
-        }
+        stateView.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.StateView.top).isActive = true
+        stateView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.StateView.right).isActive = true
+        stateView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.StateView.bottom).isActive = true
+        stateView.heightAnchor.constraint(equalToConstant: Padding.StateView.height).isActive = true
+        statusViewWidthConst = stateView.widthAnchor.constraint(equalToConstant: Padding.StateView.width)
+        statusViewWidthConst?.isActive = true
+        
+        timeLabel.topAnchor.constraint(equalTo: stateView.topAnchor, constant: Padding.TimeLabel.top).isActive = true
         timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height).isActive = true
+        timeLabelRightConst = timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -Padding.TimeLabel.right)
+        timeLabelRightConst?.isActive = true
         
         bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Padding.BubbleView.top).isActive = true
         bubbleView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Padding.BubbleView.right).isActive = true
@@ -87,6 +85,15 @@ class ALKMyDocumentCell: ALKDocumentCell {
         } else {
             stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
             stateView.tintColor = UIColor.ALKSVMainColorPurple()
+        }
+        
+        stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
+        if stateView.isHidden {
+            timeLabelRightConst?.constant = 0
+            statusViewWidthConst?.constant = 0
+        }else{
+            timeLabelRightConst?.constant = -Padding.TimeLabel.right
+            statusViewWidthConst?.constant = Padding.StateView.width
         }
     }
 

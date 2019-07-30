@@ -116,6 +116,8 @@ open class ALKMyMessageCell: ALKMessageCell {
     var replyViewInnerTopConst:NSLayoutConstraint?
     var replyViewInnerImgTopConst:NSLayoutConstraint?
     var replyViewInnerImgBottomConst:NSLayoutConstraint?
+    var statusViewWidthConst:NSLayoutConstraint?
+    var timeLabelRightConst:NSLayoutConstraint?
 
     override func setupViews() {
         super.setupViews()
@@ -138,6 +140,10 @@ open class ALKMyMessageCell: ALKMessageCell {
         replyMessageLabelConst = replyMessageLabel.leadingAnchor.constraint(
             equalTo: replyMessageTypeImageView.trailingAnchor,
             constant: Padding.ReplyMessageLabel.left)
+        statusViewWidthConst = stateView.widthAnchor.constraint(equalToConstant: Padding.StateView.width)
+        timeLabelRightConst = timeLabel.trailingAnchor.constraint(
+            equalTo: stateView.leadingAnchor,
+            constant: -Padding.TimeLabel.right)
 
         NSLayoutConstraint.activate([
             bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor,
@@ -238,45 +244,25 @@ open class ALKMyMessageCell: ALKMessageCell {
             messageView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
                 constant: ALKFriendMessageCell.bubbleViewLeftPadding),
+            
+            stateView.topAnchor.constraint(
+                equalTo: bubbleView.bottomAnchor,
+                constant: Padding.StateView.top),
+            stateView.trailingAnchor.constraint(
+                equalTo: bubbleView.trailingAnchor,
+                constant: -Padding.StateView.right),
+            stateView.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor,
+                constant: -Padding.StateView.bottom),
+            statusViewWidthConst!,
+            stateView.heightAnchor.constraint(equalToConstant: Padding.StateView.height),
+            
+            timeLabel.topAnchor.constraint(
+                equalTo: stateView.topAnchor,
+                constant: Padding.TimeLabel.top),
+            timeLabelRightConst!,
+            timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height),
             ])
-        
-        stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
-        if stateView.isHidden {
-            NSLayoutConstraint.activate([
-                timeLabel.topAnchor.constraint(
-                    equalTo: bubbleView.bottomAnchor,
-                    constant: Padding.StateView.top),
-                timeLabel.trailingAnchor.constraint(
-                    equalTo: bubbleView.trailingAnchor,
-                    constant: -Padding.StateView.right),
-                timeLabel.bottomAnchor.constraint(
-                    equalTo: contentView.bottomAnchor,
-                    constant: -Padding.StateView.bottom),
-                timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height),
-                ])
-        }else{
-            NSLayoutConstraint.activate([
-                stateView.topAnchor.constraint(
-                    equalTo: bubbleView.bottomAnchor,
-                    constant: Padding.StateView.top),
-                stateView.trailingAnchor.constraint(
-                    equalTo: bubbleView.trailingAnchor,
-                    constant: -Padding.StateView.right),
-                stateView.bottomAnchor.constraint(
-                    equalTo: contentView.bottomAnchor,
-                    constant: -Padding.StateView.bottom),
-                stateView.widthAnchor.constraint(equalToConstant: Padding.StateView.width),
-                stateView.heightAnchor.constraint(equalToConstant: Padding.StateView.height),
-                
-                timeLabel.topAnchor.constraint(
-                    equalTo: stateView.topAnchor,
-                    constant: Padding.TimeLabel.top),
-                timeLabel.trailingAnchor.constraint(
-                    equalTo: stateView.leadingAnchor,
-                    constant: -Padding.TimeLabel.right),
-                timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height),
-                ])
-        }
     }
 
     open  override func setupStyle() {
@@ -292,9 +278,9 @@ open class ALKMyMessageCell: ALKMessageCell {
         }
     }
 
-   open override func update(viewModel: ALKMessageViewModel) {
+    open override func update(viewModel: ALKMessageViewModel) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.sentMessage)
-
+        
         if viewModel.isReplyMessage {
             guard
                 let metadata = viewModel.metadata,
@@ -310,7 +296,7 @@ open class ALKMyMessageCell: ALKMessageCell {
         } else {
             showReplyView(false)
         }
-
+        
         if viewModel.isAllRead {
             stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
             stateView.tintColor = UIColor(netHex: 0x0578FF)
@@ -323,6 +309,15 @@ open class ALKMyMessageCell: ALKMessageCell {
         } else {
             stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
             stateView.tintColor = UIColor.ALKSVMainColorPurple()
+        }
+        
+        stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
+        if stateView.isHidden {
+            timeLabelRightConst?.constant = 0
+            statusViewWidthConst?.constant = 0
+        }else{
+            timeLabelRightConst?.constant = -Padding.TimeLabel.right
+            statusViewWidthConst?.constant = Padding.StateView.width
         }
     }
 

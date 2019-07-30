@@ -22,6 +22,9 @@ class ALKMyVoiceCell: ALKVoiceCell {
         return sv
     }()
 
+    var statusViewWidthConst:NSLayoutConstraint?
+    var timeLabelRightConst:NSLayoutConstraint?
+    
     override func setupViews() {
         super.setupViews()
         
@@ -40,24 +43,18 @@ class ALKMyVoiceCell: ALKVoiceCell {
         bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width)).isActive = true
         bubbleView.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
-        stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
-        if stateView.isHidden {
-            timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
-            timeLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8).isActive = true
-            timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
-            timeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
-        }else{
-            stateView.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
-            stateView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8).isActive = true
-            stateView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
-            stateView.widthAnchor.constraint(equalToConstant: 17).isActive = true
-            stateView.heightAnchor.constraint(equalToConstant: 15).isActive = true
-            
-            timeLabel.topAnchor.constraint(equalTo: stateView.topAnchor, constant: 0).isActive = true
-            timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -6).isActive = true
-            timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
-            timeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
-        }
+        stateView.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
+        stateView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -8).isActive = true
+        stateView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        stateView.heightAnchor.constraint(equalToConstant: 15).isActive = true
+        statusViewWidthConst = stateView.widthAnchor.constraint(equalToConstant: 17)
+        statusViewWidthConst?.isActive = true
+        
+        timeLabel.topAnchor.constraint(equalTo: stateView.topAnchor, constant: 0).isActive = true
+        timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
+        timeLabelRightConst = timeLabel.trailingAnchor.constraint(equalTo: stateView.leadingAnchor, constant: -6)
+        timeLabelRightConst?.isActive = true
     }
 
     override func update(viewModel: ALKMessageViewModel) {
@@ -75,6 +72,15 @@ class ALKMyVoiceCell: ALKVoiceCell {
         } else {
             stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
             stateView.tintColor = UIColor.ALKSVMainColorPurple()
+        }
+        
+        stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
+        if stateView.isHidden {
+            timeLabelRightConst?.constant = 0
+            statusViewWidthConst?.constant = 0
+        }else{
+            timeLabelRightConst?.constant = -6
+            statusViewWidthConst?.constant = 17
         }
     }
 
