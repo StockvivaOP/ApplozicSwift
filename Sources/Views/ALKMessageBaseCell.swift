@@ -217,7 +217,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.backgroundColor = UIColor.clear
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             //set color
-            if let _messageUserId = viewModel.contactId,
+            if let _messageUserId = viewModel.receiverId,
                 let _userColor = self.systemConfig.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
                 replyNameLabel.textColor = _userColor
                 replyIndicatorView.tintColor = _userColor
@@ -228,7 +228,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.image = nil
             //set color
-            if let _messageUserId = viewModel.contactId,
+            if let _messageUserId = viewModel.receiverId,
                 let _userColor = self.systemConfig.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
                 replyNameLabel.textColor = _userColor
                 replyIndicatorView.backgroundColor = _userColor
