@@ -1961,6 +1961,10 @@ extension ALKConversationViewController: NavigationBarCallbacks {
         guard isGroupDetailActionEnabled else { return }
         showParticipantListChat()
     }
+    
+    func getTitle() -> String? {
+        return self.delegateConversationChatContentAction?.getGroupTitle(chatView: self)
+    }
 
     private func contactDetails() -> ALContact? {
         guard viewModel != nil else { return nil }

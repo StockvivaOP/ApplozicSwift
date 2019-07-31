@@ -11,6 +11,7 @@ import Kingfisher
 protocol NavigationBarCallbacks: class {
     func backButtonTapped()
     func titleTapped()
+    func getTitle() -> String?
 }
 
 class ALKConversationNavBar: UIView, Localizable {
@@ -206,7 +207,8 @@ class ALKConversationNavBar: UIView, Localizable {
     }
 
     private func setupProfile(name: String, imageUrl: String?, isContact: Bool) {
-        profileName.text = name
+        var _title = delegate?.getTitle() ?? name
+        profileName.text = _title
 
         let placeholderName = isContact ?  "contactPlaceholder" : "groupPlaceholder"
         let placeholder = UIImage(named: placeholderName, in: Bundle.applozic, compatibleWith: nil)

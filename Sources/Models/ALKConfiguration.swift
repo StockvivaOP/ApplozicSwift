@@ -189,6 +189,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func isShowDiscrimation(chatView:UIViewController) -> (isShow: Bool, title: String)?
     func discrimationClicked(chatView:UIViewController)
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
+    func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
 }
