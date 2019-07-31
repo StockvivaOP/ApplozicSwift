@@ -191,6 +191,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
+    func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
 }
 
