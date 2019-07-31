@@ -164,8 +164,8 @@ class ALKConversationNavBar: UIView, Localizable {
 
         backImage.leadingAnchor.constraint(equalTo: backButton.leadingAnchor, constant: 5).isActive = true
         backImage.centerYAnchor.constraint(equalTo: backButton.centerYAnchor).isActive = true
-        backImage.widthAnchor.constraint(equalToConstant: 12).isActive = true
-        backImage.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        backImage.widthAnchor.constraint(equalToConstant: 10).isActive = true
+        backImage.heightAnchor.constraint(equalToConstant: 24).isActive = true
 
         profileImage.leadingAnchor.constraint(equalTo: backButton.trailingAnchor).isActive = true
         profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
