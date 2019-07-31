@@ -359,6 +359,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             tableView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
+        //refresh nav bar content
+        self.navigationBar.updateContent()
         //self.edgesForExtendedLayout = []
         activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
         activityIndicator.color = UIColor.lightGray

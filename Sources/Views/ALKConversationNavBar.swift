@@ -128,6 +128,10 @@ class ALKConversationNavBar: UIView, Localizable {
         self.hideStatus(false)
         updateStatus(isOnline: status.isOnline, lastSeenAt: status.lastSeenAt)
     }
+    
+    func updateContent(){
+        profileName.text = delegate?.getTitle() ?? profileName.text
+    }
 
     func updateStatus(isOnline: Bool, lastSeenAt: NSNumber?) {
         if isOnline {
