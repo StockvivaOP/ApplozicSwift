@@ -253,11 +253,9 @@ open class ALKChatBar: UIView, Localizable {
             if isMediaViewHidden {
                 bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
                 attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 0
-                self.lineBottomView.isHidden = true
             } else {
                 bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
                 attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 45
-                self.lineBottomView.isHidden = false
             }
         }
     }
@@ -637,8 +635,10 @@ open class ALKChatBar: UIView, Localizable {
     public func updateMediaViewVisibility(hide: Bool = false) {
         if hide {
             isMediaViewHidden = true
+            self.lineBottomView.isHidden = true
         } else if configuration.chatBar.optionsToShow != .none {
             isMediaViewHidden = false
+            self.lineBottomView.isHidden = false
         }
     }
 
@@ -814,6 +814,7 @@ open class ALKChatBar: UIView, Localizable {
         }else{
             self.updateMediaViewVisibility()
         }
+        self.updateMediaViewVisibility(hide: true)
     }
     
     func isJoinGroup() -> Bool {
