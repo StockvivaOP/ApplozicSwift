@@ -71,6 +71,7 @@ class ALKMyVideoCell: ALKVideoCell {
         
         stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
         if stateView.isHidden {
+            stateView.image = nil
             timeLabelRightConst?.constant = 0
             statusViewWidthConst?.constant = 0
         }else{
