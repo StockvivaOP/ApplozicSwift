@@ -749,7 +749,7 @@ open class ALKChatBar: UIView, Localizable {
     }
     
     public func hiddenJoinGroupButton(){
-        if config.hideAllOptionsInChatBar {
+        if self.configuration.hideAllOptionsInChatBar {
             self.hideMediaView()
         }else{
             self.showMediaView()
