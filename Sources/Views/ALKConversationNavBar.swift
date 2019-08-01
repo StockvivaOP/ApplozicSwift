@@ -55,7 +55,7 @@ class ALKConversationNavBar: UIView, Localizable {
     
     var groupMuteImage: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "icon_mute_inactive", in: Bundle.applozic, compatibleWith: nil)
+        imageView.image = UIImage(named: "sv_icon_chatrrom_mute", in: Bundle.applozic, compatibleWith: nil)
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFit
         imageView.isHidden = true
