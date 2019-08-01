@@ -107,7 +107,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case let menuItem as ALKCopyMenuItemProtocol where action == menuItem.selector:
             return true
         case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
-            return true
+            return false
         case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
             return true
         default:
