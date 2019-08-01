@@ -749,7 +749,11 @@ open class ALKChatBar: UIView, Localizable {
     }
     
     public func hiddenJoinGroupButton(){
-        self.showMediaView()
+        if config.hideAllOptionsInChatBar {
+            self.hideMediaView()
+        }else{
+            self.showMediaView()
+        }
         self.backgroundColor = UIColor.ALKSVGreyColor250()
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
