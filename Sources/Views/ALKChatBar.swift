@@ -878,6 +878,11 @@ extension ALKChatBar: UITextViewDelegate {
         textView.inputView = nil
         textView.reloadInputViews()
     }
+    
+    public func resignAllResponderFromTextView(){
+        placeHolder.resignFirstResponder()
+        textView.resignFirstResponder()
+    }
 
     func showAutoCompletionView() {
         let contentHeight = autocompletionView.contentSize.height
