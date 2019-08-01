@@ -95,6 +95,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         struct MessageView {
             static let top: CGFloat = 5
             static let bottom: CGFloat = 7
+            static let left: CGFloat = 7
         }
         
         struct TimeLabel {
@@ -118,6 +119,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
     var replyViewInnerTopConst:NSLayoutConstraint?
     var replyViewInnerImgTopConst:NSLayoutConstraint?
     var replyViewInnerImgBottomConst:NSLayoutConstraint?
+    var emailViewTopConst:NSLayoutConstraint?
     
     static let bubbleViewLeftPadding: CGFloat = {
         /// For edge add extra 5
@@ -145,6 +147,9 @@ open class ALKFriendMessageCell: ALKMessageCell {
         replyMessageLabelConst = replyMessageLabel.leadingAnchor.constraint(
                 equalTo: replyMessageTypeImageView.trailingAnchor,
                 constant: Padding.ReplyMessageLabel.left)
+        emailViewTopConst = emailTopView.topAnchor.constraint(
+            equalTo: replyView.bottomAnchor,
+            constant: Padding.MessageView.top)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTappedAction))
         avatarImageView.addGestureRecognizer(tapGesture)
@@ -246,9 +251,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 constant: 0,
                 identifier: ConstraintIdentifier.replyMessageHeight),
             
-            emailTopView.topAnchor.constraint(
-                equalTo: replyView.bottomAnchor,
-                constant: Padding.MessageView.top),
+            emailViewTopConst!,
             emailTopView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
                 constant: -ALKMessageStyle.receivedBubble.widthPadding),
@@ -267,7 +270,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 constant: -ALKMessageStyle.receivedBubble.widthPadding),
             messageView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
-                constant: ALKFriendMessageCell.bubbleViewLeftPadding),
+                constant: Padding.MessageView.left),
             
             timeLabel.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
@@ -312,7 +315,9 @@ open class ALKFriendMessageCell: ALKMessageCell {
             } else {
                 previewImageView.constraint(withIdentifier: ConstraintIdentifier.replyPreviewImageWidth)?.constant = Padding.PreviewImageView.width
             }
+            self.emailViewTopConst?.constant = Padding.MessageView.top
         } else {
+            self.emailViewTopConst?.constant = 0
             showReplyView(false)
         }
         
@@ -344,7 +349,10 @@ open class ALKFriendMessageCell: ALKMessageCell {
         
         /// Calculating messageHeight
         let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
-        let heightPadding = Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.ReplyView.top + Padding.MessageView.top + Padding.MessageView.bottom + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
+        var heightPadding = Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.MessageView.bottom + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
+        if viewModel.isReplyMessage {
+            heightPadding += Padding.MessageView.top + Padding.ReplyView.top
+        }
         
         let totalHeight = max((messageHeight + heightPadding), minimumHeight)
         

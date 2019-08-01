@@ -549,7 +549,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
     }
 
     public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        let heightForHeaderInSection: CGFloat = 40.0
+        let heightForHeaderInSection: CGFloat = 35.0
 
         guard let message1 = viewModel.messageForRow(indexPath: IndexPath(row: 0, section: section)) else {
             return 0.0

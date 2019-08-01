@@ -97,8 +97,8 @@ open class ALKReplyMessageView: UIView, Localizable {
         enum CloseButton {
             static let height: CGFloat = 25.0
             static let width: CGFloat = 25.0
-            static let right: CGFloat = 0.0
-            static let top: CGFloat = 0.0
+            static let right: CGFloat = 15.0
+            static let top: CGFloat = 5.0
         }
 
         enum PreviewImageView {
@@ -117,7 +117,7 @@ open class ALKReplyMessageView: UIView, Localizable {
         }
         
         struct MessageTypeImageView {
-            static let left: CGFloat = 7.0
+            static let left: CGFloat = 5.0
             static let width: CGFloat = 20.0
             static let height: CGFloat = 20.0
         }
@@ -221,14 +221,14 @@ open class ALKReplyMessageView: UIView, Localizable {
         messageTypeImageView.heightAnchor.constraint(equalToConstant: Padding.MessageTypeImageView.height).isActive = true
         
         messageLabel.heightAnchor.constraint(equalToConstant: Padding.MessageLabel.height).isActive = true
-        messageLabel.leadingAnchor.constraint(equalTo: messageTypeImageView.trailingAnchor, constant: Padding.MessageLabel.left).isActive = true
+        messageLabelLeadingConst!.isActive = true
         messageLabel.trailingAnchor.constraint(equalTo: previewImageView.leadingAnchor, constant: -Padding.MessageLabel.right).isActive = true
         messageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Padding.MessageLabel.top).isActive = true
         messageLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -Padding.MessageLabel.bottom).isActive = true
 
         closeButton.heightAnchor.constraint(equalToConstant: Padding.CloseButton.height).isActive = true
         closeButton.widthAnchor.constraint(equalToConstant: Padding.CloseButton.width).isActive = true
-        closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: Padding.CloseButton.right).isActive = true
+        closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Padding.CloseButton.right).isActive = true
         closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: Padding.CloseButton.top).isActive = true
 
         previewImageView.heightAnchor.constraint(equalToConstant: Padding.PreviewImageView.height).isActive = true

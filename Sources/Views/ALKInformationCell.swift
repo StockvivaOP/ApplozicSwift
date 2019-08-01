@@ -22,6 +22,8 @@ final class ALKInformationCell: UITableViewCell {
         tv.isScrollEnabled = false
         tv.isUserInteractionEnabled = false
         tv.textAlignment = .center
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = 0
         return tv
     }()
 
@@ -40,11 +42,11 @@ final class ALKInformationCell: UITableViewCell {
     }
 
     class func topPadding() -> CGFloat {
-        return 8
+        return 5 + 4
     }
 
     class func bottomPadding() -> CGFloat {
-        return 8
+        return 5 + 4
     }
 
     class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
@@ -59,11 +61,14 @@ final class ALKInformationCell: UITableViewCell {
                                                                    options: NSStringDrawingOptions.usesLineFragmentOrigin,
                                                                    attributes: [NSAttributedString.Key.font:UIFont.font(.bold(size: 12))],
                                                                    context: nil)
-            messageHeigh = rect.height + 17
+            messageHeigh = rect.height/* + 17*/
 
             messageHeigh = ceil(messageHeigh)
         }
 
+        if messageHeigh < 17 {
+            messageHeigh = 17
+        }
         return topPadding()+messageHeigh+bottomPadding()
     }
 
@@ -94,19 +99,17 @@ final class ALKInformationCell: UITableViewCell {
         messageView.textColor = configuration.conversationViewCustomCellTextColor
         contentView.addViewsForAutolayout(views: [messageView,bubbleView])
         contentView.bringSubviewToFront(messageView)
-
-        messageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8).isActive = true
-        messageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8).isActive = true
-        messageView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 20).isActive = true
-        messageView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -20).isActive = true
-        messageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        
+        bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
+        bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 20).isActive = true
+        bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -20).isActive = true
+        bubbleView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        
+        messageView.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 4).isActive = true
+        messageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -4).isActive = true
+        messageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10).isActive = true
+        messageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10).isActive = true
         messageView.widthAnchor.constraint(lessThanOrEqualToConstant: 300).isActive = true
-
-        bubbleView.centerXAnchor.constraint(equalTo: messageView.centerXAnchor).isActive = true
-        bubbleView.topAnchor.constraint(equalTo: messageView.topAnchor, constant: 4).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: messageView.bottomAnchor, constant: -4).isActive = true
-        bubbleView.leadingAnchor.constraint(equalTo: messageView.leadingAnchor, constant: -10).isActive = true
-        bubbleView.trailingAnchor.constraint(equalTo: messageView.trailingAnchor, constant: 10).isActive = true
-
     }
 }
