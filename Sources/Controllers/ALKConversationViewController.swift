@@ -2006,6 +2006,8 @@ extension ALKConversationViewController {
         //tag: on / off join group button
         if isEnable, let _btnInfo = self.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
             self.enableShowJoinGroupMode = true
+            hideMoreBar()
+            view.endEditing(true)
             self.chatBar.showJoinGroupButton(title: _btnInfo.title, backgroundColor: _btnInfo.backgroundColor, textColor: _btnInfo.textColor, rightIcon: _btnInfo.rightIcon)
         }else{
             self.enableShowJoinGroupMode = false
