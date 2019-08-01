@@ -1953,6 +1953,8 @@ extension ALKConversationViewController: NavigationBarCallbacks {
     }
 
     func titleTapped() {
+        hideMoreBar()
+        view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         //for custom show detail view
         if self.configuration.enableCustomeGroupDetail {
@@ -1995,6 +1997,8 @@ extension ALKConversationViewController {
     
     //menu button clicked
     @objc func sendRightNavBarButtonCustomSelectionNotification(_ selector: UIBarButtonItem) {
+        hideMoreBar()
+        view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatContentAction?.rightMenuClicked(chatView: self)
     }
@@ -2006,6 +2010,8 @@ extension ALKConversationViewController {
     
     public func enableJoinGroupButton(_ isEnable:Bool){
         //tag: on / off join group button
+        hideMoreBar()
+        view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         if isEnable, let _btnInfo = self.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
             self.enableShowJoinGroupMode = true
@@ -2071,6 +2077,8 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
     }
     
     public func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
+        hideMoreBar()
+        view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatBarAction?.joinGroupButtonClicked(chatBar: chatBar, chatView:self)
     }
