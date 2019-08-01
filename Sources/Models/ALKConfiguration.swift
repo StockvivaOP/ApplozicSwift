@@ -152,6 +152,9 @@ public struct ALKConfiguration {
     /// delegate for get text from app
     public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
     
+    /// If true, system will request the app to handle
+    public var enableOpenLinkInApp: Bool = false
+    
     /// If true, open group detail action will call into your app, refer "ConversationChatContentActionDelegate" groupTitleViewClicked
     public var enableCustomeGroupDetail: Bool = false
     
@@ -191,6 +194,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
+    func openLink(url:URL, chatView:UIViewController)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
 }
