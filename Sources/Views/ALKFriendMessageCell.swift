@@ -280,8 +280,6 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 constant: -Padding.TimeLabel.bottom),
             timeLabel.heightAnchor.constraint(equalToConstant: Padding.TimeLabel.height),
             ])
-        
-        messageView.addGestureRecognizer(tapGesture)
     }
     
     override func setupStyle() {

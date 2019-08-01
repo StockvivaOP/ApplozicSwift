@@ -59,7 +59,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     fileprivate static var attributedStringCache = NSCache<NSString, NSAttributedString>()
 
-    let messageView: ALKTextView = {
+    var messageView: ALKTextView = {
         let textView = ALKTextView.init(frame: .zero)
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
@@ -266,6 +266,8 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     override func setupViews() {
         super.setupViews()
+        messageView.delegate = self
+        
         contentView.addViewsForAutolayout(views:
             [messageView,
              bubbleView,
@@ -503,5 +505,15 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         messageView.text = nil
         messageView.typingAttributes = [:]
         messageView.setStyle(style)
+    }
+}
+
+extension ALKMessageCell : UITextViewDelegate {
+    public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        let _isOpenInApp = self.systemConfig?.enableOpenLinkInApp ?? false
+        if _isOpenInApp {
+            self.messageViewLinkClicked?(URL)
+        }
+        return !_isOpenInApp
     }
 }

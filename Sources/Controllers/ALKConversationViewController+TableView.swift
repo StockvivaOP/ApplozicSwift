@@ -40,6 +40,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
+                cell.messageViewLinkClicked = { (url) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                    }
+                }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
                 cell.replyViewAction = {[weak self] in
@@ -58,6 +63,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
                     self?.messageAvatarViewDidTap(messageVM: currentModel, indexPath: indexPath)
+                }
+                cell.messageViewLinkClicked = { (url) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                    }
                 }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
@@ -78,6 +88,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
+                cell.messageViewLinkClicked = { (url) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                    }
+                }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
                 return cell
@@ -93,6 +108,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
                     self?.messageAvatarViewDidTap(messageVM: currentModel, indexPath: indexPath)
+                }
+                cell.messageViewLinkClicked = { (url) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                    }
                 }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }

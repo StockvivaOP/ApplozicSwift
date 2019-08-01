@@ -27,6 +27,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     }()
 
     var avatarTapped:(() -> Void)?
+    
+    var messageViewLinkClicked:((_ url:URL) -> Void)?
 
     /// Actions available on menu where callbacks
     /// needs to be send are defined here.
