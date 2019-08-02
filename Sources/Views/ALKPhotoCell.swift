@@ -11,15 +11,9 @@ import UIKit
 import Kingfisher
 import Applozic
 
-protocol AttachmentDelegate {
-    func tapAction(message: ALKMessageViewModel)
-}
-
 // MARK: - ALKPhotoCell
 class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                     ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
-
-    var delegate: AttachmentDelegate?
 
     var photoView: UIImageView = {
         let mv = UIImageView()
@@ -106,6 +100,14 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     var url: URL?
+    enum State {
+        case upload(filePath: String)
+        case uploading(filePath: String)
+        case uploaded
+        case download
+        case downloading
+        case downloaded(filePath: String)
+    }
 
     var uploadTapped:((Bool) ->Void)?
     var uploadCompleted: ((_ responseDict: Any?) ->Void)?
@@ -141,8 +143,29 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     override func update(viewModel: ALKMessageViewModel) {
+
         self.viewModel = viewModel
         activityIndicator.color = .black
+        print("Update ViewModel filePath:: %@", viewModel.filePath ?? "")
+        if viewModel.isMyMessage {
+            if viewModel.isSent || viewModel.isAllRead || viewModel.isAllReceived {
+                if let filePath = viewModel.filePath, !filePath.isEmpty {
+                    updateView(for: State.downloaded(filePath: filePath))
+                } else {
+                    updateView(for: State.download)
+                }
+            } else {
+                if let filePath = viewModel.filePath, !filePath.isEmpty {
+                    updateView(for: .upload(filePath: filePath))
+                }
+            }
+        } else {
+            if let filePath = viewModel.filePath, !filePath.isEmpty {
+                updateView(for: State.downloaded(filePath: filePath))
+            } else {
+                updateView(for: State.download)
+            }
+        }
         timeLabel.text   = viewModel.time
         captionLabel.text = viewModel.message
 
@@ -155,15 +178,29 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             captionLabelHeightConst?.constant = 0
             captionLabelBottomConst?.constant = 0
         }
-        print("Update ViewModel filePath:: %@", viewModel.filePath ?? "")
-        guard let state = viewModel.attachmentState() else {
-            return
-        }
-        updateView(for: state)
     }
 
     @objc func actionTapped(button: UIButton) {
-        delegate?.tapAction(message: viewModel!)
+        let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mediaViewer, bundle: Bundle.applozic)
+
+        let nav = storyboard.instantiateInitialViewController() as? UINavigationController
+        let vc = nav?.viewControllers.first as? ALKMediaViewerViewController
+        let dbService = ALMessageDBService()
+        guard let messages = dbService.getAllMessagesWithAttachment(
+            forContact: viewModel?.contactId,
+            andChannelKey: viewModel?.channelKey,
+            onlyDownloadedAttachments: true) as? [ALMessage] else { return }
+
+        let messageModels = messages.map { $0.messageModel }
+        NSLog("Messages with attachment: ", messages )
+
+        guard let viewModel = viewModel as? ALKMessageModel,
+            let currentIndex = messageModels.index(of: viewModel) else { return }
+        vc?.viewModel = ALKMediaViewerViewModel(messages: messageModels, currentIndex: currentIndex, localizedStringFileName: localizedStringFileName)
+        UIViewController.topViewController()?.present(nav!, animated: true, completion: {
+            button.isEnabled = true
+        })
+
     }
 
     override func setupStyle() {
@@ -253,20 +290,19 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         downloadTapped?(true)
     }
 
-    func updateView(for state: AttachmentState) {
+    func updateView(for state: State) {
         DispatchQueue.main.async {
             self.updateView(state: state)
         }
     }
 
-    private func updateView(state: AttachmentState) {
+    private func updateView(state: State) {
         switch state {
-        case .upload:
+        case .upload(let filePath):
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
             let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            guard let filePath = viewModel?.filePath else { return }
             let path = docDirPath.appendingPathComponent(filePath)
             setPhotoViewImageFromFileURL(path)
             uploadButton.isHidden = false
@@ -367,6 +403,18 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         uploadTapped?(true)
     }
 
+    fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
+        let messageService = ALMessageDBService()
+        let alHandler = ALDBHandler.sharedInstance()
+        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
+        dbMessage.filePath = filePath
+        do {
+            try alHandler?.managedObjectContext.save()
+        } catch {
+            NSLog("Not saved due to error")
+        }
+    }
+
     fileprivate func updateThumbnailPath(_ key: String, filePath: String) {
         let messageKey = ThumbnailIdentifier.removePrefix(from: key)
         let dbMessage = ALMessageDBService().getMessageByKey("key", value: messageKey) as! DB_Message
@@ -406,22 +454,22 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
 extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
     func dataUploaded(task: ALKUploadTask) {
-        NSLog("Photo cell data uploading started for: %@", viewModel?.filePath ?? "")
+        NSLog("VIDEO CELL DATA UPDATED AND FILEPATH IS: %@", viewModel?.filePath ?? "")
         DispatchQueue.main.async {
             print("task filepath:: ", task.filePath ?? "")
-            self.updateView(for: .uploading)
+            self.updateView(for: .uploading(filePath: task.filePath ?? ""))
         }
     }
 
     func dataUploadingFinished(task: ALKUploadTask) {
-        NSLog("Photo cell data uploaded for: %@", viewModel?.filePath ?? "")
+        NSLog("VIDEO CELL DATA UPLOADED FOR PATH: %@", viewModel?.filePath ?? "")
         if task.uploadError == nil && task.completed == true && task.filePath != nil {
             DispatchQueue.main.async {
-                self.updateView(for: .uploaded)
+                self.updateView(for: State.uploaded)
             }
         } else {
             DispatchQueue.main.async {
-                self.updateView(for: .upload)
+                self.updateView(for: .upload(filePath: task.filePath ?? ""))
             }
         }
     }
@@ -437,9 +485,7 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
             return
         }
         DispatchQueue.main.async {
-            let total = task.totalBytesExpectedToDownload
-            let progress = task.totalBytesDownloaded.degree(outOf: total)
-            self.updateView(for: .downloading(progress: progress, totalCount: total))
+            self.updateView(for: .downloading)
         }
     }
 
@@ -454,7 +500,7 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
             self.updateThumbnailPath(identifier, filePath: filePath)
             return
         }
-        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        self.updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))
         }

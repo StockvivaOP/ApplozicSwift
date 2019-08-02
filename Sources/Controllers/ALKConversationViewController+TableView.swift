@@ -146,7 +146,6 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     }
                     cell.menuAction = {[weak self] action in
                         self?.menuItemSelected(action: action, message: message) }
-                    cell.delegate = self
                     return cell
 
                 } else {
@@ -160,7 +159,6 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                         responseDict in
                         self?.attachmentUploadDidCompleteWith(response: responseDict, indexPath: indexPath)
                     }
-                    cell.delegate = self
                     return cell
                 }
 
@@ -183,7 +181,6 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     }
                     cell.menuAction = {[weak self] action in
                         self?.menuItemSelected(action: action, message: message) }
-                    cell.delegate = self
                     return cell
 
                 } else {
@@ -193,7 +190,6 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.update(viewModel: message)
-                    cell.delegate = self
                     return cell
                 }
             }
@@ -292,7 +288,6 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
-                cell.delegate = self
                 return cell
             } else {
                 let cell: ALKFriendVideoCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
@@ -311,7 +306,6 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
-                cell.delegate = self
                 return cell
             }
         case .genericCard, .cardTemplate:
