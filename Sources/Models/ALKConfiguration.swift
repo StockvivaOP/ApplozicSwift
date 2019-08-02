@@ -133,6 +133,68 @@ public struct ALKConfiguration {
     //static obj
     //public static var share = ALKConfiguration()
     
+    public enum ConversationMessageTypeForApp :String {
+        case text = "text"
+        case audio = "audio"
+        case video = "video"
+        case pdf = "pdf"
+        case image = "image"
+        case gif = "gif"
+        case doc = "doc"
+        case location = "location"
+        case contact = "contact"
+        case information = "information"
+        case html = "html"
+        case quickReply = "quickReply"
+        case button = "button"
+        case listTemplate = "listTemplate"
+        case cardTemplate = "cardTemplate"
+        case email = "email"
+        case faqTemplate = "faqTemplate"
+        case genericCard = "genericCard"
+        case imageMessage = "imageMessage"
+        case unknown = ""
+        
+        static func getMessageTypeString(type:ALKMessageType) -> ConversationMessageTypeForApp{
+            switch type {
+            case .text:
+                return ConversationMessageTypeForApp.text
+            case .photo:
+                return ConversationMessageTypeForApp.image
+            case .voice:
+                return ConversationMessageTypeForApp.audio
+            case .location:
+                return ConversationMessageTypeForApp.location
+            case .information:
+                return ConversationMessageTypeForApp.information
+            case .video:
+                return ConversationMessageTypeForApp.video
+            case .html:
+                return ConversationMessageTypeForApp.html
+            case .quickReply:
+                return ConversationMessageTypeForApp.quickReply
+            case .button:
+                return ConversationMessageTypeForApp.button
+            case .listTemplate:
+                return ConversationMessageTypeForApp.listTemplate
+            case .cardTemplate:
+                return ConversationMessageTypeForApp.cardTemplate
+            case .email:
+                return ConversationMessageTypeForApp.email
+            case .document:
+                return ConversationMessageTypeForApp.doc
+            case .contact:
+                return ConversationMessageTypeForApp.contact
+            case .faqTemplate:
+                return ConversationMessageTypeForApp.faqTemplate
+            case .genericCard:
+                return ConversationMessageTypeForApp.genericCard
+            case .imageMessage:
+                return ConversationMessageTypeForApp.imageMessage
+            }
+        }
+    }
+    
     /// delegate for get text from app
     public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
     
@@ -178,6 +240,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
+    func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, message:String?)
     func openLink(url:URL, chatView:UIViewController)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)

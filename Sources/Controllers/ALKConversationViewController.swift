@@ -1550,6 +1550,10 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func messageSent(at indexPath: IndexPath) {
+        if let _messageModel = self.viewModel.messageForRow(indexPath: indexPath) {
+            let _messageTypeStr = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _messageModel.messageType)
+            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr,  messageID:_messageModel.identifier, message: _messageModel.message)
+        }
         NSLog("current indexpath: %i and tableview section %i", indexPath.section, self.tableView.numberOfSections)
         guard indexPath.section >= self.tableView.numberOfSections else {
             NSLog("rejected indexpath: %i and tableview and section %i", indexPath.section, self.tableView.numberOfSections)
