@@ -135,10 +135,13 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         super.update(viewModel: viewModel)
 
         /// Auto-Download
-        if let file = viewModel.downloadPath(), let data = file.1 as? Data {
-            updateViewForDownloadedState(data: data)
-        } else {
+        if viewModel.filePath == nil {
             downloadTapped?(true)
+        } else if let filePath = viewModel.filePath {
+            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            if let data = NSData(contentsOfFile: (documentsURL.appendingPathComponent(filePath)).path) as Data? {
+                updateViewForDownloadedState(data: data)
+            }
         }
 
         let timeLeft = Int(viewModel.voiceTotalDuration)-Int(viewModel.voiceCurrentDuration)
@@ -283,6 +286,18 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         })
     }
 
+    fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
+        let messageService = ALMessageDBService()
+        let alHandler = ALDBHandler.sharedInstance()
+        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
+        dbMessage.filePath = filePath
+        do {
+            try alHandler?.managedObjectContext.save()
+        } catch {
+            NSLog("Not saved due to error")
+        }
+    }
+
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
     }
@@ -307,7 +322,7 @@ extension ALKVoiceCell: ALKHTTPManagerDownloadDelegate {
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
             return
         }
-        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        self.updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         if let data = NSData(contentsOfFile: (documentsURL.appendingPathComponent(task.filePath ?? "")).path) as Data? {
             updateViewForDownloadedState(data: data)
