@@ -414,7 +414,7 @@ open class ALKChatBar: UIView, Localizable {
     }
 
     fileprivate var textViewHeighConstrain: NSLayoutConstraint?
-    fileprivate let textViewHeigh: CGFloat = 37.0
+    fileprivate let textViewHeigh: CGFloat = 40.0
     fileprivate let textViewHeighMax: CGFloat = 102.2 + 8.0
 
     fileprivate var textViewTrailingWithSend: NSLayoutConstraint?
@@ -552,8 +552,8 @@ open class ALKChatBar: UIView, Localizable {
             sendButton.isHidden = true
         }
 
-        textView.topAnchor.constraint(equalTo: poweredByMessageLabel.bottomAnchor, constant: 11).isActive = true
-        textView.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: -11).isActive = true
+        textView.topAnchor.constraint(equalTo: poweredByMessageLabel.bottomAnchor, constant: 9.5).isActive = true
+        textView.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: -9.5).isActive = true
         textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7).isActive = true
         poweredByMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         poweredByMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
@@ -565,7 +565,7 @@ open class ALKChatBar: UIView, Localizable {
         textViewHeighConstrain = textView.heightAnchor.constraint(equalToConstant: textViewHeigh)
         textViewHeighConstrain?.isActive = true
 
-        placeHolder.heightAnchor.constraint(equalToConstant: 37).isActive = true
+        placeHolder.heightAnchor.constraint(equalToConstant: 40).isActive = true
         placeHolder.centerYAnchor.constraint(equalTo: textView.centerYAnchor, constant: 0).isActive = true
         placeHolder.leadingAnchor.constraint(equalTo: textView.leadingAnchor, constant: 0).isActive = true
         placeHolder.trailingAnchor.constraint(equalTo: textView.trailingAnchor, constant: 0).isActive = true
