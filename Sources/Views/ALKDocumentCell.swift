@@ -40,6 +40,13 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         }
     }
 
+    enum State {
+        case download
+        case downloading(progress: Double, totalCount: Int64)
+        case downloaded(filePath: String)
+        case upload
+    }
+
     var uploadTapped:((Bool)->Void)?
     var uploadCompleted: ((_ responseDict: Any?)->Void)?
     var downloadTapped:((Bool)->Void)?
@@ -219,15 +226,30 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
             sizeAndFileType.text =  size + " \u{2022} " + fileType
         }
 
-        guard let state = viewModel.attachmentState() else { return }
-        updateView(for: state)
+        if viewModel.isMyMessage {
+            if viewModel.isSent || viewModel.isAllRead || viewModel.isAllReceived {
+                if let filePath = viewModel.filePath, !filePath.isEmpty {
+                    updateView(for: State.downloaded(filePath: filePath))
+                } else {
+                    updateView(for: State.download)
+                }
+            } else {
+                updateView(for: .upload)
+            }
+        } else {
+            if let filePath = viewModel.filePath, !filePath.isEmpty {
+                updateView(for: State.downloaded(filePath: filePath))
+            } else {
+                updateView(for: State.download)
+            }
+        }
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
         downloadTapped?(true)
     }
 
-    func updateView(for state: AttachmentState) {
+    func updateView(for state: State) {
         switch state {
         case .download:
             downloadButton.isHidden = false
@@ -244,8 +266,25 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         case .upload:
             downloadButton.isHidden = true
             progressView.isHidden = true
-        default:
-            print("Not handled")
+        }
+    }
+
+    fileprivate func convertToDegree(total: Int64, written: Int64) -> Double {
+        let divergence = Double(total)/360.0
+        let degree = Double(written)/divergence
+        return degree
+
+    }
+
+    fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
+        let messageService = ALMessageDBService()
+        let alHandler = ALDBHandler.sharedInstance()
+        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
+        dbMessage.filePath = filePath
+        do {
+            try alHandler?.managedObjectContext.save()
+        } catch {
+            print("Not saved due to error")
         }
     }
 
@@ -255,7 +294,7 @@ extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
 
     func dataUploaded(task: ALKUploadTask) {
         print("Data uploaded: \(task.totalBytesUploaded) out of total: \(task.totalBytesExpectedToUpload)")
-        let progress = task.totalBytesUploaded.degree(outOf: task.totalBytesExpectedToUpload)
+        let progress = self.convertToDegree(total: task.totalBytesExpectedToUpload, written: task.totalBytesUploaded)
         self.updateView(for: .downloading(progress: progress, totalCount: task.totalBytesExpectedToUpload))
     }
 
@@ -263,7 +302,7 @@ extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
         print("Document CELL DATA UPLOADED FOR PATH: %@", viewModel?.filePath ?? "")
         if task.uploadError == nil && task.completed == true && task.filePath != nil {
             DispatchQueue.main.async {
-                self.updateView(for: .downloaded(filePath: task.filePath ?? ""))
+                self.updateView(for: State.downloaded(filePath: task.filePath ?? ""))
             }
         } else {
             DispatchQueue.main.async {
@@ -277,7 +316,7 @@ extension ALKDocumentCell: ALKHTTPManagerDownloadDelegate {
     func dataDownloaded(task: ALKDownloadTask) {
         print("Document CELL DATA UPDATED AND FILEPATH IS", viewModel?.filePath ?? "")
         let total = task.totalBytesExpectedToDownload
-        let progress = task.totalBytesDownloaded.degree(outOf: total)
+        let progress = self.convertToDegree(total: total, written: task.totalBytesDownloaded)
         self.updateView(for: .downloading(progress: progress, totalCount: total))
     }
 
@@ -288,7 +327,7 @@ extension ALKDocumentCell: ALKHTTPManagerDownloadDelegate {
             }
             return
         }
-        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        self.updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))
         }
