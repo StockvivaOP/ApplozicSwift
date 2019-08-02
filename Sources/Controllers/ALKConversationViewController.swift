@@ -1091,7 +1091,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
             .constant = 0
         replyMessageView.isHidden = true
-        self.chatBar.hiddenLineView(false)
+        self.chatBar.hiddenLineView(true)
     }
 
     func scrollTo(message: ALKMessageViewModel) {

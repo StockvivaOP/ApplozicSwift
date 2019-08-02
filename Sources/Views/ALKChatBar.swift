@@ -206,6 +206,7 @@ open class ALKChatBar: UIView, Localizable {
         let view = UIView()
         let layer = view.layer
         view.backgroundColor = UIColor.ALKSVGreyColor207()
+        view.isHidden = true
         return view
     }()
     
