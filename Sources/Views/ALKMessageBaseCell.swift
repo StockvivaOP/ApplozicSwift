@@ -341,7 +341,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         if let _chatGroupID = self.clientChannelKey,
             let _userID = self.viewModel?.contactId,
             let _msgID = self.viewModel?.identifier {
-            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID)
+            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
         }
     }
 

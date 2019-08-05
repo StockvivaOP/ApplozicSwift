@@ -259,7 +259,7 @@ public protocol ChatBarRequestActionDelegate: class{
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{
-    func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String)
+    func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
 }
 
 public protocol SystemTextLocalizableRequestDelegate: class{
