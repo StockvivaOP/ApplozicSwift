@@ -1843,6 +1843,7 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
 
     public func mqttConnectionClosed() {
         if viewModel.isOpenGroup &&  mqttRetryCount < maxMqttRetryCount {
+            self.alMqttConversationService.subscribeToConversation()
             subscribeChannelToMqtt()
         }
         NSLog("MQTT connection closed")
