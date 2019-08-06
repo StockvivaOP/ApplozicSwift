@@ -329,7 +329,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 guard let profile = profile else { return }
                 weakSelf.navigationBar.updateView(profile: profile)
             })
-
+            self?.subscribeChannelToMqtt()
         }
 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil, queue: nil) { [weak self] _ in
@@ -1011,6 +1011,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     fileprivate func subscribeChannelToMqtt() {
         let channelService = ALChannelService()
+        self.alMqttConversationService.subscribeToConversation()
         if viewModel.isGroup, let groupId = viewModel.channelKey, !channelService.isChannelLeft(groupId) && !ALChannelService.isChannelDeleted(groupId) {
             if !viewModel.isOpenGroup {
                 self.alMqttConversationService.subscribe(toChannelConversation: groupId)
@@ -1843,7 +1844,6 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
 
     public func mqttConnectionClosed() {
         if viewModel.isOpenGroup &&  mqttRetryCount < maxMqttRetryCount {
-            self.alMqttConversationService.subscribeToConversation()
             subscribeChannelToMqtt()
         }
         NSLog("MQTT connection closed")
