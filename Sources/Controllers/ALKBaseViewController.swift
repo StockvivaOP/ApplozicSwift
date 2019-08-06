@@ -41,6 +41,10 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
         if configuration.hideNavigationBarBottomLine {
             navigationController?.navigationBar.hideBottomHairline()}
     }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+    }
 
     override open func viewDidLoad() {
         super.viewDidLoad()
@@ -72,9 +76,9 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
     }
 
     func checkPricingPackage() {
-        if ALApplicationInfo().isChatSuspended() {
-            showAccountSuspensionView()
-        }
+//        if ALApplicationInfo().isChatSuspended() {
+//            showAccountSuspensionView()
+//        }
     }
 
     func showAccountSuspensionView() {}

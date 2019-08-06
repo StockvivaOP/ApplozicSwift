@@ -61,7 +61,7 @@ public class ALKFriendListTemplateCell: ALKListTemplateCell {
             (ChatCellPadding.ReceivedMessage.Message.left + ChatCellPadding.ReceivedMessage.Message.right)
         let height = ALKFriendMessageView.rowHeight(viewModel: viewModel, width: messageWidth)
         messageViewHeight.constant = height
-        messageView.update(viewModel: viewModel)
+        messageView.update(viewModel: viewModel, configuration: self.systemConfig)
         super.update(viewModel: viewModel, maxWidth: maxWidth)
     }
 

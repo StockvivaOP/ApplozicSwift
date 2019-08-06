@@ -17,7 +17,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         imv.contentMode = .scaleAspectFill
         imv.clipsToBounds = true
         let layer = imv.layer
-        layer.cornerRadius = 18.5
+        layer.cornerRadius = 22.5
         layer.backgroundColor = UIColor.lightGray.cgColor
         layer.masksToBounds = true
         imv.isUserInteractionEnabled = true
@@ -27,14 +27,14 @@ class ALKFriendPhotoCell: ALKPhotoCell {
     private var nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = UIFont.boldSystemFont(ofSize: 12)
-        label.textColor = UIColor.lightGray
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVOrangeColor()
         return label
     }()
 
     struct Padding {
         struct PhotoView {
-            static let right: CGFloat = 56
+            static let right: CGFloat = 0
         }
     }
 
@@ -48,17 +48,18 @@ class ALKFriendPhotoCell: ALKPhotoCell {
 
     override func setupStyle() {
         super.setupStyle()
-        nameLabel.setStyle(ALKMessageStyle.displayName)
-        captionLabel.font = ALKMessageStyle.receivedMessage.font
-        captionLabel.textColor = ALKMessageStyle.receivedMessage.text
+        //nameLabel.setStyle(ALKMessageStyle.displayName)
+        //captionLabel.font = ALKMessageStyle.receivedMessage.font
+        //captionLabel.textColor = ALKMessageStyle.receivedMessage.text
         if(ALKMessageStyle.receivedBubble.style == .edge) {
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
+            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+            //bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
             photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
         } else {
             photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
         }
+        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
     }
 
     override func setupViews() {
@@ -68,42 +69,55 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         avatarImageView.addGestureRecognizer(tapGesture)
 
         contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel])
-        nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6).isActive = true
-        nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 57).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 7).isActive = true
+        nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 7).isActive = true
 
-        nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -56).isActive = true
-        nameLabel.bottomAnchor.constraint(equalTo: photoView.topAnchor, constant: -6).isActive = true
-        nameLabel.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -15).isActive = true
+        nameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        
+        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
+        //avatarImageView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: 0).isActive = true
 
-        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 18).isActive = true
-        avatarImageView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: 0).isActive = true
+        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 7).isActive = true
+        avatarImageView.trailingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -7).isActive = true
 
-        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 9).isActive = true
-        avatarImageView.trailingAnchor.constraint(equalTo: photoView.leadingAnchor, constant: -10).isActive = true
+        avatarImageView.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        avatarImageView.widthAnchor.constraint(equalToConstant: 45).isActive = true
 
-        avatarImageView.heightAnchor.constraint(equalToConstant: 37).isActive = true
-        avatarImageView.widthAnchor.constraint(equalTo: avatarImageView.heightAnchor).isActive = true
-
-        photoView.trailingAnchor
-            .constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -Padding.PhotoView.right)
-            .isActive = true
-        photoView.widthAnchor
+        bubbleView.topAnchor.constraint(equalTo: avatarImageView.topAnchor).isActive = true
+        bubbleView.widthAnchor
             .constraint(equalToConstant: ALKPhotoCell.maxWidth*ALKPhotoCell.widthPercentage)
             .isActive = true
-        photoView.heightAnchor
-            .constraint(equalToConstant: ALKPhotoCell.maxWidth*ALKPhotoCell.heightPercentage)
+        bubbleView.heightAnchor
+            .constraint(equalToConstant: (ALKPhotoCell.maxWidth*ALKPhotoCell.heightPercentage) + 7)
+            .isActive = true
+        
+        photoView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 7).isActive = true
+        photoView.leadingAnchor
+            .constraint(equalTo: bubbleView.leadingAnchor, constant: 0)
+            .isActive = true
+        photoView.trailingAnchor
+            .constraint(equalTo: bubbleView.trailingAnchor, constant: 0)
             .isActive = true
 
-        timeLabel.leadingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 2).isActive = true
-        timeLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 2).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
+        timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 7).isActive = true
+        timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 13).isActive = true
 
-        fileSizeLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 0).isActive = true
+        fileSizeLabel.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 12).isActive = true
     }
 
     override func update(viewModel: ALKMessageViewModel) {
         super.update(viewModel: viewModel)
 
         nameLabel.text = viewModel.displayName
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
+        //set color
+        if let _messageUserId = viewModel.contactId,
+            let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _nameLabelColor
+        }
 
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
 
@@ -116,8 +130,36 @@ class ALKFriendPhotoCell: ALKPhotoCell {
             self.avatarImageView.image = placeHolder
         }
     }
-
+    
+    override class func rowHeigh(
+        viewModel: ALKMessageViewModel,
+        width: CGFloat) -> CGFloat {
+        
+        var height: CGFloat
+        
+        height = ceil(width*heightPercentage)
+        if let message = viewModel.message, !message.isEmpty {
+            height += message.rectWithConstrainedWidth(
+                width*widthPercentage,
+                font: messageTextFont).height.rounded(.up) + Padding.CaptionLabel.bottom
+        }
+        
+        //10(top padding) + 34(user name label) + height(photo content) + 34(captionLabel) + 23(timeLabel)
+        return 10+34+height+34+23
+    }
+    
     @objc private func avatarTappedAction() {
         avatarTapped?()
+    }
+    
+    // MARK: - ChatMenuCell
+    override func menuWillShow(_ sender: Any) {
+        super.menuWillShow(sender)
+        self.bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: true)
+    }
+    
+    override func menuWillHide(_ sender: Any) {
+        super.menuWillHide(sender)
+        self.bubbleView.image =  setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: false)
     }
 }

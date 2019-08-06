@@ -17,7 +17,7 @@ class ALKFriendVoiceCell: ALKVoiceCell {
         imv.contentMode = .scaleAspectFill
         imv.clipsToBounds = true
         let layer = imv.layer
-        layer.cornerRadius = 18.5
+        layer.cornerRadius = 22.5
         layer.backgroundColor = UIColor.lightGray.cgColor
         layer.masksToBounds = true
         imv.isUserInteractionEnabled = true
@@ -27,8 +27,8 @@ class ALKFriendVoiceCell: ALKVoiceCell {
     private var nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = UIFont.boldSystemFont(ofSize: 12)
-        label.textColor = UIColor.lightGray
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVOrangeColor()
         return label
     }()
 
@@ -38,24 +38,27 @@ class ALKFriendVoiceCell: ALKVoiceCell {
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
         let heigh: CGFloat
-        heigh = 40
-        return topPadding()+heigh+bottomPadding()
+        heigh = 52
+        //10(top pedding) + 34(user name label) + height(voic content) + 23(timeLabel)
+        return 10+34+heigh+23
     }
 
     override func setupStyle() {
         super.setupStyle()
-        nameLabel.setStyle(ALKMessageStyle.displayName)
+        //nameLabel.setStyle(ALKMessageStyle.displayName)
         if(ALKMessageStyle.receivedBubble.style == .edge) {
-            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+            //bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
+            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
         } else {
-            soundPlayerView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
-            soundPlayerView.backgroundColor = ALKMessageStyle.receivedBubble.color
+            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+            //bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
+            //bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
         }
+        soundPlayerView.backgroundColor = ALKMessageStyle.receivedBubble.color
+        soundPlayerView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
     }
+
 
     override func setupViews() {
         super.setupViews()
@@ -65,31 +68,33 @@ class ALKFriendVoiceCell: ALKVoiceCell {
 
         contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel])
 
-        bubbleView.backgroundColor = UIColor.hex8(Color.Background.grayF2.rawValue).withAlphaComponent(0.26)
+        let width = 245
 
-        let width = UIScreen.main.bounds.width
+        soundPlayerView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 0).isActive = true
+        soundPlayerView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 0).isActive = true
+        soundPlayerView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 0).isActive = true
+        soundPlayerView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 7).isActive = true
+        nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 7).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -15).isActive = true
+        nameLabel.bottomAnchor.constraint(equalTo: soundPlayerView.topAnchor, constant: -7).isActive = true
+        nameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
-        soundPlayerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0).isActive = true
-        soundPlayerView.widthAnchor.constraint(equalToConstant: width*0.48).isActive = true
-
-        nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6).isActive = true
-        nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 57).isActive = true
-
-        nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -56).isActive = true
-        nameLabel.bottomAnchor.constraint(equalTo: soundPlayerView.topAnchor, constant: -6).isActive = true
-        nameLabel.heightAnchor.constraint(equalToConstant: 16).isActive = true
-
-        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 18).isActive = true
+        avatarImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
         avatarImageView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: 0).isActive = true
-
-        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 9).isActive = true
-        avatarImageView.trailingAnchor.constraint(equalTo: soundPlayerView.leadingAnchor, constant: -10).isActive = true
-
-        avatarImageView.heightAnchor.constraint(equalToConstant: 37).isActive = true
+        avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 7).isActive = true
+        avatarImageView.trailingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: -7).isActive = true
+        avatarImageView.heightAnchor.constraint(equalToConstant: 45).isActive = true
         avatarImageView.widthAnchor.constraint(equalTo: avatarImageView.heightAnchor).isActive = true
 
-        timeLabel.leftAnchor.constraint(equalTo: bubbleView.rightAnchor, constant: 2).isActive = true
-        timeLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -2).isActive = true
+        bubbleView.topAnchor.constraint(equalTo: avatarImageView.topAnchor).isActive = true
+        bubbleView.widthAnchor.constraint(equalToConstant: CGFloat(width)).isActive = true
+        
+        timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 5).isActive = true
+        timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 7).isActive = true
+        timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 13).isActive = true
     }
 
     override func update(viewModel: ALKMessageViewModel) {
@@ -106,6 +111,12 @@ class ALKFriendVoiceCell: ALKVoiceCell {
             self.avatarImageView.image = placeHolder
         }
         nameLabel.text = viewModel.displayName
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
+        //set color
+        if let _messageUserId = viewModel.contactId,
+            let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _nameLabelColor
+        }
     }
 
     override class func bottomPadding() -> CGFloat {

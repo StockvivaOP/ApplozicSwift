@@ -26,6 +26,12 @@ extension Date {
         }
 
         let dateFormatter = DateFormatter()
+        
+        //set locale name
+        if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
+            let _locale = Locale(identifier: _localeName)
+            dateFormatter.locale = _locale
+        }
 
         if showTodayTime && day == 0 {
             let dateFormat = DateFormatter.dateFormat(fromTemplate: "HH:mm", options: 0, locale: Locale.current)

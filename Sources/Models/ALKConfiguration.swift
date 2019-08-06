@@ -29,22 +29,19 @@ public struct ALKConfiguration {
 
     /// Navigation bar's background color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
-    public var navigationBarBackgroundColor = UIColor.navigationOceanBlue()
+    public var navigationBarBackgroundColor = UIColor.ALKSVMainColorPurple()
 
     /// Navigation bar's tint color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
-    public var navigationBarItemColor = UIColor.navigationTextOceanBlue()
+    public var navigationBarItemColor = UIColor.white
 
     /// Navigation bar's title color. It will be used in all the
     /// ViewControllers where navigation bar is visible.
-    public var navigationBarTitleColor = UIColor.black
+    public var navigationBarTitleColor = UIColor.white
 
     /// ChatBar's bottom view color. This is the view which contains
     /// all the attachment and other options.
-    public var chatBarAttachmentViewBackgroundColor = UIColor.background(.grayEF)
-
-    /// If true then all the media options in Chat bar will be hidden.
-    public var hideAllOptionsInChatBar = false
+    public var chatBarAttachmentViewBackgroundColor = UIColor.ALKSVGreyColor245()
 
     /// If true then audio option in chat bar will be hidden.
     public var hideAudioOptionInChatBar = false
@@ -81,7 +78,7 @@ public struct ALKConfiguration {
     public var nsNotificationNameForNavIconClick = "handleNavigationItemClick"
 
     /// If true then line between send button and text view will be hidden.
-    public var hideLineImageFromChatBar = false
+    public var hideLineImageFromChatBar = true
 
     /// If true then typing status will show user names.
     public var showNameWhenUserTypesInGroup = true
@@ -90,10 +87,10 @@ public struct ALKConfiguration {
     public var hideEmptyStateStartNewButtonInConversationList = false
 
     /// Date cell and  information cell  background color
-    public var conversationViewCustomCellBackgroundColor = UIColor.gray
+    public var conversationViewCustomCellBackgroundColor = UIColor.ALKSVGreyColor229()
 
     /// Date cell and  information cell  text color
-    public var conversationViewCustomCellTextColor = UIColor.white
+    public var conversationViewCustomCellTextColor = UIColor.ALKSVGreyColor102()
 
     /// Additional information you can pass in message metadata in all the messages.
     public var messageMetadata : [AnyHashable : Any]?
@@ -123,11 +120,169 @@ public struct ALKConfiguration {
     /// Nothing else will be done from our side.
     public var showInfoOptionInGroupDetail: Bool = false
 
-    /// If true, contact share option in chatbar will be hidden.
-    public var hideContactInChatBar: Bool = false
-
     /// If true, swipe action in chatcell to delete/mute conversation will be disabled.
     public var disableSwipeInChatCell: Bool = false
 
+    /// Use this to customize chat input bar items like attachment
+    /// button icons or their visibility.
+    public var chatBar = ALKChatBarConfiguration()
+
+    /// If true, contact share option in chatbar will be hidden.
+    @available(*,deprecated, message: "Use .chatBar.optionsToShow instead")
+    public var hideContactInChatBar: Bool = false {
+        didSet {
+            guard hideContactInChatBar else { return }
+            chatBar.optionsToShow = .some([.gallery, .location, .camera, .video])
+        }
+    }
+
+    /// If true then all the media options in Chat bar will be hidden.
+    @available(*,deprecated, message: "Use .chatBar.optionsToShow instead")
+    public var hideAllOptionsInChatBar = false {
+        didSet {
+            guard hideAllOptionsInChatBar else { return }
+            chatBar.optionsToShow = .none
+        }
+    }
+
+    //tag: stockviva - start
+    //static obj
+    //public static var share = ALKConfiguration()
+    
+    public enum ConversationMessageTypeForApp :String {
+        case text = "text"
+        case audio = "audio"
+        case video = "video"
+        case pdf = "pdf"
+        case image = "image"
+        case gif = "gif"
+        case doc = "doc"
+        case location = "location"
+        case contact = "contact"
+        case information = "information"
+        case html = "html"
+        case quickReply = "quickReply"
+        case button = "button"
+        case listTemplate = "listTemplate"
+        case cardTemplate = "cardTemplate"
+        case email = "email"
+        case faqTemplate = "faqTemplate"
+        case genericCard = "genericCard"
+        case imageMessage = "imageMessage"
+        case unknown = ""
+        
+        static func getMessageTypeString(type:ALKMessageType) -> ConversationMessageTypeForApp{
+            switch type {
+            case .text:
+                return ConversationMessageTypeForApp.text
+            case .photo:
+                return ConversationMessageTypeForApp.image
+            case .voice:
+                return ConversationMessageTypeForApp.audio
+            case .location:
+                return ConversationMessageTypeForApp.location
+            case .information:
+                return ConversationMessageTypeForApp.information
+            case .video:
+                return ConversationMessageTypeForApp.video
+            case .html:
+                return ConversationMessageTypeForApp.html
+            case .quickReply:
+                return ConversationMessageTypeForApp.quickReply
+            case .button:
+                return ConversationMessageTypeForApp.button
+            case .listTemplate:
+                return ConversationMessageTypeForApp.listTemplate
+            case .cardTemplate:
+                return ConversationMessageTypeForApp.cardTemplate
+            case .email:
+                return ConversationMessageTypeForApp.email
+            case .document:
+                return ConversationMessageTypeForApp.doc
+            case .contact:
+                return ConversationMessageTypeForApp.contact
+            case .faqTemplate:
+                return ConversationMessageTypeForApp.faqTemplate
+            case .genericCard:
+                return ConversationMessageTypeForApp.genericCard
+            case .imageMessage:
+                return ConversationMessageTypeForApp.imageMessage
+            }
+        }
+    }
+    
+    /// delegate for get text from app
+    public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
+    
+    /// If true, system will request the app to handle
+    public var enableOpenLinkInApp: Bool = false
+    
+    /// If true, open group detail action will call into your app, refer "ConversationChatContentActionDelegate" groupTitleViewClicked
+    public var enableCustomeGroupDetail: Bool = false
+    
+    /// If true, mic feature will disable in chat bar
+    public var hideMicInChatBar: Bool = false
+    
+    /// If true, local option in chatbar will be hidden.
+    public var hideLocalInChatBar: Bool = false
+    
+    /// If true, contact share option in chatbar will be hidden.
+    public var hideConversationBubbleState: Bool = false
+    
+    /// Conversation View background color
+    public var conversationViewBackgroundColor = UIColor.ALKSVGreyColor245()
+    
+    /// chat view Right Nav Bar Button
+    public var conversationViewCustomRightNavBarView:UIImage?
+    
+    /// chat box cell background color
+    public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
+    /// chat box cell user name color
+    public var conversationViewChatBoxDefaultAdminNameColor = UIColor.ALKSVGreyColor207()
+    /// chat box cell member user name color
+    public var conversationViewChatBoxDefaultMemberNameColor = UIColor.ALKSVGreyColor207()
+    /// chat box cell user name color mapping
+    public var chatBoxCustomCellUserNameColorMapping:[String:UIColor] = [:]
+    
+    //tag: stockviva - end
+    
     public init() { }
+}
+
+//tag: stockviva - start
+public protocol ConversationChatContentActionDelegate: class{
+    func isShowDiscrimation(chatView:UIViewController) -> (isShow: Bool, title: String)?
+    func discrimationClicked(chatView:UIViewController)
+    func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
+    func getGroupTitle(chatView:UIViewController)  -> String?
+    func groupTitleViewClicked(chatView:UIViewController)
+    func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, message:String?)
+    func openLink(url:URL, chatView:UIViewController)
+    func backPageButtonClicked(chatView:UIViewController)
+    func rightMenuClicked(chatView:UIViewController)
+}
+
+public protocol ConversationChatBarActionDelegate: class{
+    func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
+    func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
+    func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+}
+
+public protocol ChatBarRequestActionDelegate: class{
+    func chatBarRequestGetTextViewPashHolder(chatBar:ALKChatBar) -> String?
+    func chatBarRequestIsHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
+    func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+}
+
+public protocol ConversationMessageBoxActionDelegate: class{
+    func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
+}
+
+public protocol SystemTextLocalizableRequestDelegate: class{
+    func getSystemLocaleName() -> String
+    func getSystemTextLocalizable(key:String) -> String?
+}
+
+extension ALKConfiguration {
+    
 }

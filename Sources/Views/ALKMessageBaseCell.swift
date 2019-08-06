@@ -18,7 +18,7 @@ class ALKImageView: UIImageView {
     }
 }
 
-open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol {
+open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
     /// Dummy view required to calculate height for normal text.
     fileprivate static var dummyMessageView: ALKTextView = {
@@ -59,7 +59,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     fileprivate static var attributedStringCache = NSCache<NSString, NSAttributedString>()
 
-    let messageView: ALKTextView = {
+    var messageView: ALKTextView = {
         let textView = ALKTextView.init(frame: .zero)
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
@@ -72,11 +72,15 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.contentInset = .zero
+        textView.textColor = UIColor.ALKSVPrimaryDarkGrey()
+        textView.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return textView
     }()
 
     var timeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         lb.isOpaque = true
         return lb
     }()
@@ -89,21 +93,43 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         return bv
     }()
 
-    var replyView: UIView = {
-        let view = UIView(frame: CGRect.zero)
-        view.backgroundColor = UIColor.darkGray
+    var replyView: ALKImageView = {
+        let view = ALKImageView()
+        view.backgroundColor = UIColor.clear
+        view.tintColor = UIColor.ALKSVGreyColor250()
         view.isUserInteractionEnabled = true
         return view
     }()
 
+    var replyIndicatorView: ALKImageView = {
+        let view = ALKImageView()
+        view.clipsToBounds = true
+        view.isOpaque = true
+        view.backgroundColor = UIColor.ALKSVOrangeColor()
+        view.tintColor = UIColor.ALKSVOrangeColor()
+        view.contentMode = .scaleToFill
+        return view
+    }()
+    
     var replyNameLabel: UILabel = {
         let label = UILabel(frame: CGRect.zero)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVOrangeColor()
         label.numberOfLines = 1
         return label
+    }()
+    
+    let replyMessageTypeImageView: UIImageView = {
+        let imageView = UIImageView(frame: CGRect.zero)
+        imageView.backgroundColor = .clear
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
 
     var replyMessageLabel: UILabel = {
         let label = UILabel(frame: CGRect.zero)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVGreyColor102()
         label.numberOfLines = 1
         return label
     }()
@@ -111,6 +137,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     let previewImageView: UIImageView = {
         let imageView = UIImageView(frame: CGRect.zero)
         imageView.backgroundColor = .clear
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
 
@@ -130,11 +157,14 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     }()
 
     lazy var selfNameText: String = {
-        let text = localizedString(forKey: "You", withDefaultValue: SystemMessage.LabelName.You, fileName: localizedStringFileName)
+        let text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_you") ?? localizedString(forKey: "You", withDefaultValue: SystemMessage.LabelName.You, fileName: localizedStringFileName)
         return text
     }()
 
     var replyViewAction: (()->())? = nil
+    
+    var replyMessageTypeImagewidthConst:NSLayoutConstraint?
+    var replyMessageLabelConst:NSLayoutConstraint?
 
     func update(viewModel: ALKMessageViewModel, style: Style) {
         self.viewModel = viewModel
@@ -149,6 +179,18 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
                 selfNameText : actualMessage.displayName
             replyMessageLabel.text =
                 getMessageTextFrom(viewModel: actualMessage)
+            //update reply icon
+            if actualMessage.messageType == ALKMessageType.voice  {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
+            }else if actualMessage.messageType == ALKMessageType.video {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_video_grey", in: Bundle.applozic, compatibleWith: nil)
+            }else if actualMessage.messageType == ALKMessageType.photo {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_photo_grey", in: Bundle.applozic, compatibleWith: nil)
+            }else if actualMessage.messageType == ALKMessageType.document {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_file_grey", in: Bundle.applozic, compatibleWith: nil)
+            }else{
+                replyMessageTypeImageView.image = nil
+            }
             if let imageURL = getURLForPreviewImage(message: actualMessage) {
                 setImageFrom(url: imageURL, to: previewImageView)
             } else {
@@ -157,7 +199,41 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         } else {
             replyNameLabel.text = ""
             replyMessageLabel.text = ""
+            replyMessageTypeImageView.image = nil
             previewImageView.image = nil
+        }
+        
+        if replyMessageTypeImageView.image == nil {
+            replyMessageTypeImagewidthConst?.constant = 0
+            replyMessageLabelConst?.constant = 0
+        }else{
+            replyMessageTypeImagewidthConst?.constant = 20
+            replyMessageLabelConst?.constant = 5
+        }
+        if viewModel.isMyMessage {
+            replyNameLabel.textColor = UIColor.ALKSVOrangeColor()
+            replyView.image = setReplyViewImage(isReceiverSide: false)
+            replyIndicatorView.image = UIImage.init(named: "sv_button_chatroom_reply_orange", in: Bundle.applozic, compatibleWith: nil)
+            replyIndicatorView.backgroundColor = UIColor.clear
+            replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
+            //set color
+            if let _messageUserId = viewModel.receiverId,
+                let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+                replyNameLabel.textColor = _userColor
+                replyIndicatorView.tintColor = _userColor
+            }
+        }else{
+            replyView.image = setReplyViewImage(isReceiverSide: true)
+            replyIndicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
+            replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
+            replyIndicatorView.image = nil
+            //set color
+            if let _messageUserId = viewModel.receiverId,
+                let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+                replyNameLabel.textColor = _userColor
+                replyIndicatorView.backgroundColor = _userColor
+                replyIndicatorView.tintColor = _userColor
+            }
         }
 
         self.timeLabel.text   = viewModel.time
@@ -190,15 +266,20 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     override func setupViews() {
         super.setupViews()
+        messageView.delegate = self
+        
         contentView.addViewsForAutolayout(views:
             [messageView,
              bubbleView,
              emailTopView,
              replyView,
+             replyIndicatorView,
              replyNameLabel,
+             replyMessageTypeImageView,
              replyMessageLabel,
              previewImageView,
              timeLabel])
+        
         contentView.bringSubviewToFront(messageView)
         contentView.bringSubviewToFront(emailTopView)
 
@@ -209,7 +290,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     override func setupStyle() {
         super.setupStyle()
-        timeLabel.setStyle(ALKMessageStyle.time)
+        //timeLabel.setStyle(ALKMessageStyle.time)
     }
 
     class func messageHeight(viewModel: ALKMessageViewModel,
@@ -254,6 +335,14 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     func menuCopy(_ sender: Any) {
         UIPasteboard.general.string = self.viewModel?.message ?? ""
+    }
+    
+    func menuAppeal(_ sender: Any) {
+        if let _chatGroupID = self.clientChannelKey,
+            let _userID = self.viewModel?.contactId,
+            let _msgID = self.viewModel?.identifier {
+            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
+        }
     }
 
     func menuReply(_ sender: Any) {
@@ -416,5 +505,15 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         messageView.text = nil
         messageView.typingAttributes = [:]
         messageView.setStyle(style)
+    }
+}
+
+extension ALKMessageCell : UITextViewDelegate {
+    public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        let _isOpenInApp = self.systemConfig?.enableOpenLinkInApp ?? false
+        if _isOpenInApp {
+            self.messageViewLinkClicked?(URL)
+        }
+        return !_isOpenInApp
     }
 }

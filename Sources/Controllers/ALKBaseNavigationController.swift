@@ -13,7 +13,7 @@ public class ALKBaseNavigationViewController: UINavigationController {
 
     override public func viewDidLoad() {
         super.viewDidLoad()
-
+        self.delegate = self
         setNeedsStatusBarAppearanceUpdate()
     }
 
@@ -26,4 +26,10 @@ public class ALKBaseNavigationViewController: UINavigationController {
         return ALKBaseNavigationViewController.statusBarStyle
     }
 
+}
+
+extension ALKBaseNavigationViewController: UINavigationControllerDelegate {
+    public func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
+        viewController.navigationController?.navigationBar.topItem?.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+    }
 }

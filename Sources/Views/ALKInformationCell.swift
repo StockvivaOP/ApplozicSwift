@@ -15,21 +15,23 @@ final class ALKInformationCell: UITableViewCell {
 
     fileprivate var messageView: UITextView = {
         let tv = UITextView()
-        tv.setFont(UIFont.font(.bold(size: 12.0)))
+        tv.font = UIFont.systemFont(ofSize: 12.0)
         tv.isEditable = false
         tv.backgroundColor = .clear
         tv.isSelectable = false
         tv.isScrollEnabled = false
         tv.isUserInteractionEnabled = false
         tv.textAlignment = .center
+        tv.textContainerInset = UIEdgeInsets.zero
+        tv.textContainer.lineFragmentPadding = 0
         return tv
     }()
 
     fileprivate var bubbleView: UIView = {
         let bv = UIView()
         bv.backgroundColor = UIColor.clear
-        bv.layer.cornerRadius = 12
-        bv.layer.borderColor = UIColor(netHex: 0xF3F3F3).cgColor
+        bv.layer.cornerRadius = 12.5
+        bv.layer.borderColor = UIColor.ALKSVGreyColor229().cgColor
         bv.layer.borderWidth = 1.0
         bv.isUserInteractionEnabled = false
         return bv
@@ -40,11 +42,11 @@ final class ALKInformationCell: UITableViewCell {
     }
 
     class func topPadding() -> CGFloat {
-        return 8
+        return 5 + 4
     }
 
     class func bottomPadding() -> CGFloat {
-        return 8
+        return 5 + 4
     }
 
     class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
@@ -59,11 +61,14 @@ final class ALKInformationCell: UITableViewCell {
                                                                    options: NSStringDrawingOptions.usesLineFragmentOrigin,
                                                                    attributes: [NSAttributedString.Key.font:UIFont.font(.bold(size: 12))],
                                                                    context: nil)
-            messageHeigh = rect.height + 17
+            messageHeigh = rect.height/* + 17*/
 
             messageHeigh = ceil(messageHeigh)
         }
 
+        if messageHeigh < 17 {
+            messageHeigh = 17
+        }
         return topPadding()+messageHeigh+bottomPadding()
     }
 
@@ -94,16 +99,17 @@ final class ALKInformationCell: UITableViewCell {
         messageView.textColor = configuration.conversationViewCustomCellTextColor
         contentView.addViewsForAutolayout(views: [messageView,bubbleView])
         contentView.bringSubviewToFront(messageView)
-
-        messageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8).isActive = true
-        messageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8).isActive = true
-        messageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        
+        bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
+        bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 20).isActive = true
+        bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -20).isActive = true
+        bubbleView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
+        
+        messageView.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 4).isActive = true
+        messageView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -4).isActive = true
+        messageView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 10).isActive = true
+        messageView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -10).isActive = true
         messageView.widthAnchor.constraint(lessThanOrEqualToConstant: 300).isActive = true
-
-        bubbleView.topAnchor.constraint(equalTo: messageView.topAnchor, constant: 3).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: messageView.bottomAnchor, constant: -3).isActive = true
-        bubbleView.leftAnchor.constraint(equalTo: messageView.leftAnchor, constant: -4).isActive = true
-        bubbleView.rightAnchor.constraint(equalTo: messageView.rightAnchor, constant: 4).isActive = true
-
     }
 }

@@ -48,6 +48,8 @@ class ALKFriendContactMessageCell: ALKContactMessageBaseCell {
     fileprivate var nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVOrangeColor()
         label.isOpaque = true
         return label
     }()
@@ -76,6 +78,12 @@ class ALKFriendContactMessageCell: ALKContactMessageBaseCell {
 
         nameLabel.text = viewModel.displayName
         nameLabel.setStyle(ALKMessageStyle.displayName)
+        nameLabel.textColor = UIColor.ALKSVOrangeColor()
+        //set color
+        if let _messageUserId = viewModel.contactId,
+            let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            nameLabel.textColor = _nameLabelColor
+        }
     }
 
     override func setupStyle() {

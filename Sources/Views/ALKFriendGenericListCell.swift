@@ -108,7 +108,7 @@ class ALKFriendGenericListCell: ALKChatBaseCell<ALKMessageViewModel> {
     }
 
     override func update(viewModel: ALKMessageViewModel) {
-        messageView.update(viewModel: viewModel)
+        messageView.update(viewModel: viewModel, configuration: self.systemConfig)
         guard let metadata = viewModel.metadata else {
             return
         }

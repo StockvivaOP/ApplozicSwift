@@ -29,6 +29,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     // MARK: - Inputs
     open var contactId: String?
     open var channelKey: NSNumber?
+    open var channelInfo: ALChannel?
 
     // For topic based chat
     open var conversationProxy: ALConversationProxy?
@@ -95,11 +96,13 @@ open class ALKConversationViewModel: NSObject, Localizable {
         contactId: String?,
         channelKey: NSNumber?,
         conversationProxy: ALConversationProxy? = nil,
-        localizedStringFileName: String!) {
+        localizedStringFileName: String!,
+        channelInfo: ALChannel? = nil) {
         self.contactId = contactId
         self.channelKey = channelKey
         self.conversationProxy = conversationProxy
         self.localizedStringFileName = localizedStringFileName
+        self.channelInfo = channelInfo
     }
 
     // MARK: - Public methods
@@ -262,7 +265,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         case .voice:
             var height: CGFloat =  0
             if messageModel.isMyMessage {
-                height = ALKVoiceCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                height = ALKMyVoiceCell.rowHeigh(viewModel: messageModel, width: maxWidth)
             } else {
                 height = ALKFriendVoiceCell.rowHeigh(viewModel: messageModel, width: maxWidth)
             }
@@ -377,7 +380,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     open func nextPage() {
         guard !isOpenGroup else {
-            loadOpenGroupMessages()
+            loadEarlierMessagesForOpenGroup()
             return
         }
         guard ALUserDefaultsHandler.isShowLoadEarlierOption(chatId) && ALUserDefaultsHandler.isServerCallDone(forMSGList: chatId) else {
@@ -634,6 +637,28 @@ open class ALKConversationViewModel: NSObject, Localizable {
         self.addToWrapper(message: alMessage)
         return (alMessage, IndexPath(row: 0, section: self.messageModels.count-1))
 
+    }
+    
+    open func send(fileURL: URL, metadata : [AnyHashable : Any]?) -> (ALMessage?, IndexPath?) {
+        print("file is:  ", fileURL)
+        let _url:NSURL = fileURL as NSURL
+        let _docDir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
+        var _filePath = _docDir + String(format: "/%@.%@", _url.deletingPathExtension!.lastPathComponent, _url.pathExtension!)
+        if FileManager.default.fileExists(atPath: _filePath) {
+            _filePath = _docDir + String(format: "/%@_%f.%@", _url.deletingPathExtension!.lastPathComponent, Date().timeIntervalSince1970 * 1000, _url.pathExtension!)
+        }
+        let _fileData = NSData(contentsOf: fileURL)
+        print("filepath:: \(String(describing: _filePath))")
+        guard _fileData?.write(toFile: _filePath, atomically: false) ?? false, let url = URL(string: _filePath) else { return (nil, nil) }
+        guard let alMessage = processAttachment(
+            filePath: url,
+            text: "",
+            contentType: Int(ALMESSAGE_CONTENT_ATTACHMENT),
+            metadata : metadata) else {
+                return (nil, nil)
+        }
+        self.addToWrapper(message: alMessage)
+        return (alMessage, IndexPath(row: 0, section: self.messageModels.count-1))
     }
 
     open func send(contact: CNContact, metadata: [AnyHashable: Any]?) {
@@ -923,6 +948,45 @@ open class ALKConversationViewModel: NSObject, Localizable {
             }
         })
     }
+    
+    open func uploadFile(view: UIView, indexPath: IndexPath) {
+        
+        let alMessage = alMessages[indexPath.section]
+        let clientService = ALMessageClientService()
+        let messageService = ALMessageDBService()
+        let alHandler = ALDBHandler.sharedInstance()
+        var dbMessage: DB_Message?
+        do {
+            dbMessage = try messageService.getMeesageBy(alMessage.msgDBObjectId) as? DB_Message
+        } catch {
+            
+        }
+        dbMessage?.inProgress = 1
+        dbMessage?.isUploadFailed = 0
+        do {
+            try alHandler?.managedObjectContext.save()
+        } catch {
+            
+        }
+        NSLog("content type: ", alMessage.fileMeta.contentType)
+        NSLog("file path: ", alMessage.imageFilePath)
+        clientService.sendPhoto(forUserInfo: alMessage.dictionary(), withCompletion: {
+            urlStr, error in
+            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else { return }
+            let task = ALKUploadTask(url: url, fileName: alMessage.fileMeta.name)
+            task.identifier = String(format: "section: %i, row: %i", indexPath.section, indexPath.row)
+            task.contentType = alMessage.fileMeta.contentType
+            task.filePath = alMessage.imageFilePath
+            let downloadManager = ALKHTTPManager()
+            downloadManager.uploadDelegate = view as? ALKHTTPManagerUploadDelegate
+            downloadManager.uploadAttachment(task: task)
+            downloadManager.uploadCompleted = {[weak self] responseDict, task in
+                if task.uploadError == nil && task.completed {
+                    self?.uploadAttachmentCompleted(responseDict: responseDict, indexPath: indexPath)
+                }
+            }
+        })
+    }
 
     open func encodeVideo(videoURL: URL, completion:@escaping (_ path: String?)->Void) {
 
@@ -1125,6 +1189,27 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     open func loadOpenGroupMessages() {
+        fetchOpenGroupMessages(time: nil, contactId: contactId, channelKey: channelKey, completion: {
+            messageList in
+            guard let messages = messageList else {
+                self.delegate?.loadingFinished(error: nil)
+                return
+            }
+            let sortedArray = messages.sorted { Int(truncating: $0.createdAtTime) < Int(truncating: $1.createdAtTime) }
+            guard !sortedArray.isEmpty else { return }
+            self.alMessages = sortedArray
+            self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: sortedArray))
+            let models = sortedArray.map { $0.messageModel }
+            self.messageModels = models
+            if self.isFirstTime {
+                self.delegate?.loadingFinished(error: nil)
+            } else {
+                self.delegate?.messageUpdated()
+            }
+        })
+    }
+
+    open func loadEarlierMessagesForOpenGroup() {
         var time: NSNumber?
         if let messageList = alMessageWrapper.getUpdatedMessageArray(), messageList.count > 1 {
             time = (messageList.firstObject as! ALMessage).createdAtTime
@@ -1132,12 +1217,19 @@ open class ALKConversationViewModel: NSObject, Localizable {
         NSLog("Last time: \(String(describing: time))")
         fetchOpenGroupMessages(time: time, contactId: contactId, channelKey: channelKey, completion: {
             messageList in
-
-            guard let messages = messageList else {
+            guard let newMessages = messageList else {
                 self.delegate?.loadingFinished(error: nil)
                 return
             }
-            self.addMessagesToList(messages)
+            for mesg in newMessages {
+                guard let msg = self.alMessages.first, let time = Double(msg.createdAtTime.stringValue) else { continue }
+                if let msgTime = Double(mesg.createdAtTime.stringValue), time <= msgTime {
+                    continue
+                }
+                self.alMessageWrapper.getUpdatedMessageArray().insert(mesg, at: 0)
+                self.alMessages.insert(mesg, at: 0)
+                self.messageModels.insert(mesg.messageModel, at: 0)
+            }
             self.delegate?.loadingFinished(error: nil)
         })
     }
@@ -1261,14 +1353,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     private func updateDbMessageWith(key: String, value: String, filePath: String) {
         let messageService = ALMessageDBService()
-        let alHandler = ALDBHandler.sharedInstance()
-        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
-        dbMessage.filePath = filePath
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {
-            NSLog("Not saved due to error")
-        }
+        messageService.updateDbMessageWith(key: key, value: value, filePath: filePath)
     }
 
     private func getMessageToPost(isTextMessage: Bool = false) -> ALMessage {

@@ -11,6 +11,7 @@ import Kingfisher
 protocol NavigationBarCallbacks: class {
     func backButtonTapped()
     func titleTapped()
+    func getTitle() -> String?
 }
 
 class ALKConversationNavBar: UIView, Localizable {
@@ -40,14 +41,25 @@ class ALKConversationNavBar: UIView, Localizable {
         imageView.layer.cornerRadius = 18
         imageView.clipsToBounds = true
         imageView.contentMode = .scaleToFill
+        imageView.isHidden = true
         return imageView
     }()
 
     var profileName: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "HelveticaNeue", size: 16) ?? UIFont.systemFont(ofSize: 16)
-        label.textColor = UIColor(96, green: 94, blue: 94)
+        label.font = UIFont.systemFont(ofSize: 19, weight: .medium) //UIFont(name: "HelveticaNeue", size: 16) ?? UIFont.systemFont(ofSize: 16)
+        label.textColor = UIColor.white //UIColor(96, green: 94, blue: 94)
+        label.textAlignment = .left
         return label
+    }()
+    
+    var groupMuteImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "sv_icon_chatrrom_mute", in: Bundle.applozic, compatibleWith: nil)
+        imageView.clipsToBounds = true
+        imageView.contentMode = .scaleAspectFit
+        imageView.isHidden = true
+        return imageView
     }()
 
     lazy var statusIconBackground: UIView = {
@@ -68,13 +80,22 @@ class ALKConversationNavBar: UIView, Localizable {
 
     var onlineStatusText: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "HelveticaNeue", size: 12) ?? UIFont.systemFont(ofSize: 12)
-        label.textColor = UIColor(113, green: 110, blue: 110)
+        label.font = UIFont.systemFont(ofSize: 12) //UIFont(name: "HelveticaNeue", size: 12) ?? UIFont.systemFont(ofSize: 12)
+        label.textColor = UIColor.white //UIColor(113, green: 110, blue: 110)
         return label
     }()
 
+    lazy var profileNameView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [self.profileName, self.groupMuteImage])
+        stackView.alignment = .fill
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.spacing = 5
+        return stackView
+    }()
+    
     lazy var profileView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [self.profileName, self.onlineStatusText])
+        let stackView = UIStackView(arrangedSubviews: [self.profileNameView, self.onlineStatusText])
         stackView.alignment = .fill
         stackView.axis = .vertical
         stackView.distribution = .fillEqually
@@ -107,6 +128,10 @@ class ALKConversationNavBar: UIView, Localizable {
         self.hideStatus(false)
         updateStatus(isOnline: status.isOnline, lastSeenAt: status.lastSeenAt)
     }
+    
+    func updateContent(){
+        profileName.text = delegate?.getTitle() ?? profileName.text
+    }
 
     func updateStatus(isOnline: Bool, lastSeenAt: NSNumber?) {
         if isOnline {
@@ -117,7 +142,7 @@ class ALKConversationNavBar: UIView, Localizable {
             onlineStatusIcon.backgroundColor = UIColor(165, green: 170, blue: 165)
         }
     }
-
+    
     @objc func backButtonTapped() {
         delegate?.backButtonTapped()
     }
@@ -139,16 +164,16 @@ class ALKConversationNavBar: UIView, Localizable {
 
         backImage.leadingAnchor.constraint(equalTo: backButton.leadingAnchor, constant: 5).isActive = true
         backImage.centerYAnchor.constraint(equalTo: backButton.centerYAnchor).isActive = true
-        backImage.widthAnchor.constraint(equalToConstant: 12).isActive = true
-        backImage.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        backImage.widthAnchor.constraint(equalToConstant: 10).isActive = true
+        backImage.heightAnchor.constraint(equalToConstant: 24).isActive = true
 
         profileImage.leadingAnchor.constraint(equalTo: backButton.trailingAnchor).isActive = true
         profileImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
         profileImage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -5).isActive = true
         profileImage.widthAnchor.constraint(equalToConstant: 35).isActive = true
 
-        statusIconBackground.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 0).isActive = true
-        statusIconBackground.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: -10).isActive = true
+        statusIconBackground.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: -2).isActive = true
+        statusIconBackground.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: -5).isActive = true
         statusIconBackground.widthAnchor.constraint(equalToConstant: 12).isActive = true
         statusIconBackground.heightAnchor.constraint(equalToConstant: 12).isActive = true
 
@@ -156,11 +181,14 @@ class ALKConversationNavBar: UIView, Localizable {
         onlineStatusIcon.centerYAnchor.constraint(equalTo: statusIconBackground.centerYAnchor).isActive = true
         onlineStatusIcon.widthAnchor.constraint(equalToConstant: 10).isActive = true
         onlineStatusIcon.heightAnchor.constraint(equalToConstant: 10).isActive = true
-
-        profileView.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 5).isActive = true
+        
+        profileView.leadingAnchor.constraint(equalTo: statusIconBackground.trailingAnchor, constant: 5).isActive = true
         profileView.topAnchor.constraint(equalTo: profileImage.topAnchor).isActive = true
         profileView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor).isActive = true
         profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        
+        groupMuteImage.widthAnchor.constraint(equalToConstant: 15).isActive = true
+        groupMuteImage.heightAnchor.constraint(equalToConstant: 15).isActive = true
     }
 
     private func hideStatus(_ hide: Bool) {
@@ -183,7 +211,8 @@ class ALKConversationNavBar: UIView, Localizable {
     }
 
     private func setupProfile(name: String, imageUrl: String?, isContact: Bool) {
-        profileName.text = name
+        var _title = delegate?.getTitle() ?? name
+        profileName.text = _title
 
         let placeholderName = isContact ?  "contactPlaceholder" : "groupPlaceholder"
         let placeholder = UIImage(named: placeholderName, in: Bundle.applozic, compatibleWith: nil)

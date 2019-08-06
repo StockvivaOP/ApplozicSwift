@@ -11,7 +11,7 @@ import Contacts
 class ALKContactMessageBaseCell: ALKChatBaseCell<ALKMessageViewModel>, ALKHTTPManagerDownloadDelegate {
 
     let contactView = ContactView(frame: .zero)
-    let loadingIndicator = ALKLoadingIndicator(frame: .zero, color: UIColor.red)
+    let loadingIndicator = ALKLoadingIndicator(frame: .zero, color: UIColor.ALKSVMainColorPurple())
 
     func updateContactDetails(key: String, filePath: String) {
         guard let contact = CNContact.fetchContact(using: filePath) else { return }

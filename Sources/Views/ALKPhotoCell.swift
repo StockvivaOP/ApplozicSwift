@@ -11,9 +11,15 @@ import UIKit
 import Kingfisher
 import Applozic
 
+protocol AttachmentDelegate {
+    func tapAction(message: ALKMessageViewModel)
+}
+
 // MARK: - ALKPhotoCell
 class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
+
+    var delegate: AttachmentDelegate?
 
     var photoView: UIImageView = {
         let mv = UIImageView()
@@ -25,17 +31,23 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     var timeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
     var fileSizeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
-    var bubbleView: UIView = {
-        let bv = UIView()
-        bv.isUserInteractionEnabled = false
+    var bubbleView: ALKImageView = {
+        let bv = ALKImageView()
+        bv.clipsToBounds = true
+        bv.isUserInteractionEnabled = true
+        bv.isOpaque = true
         return bv
     }()
 
@@ -51,7 +63,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         let button = UIButton(type: .custom)
         let image = UIImage(named: "DownloadiOS", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.backgroundColor = UIColor.black
+        button.backgroundColor = UIColor.clear
         return button
     }()
 
@@ -59,7 +71,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         let button = UIButton(type: .custom)
         let image = UIImage(named: "UploadiOS2", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.backgroundColor = UIColor.black
+        button.backgroundColor = UIColor.clear
         return button
     }()
 
@@ -68,13 +80,15 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     var captionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = UIColor.ALKSVPrimaryDarkGrey()
         return label
     }()
     static var maxWidth = UIScreen.main.bounds.width
 
     // To be changed from the class that is subclassing `ALKPhotoCell`
     class var messageTextFont: UIFont {
-        return Font.normal(size: 12).font()
+        return UIFont.systemFont(ofSize: 16, weight: .medium)
     }
 
     // This will be used to calculate the size of the photo view.
@@ -83,26 +97,24 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     struct Padding {
         struct CaptionLabel {
-            static var bottom: CGFloat = 10.0
-            static var left: CGFloat = 5.0
-            static var right: CGFloat = 5.0
+            static var top: CGFloat = 7.0
+            static var bottom: CGFloat = 7.0
+            static var left: CGFloat = 7.0
+            static var right: CGFloat = 7.0
+            static var height: CGFloat = 7.0
         }
     }
 
     var url: URL?
-    enum State {
-        case upload(filePath: String)
-        case uploading(filePath: String)
-        case uploaded
-        case download
-        case downloading
-        case downloaded(filePath: String)
-    }
 
     var uploadTapped:((Bool) ->Void)?
     var uploadCompleted: ((_ responseDict: Any?) ->Void)?
 
     var downloadTapped:((Bool) ->Void)?
+    
+    var captionLabelTopConst:NSLayoutConstraint?
+    var captionLabelHeightConst:NSLayoutConstraint?
+    var captionLabelBottomConst:NSLayoutConstraint?
 
     class func topPadding() -> CGFloat {
         return 12
@@ -129,61 +141,35 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     override func update(viewModel: ALKMessageViewModel) {
-
         self.viewModel = viewModel
         activityIndicator.color = .black
-        print("Update ViewModel filePath:: %@", viewModel.filePath ?? "")
-        if viewModel.isMyMessage {
-            if viewModel.isSent || viewModel.isAllRead || viewModel.isAllReceived {
-                if let filePath = viewModel.filePath, !filePath.isEmpty {
-                    updateView(for: State.downloaded(filePath: filePath))
-                } else {
-                    updateView(for: State.download)
-                }
-            } else {
-                if let filePath = viewModel.filePath, !filePath.isEmpty {
-                    updateView(for: .upload(filePath: filePath))
-                }
-            }
-        } else {
-            if let filePath = viewModel.filePath, !filePath.isEmpty {
-                updateView(for: State.downloaded(filePath: filePath))
-            } else {
-                updateView(for: State.download)
-            }
-        }
         timeLabel.text   = viewModel.time
         captionLabel.text = viewModel.message
 
+        if captionLabel.text?.count ?? 0 > 0 {
+            captionLabelTopConst?.constant = Padding.CaptionLabel.top
+            captionLabelHeightConst?.constant = Padding.CaptionLabel.height
+            captionLabelBottomConst?.constant = -Padding.CaptionLabel.bottom
+        }else{
+            captionLabelTopConst?.constant = 0
+            captionLabelHeightConst?.constant = 0
+            captionLabelBottomConst?.constant = 0
+        }
+        print("Update ViewModel filePath:: %@", viewModel.filePath ?? "")
+        guard let state = viewModel.attachmentState() else {
+            return
+        }
+        updateView(for: state)
     }
 
     @objc func actionTapped(button: UIButton) {
-        let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mediaViewer, bundle: Bundle.applozic)
-
-        let nav = storyboard.instantiateInitialViewController() as? UINavigationController
-        let vc = nav?.viewControllers.first as? ALKMediaViewerViewController
-        let dbService = ALMessageDBService()
-        guard let messages = dbService.getAllMessagesWithAttachment(
-            forContact: viewModel?.contactId,
-            andChannelKey: viewModel?.channelKey,
-            onlyDownloadedAttachments: true) as? [ALMessage] else { return }
-
-        let messageModels = messages.map { $0.messageModel }
-        NSLog("Messages with attachment: ", messages )
-
-        guard let viewModel = viewModel as? ALKMessageModel,
-            let currentIndex = messageModels.index(of: viewModel) else { return }
-        vc?.viewModel = ALKMediaViewerViewModel(messages: messageModels, currentIndex: currentIndex, localizedStringFileName: localizedStringFileName)
-        UIViewController.topViewController()?.present(nav!, animated: true, completion: {
-            button.isEnabled = true
-        })
-
+        delegate?.tapAction(message: viewModel!)
     }
 
     override func setupStyle() {
         super.setupStyle()
 
-        timeLabel.setStyle(ALKMessageStyle.time)
+        //timeLabel.setStyle(ALKMessageStyle.time)
         fileSizeLabel.setStyle(ALKMessageStyle.time)
     }
 
@@ -218,11 +204,6 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         frontView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
         frontView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
 
-        bubbleView.topAnchor.constraint(equalTo: photoView.topAnchor).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: captionLabel.bottomAnchor).isActive = true
-        bubbleView.leftAnchor.constraint(equalTo: photoView.leftAnchor).isActive = true
-        bubbleView.rightAnchor.constraint(equalTo: photoView.rightAnchor).isActive = true
-
         fileSizeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 2).isActive = true
         activityIndicator.heightAnchor.constraint(equalToConstant: 40).isActive = true
         activityIndicator.widthAnchor.constraint(equalToConstant: 50).isActive = true
@@ -249,32 +230,43 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         //
         // CaptionLabelBottom -> (contentView - bottomPadding) which is equal to
         // (CaptionLabel + captionLabelBottom)
-
-        captionLabel.layout {
-            $0.leading == photoView.leadingAnchor + Padding.CaptionLabel.left
-            $0.trailing == photoView.trailingAnchor - Padding.CaptionLabel.right
-            $0.top == photoView.bottomAnchor
-            $0.bottom == contentView.bottomAnchor - ALKPhotoCell.bottomPadding()
-        }
+        
+        captionLabelTopConst = captionLabel.topAnchor.constraint(
+                equalTo: photoView.bottomAnchor,
+                constant: Padding.CaptionLabel.top)
+        captionLabelTopConst?.isActive = true
+        captionLabel.leadingAnchor.constraint(
+                equalTo: bubbleView.leadingAnchor,
+                constant: Padding.CaptionLabel.left).isActive = true
+        captionLabel.trailingAnchor.constraint(
+                equalTo:bubbleView.trailingAnchor,
+                constant: -Padding.CaptionLabel.right).isActive = true
+        captionLabelBottomConst = captionLabel.bottomAnchor.constraint(
+                equalTo: bubbleView.bottomAnchor,
+                constant: -Padding.CaptionLabel.bottom)
+        captionLabelBottomConst?.isActive = true
+        captionLabelHeightConst = captionLabel.heightAnchor.constraint(equalToConstant: Padding.CaptionLabel.height)
+        captionLabelHeightConst?.isActive = true
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
         downloadTapped?(true)
     }
 
-    func updateView(for state: State) {
+    func updateView(for state: AttachmentState) {
         DispatchQueue.main.async {
             self.updateView(state: state)
         }
     }
 
-    private func updateView(state: State) {
+    private func updateView(state: AttachmentState) {
         switch state {
-        case .upload(let filePath):
+        case .upload:
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
             let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            guard let filePath = viewModel?.filePath else { return }
             let path = docDirPath.appendingPathComponent(filePath)
             setPhotoViewImageFromFileURL(path)
             uploadButton.isHidden = false
@@ -375,18 +367,6 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         uploadTapped?(true)
     }
 
-    fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
-        let messageService = ALMessageDBService()
-        let alHandler = ALDBHandler.sharedInstance()
-        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
-        dbMessage.filePath = filePath
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {
-            NSLog("Not saved due to error")
-        }
-    }
-
     fileprivate func updateThumbnailPath(_ key: String, filePath: String) {
         let messageKey = ThumbnailIdentifier.removePrefix(from: key)
         let dbMessage = ALMessageDBService().getMessageByKey("key", value: messageKey) as! DB_Message
@@ -409,6 +389,14 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
     }
+    
+    func menuAppeal(_ sender: Any) {
+        if let _chatGroupID = self.clientChannelKey,
+            let _userID = self.viewModel?.contactId,
+            let _msgID = self.viewModel?.identifier {
+            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
+        }
+    }
 
     func setPhotoViewImageFromFileURL(_ fileURL: URL) {
         let provider = LocalFileImageDataProvider(fileURL: fileURL)
@@ -418,22 +406,22 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
 extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
     func dataUploaded(task: ALKUploadTask) {
-        NSLog("VIDEO CELL DATA UPDATED AND FILEPATH IS: %@", viewModel?.filePath ?? "")
+        NSLog("Photo cell data uploading started for: %@", viewModel?.filePath ?? "")
         DispatchQueue.main.async {
             print("task filepath:: ", task.filePath ?? "")
-            self.updateView(for: .uploading(filePath: task.filePath ?? ""))
+            self.updateView(for: .uploading)
         }
     }
 
     func dataUploadingFinished(task: ALKUploadTask) {
-        NSLog("VIDEO CELL DATA UPLOADED FOR PATH: %@", viewModel?.filePath ?? "")
+        NSLog("Photo cell data uploaded for: %@", viewModel?.filePath ?? "")
         if task.uploadError == nil && task.completed == true && task.filePath != nil {
             DispatchQueue.main.async {
-                self.updateView(for: State.uploaded)
+                self.updateView(for: .uploaded)
             }
         } else {
             DispatchQueue.main.async {
-                self.updateView(for: .upload(filePath: task.filePath ?? ""))
+                self.updateView(for: .upload)
             }
         }
     }
@@ -449,7 +437,9 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
             return
         }
         DispatchQueue.main.async {
-            self.updateView(for: .downloading)
+            let total = task.totalBytesExpectedToDownload
+            let progress = task.totalBytesDownloaded.degree(outOf: total)
+            self.updateView(for: .downloading(progress: progress, totalCount: total))
         }
     }
 
@@ -464,7 +454,7 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
             self.updateThumbnailPath(identifier, filePath: filePath)
             return
         }
-        self.updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))
         }

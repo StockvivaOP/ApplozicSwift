@@ -9,14 +9,14 @@
           "height" : 1
         },
         "cap-insets" : {
-          "bottom" : 12,
-          "top" : 11,
-          "right" : 5,
-          "left" : 11
+          "bottom" : 10,
+          "top" : 10,
+          "right" : 10,
+          "left" : 10
         }
       },
       "idiom" : "universal",
-      "filename" : "chat_bubble_grey (2).pdf",
+      "filename" : "sv_button_chatroom_chatframe_left@1x copy.png",
       "scale" : "1x"
     },
     {
@@ -31,8 +31,5 @@
   "info" : {
     "version" : 1,
     "author" : "xcode"
-  },
-  "properties" : {
-    "template-rendering-intent" : "template"
   }
 }

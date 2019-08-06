@@ -7,10 +7,14 @@
 //
 
 import UIKit
+import Kingfisher
 
 open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
 
+    var clientChannelKey: String?
     var localizedStringFileName: String!
+    var systemConfig:ALKConfiguration?
+    var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
 
     public func setLocalizedStringFileName(_ localizedStringFileName: String) {
         self.localizedStringFileName = localizedStringFileName
@@ -23,6 +27,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     }()
 
     var avatarTapped:(() -> Void)?
+    
+    var messageViewLinkClicked:((_ url:URL) -> Void)?
 
     /// Actions available on menu where callbacks
     /// needs to be send are defined here.
@@ -81,6 +87,10 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             if let replyMenu = getReplyMenuItem(replyItem: self) {
                 menus.append(replyMenu)
             }
+            
+            if let appealMenu = getAppealMenuItem(appealItem: self) {
+                menus.append(appealMenu)
+            }
 
             menuController.menuItems = menus
             menuController.setTargetRect(gestureView.frame, in: superView)
@@ -97,6 +107,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case let menuItem as ALKCopyMenuItemProtocol where action == menuItem.selector:
             return true
         case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
+            return false
+        case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
             return true
         default:
             return false
@@ -107,7 +119,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         guard let copyMenuItem = copyItem as? ALKCopyMenuItemProtocol else {
             return nil
         }
-        let title = localizedString(forKey: "Copy", withDefaultValue: SystemMessage.LabelName.Copy, fileName: localizedStringFileName)
+        let title =  ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_copy") ?? localizedString(forKey: "Copy", withDefaultValue: SystemMessage.LabelName.Copy, fileName: localizedStringFileName)
         let copyMenu = UIMenuItem(title: title, action: copyMenuItem.selector)
         return copyMenu
     }
@@ -116,9 +128,18 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         guard let replyMenuItem = replyItem as? ALKReplyMenuItemProtocol else {
             return nil
         }
-        let title = localizedString(forKey: "Reply", withDefaultValue: SystemMessage.LabelName.Reply, fileName: localizedStringFileName)
+        let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_reply") ?? localizedString(forKey: "Reply", withDefaultValue: SystemMessage.LabelName.Reply, fileName: localizedStringFileName)
         let replyMenu = UIMenuItem(title: title, action: replyMenuItem.selector)
         return replyMenu
+    }
+    
+    private func getAppealMenuItem(appealItem: Any) -> UIMenuItem? {
+        guard let appealMenuItem = appealItem as? ALKAppealMenuItemProtocol else {
+            return nil
+        }
+        let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_report") ?? localizedString(forKey: "Appeal", withDefaultValue: SystemMessage.LabelName.Appeal, fileName: localizedStringFileName)
+        let appealMenu = UIMenuItem(title: title, action: appealMenuItem.selector)
+        return appealMenu
     }
 }
 
@@ -133,6 +154,17 @@ extension ALKCopyMenuItemProtocol {
     }
 }
 
+// MARK: - ALKAppealMenuItemProtocol
+@objc protocol ALKAppealMenuItemProtocol {
+    func menuAppeal(_ sender: Any)
+}
+
+extension ALKAppealMenuItemProtocol {
+    var selector: Selector {
+        return #selector(menuAppeal(_:))
+    }
+}
+
 // MARK: - ALKReplyMenuItemProtocol
 
 @objc protocol ALKReplyMenuItemProtocol {
@@ -142,5 +174,40 @@ extension ALKCopyMenuItemProtocol {
 extension ALKReplyMenuItemProtocol {
     var selector: Selector {
         return #selector(menuReply(_:))
+    }
+}
+
+extension ALKChatBaseCell {
+    func setBubbleViewImage(for style: ALKMessageStyle.BubbleStyle, isReceiverSide: Bool = false,showHangOverImage:Bool) -> UIImage? {
+        var imageTitle = showHangOverImage ? "chat_bubble_red_hover":"chat_bubble_red"
+        // We can rotate the above image but loading the required
+        // image would be faster and we already have both the images.
+        if isReceiverSide {imageTitle = showHangOverImage ? "chat_bubble_grey_hover":"chat_bubble_grey"}
+        
+        guard let bubbleImage = UIImage.init(named: imageTitle, in: Bundle.applozic, compatibleWith: nil)
+            else {return nil}
+        
+        // This API is from the Kingfisher so instead of directly using
+        // imageFlippedForRightToLeftLayoutDirection() we are using this as it handles
+        // platform availability and future updates for us.
+        let modifier = FlipsForRightToLeftLayoutDirectionImageModifier()
+        return modifier.modify(bubbleImage)
+        
+    }
+    
+    func setReplyViewImage(isReceiverSide: Bool = false) -> UIImage? {
+        guard let bubbleImage = UIImage.init(named: "sv_button_chatroom_reply_grey", in: Bundle.applozic, compatibleWith: nil)
+            else {return nil}
+
+        // This API is from the Kingfisher so instead of directly using
+        // imageFlippedForRightToLeftLayoutDirection() we are using this as it handles
+        // platform availability and future updates for us.
+        if isReceiverSide {
+            guard let rightBubbleImage = UIImage.init(named: "sv_button_chatroom_right_reply_grey", in: Bundle.applozic, compatibleWith: nil)
+                else {return bubbleImage}
+            return rightBubbleImage
+        }
+        return bubbleImage
+
     }
 }

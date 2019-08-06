@@ -25,12 +25,14 @@ public enum ALKVoiceCellState {
 }
 
 class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
     var soundPlayerView: UIView = {
         let mv = UIView()
         mv.contentMode = .scaleAspectFill
         mv.clipsToBounds = true
+        mv.layer.cornerRadius = 12
+        mv.backgroundColor = UIColor.clear
         return mv
     }()
 
@@ -43,26 +45,36 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
 
     var playTimeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor102()
         return lb
     }()
 
-    var progressBar: UIProgressView = {
-        let progress = UIProgressView()
-        progress.trackTintColor = UIColor.clear
-        progress.tintColor = UIColor.background(.main).withAlphaComponent(0.32)
-        progress.clipsToBounds = true
-        progress.layer.cornerRadius = 12
-        return progress
+    var progressBar: UISlider = {
+        let view = UISlider()
+        view.value = 0.0
+        view.minimumValue = 0.0
+        view.maximumValue = 1.0
+        var _img = UIImage.createCircleImage(color: UIColor.ALKSVMainColorPurple(), frame: CGRect(x: 0, y: 0, width: 10, height: 10) )
+        view.setThumbImage(_img, for: UIControl.State.normal)
+        view.minimumTrackTintColor = UIColor.ALKSVMainColorPurple()
+        view.maximumTrackTintColor = UIColor.ALKSVColorLightPurple()
+        view.clipsToBounds = true
+        view.isUserInteractionEnabled = false
+        return view
     }()
 
     var timeLabel: UILabel = {
         let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 11, weight: .medium)
+        lb.textColor = UIColor.ALKSVGreyColor153()
         return lb
     }()
 
     var actionButton: UIButton = {
         let button = UIButton(type: .custom)
         button.backgroundColor = .clear
+        button.contentEdgeInsets = UIEdgeInsets(top: 17, left: 27, bottom: 17, right: 20)
         return button
     }()
 
@@ -72,11 +84,11 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         return button
     }()
 
-    var bubbleView: UIView = {
-        let bv = UIView()
-        bv.backgroundColor = .gray
-        bv.layer.cornerRadius = 12
-        bv.isUserInteractionEnabled = false
+    var bubbleView: ALKImageView = {
+        let bv = ALKImageView()
+        bv.clipsToBounds = true
+        bv.isUserInteractionEnabled = true
+        bv.isOpaque = true
         return bv
     }()
 
@@ -104,7 +116,7 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
 
         let heigh: CGFloat
-        heigh = 37
+        heigh = 52
         return topPadding()+heigh+bottomPadding()
     }
 
@@ -123,13 +135,10 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         super.update(viewModel: viewModel)
 
         /// Auto-Download
-        if viewModel.filePath == nil {
+        if let file = viewModel.downloadPath(), let data = file.1 as? Data {
+            updateViewForDownloadedState(data: data)
+        } else {
             downloadTapped?(true)
-        } else if let filePath = viewModel.filePath {
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            if let data = NSData(contentsOfFile: (documentsURL.appendingPathComponent(filePath)).path) as Data? {
-                updateViewForDownloadedState(data: data)
-            }
         }
 
         let timeLeft = Int(viewModel.voiceTotalDuration)-Int(viewModel.voiceCurrentDuration)
@@ -154,9 +163,9 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         }
 
         if viewModel.voiceCurrentState == .stop || viewModel.voiceCurrentDuration == 0 {
-            progressBar.setProgress(0, animated: false)
+            progressBar.setValue(0, animated: false)
         } else {
-            progressBar.setProgress(Float(percent), animated: false)
+            progressBar.setValue(Float(percent), animated: false)
         }
         timeLabel.text   = viewModel.time
     }
@@ -174,8 +183,8 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
 
     override func setupStyle() {
         super.setupStyle()
-        timeLabel.setStyle(ALKMessageStyle.time)
-        playTimeLabel.setStyle(ALKMessageStyle.playTime)
+        //timeLabel.setStyle(ALKMessageStyle.time)
+        //playTimeLabel.setStyle(ALKMessageStyle.playTime)
     }
 
     override func setupViews() {
@@ -185,6 +194,7 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
 
         actionButton.setImage(UIImage(named: "icon_play", in: Bundle.applozic, compatibleWith: nil), for: .normal)
         actionButton.setImage(UIImage(named: "icon_pause", in: Bundle.applozic, compatibleWith: nil), for: .selected)
+        actionButton.tintColor = UIColor.ALKSVMainColorPurple()
 
         frameView.addGestureRecognizer(longPressGesture)
         actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
@@ -198,36 +208,32 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         contentView.bringSubviewToFront(frameView)
         contentView.bringSubviewToFront(actionButton)
 
-        bubbleView.topAnchor.constraint(equalTo: soundPlayerView.topAnchor).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: soundPlayerView.bottomAnchor).isActive = true
-        bubbleView.leftAnchor.constraint(equalTo: soundPlayerView.leftAnchor).isActive = true
-        bubbleView.rightAnchor.constraint(equalTo: soundPlayerView.rightAnchor).isActive = true
+        progressBar.centerYAnchor.constraint(equalTo: soundPlayerView.centerYAnchor).isActive = true
+        progressBar.leadingAnchor.constraint(equalTo: actionButton.trailingAnchor).isActive = true
+        progressBar.trailingAnchor.constraint(equalTo: soundPlayerView.trailingAnchor,constant:-18).isActive = true
+        progressBar.heightAnchor.constraint(equalToConstant: 10).isActive = true
 
-        progressBar.topAnchor.constraint(equalTo: soundPlayerView.topAnchor).isActive = true
-        progressBar.bottomAnchor.constraint(equalTo: soundPlayerView.bottomAnchor).isActive = true
-        progressBar.leftAnchor.constraint(equalTo: soundPlayerView.leftAnchor).isActive = true
-        progressBar.rightAnchor.constraint(equalTo: soundPlayerView.rightAnchor, constant: -2).isActive = true
-
-        frameView.topAnchor.constraint(equalTo: soundPlayerView.topAnchor, constant: 0).isActive = true
-        frameView.bottomAnchor.constraint(equalTo: soundPlayerView.bottomAnchor, constant: 0).isActive = true
-        frameView.leftAnchor.constraint(equalTo: soundPlayerView.leftAnchor, constant: 0).isActive = true
-        frameView.rightAnchor.constraint(equalTo: soundPlayerView.rightAnchor, constant: 0).isActive = true
+        frameView.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 0).isActive = true
+        frameView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: 0).isActive = true
+        frameView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor, constant: 0).isActive = true
+        frameView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor, constant: 0).isActive = true
 
         clearButton.topAnchor.constraint(equalTo: soundPlayerView.topAnchor).isActive = true
         clearButton.bottomAnchor.constraint(equalTo: soundPlayerView.bottomAnchor).isActive = true
         clearButton.leftAnchor.constraint(equalTo: soundPlayerView.leftAnchor).isActive = true
         clearButton.rightAnchor.constraint(equalTo: soundPlayerView.rightAnchor).isActive = true
 
-        actionButton.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
-        actionButton.leftAnchor.constraint(equalTo: soundPlayerView.leftAnchor,constant:0).isActive = true
-        actionButton.widthAnchor.constraint(equalToConstant: 45).isActive = true
-        actionButton.heightAnchor.constraint(equalToConstant: 45).isActive = true
-
-        playTimeLabel.centerYAnchor.constraint(equalTo: bubbleView.centerYAnchor).isActive = true
-        playTimeLabel.centerXAnchor.constraint(equalTo: bubbleView.centerXAnchor).isActive = true
-        playTimeLabel.leftAnchor.constraint(greaterThanOrEqualTo: actionButton.leftAnchor,constant:25).isActive = true
-        playTimeLabel.rightAnchor.constraint(greaterThanOrEqualTo: actionButton.rightAnchor,constant:25).isActive = true
-
+        playTimeLabel.topAnchor.constraint(equalTo: progressBar.bottomAnchor, constant: 2).isActive = true
+        playTimeLabel.leadingAnchor.constraint(equalTo: progressBar.leadingAnchor).isActive = true
+        playTimeLabel.bottomAnchor.constraint(equalTo: soundPlayerView.bottomAnchor,constant:-4).isActive = true
+        playTimeLabel.trailingAnchor.constraint(greaterThanOrEqualTo: progressBar.trailingAnchor,constant:0).isActive = true
+        playTimeLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
+        
+        actionButton.topAnchor.constraint(equalTo: soundPlayerView.topAnchor).isActive = true
+        actionButton.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
+        actionButton.leadingAnchor.constraint(equalTo: soundPlayerView.leadingAnchor).isActive = true
+        actionButton.widthAnchor.constraint(equalToConstant: 61).isActive = true
+        actionButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
     }
 
     deinit {
@@ -277,20 +283,16 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         })
     }
 
-    fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
-        let messageService = ALMessageDBService()
-        let alHandler = ALDBHandler.sharedInstance()
-        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
-        dbMessage.filePath = filePath
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {
-            NSLog("Not saved due to error")
-        }
-    }
-
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
+    }
+    
+    func menuAppeal(_ sender: Any) {
+        if let _chatGroupID = self.clientChannelKey,
+            let _userID = self.viewModel?.contactId,
+            let _msgID = self.viewModel?.identifier {
+            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
+        }
     }
 }
 
@@ -305,7 +307,7 @@ extension ALKVoiceCell: ALKHTTPManagerDownloadDelegate {
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
             return
         }
-        self.updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         if let data = NSData(contentsOfFile: (documentsURL.appendingPathComponent(task.filePath ?? "")).path) as Data? {
             updateViewForDownloadedState(data: data)
