@@ -158,6 +158,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     public var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
+    private var isAutoRefreshMessage: Bool = false
     open var discrimationView: UIButton = {
         let view = UIButton()
         view.backgroundColor = UIColor.ALKSVGreyColor245()
@@ -331,13 +332,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             })
             self?.subscribeChannelToMqtt()
             if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
-                self?.viewModel.refresh()
+                self?.isAutoRefreshMessage = true
             }
         }
 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
             weakSelf.viewModel.sendKeyboardDoneTyping()
+            self?.isAutoRefreshMessage = false
         }
     }
 
@@ -1848,6 +1850,11 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
     public func mqttConnectionClosed() {
         if viewModel.isOpenGroup &&  mqttRetryCount < maxMqttRetryCount {
             subscribeChannelToMqtt()
+        }
+        //auto refresh after
+        if self.isAutoRefreshMessage {
+            self.isAutoRefreshMessage = false
+            self.viewModel.refresh()
         }
         NSLog("MQTT connection closed")
     }
