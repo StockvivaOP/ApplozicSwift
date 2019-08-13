@@ -1812,6 +1812,11 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
         if individualLaunch {
             subscribeChannelToMqtt()
         }
+        //auto refresh after
+        if self.isAutoRefreshMessage {
+            self.isAutoRefreshMessage = false
+            self.viewModel.refresh()
+        }
     }
 
     public func syncCall(_ alMessage: ALMessage!, andMessageList messageArray: NSMutableArray!) {
@@ -1850,11 +1855,6 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
     public func mqttConnectionClosed() {
         if viewModel.isOpenGroup &&  mqttRetryCount < maxMqttRetryCount {
             subscribeChannelToMqtt()
-        }
-        //auto refresh after
-        if self.isAutoRefreshMessage {
-            self.isAutoRefreshMessage = false
-            self.viewModel.refresh()
         }
         NSLog("MQTT connection closed")
     }
