@@ -330,6 +330,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 weakSelf.navigationBar.updateView(profile: profile)
             })
             self?.subscribeChannelToMqtt()
+            if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
+                self?.viewModel.refresh()
+            }
         }
 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil, queue: nil) { [weak self] _ in
