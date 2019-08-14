@@ -26,19 +26,19 @@ public enum ALKMessageStyle {
 
     // Received message text style
     public static var receivedMessage = Style(
-        font: UIFont.systemFont(ofSize: 16, weight: .medium),
+        font: UIFont.systemFont(ofSize: 16),
         text: UIColor.ALKSVPrimaryDarkGrey()
     )
 
     // Sent message text style
     public static var sentMessage = Style(
-        font: UIFont.systemFont(ofSize: 16, weight: .medium),
+        font: UIFont.systemFont(ofSize: 16),
         text: UIColor.ALKSVPrimaryDarkGrey()
     )
 
     @available(*, deprecated, message: "Use `receivedMessage` and `sentMessage`")
     public static var message = Style(
-        font: UIFont.systemFont(ofSize: 16, weight: .medium),
+        font: UIFont.systemFont(ofSize: 16),
         text: UIColor.ALKSVPrimaryDarkGrey()
     ) {
         didSet {

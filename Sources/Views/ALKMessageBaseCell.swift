@@ -73,7 +73,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         textView.textContainer.lineFragmentPadding = 0
         textView.contentInset = .zero
         textView.textColor = UIColor.ALKSVPrimaryDarkGrey()
-        textView.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        textView.font = UIFont.systemFont(ofSize: 16)
         return textView
     }()
 
