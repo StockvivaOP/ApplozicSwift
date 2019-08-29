@@ -244,6 +244,13 @@ open class ALKChatBar: UIView, Localizable {
         return view
     }()
     
+    open var blockChatButton: UIButton = {
+        let view = UIButton()
+        view.backgroundColor = UIColor.clear
+        view.setTitle("", for: .normal)
+        return view
+    }()
+    
     /// Returns true if the textView is first responder.
     open var isTextViewFirstResponder: Bool {
         return textView.isFirstResponder
@@ -306,6 +313,9 @@ open class ALKChatBar: UIView, Localizable {
         case joinGroupButton:
             self.delegate?.chatBarRequestJoinGroupButtonClicked(chatBar: self, chatView:nil)
             break
+        case blockChatButton:
+            self.delegate?.chatBarRequestBlockChatButtonClicked(chatBar: self, chatView:nil)
+            break
         default: break
         }
     }
@@ -343,6 +353,7 @@ open class ALKChatBar: UIView, Localizable {
         locationButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         joinGroupButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        blockChatButton.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         
         self.placeHolder.text = self.pashHolderStr
         
@@ -352,6 +363,7 @@ open class ALKChatBar: UIView, Localizable {
 
         //off join button
         self.hiddenJoinGroupButton()
+        self.hiddenBlockChatButton(true)
         
         if configuration.hideLineImageFromChatBar {
             lineImageView.isHidden = true
@@ -402,6 +414,7 @@ open class ALKChatBar: UIView, Localizable {
         locationButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         contactButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         joinGroupButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
+        blockChatButton.removeTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
     }
 
     private var isNeedInitText = true
@@ -505,7 +518,8 @@ open class ALKChatBar: UIView, Localizable {
             placeHolder,
             soundRec,
             poweredByMessageLabel,
-            joinGroupView])
+            joinGroupView,
+            blockChatButton])
         
         lineView.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
         lineView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
@@ -610,6 +624,11 @@ open class ALKChatBar: UIView, Localizable {
         joinGroupView.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: 0).isActive = true
         joinGroupView.leftAnchor.constraint(equalTo: leftAnchor, constant: 0).isActive = true
         joinGroupView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0).isActive = true
+        
+        blockChatButton.topAnchor.constraint(equalTo: topAnchor, constant: 0).isActive = true
+        blockChatButton.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: 0).isActive = true
+        blockChatButton.leftAnchor.constraint(equalTo: leftAnchor, constant: 0).isActive = true
+        blockChatButton.rightAnchor.constraint(equalTo: rightAnchor, constant: 0).isActive = true
         
         self.joinGroupButton.translatesAutoresizingMaskIntoConstraints = false
         joinGroupView.addSubview(self.joinGroupButton)
@@ -773,6 +792,7 @@ open class ALKChatBar: UIView, Localizable {
     
     public func showJoinGroupButton(title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?){
         self.joinGroupView.isHidden = false
+        self.hiddenBlockChatButton(true)
         self.updateMediaViewVisibility(hide: true)
         self.backgroundColor = UIColor.white
         self.joinGroupButton.setTitle(title ?? "", for: .normal)
@@ -793,6 +813,15 @@ open class ALKChatBar: UIView, Localizable {
         self.joinGroupButton.setImage(nil, for: .normal)
         //on, off join button
         self.delegate?.chatBarRequestIsHiddenJoinGroupButton(chatBar: self, isHidden:true)
+    }
+    
+    public func hiddenBlockChatButton(_ hidden:Bool){
+        self.blockChatButton.isHidden = hidden
+        if hidden == false {
+            self.hiddenJoinGroupButton()
+        }
+        //on, off join button
+        self.delegate?.chatBarRequestIsHiddenBlockChatButton(chatBar: self, isHidden:true)
     }
     
     func setUpViewConfig(){
