@@ -461,7 +461,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.endEditing(true)
         self.viewModel.sendKeyboardDoneTyping()
         self.delegateConversationChatContentAction?.backPageButtonClicked(chatView: self)
-        let popVC = navigationController?.popToRootViewController(animated: true)
+        let popVC = navigationController?.popViewController(animated: true)
+        //let popVC = navigationController?.popToRootViewController(animated: true)
         if popVC == nil {
             self.dismiss(animated: true, completion: nil)
         }

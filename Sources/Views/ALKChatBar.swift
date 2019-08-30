@@ -792,7 +792,6 @@ open class ALKChatBar: UIView, Localizable {
     
     public func showJoinGroupButton(title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?){
         self.joinGroupView.isHidden = false
-        self.hiddenBlockChatButton(true)
         self.updateMediaViewVisibility(hide: true)
         self.backgroundColor = UIColor.white
         self.joinGroupButton.setTitle(title ?? "", for: .normal)
@@ -817,9 +816,6 @@ open class ALKChatBar: UIView, Localizable {
     
     public func hiddenBlockChatButton(_ hidden:Bool){
         self.blockChatButton.isHidden = hidden
-        if hidden == false {
-            self.hiddenJoinGroupButton()
-        }
         //on, off join button
         self.delegate?.chatBarRequestIsHiddenBlockChatButton(chatBar: self, isHidden:true)
     }
