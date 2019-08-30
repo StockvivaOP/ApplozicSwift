@@ -153,6 +153,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     
     //tag: stockviva start
     public var enableShowJoinGroupMode: Bool = false
+    public var enableShowBlockChatMode: Bool = false
     //delegate object
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
@@ -416,6 +417,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.chatBar.setUpViewConfig()
         //tag: on / off join group button
         self.enableJoinGroupButton(self.enableShowJoinGroupMode)
+        self.enableBlockChatButton(self.enableShowBlockChatMode)
         self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
@@ -459,7 +461,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.endEditing(true)
         self.viewModel.sendKeyboardDoneTyping()
         self.delegateConversationChatContentAction?.backPageButtonClicked(chatView: self)
-        let popVC = navigationController?.popToRootViewController(animated: true)
+        let popVC = navigationController?.popViewController(animated: true)
+        //let popVC = navigationController?.popToRootViewController(animated: true)
         if popVC == nil {
             self.dismiss(animated: true, completion: nil)
         }
@@ -702,6 +705,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func configureChatBar() {
         self.enableJoinGroupButton(self.enableShowJoinGroupMode)
+        self.enableBlockChatButton(self.enableShowBlockChatMode)
         chatBar.updateWithConfig(isOpenGroup: viewModel.isOpenGroup, config: configuration)
     }
 
@@ -2051,6 +2055,15 @@ extension ALKConversationViewController {
         }
     }
     
+    public func enableBlockChatButton(_ isEnable:Bool){
+        //tag: on / off join group button
+        hideMoreBar()
+        view.endEditing(true)
+        self.enableShowBlockChatMode = isEnable
+        self.chatBar.resignAllResponderFromTextView()
+        self.chatBar.hiddenBlockChatButton(!self.enableShowBlockChatMode)
+    }
+    
     private func prepareDiscrimationView() {
         self.discrimationView.addTarget(self, action: #selector(discrimationToucUpInside(_:)), for: .touchUpInside)
         if let _discInfo = self.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
@@ -2105,10 +2118,21 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
         self.delegateConversationChatBarAction?.isHiddenJoinGroupButton(chatBar: chatBar, isHidden:isHidden)
     }
     
+    public func chatBarRequestIsHiddenBlockChatButton(chatBar:ALKChatBar, isHidden:Bool) {
+        self.delegateConversationChatBarAction?.isHiddenBlockChatButton(chatBar: chatBar, isHidden:isHidden)
+    }
+    
     public func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
         hideMoreBar()
         view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatBarAction?.joinGroupButtonClicked(chatBar: chatBar, chatView:self)
+    }
+    
+    public func chatBarRequestBlockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?) {
+        hideMoreBar()
+        view.endEditing(true)
+        self.chatBar.resignAllResponderFromTextView()
+        self.delegateConversationChatBarAction?.blockChatButtonClicked(chatBar: chatBar, chatView:self)
     }
 }

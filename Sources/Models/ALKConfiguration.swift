@@ -265,13 +265,17 @@ public protocol ConversationChatContentActionDelegate: class{
 public protocol ConversationChatBarActionDelegate: class{
     func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
     func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
+    func isHiddenBlockChatButton(chatBar:ALKChatBar, isHidden:Bool)
     func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+    func blockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
 }
 
 public protocol ChatBarRequestActionDelegate: class{
     func chatBarRequestGetTextViewPashHolder(chatBar:ALKChatBar) -> String?
     func chatBarRequestIsHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
+    func chatBarRequestIsHiddenBlockChatButton(chatBar:ALKChatBar, isHidden:Bool)
     func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+    func chatBarRequestBlockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{
