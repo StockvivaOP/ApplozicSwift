@@ -895,6 +895,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
         viewModel.prepareController()
     }
+    
+    
+    public func refreshTableView() {
+        tableView.reloadData()
+    }
 
     /// Call this before changing viewModel contents
     public func unsubscribingChannel() {
