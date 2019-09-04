@@ -787,7 +787,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 }
                 weakSelf.isJustSent = true
                 print("About to send this message: ", message)
-                weakSelf.viewModel.send(message: message, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
+                
+                var _tempMsg = message
+                if let _additionalMsg = self?.delegateConversationChatContentAction?.getAdditionalSendMessageForAdmin() {
+                    _tempMsg = _tempMsg + _additionalMsg
+                }
+                
+                weakSelf.viewModel.send(message: _tempMsg, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
                 button.isUserInteractionEnabled = true
             case .chatBarTextChange:
 

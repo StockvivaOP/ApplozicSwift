@@ -260,6 +260,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func openLink(url:URL, chatView:UIViewController)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
+    func getAdditionalSendMessageForAdmin() -> String?
 }
 
 public protocol ConversationChatBarActionDelegate: class{
