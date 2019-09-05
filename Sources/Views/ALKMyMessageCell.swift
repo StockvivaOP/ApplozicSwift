@@ -203,25 +203,9 @@ open class ALKMyMessageCell: ALKMessageCell {
         }
     }
 
-   open override func update(viewModel: ALKMessageViewModel) {
-        super.update(viewModel: viewModel, style: ALKMessageStyle.sentMessage)
-
-        if viewModel.isReplyMessage {
-            guard
-                let metadata = viewModel.metadata,
-                let replyId = metadata[AL_MESSAGE_REPLY_KEY] as? String,
-                let actualMessage = getMessageFor(key: replyId)
-                else {return}
-            showReplyView(true)
-            if actualMessage.messageType == .text || actualMessage.messageType == .html {
-                previewImageView.constraint(withIdentifier: ConstraintIdentifier.PreviewImage.width)?.constant = 0
-            } else {
-                previewImageView.constraint(withIdentifier: ConstraintIdentifier.PreviewImage.width)?.constant = Padding.PreviewImageView.width
-            }
-        } else {
-            showReplyView(false)
-        }
-
+   open func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
+        super.update(viewModel: viewModel, style: ALKMessageStyle.sentMessage, replyMessage: replyMessage)
+        handleReplyView(replyMessage: replyMessage)
         if viewModel.isAllRead {
             stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
             stateView.tintColor = UIColor(netHex: 0x0578FF)
@@ -237,8 +221,9 @@ open class ALKMyMessageCell: ALKMessageCell {
         }
     }
 
-    override class func rowHeigh(viewModel: ALKMessageViewModel,
-                                 width: CGFloat) -> CGFloat {
+    class func rowHeigh(viewModel: ALKMessageViewModel,
+                        width: CGFloat,
+                        replyMessage: ALKMessageViewModel?) -> CGFloat {
         /// Calculating messageHeight
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.widthPadding
         let rightSpacing = Padding.BubbleView.right + bubbleViewRightPadding
@@ -247,15 +232,22 @@ open class ALKMyMessageCell: ALKMessageCell {
         let heightPadding = Padding.MessageView.top + Padding.MessageView.bottom + Padding.BubbleView.bottom + Padding.ReplyView.top
 
         let totalHeight = messageHeight + heightPadding
-        guard
-            let metadata = viewModel.metadata,
-            let _ = metadata[AL_MESSAGE_REPLY_KEY] as? String
-            else {
-                return totalHeight
-        }
+        guard replyMessage != nil else { return totalHeight }
         return totalHeight + Padding.ReplyView.height
     }
 
+    private func handleReplyView(replyMessage: ALKMessageViewModel?) {
+        guard let replyMessage = replyMessage else {
+            showReplyView(false)
+            return
+        }
+        showReplyView(true)
+        if replyMessage.messageType == .text || replyMessage.messageType == .html {
+            previewImageView.constraint(withIdentifier: ConstraintIdentifier.PreviewImage.width)?.constant = 0
+        } else {
+            previewImageView.constraint(withIdentifier: ConstraintIdentifier.PreviewImage.width)?.constant = Padding.PreviewImageView.width
+        }
+    }
 
     fileprivate func showReplyView(_ show: Bool) {
         replyView

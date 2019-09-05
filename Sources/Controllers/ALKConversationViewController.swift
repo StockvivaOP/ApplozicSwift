@@ -355,6 +355,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             alMqttConversationService.mqttConversationDelegate = self
             alMqttConversationService.subscribeToConversation()
         }
+        viewModel.delegate = self
 
         if self.viewModel.isGroup == true {
             let dispName = localizedString(forKey: "Somebody", withDefaultValue: SystemMessage.Chat.somebody, fileName: localizedStringFileName)
@@ -362,9 +363,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         } else {
             self.setTypingNoticeDisplayName(displayName: self.title ?? "")
         }
-
-        viewModel.delegate = self
-        self.refreshViewController()
 
         if let templates = viewModel.getMessageTemplates() {
             templateView = ALKTemplateMessagesView(frame: CGRect.zero, viewModel: ALKTemplateMessagesViewModel(messageTemplates: templates))
@@ -374,9 +372,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
         if self.isFirstTime {
             setupView()
-        } else {
-            tableView.reloadData()
+            self.refreshViewController()
         }
+        configureView()
         contentOffsetDictionary = Dictionary<NSObject,AnyObject>()
         print("id: ", viewModel.messageModels.first?.contactId as Any)
     }
@@ -655,12 +653,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     private func configureChatBar() {
-        if viewModel.isOpenGroup {
-            chatBar.updateMediaViewVisibility(hide: true)
-            chatBar.hideMicButton()
-        } else {
+//        if viewModel.isOpenGroup {
+//            chatBar.updateMediaViewVisibility(hide: true)
+//            chatBar.hideMicButton()
+//        } else {
             chatBar.updateMediaViewVisibility()
-        }
+//        }
     }
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -833,7 +831,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public func refreshViewController() {
         viewModel.clearViewModel()
         tableView.reloadData()
+        configureView()
+        viewModel.prepareController()
+        isFirstTime = false
+    }
 
+    func configureView() {
         setupNavigation()
         prepareContextView()
         configureChatBar()
@@ -841,8 +844,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         isChannelLeft()
         checkUserBlock()
         subscribeChannelToMqtt()
-
-        viewModel.prepareController()
     }
 
     /// Call this before changing viewModel contents

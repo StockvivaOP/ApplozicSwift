@@ -103,10 +103,11 @@ open class ALKReplyMessageView: UIView, Localizable {
             selfNameText:message.displayName
         messageLabel.text = getMessageText()
 
-        if let imageURL = getURLForPreviewImage(message: message) {
-            setImageFrom(url: imageURL, to: previewImageView)
+        let (url, image) = ReplyMessageImage().previewFor(message: message)
+        if let url = url {
+            setImageFrom(url: url, to: previewImageView)
         } else {
-            previewImageView.image = placeholderForPreviewImage(message: message)
+            previewImageView.image = image
         }
     }
 
@@ -201,71 +202,4 @@ open class ALKReplyMessageView: UIView, Localizable {
         imageView.kf.setImage(with: url)
     }
 
-    private func getURLForPreviewImage(message: ALKMessageViewModel) -> URL? {
-        switch message.messageType {
-        case .photo, .video:
-            return getImageURL(for: message)
-        case .location:
-            return getMapImageURL(for: message)
-        default:
-            return nil
-        }
-    }
-
-    private func getImageURL(for message: ALKMessageViewModel) -> URL? {
-        guard message.messageType == .photo else {return nil}
-        if let filePath = message.filePath {
-            let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let path = docDirPath.appendingPathComponent(filePath)
-            return path
-        } else if let thumnailURL = message.thumbnailURL {
-            return thumnailURL
-        }
-        return nil
-    }
-
-    private func getMapImageURL(for message: ALKMessageViewModel) -> URL? {
-        guard message.messageType == .location else {return nil}
-        guard let lat = message.geocode?.location.latitude,
-            let lon = message.geocode?.location.longitude
-            else { return nil }
-
-        let latLonArgument = String(format: "%f,%f", lat, lon)
-        guard let apiKey = ALUserDefaultsHandler.getGoogleMapAPIKey()
-            else { return nil }
-        // swiftlint:disable:next line_length
-        let urlString = "https://maps.googleapis.com/maps/api/staticmap?center=\(latLonArgument)&zoom=17&size=375x295&maptype=roadmap&format=png&visual_refresh=true&markers=\(latLonArgument)&key=\(apiKey)"
-        return URL(string: urlString)
-
-    }
-
-    private func placeholderForPreviewImage(message: ALKMessageViewModel) -> UIImage? {
-        switch message.messageType {
-        case .video:
-            if let filepath = message.filePath {
-                let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                let path = docDirPath.appendingPathComponent(filepath)
-                return getThumbnail(filePath: path)
-            }
-            return UIImage(named: "VIDEO", in: Bundle.applozic, compatibleWith: nil)
-        case .location:
-            return UIImage(named: "map_no_data", in: Bundle.applozic, compatibleWith: nil)
-        default:
-            return nil
-        }
-    }
-
-    private func getThumbnail(filePath: URL) -> UIImage? {
-        do {
-            let asset = AVURLAsset(url: filePath , options: nil)
-            let imgGenerator = AVAssetImageGenerator(asset: asset)
-            imgGenerator.appliesPreferredTrackTransform = true
-            let cgImage = try imgGenerator.copyCGImage(at: CMTimeMake(value: 0, timescale: 1), actualTime: nil)
-            return UIImage(cgImage: cgImage)
-
-        } catch let error {
-            print("*** Error generating thumbnail: \(error.localizedDescription)")
-            return nil
-        }
-    }
 }

@@ -80,17 +80,21 @@ extension ALKMessageViewModel {
     }
 
     func downloadPath() -> (String, NSData?)? {
+        let url = FileManager.default.urls(for: .documentDirectory,
+                                           in: .userDomainMask)[0]
+        /// Check if message is present in db.
+        if let filePath = self.filePath {
+            return (filePath, NSData(contentsOfFile: url.appendingPathComponent(filePath).path))
+        }
         guard
             let name = fileMetaInfo?.name,
             let fileExtension = name.components(separatedBy: ".").last
             else {
                 return nil
         }
-        let filePath = String(format: "%@_local.%@", identifier, fileExtension)
-        let url = FileManager.default.urls(for: .documentDirectory,
-                                           in: .userDomainMask)[0]
-        let data = NSData(contentsOfFile: url.appendingPathComponent(filePath).path)
-        return (filePath, data)
+        let path = String(format: "%@_local.%@", identifier, fileExtension)
+        let data = NSData(contentsOfFile: url.appendingPathComponent(path).path)
+        return (path, data)
     }
 
     func attachmentState() -> AttachmentState? {

@@ -191,6 +191,15 @@ open class ALKConversationViewModel: NSObject, Localizable {
         return messageModels[indexPath.section]
     }
 
+    open func replyMessageFor(message: ALKMessageViewModel) -> ALKMessageViewModel? {
+        guard let metadata = message.metadata,
+            let replyKey = metadata[AL_MESSAGE_REPLY_KEY] as? String
+        else {
+            return nil
+        }
+        return messageForRow(identifier: replyKey) ?? ALMessageService().getALMessage(byKey: replyKey)?.messageModel
+    }
+
     open func quickReplyDictionary(message: ALKMessageViewModel?,indexRow row: Int) -> Dictionary<String,Any>? {
 
         guard let metadata = message?.metadata else {
@@ -234,11 +243,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
         }
         switch messageModel.messageType {
         case .text, .html, .email:
+            let replyMessage = replyMessageFor(message: messageModel)
             if messageModel.isMyMessage {
-                let height = ALKMyMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                let height = ALKMyMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                 return height.cached(with: messageModel.identifier)
             } else {
-                let height = ALKFriendMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                let height = ALKFriendMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                 return height.cached(with: messageModel.identifier)
             }
         case .photo:
@@ -1131,9 +1141,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 self.delegate?.loadingFinished(error: nil)
                 return
             }
-            self.alMessages = messages
-            self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: messages))
-            let models = messages.map { $0.messageModel }
+            let sortedArray = messages.sorted { Int(truncating: $0.createdAtTime) < Int(truncating: $1.createdAtTime) }
+            guard !sortedArray.isEmpty else { return }
+            self.alMessages = sortedArray
+            self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: sortedArray))
+            let models = sortedArray.map { $0.messageModel }
             self.messageModels = models
             if self.isFirstTime {
                 self.delegate?.loadingFinished(error: nil)
@@ -1243,30 +1255,64 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
             let contactDbService = ALContactDBService()
             contactDbService.addUserDetails(userDetailsList)
-            guard let alMessages = messages as? [ALMessage] else {
+            guard var alMessages = messages as? [ALMessage] else {
                 completion(nil)
                 return
             }
             let contactService = ALContactService()
+            let messageDbService = ALMessageDBService()
             var contactsNotPresent = [String]()
-            for message in alMessages {
+            var replyMessageKeys = [String]()
+
+            for index in 0..<alMessages.count {
+                let message = alMessages[index]
                 let contactId = message.to ?? ""
                 if !contactService.isContactExist(contactId) {
                     contactsNotPresent.append(contactId)
                 }
+                if let metadata = message.metadata,
+                    let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
+                    replyMessageKeys.append(key)
+                }
+                if message.getAttachmentType() != nil {
+let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message
+                }
+                if message.getAttachmentType() != nil,
+                    let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message,
+                    dbMessage.filePath != nil {
+                    alMessages[index] = messageDbService.createMessageEntity(dbMessage)
+                }
             }
-
-            if !contactsNotPresent.isEmpty {
-                let userService = ALUserService()
-                userService.fetchAndupdateUserDetails(NSMutableArray(array: contactsNotPresent), withCompletion: { (userDetails, _) in
-                    contactDbService.addUserDetails(userDetails)
-                    completion(alMessages)
+            if !replyMessageKeys.isEmpty {
+                ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
+                    guard let replyMessages = replyMessages as? [ALMessage] else { return }
+                    for message in replyMessages {
+                        let contactId = message.to ?? ""
+                        if !contactService.isContactExist(contactId) {
+                            contactsNotPresent.append(contactId)
+                        }
+                    }
+                    self.processContacts(contactsNotPresent, completion: {
+                        completion(alMessages)
+                    })
                 })
             } else {
-                completion(alMessages)
+                self.processContacts(contactsNotPresent, completion: {
+                    completion(alMessages)
+                })
             }
-
         })
+    }
+
+    private func processContacts(_ contacts: [String], completion: @escaping () -> Void) {
+        if !contacts.isEmpty {
+            ALUserService().fetchAndupdateUserDetails(NSMutableArray(array: contacts), withCompletion: { (userDetails, _) in
+                ALContactDBService().addUserDetails(userDetails)
+                completion()
+            })
+        } else {
+            completion()
+        }
     }
 
     private func addMembersToGroup(users: [ALKFriendViewModel], completion: @escaping (Bool)->Void) {
