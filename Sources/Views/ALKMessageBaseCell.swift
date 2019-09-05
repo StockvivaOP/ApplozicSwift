@@ -175,13 +175,13 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyMessageLabel.text =
                 getMessageTextFrom(viewModel: replyMessage)
             //update reply icon
-            if actualMessage.messageType == ALKMessageType.voice  {
+            if replyMessage.messageType == ALKMessageType.voice  {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
-            }else if actualMessage.messageType == ALKMessageType.video {
+            }else if replyMessage.messageType == ALKMessageType.video {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_video_grey", in: Bundle.applozic, compatibleWith: nil)
-            }else if actualMessage.messageType == ALKMessageType.photo {
+            }else if replyMessage.messageType == ALKMessageType.photo {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_photo_grey", in: Bundle.applozic, compatibleWith: nil)
-            }else if actualMessage.messageType == ALKMessageType.document {
+            }else if replyMessage.messageType == ALKMessageType.document {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_file_grey", in: Bundle.applozic, compatibleWith: nil)
             }else{
                 replyMessageTypeImageView.image = nil

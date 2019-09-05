@@ -365,9 +365,11 @@ open class ALKFriendMessageCell: ALKMessageCell {
     private func handleReplyView(replyMessage: ALKMessageViewModel?) {
         guard let replyMessage = replyMessage else {
             showReplyView(false)
+            self.emailViewTopConst?.constant = 0
             return
         }
         showReplyView(true)
+        self.emailViewTopConst?.constant = Padding.MessageView.top
         if replyMessage.messageType == .text || replyMessage.messageType == .html {
             previewImageView.constraint(withIdentifier: ConstraintIdentifier.replyPreviewImageWidth)?.constant = 0
         } else {
