@@ -29,16 +29,15 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
         }
         print("Cell updated at row: ", indexPath.row, "and type is: ", message.messageType)
 
-        guard !message.isReplyMessage else {
+        if let replyMessage = viewModel.replyMessageFor(message: message) {
             // Get reply cell and return
             if message.isMyMessage {
-
                 let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
                 cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
-                cell.update(viewModel: message)
+                cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
@@ -51,14 +50,13 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     self?.scrollTo(message: message)
                 }
                 return cell
-
             } else {
                 let cell: ALKFriendMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
                 cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
-                cell.update(viewModel: message)
+                cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
@@ -86,7 +84,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
-                cell.update(viewModel: message)
+                cell.update(viewModel: message, replyMessage: nil)
                 cell.update(chatBar: self.chatBar)
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
@@ -103,7 +101,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.systemConfig = self.configuration
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
-                cell.update(viewModel: message)
+                cell.update(viewModel: message, replyMessage: nil)
                 cell.update(chatBar: self.chatBar)
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
