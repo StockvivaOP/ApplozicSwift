@@ -431,7 +431,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         messageView.setStyle(style)
     }
     
-    static func getReplyViewHeight(_ defaultReplyViewHeight:CGFloat = 0, defaultMsgHeight:CGFloat = 0, maxMsgHeight:CGFloat, maxMsgWidth:CGFloat, replyMessageContent:String?) -> (replyViewHeight:CGFloat, replyMsgViewHeight:CGFloat){
+    static func getReplyViewHeight(_ defaultReplyViewHeight:CGFloat = 0, defaultMsgHeight:CGFloat = 0, maxMsgHeight:CGFloat, maxMsgWidth:CGFloat, replyMessageContent:String?) -> (replyViewHeight:CGFloat, replyMsgViewHeight:CGFloat, offsetOfMsgIncreaseHeight:CGFloat){
         
         let _tempLabel:UILabel = UILabel(frame: CGRect.zero)
         _tempLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
@@ -444,11 +444,12 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         if _resultMsgHeight < defaultMsgHeight {
             _resultMsgHeight = defaultMsgHeight
         }
-        var _replyViewViewHeight = defaultReplyViewHeight + (_resultMsgHeight - defaultMsgHeight)
+        let _offsetOfMsgIncreaseHeight = (_resultMsgHeight - defaultMsgHeight)
+        var _replyViewViewHeight = defaultReplyViewHeight + _offsetOfMsgIncreaseHeight
         if _replyViewViewHeight < defaultReplyViewHeight {
             _replyViewViewHeight = defaultReplyViewHeight
         }
-        return (replyViewHeight:_replyViewViewHeight, replyMsgViewHeight:_resultMsgHeight)
+        return (replyViewHeight:_replyViewViewHeight, replyMsgViewHeight:_resultMsgHeight, offsetOfMsgIncreaseHeight:_offsetOfMsgIncreaseHeight)
     }
 }
 
