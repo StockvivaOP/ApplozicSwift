@@ -60,6 +60,7 @@ open class ALKMyMessageCell: ALKMessageCell {
             static let right: CGFloat = 20.0
             static let top: CGFloat = 0.0
             static let height: CGFloat = 20.0
+            static let maxHeight: CGFloat = 20.0
         }
         
         struct PreviewImageView {
@@ -223,9 +224,8 @@ open class ALKMyMessageCell: ALKMessageCell {
             replyMessageLabel.trailingAnchor.constraint(
                 lessThanOrEqualTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyMessageLabel.right),
-            replyMessageLabel.heightAnchor.constraintEqualToAnchor(
-                constant: 0,
-                identifier: ConstraintIdentifier.ReplyMessageLabel.height),
+            replyMessageLabel.heightAnchor.constraintLessThanOrEqualToAnchor(constant: 0,
+                                                                             identifier: ConstraintIdentifier.ReplyMessageLabel.height),
             
             emailViewTopConst!,
             emailTopView.trailingAnchor.constraint(
@@ -324,16 +324,45 @@ open class ALKMyMessageCell: ALKMessageCell {
         
         let totalHeight = messageHeight + heightPadding
         guard replyMessage != nil else { return totalHeight }
-        return totalHeight + Padding.ReplyView.height
+        //add reply view height
+        //get width
+        let _haveMsgIcon = [ALKMessageType.voice, ALKMessageType.video, ALKMessageType.photo, ALKMessageType.document].contains(replyMessage!.messageType)
+        let (url, image) = ReplyMessageImage().previewFor(message: replyMessage!)
+        let _havePreviewImage = url != nil || image != nil
+        
+        var _maxMsgWidth = messageWidth - (Padding.ReplyView.left + Padding.ReplyView.right + Padding.ReplyIndicatorView.width + Padding.ReplyMessageTypeImageView.left + Padding.ReplyMessageLabel.right + Padding.PreviewImageView.right)
+        if _haveMsgIcon {
+            _maxMsgWidth += Padding.ReplyMessageTypeImageView.width + Padding.ReplyMessageLabel.left
+        }
+        if _havePreviewImage {
+            _maxMsgWidth += Padding.PreviewImageView.width
+        }
+        var _replyMsgContent:String? = ""
+        switch replyMessage!.messageType {
+        case .text, .html:
+            _replyMsgContent = replyMessage!.message
+        default:
+            _replyMsgContent = replyMessage!.messageType.rawValue
+        }
+        let _replyViewHeightInfo = ALKMessageCell.getReplyViewHeight(Padding.ReplyView.height, defaultMsgHeight: Padding.ReplyMessageLabel.height, maxMsgHeight: Padding.ReplyMessageLabel.maxHeight, maxMsgWidth:_maxMsgWidth, replyMessageContent: _replyMsgContent)
+        
+        
+        return totalHeight + _replyViewHeightInfo.replyViewHeight
+        //return totalHeight + Padding.ReplyView.height
     }
 
     private func handleReplyView(replyMessage: ALKMessageViewModel?) {
         guard let replyMessage = replyMessage else {
-            showReplyView(false)
+            showReplyView(false, haveImageType: false, haveImage: false)
             self.emailViewTopConst?.constant = 0
             return
         }
-        showReplyView(true)
+        //get setting
+        let _haveMsgIcon = [ALKMessageType.voice, ALKMessageType.video, ALKMessageType.photo, ALKMessageType.document].contains(replyMessage.messageType)
+        let (url, image) = ReplyMessageImage().previewFor(message: replyMessage)
+        let _havePreviewImage = url != nil || image != nil
+        showReplyView(true, haveImageType: _haveMsgIcon, haveImage: _havePreviewImage)
+        
         self.emailViewTopConst?.constant = Padding.MessageView.top
         if replyMessage.messageType == .text || replyMessage.messageType == .html {
             previewImageView.constraint(withIdentifier: ConstraintIdentifier.PreviewImage.width)?.constant = 0
@@ -342,16 +371,30 @@ open class ALKMyMessageCell: ALKMessageCell {
         }
     }
 
-    fileprivate func showReplyView(_ show: Bool) {
+    fileprivate func showReplyView(_ show: Bool, haveImageType:Bool, haveImage:Bool) {
+        //get width
+        let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.widthPadding
+        let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.sentBubble.widthPadding + ( ALKMessageStyle.sentBubble.style == .edge ? 5 : 0 )
+        
+        var _maxMsgWidth = self.contentView.bounds.size.width - (leftSpacing + rightSpacing) - (Padding.ReplyView.left + Padding.ReplyView.right + Padding.ReplyIndicatorView.width + Padding.ReplyMessageTypeImageView.left + Padding.ReplyMessageLabel.right + Padding.PreviewImageView.right)
+        if haveImageType {
+            _maxMsgWidth += Padding.ReplyMessageTypeImageView.width + Padding.ReplyMessageLabel.left
+        }
+        if haveImage{
+            _maxMsgWidth += Padding.PreviewImageView.width
+        }
+        let _replyViewHeightInfo = ALKMessageCell.getReplyViewHeight(Padding.ReplyView.height, defaultMsgHeight: Padding.ReplyMessageLabel.height, maxMsgHeight: Padding.ReplyMessageLabel.maxHeight, maxMsgWidth:_maxMsgWidth, replyMessageContent: self.replyMessageLabel.text)
+            
+        //set constraint
         replyView
             .constraint(withIdentifier: ConstraintIdentifier.replyViewHeightIdentifier)?
-            .constant = show ? Padding.ReplyView.height : 0
+            .constant = show ? _replyViewHeightInfo.replyViewHeight : 0
         replyNameLabel
             .constraint(withIdentifier: ConstraintIdentifier.ReplyNameLabel.height)?
             .constant = show ? Padding.ReplyNameLabel.height : 0
         replyMessageLabel
             .constraint(withIdentifier: ConstraintIdentifier.ReplyMessageLabel.height)?
-            .constant = show ? Padding.ReplyMessageLabel.height : 0
+            .constant = show ? _replyViewHeightInfo.replyMsgViewHeight : 0
         previewImageView
             .constraint(withIdentifier: ConstraintIdentifier.PreviewImage.height)?
             .constant = show ? Padding.PreviewImageView.height : 0

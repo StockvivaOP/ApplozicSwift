@@ -430,6 +430,26 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         messageView.typingAttributes = [:]
         messageView.setStyle(style)
     }
+    
+    static func getReplyViewHeight(_ defaultReplyViewHeight:CGFloat = 0, defaultMsgHeight:CGFloat = 0, maxMsgHeight:CGFloat, maxMsgWidth:CGFloat, replyMessageContent:String?) -> (replyViewHeight:CGFloat, replyMsgViewHeight:CGFloat){
+        
+        let _tempLabel:UILabel = UILabel(frame: CGRect.zero)
+        _tempLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        _tempLabel.textColor = UIColor.ALKSVGreyColor102()
+        _tempLabel.numberOfLines = 3
+        _tempLabel.lineBreakMode = .byTruncatingTail
+        _tempLabel.text = replyMessageContent
+        
+        var _resultMsgHeight:CGFloat = _tempLabel.sizeThatFits(CGSize(width: maxMsgWidth, height: maxMsgHeight) ).height
+        if _resultMsgHeight < defaultMsgHeight {
+            _resultMsgHeight = defaultMsgHeight
+        }
+        var _replyViewViewHeight = defaultReplyViewHeight + (_resultMsgHeight - defaultMsgHeight)
+        if _replyViewViewHeight < defaultReplyViewHeight {
+            _replyViewViewHeight = defaultReplyViewHeight
+        }
+        return (replyViewHeight:_replyViewViewHeight, replyMsgViewHeight:_resultMsgHeight)
+    }
 }
 
 extension ALKMessageCell : UITextViewDelegate {
