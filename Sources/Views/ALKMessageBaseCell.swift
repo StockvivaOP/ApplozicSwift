@@ -130,7 +130,8 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         let label = UILabel(frame: CGRect.zero)
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.ALKSVGreyColor102()
-        label.numberOfLines = 1
+        label.numberOfLines = 3
+        label.lineBreakMode = .byTruncatingTail
         return label
     }()
 

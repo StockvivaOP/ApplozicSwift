@@ -1101,9 +1101,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     func showReplyMessageView() {
+        var _height = replyMessageView.getViewHeight()
         replyMessageView.constraint(
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
-            .constant = Padding.ReplyMessageView.height
+            .constant = _height//Padding.ReplyMessageView.height
+        self.view.setNeedsUpdateConstraints()
+        self.view.layoutIfNeeded()
         replyMessageView.isHidden = false
         self.chatBar.hiddenLineView(true)
     }

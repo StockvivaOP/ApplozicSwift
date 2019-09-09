@@ -28,9 +28,10 @@ open class ALKReplyMessageView: UIView, Localizable {
     open var messageLabel: UILabel = {
         let label = UILabel(frame: CGRect.zero)
         label.text = "The message"
-        label.numberOfLines = 1
+        label.numberOfLines = 3
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.ALKSVGreyColor102()
+        label.lineBreakMode = .byTruncatingTail
         return label
     }()
 
@@ -87,7 +88,7 @@ open class ALKReplyMessageView: UIView, Localizable {
         }
 
         enum MessageLabel {
-            static let height: CGFloat = 20.0
+            static let height: CGFloat = 60.0
             static let left: CGFloat = 5.0
             static let right: CGFloat = 5.0
             static let top: CGFloat = 0.0
@@ -221,7 +222,7 @@ open class ALKReplyMessageView: UIView, Localizable {
         messageTypeImagewidthConst!.isActive = true
         messageTypeImageView.heightAnchor.constraint(equalToConstant: Padding.MessageTypeImageView.height).isActive = true
         
-        messageLabel.heightAnchor.constraint(equalToConstant: Padding.MessageLabel.height).isActive = true
+        messageLabel.heightAnchor.constraint(lessThanOrEqualToConstant: Padding.MessageLabel.height)
         messageLabelLeadingConst!.isActive = true
         messageLabel.trailingAnchor.constraint(equalTo: previewImageView.leadingAnchor, constant: -Padding.MessageLabel.right).isActive = true
         messageLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Padding.MessageLabel.top).isActive = true
@@ -240,6 +241,12 @@ open class ALKReplyMessageView: UIView, Localizable {
 
     }
 
+    func getViewHeight() -> CGFloat{
+        var _result:CGFloat = Padding.NameLabel.top + Padding.NameLabel.height + Padding.MessageLabel.top + Padding.MessageLabel.bottom
+        _result += messageLabel.sizeThatFits(CGSize(width: messageLabel.frame.size.width, height: 60) ).height
+        return _result
+    }
+    
     @objc private func closeButtonTapped(_ sender: UIButton) {
         closeButtonTapped?(true)
     }
