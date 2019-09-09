@@ -486,6 +486,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         //tag: stockviva - set up discrimation view
         self.prepareDiscrimationView()
         replyMessageView.closeButtonTapped = {[weak self] _ in
+            self?.viewModel.clearSelectedMessageToReply()
             self?.hideReplyMessageView()
         }
     }
@@ -1101,7 +1102,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     func showReplyMessageView() {
-        var _height = replyMessageView.getViewHeight()
+        let _height = replyMessageView.getViewHeight()
         replyMessageView.constraint(
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
             .constant = _height//Padding.ReplyMessageView.height
