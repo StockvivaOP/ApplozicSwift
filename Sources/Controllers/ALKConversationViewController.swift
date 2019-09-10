@@ -1106,6 +1106,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         replyMessageView.constraint(
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
             .constant = _height//Padding.ReplyMessageView.height
+        self.tableView.contentOffset.y += _height
         self.view.setNeedsUpdateConstraints()
         self.view.layoutIfNeeded()
         replyMessageView.isHidden = false
