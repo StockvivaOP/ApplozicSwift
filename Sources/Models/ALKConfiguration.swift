@@ -132,7 +132,7 @@ public struct ALKConfiguration {
     public var hideContactInChatBar: Bool = false {
         didSet {
             guard hideContactInChatBar else { return }
-            chatBar.optionsToShow = .some([.gallery, .location, .camera, .video])
+            chatBar.optionsToShow = .some([.gallery, .camera, .file])
         }
     }
 
@@ -221,7 +221,7 @@ public struct ALKConfiguration {
     public var enableCustomeGroupDetail: Bool = false
     
     /// If true, mic feature will disable in chat bar
-    public var hideMicInChatBar: Bool = false
+    public var hideMicInChatBar: Bool = true
     
     /// If true, local option in chatbar will be hidden.
     public var hideLocalInChatBar: Bool = false
