@@ -83,7 +83,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
             static let top: CGFloat = 0.0
             static let bottom: CGFloat = 5.0
             static let height: CGFloat = 20.0
-            static let maxHeight: CGFloat = 20.0
+            static let maxHeight: CGFloat = 60.0
         }
         
         struct PreviewImageView {

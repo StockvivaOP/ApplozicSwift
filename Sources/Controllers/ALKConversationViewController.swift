@@ -566,7 +566,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         contextTitleView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
         contextTitleView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.contextTitleView).isActive = true
 
-        templateView?.bottomAnchor.constraint(equalTo: typingNoticeView.topAnchor, constant: -5.0).isActive = true
+        templateView?.bottomAnchor.constraint(equalTo: discrimationView.topAnchor, constant: -5.0).isActive = true
         templateView?.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5.0).isActive = true
         templateView?.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -10.0).isActive = true
         templateView?.heightAnchor.constraint(equalToConstant: 45).isActive = true
@@ -1106,9 +1106,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         replyMessageView.constraint(
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
             .constant = _height//Padding.ReplyMessageView.height
-        self.tableView.contentOffset.y += _height
         self.view.setNeedsUpdateConstraints()
         self.view.layoutIfNeeded()
+        self.tableView.setContentOffset(CGPoint(x: self.tableView.contentOffset.x, y: self.tableView.contentOffset.y + _height ), animated: true)
         replyMessageView.isHidden = false
         self.chatBar.hiddenLineView(true)
     }
