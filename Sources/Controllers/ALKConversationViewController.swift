@@ -2153,3 +2153,10 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
         self.delegateConversationChatBarAction?.blockChatButtonClicked(chatBar: chatBar, chatView:self)
     }
 }
+
+//MARK: - stockviva (ConversationCellRequestInfoDelegate)
+extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
+    public func isEnableReplyMenuItem() -> Bool {
+        return self.enableShowJoinGroupMode == false && self.enableShowBlockChatMode == false
+    }
+}

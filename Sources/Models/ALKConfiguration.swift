@@ -283,6 +283,10 @@ public protocol ConversationMessageBoxActionDelegate: class{
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
 }
 
+public protocol ConversationCellRequestInfoDelegate: class{
+    func isEnableReplyMenuItem() -> Bool
+}
+
 public protocol SystemTextLocalizableRequestDelegate: class{
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?

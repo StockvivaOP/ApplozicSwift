@@ -14,6 +14,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     var clientChannelKey: String?
     var localizedStringFileName: String!
     var systemConfig:ALKConfiguration?
+    var delegateCellRequestInfo:ConversationCellRequestInfoDelegate?
     var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
 
     public func setLocalizedStringFileName(_ localizedStringFileName: String) {
@@ -107,7 +108,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case let menuItem as ALKCopyMenuItemProtocol where action == menuItem.selector:
             return true
         case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
-            return true
+            return self.delegateCellRequestInfo?.isEnableReplyMenuItem() ?? false
         case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
             return true
         default:
