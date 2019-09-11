@@ -595,10 +595,17 @@ open class ALKConversationViewModel: NSObject, Localizable {
         self.delegate?.messageSent(at: indexPath)
         if isOpenGroup {
             let messageClientService = ALMessageClientService()
-            messageClientService.sendMessage(alMessage.dictionary(), withCompletionHandler: {_, error in
-                guard error == nil, indexPath.section < self.messageModels.count else { return }
-                NSLog("No errors while sending the message in open group")
-                alMessage.status = NSNumber(integerLiteral: Int(SENT.rawValue))
+            messageClientService.sendMessage(alMessage.dictionary(), withCompletionHandler: {json, error in
+                guard error == nil,
+                    indexPath.section < self.messageModels.count,
+                    let json = json as? [String: Any]
+                    else { return }
+                if let response = json["response"] as? [String: Any], let key = response["messageKey"] as? String {
+                    alMessage.key = key
+                    alMessage.status = NSNumber(integerLiteral: Int(SENT.rawValue))
+                } else {
+                    alMessage.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
+                }
                 self.messageModels[indexPath.section] = alMessage.messageModel
                 self.delegate?.updateMessageAt(indexPath: indexPath)
                 return
