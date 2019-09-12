@@ -214,6 +214,9 @@ public struct ALKConfiguration {
     /// delegate for get text from app
     public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
     
+    /// If true, system can scroll to reply org message while click
+    public var enableScrollToReplyViewWhenClick: Bool = false
+    
     /// If true, system will request the app to handle
     public var enableOpenLinkInApp: Bool = false
     

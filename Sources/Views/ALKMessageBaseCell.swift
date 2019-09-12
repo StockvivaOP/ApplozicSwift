@@ -130,7 +130,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         let label = UILabel(frame: CGRect.zero)
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.ALKSVGreyColor102()
-        label.numberOfLines = 3
+        label.numberOfLines = 0
         label.lineBreakMode = .byTruncatingTail
         return label
     }()
@@ -436,7 +436,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         let _tempLabel:UILabel = UILabel(frame: CGRect.zero)
         _tempLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         _tempLabel.textColor = UIColor.ALKSVGreyColor102()
-        _tempLabel.numberOfLines = 3
+        _tempLabel.numberOfLines = 0
         _tempLabel.lineBreakMode = .byTruncatingTail
         _tempLabel.text = replyMessageContent
         

@@ -83,7 +83,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
             static let top: CGFloat = 0.0
             static let bottom: CGFloat = 5.0
             static let height: CGFloat = 20.0
-            static let maxHeight: CGFloat = 60.0
+            static let maxHeight: CGFloat = CGFloat.greatestFiniteMagnitude
         }
         
         struct PreviewImageView {
@@ -325,7 +325,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let minimumHeight = Padding.AvatarImage.top + Padding.AvatarImage.height + 5
         
         /// Calculating available width for messageView
-        let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left + bubbleViewLeftPadding
+        let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left /*+ bubbleViewLeftPadding*/
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.receivedBubble.widthPadding
         let messageWidth = width - (leftSpacing + rightSpacing)
         
@@ -408,7 +408,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
 
     private func showReplyView(_ show: Bool, haveImageType:Bool, haveImage:Bool) {
         //get width
-        let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left + ALKFriendMessageCell.bubbleViewLeftPadding
+        let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left /*+ ALKFriendMessageCell.bubbleViewLeftPadding*/
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.receivedBubble.widthPadding
         var _maxMsgWidth = self.contentView.bounds.size.width - (leftSpacing + rightSpacing) - (Padding.ReplyView.left + Padding.ReplyView.right + Padding.ReplyIndicatorView.width + Padding.ReplyMessageTypeImageView.left + Padding.ReplyMessageLabel.right + Padding.PreviewImageView.right)
         if haveImageType {

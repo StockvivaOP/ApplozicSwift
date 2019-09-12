@@ -61,7 +61,7 @@ open class ALKMyMessageCell: ALKMessageCell {
             static let top: CGFloat = 0.0
             static let bottom: CGFloat = 5.0
             static let height: CGFloat = 20.0
-            static let maxHeight: CGFloat = 60.0
+            static let maxHeight: CGFloat = CGFloat.greatestFiniteMagnitude
         }
         
         struct PreviewImageView {
@@ -314,7 +314,7 @@ open class ALKMyMessageCell: ALKMessageCell {
                         replyMessage: ALKMessageViewModel?) -> CGFloat {
         /// Calculating messageHeight
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.widthPadding
-        let rightSpacing = Padding.BubbleView.right + bubbleViewRightPadding
+        let rightSpacing = Padding.BubbleView.right /*+ bubbleViewRightPadding*/
         let messageWidth = width - (leftSpacing + rightSpacing)
         let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.sentMessage.font)
         var heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + Padding.MessageView.bottom + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
@@ -374,7 +374,7 @@ open class ALKMyMessageCell: ALKMessageCell {
     fileprivate func showReplyView(_ show: Bool, haveImageType:Bool, haveImage:Bool) {
         //get width
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.widthPadding
-        let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.sentBubble.widthPadding + ( ALKMessageStyle.sentBubble.style == .edge ? 5 : 0 )
+        let rightSpacing = Padding.BubbleView.right /*+ ALKMessageStyle.sentBubble.widthPadding + ( ALKMessageStyle.sentBubble.style == .edge ? 5 : 0 )*/
         
         var _maxMsgWidth = self.contentView.bounds.size.width - (leftSpacing + rightSpacing) - (Padding.ReplyView.left + Padding.ReplyView.right + Padding.ReplyIndicatorView.width + Padding.ReplyMessageTypeImageView.left + Padding.ReplyMessageLabel.right + Padding.PreviewImageView.right)
         if haveImageType {
