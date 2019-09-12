@@ -2,8 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "icon_mute_inactive.pdf",
-      "unassigned" : true
+      "filename" : "icon_mute_inactive.pdf"
     }
   ],
   "info" : {

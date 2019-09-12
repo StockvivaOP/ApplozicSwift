@@ -680,8 +680,10 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
     }
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if tableView.isCellVisible(section: viewModel.messageModels.count-2, row: 0) {
+        if tableView.isCellVisible(section: viewModel.messageModels.count-1, row: 0) {
             unreadScrollButton.isHidden = true
+        }else{
+            unreadScrollButton.isHidden = false
         }
         if (scrollView is UICollectionView) {
             let horizontalOffset = scrollView.contentOffset.x

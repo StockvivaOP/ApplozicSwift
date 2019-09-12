@@ -615,7 +615,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         unreadScrollButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         unreadScrollButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
         unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -10).isActive = true
-        unreadScrollButton.bottomAnchor.constraint(equalTo: discrimationView.topAnchor, constant: -10).isActive = true
+        unreadScrollButton.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -10).isActive = true
 
         leftMoreBarConstraint = moreBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 56)
         leftMoreBarConstraint?.isActive = true
@@ -1050,7 +1050,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
-        tableView.scrollToBottom()
+        tableView.scrollToBottom(animated: true)
         unreadScrollButton.isHidden = true
     }
     
