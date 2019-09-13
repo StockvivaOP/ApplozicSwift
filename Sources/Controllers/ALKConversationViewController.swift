@@ -324,8 +324,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             weakSelf.navigationBar.updateView(profile: profile)
             weakSelf.newMessagesAdded()
         })
-
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND"), object: nil, queue: nil) { [weak self] _ in
+        
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
             let profile = weakSelf.viewModel.currentConversationProfile(completion: { (profile) in
                 guard let profile = profile else { return }
@@ -337,10 +337,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             }
         }
 
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil, queue: nil) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
             weakSelf.viewModel.sendKeyboardDoneTyping()
             self?.isAutoRefreshMessage = false
+            self?.unsubscribingChannel()
         }
     }
 
@@ -356,8 +357,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "UPDATE_MESSAGE_SEND_STATUS"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "USER_DETAILS_UPDATE_CALL"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "UPDATE_CHANNEL_NAME"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND_CV"), object: nil)
     }
 
     override open func viewWillAppear(_ animated: Bool) {
@@ -1503,6 +1504,12 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             activityIndicator.stopAnimating()
         }
         tableView.reloadData()
+        
+        if tableView.isCellVisible(section: self.viewModel.messageModels.count-1, row: 0) {
+            self.unreadScrollButton.isHidden = true
+        }else{
+            self.unreadScrollButton.isHidden = false
+        }
     }
 
     public func updateMessageAt(indexPath: IndexPath) {
