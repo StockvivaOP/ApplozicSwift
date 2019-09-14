@@ -35,4 +35,8 @@ class HeightCache {
         }
         return height.value
     }
+    
+    func clearAll(){
+        cache.removeAllObjects()
+    }
 }

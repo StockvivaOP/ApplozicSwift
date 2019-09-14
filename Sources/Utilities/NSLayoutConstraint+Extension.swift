@@ -13,4 +13,10 @@ extension NSLayoutDimension {
         constraint.identifier = identifier
         return constraint
     }
+    
+    func constraintLessThanOrEqualToAnchor(constant:CGFloat, identifier:String) -> NSLayoutConstraint {
+        let constraint = self.constraint(lessThanOrEqualToConstant: constant)
+        constraint.identifier = identifier
+        return constraint
+    }
 }

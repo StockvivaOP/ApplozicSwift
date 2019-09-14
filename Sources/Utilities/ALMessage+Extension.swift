@@ -332,7 +332,7 @@ extension ALMessage {
         return self.fileMeta ?? nil
     }
 
-    private func getAttachmentType() -> ALKMessageType? {
+    func getAttachmentType() -> ALKMessageType? {
         guard let fileMeta = fileMeta else {return nil}
         if fileMeta.contentType.hasPrefix("image") {
             return .photo

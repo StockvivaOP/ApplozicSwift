@@ -30,7 +30,7 @@ public struct ALKChatBarConfiguration {
 
     /// Use this to set the `AttachmentOptions` you want to show.
     /// By default it is set to `all`.
-    public var optionsToShow: AttachmentOptions = .some([AttachmentType.camera, AttachmentType.gallery, AttachmentType.video, AttachmentType.file])
+    public var optionsToShow: AttachmentOptions = .some([AttachmentType.camera, AttachmentType.gallery, AttachmentType.file])
 
     private(set) var attachmentIcons: [AttachmentType: UIImage?] = {
 
@@ -50,7 +50,7 @@ public struct ALKChatBarConfiguration {
             case .location:
                 icons[.location] = UIImage(named: "location_new", in: Bundle.applozic, compatibleWith: nil)
             case .file:
-                icons[.location] = UIImage(named: "icon_send_file", in: Bundle.applozic, compatibleWith: nil)
+                icons[.file] = UIImage(named: "icon_send_file", in: Bundle.applozic, compatibleWith: nil)
             }
         }
         return icons

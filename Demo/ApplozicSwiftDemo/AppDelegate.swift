@@ -77,6 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         print("APP_ENTER_IN_BACKGROUND")
         NotificationCenter.default.post(name: Notification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "APP_ENTER_IN_BACKGROUND_CV"), object: nil)
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -84,6 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("APP_ENTER_IN_FOREGROUND")
 
         NotificationCenter.default.post(name: Notification.Name(rawValue: "APP_ENTER_IN_FOREGROUND"), object: nil)
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil)
         UIApplication.shared.applicationIconBadgeNumber = 0
     }
 
