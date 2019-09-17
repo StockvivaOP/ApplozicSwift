@@ -244,6 +244,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     open func heightForRow(indexPath: IndexPath, cellFrame: CGRect) -> CGFloat {
+        if indexPath.section >= messageModels.count {
+            return 0
+        }
         let messageModel = messageModels[indexPath.section]
         if let height = HeightCache.shared.getHeight(for: messageModel.identifier) {
             return height
