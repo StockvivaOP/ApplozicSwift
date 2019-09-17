@@ -126,6 +126,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         let image = UIImage(named: "scrollDown", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
         button.layer.cornerRadius = 15
+        button.isHidden = true
         return button
     }()
 
