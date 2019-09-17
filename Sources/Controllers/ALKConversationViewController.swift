@@ -56,7 +56,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     /// See configuration.
     private var isProfileTapActionEnabled = true
 
-    private var isFirstTime = true
+    var isFirstTime = true
     private var bottomConstraint: NSLayoutConstraint?
     private var leftMoreBarConstraint: NSLayoutConstraint?
     private var typingNoticeViewHeighConstaint: NSLayoutConstraint?
@@ -1508,7 +1508,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         
         if tableView.isCellVisible(section: self.viewModel.messageModels.count-1, row: 0) {
             self.unreadScrollButton.isHidden = true
-        }else if self.isFirstTime {
+        }else if self.isFirstTime == false {
             self.unreadScrollButton.isHidden = false
         }
     }
