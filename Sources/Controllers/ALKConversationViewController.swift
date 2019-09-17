@@ -217,7 +217,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
             if tableView.isCellVisible(section: weakSelf.viewModel.messageModels.count-1, row: 0) {
                 tableView.scrollToBottomByOfset(animated: false)
-            } else if weakSelf.viewModel.messageModels.count > 1 {
+            } else if weakSelf.viewModel.messageModels.count > 1 && self?.isFirstTime == false {
                 weakSelf.unreadScrollButton.isHidden = false
             }
         })
@@ -1507,7 +1507,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         
         if tableView.isCellVisible(section: self.viewModel.messageModels.count-1, row: 0) {
             self.unreadScrollButton.isHidden = true
-        }else{
+        }else if self.isFirstTime {
             self.unreadScrollButton.isHidden = false
         }
     }
