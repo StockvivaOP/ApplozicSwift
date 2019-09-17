@@ -413,6 +413,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         super.viewDidLoad()
         setupConstraints()
         //tag: stockviva
+        self.tableView.scrollsToTop = false
         self.chatBar.delegate = self
         self.chatBar.setUpViewConfig()
         //tag: on / off join group button
@@ -2066,11 +2067,13 @@ extension ALKConversationViewController {
         self.navigationBar.groupMuteImage.isHidden = hidden
     }
     
-    public func enableJoinGroupButton(_ isEnable:Bool){
+    public func enableJoinGroupButton(_ isEnable:Bool, isEndEditing:Bool = true){
         //tag: on / off join group button
         hideMoreBar()
-        view.endEditing(true)
-        self.chatBar.resignAllResponderFromTextView()
+        if isEndEditing {
+            view.endEditing(true)
+            self.chatBar.resignAllResponderFromTextView()
+        }
         if isEnable, let _btnInfo = self.delegateConversationChatContentAction?.getJoinGroupButtonInfo(chatView: self) {
             self.enableShowJoinGroupMode = true
             self.chatBar.showJoinGroupButton(title: _btnInfo.title, backgroundColor: _btnInfo.backgroundColor, textColor: _btnInfo.textColor, rightIcon: _btnInfo.rightIcon)
@@ -2080,12 +2083,14 @@ extension ALKConversationViewController {
         }
     }
     
-    public func enableBlockChatButton(_ isEnable:Bool){
+    public func enableBlockChatButton(_ isEnable:Bool, isEndEditing:Bool = true){
         //tag: on / off join group button
         hideMoreBar()
-        view.endEditing(true)
         self.enableShowBlockChatMode = isEnable
-        self.chatBar.resignAllResponderFromTextView()
+        if isEndEditing {
+            view.endEditing(true)
+            self.chatBar.resignAllResponderFromTextView()
+        }
         self.chatBar.hiddenBlockChatButton(!self.enableShowBlockChatMode)
     }
     
