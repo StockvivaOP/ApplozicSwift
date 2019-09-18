@@ -844,6 +844,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 }
             case .showUploadAttachmentFile:
                 let _vc = UIDocumentPickerViewController(documentTypes: ["public.content"], in: UIDocumentPickerMode.import)
+                UINavigationBar.appearance(whenContainedInInstancesOf: [UIDocumentPickerViewController.self]).tintColor = nil
                 _vc.delegate = weakSelf
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
