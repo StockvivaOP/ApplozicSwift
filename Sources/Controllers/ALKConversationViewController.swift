@@ -845,7 +845,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             case .showUploadAttachmentFile:
                 let _vc = UIDocumentPickerViewController(documentTypes: ["public.content"], in: UIDocumentPickerMode.import)
                 if #available(iOS 11.0, *) {
-                    UINavigationBar.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = nil
+                    UINavigationBar.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = UIColor.blue
                 }else {
                     UINavigationBar.appearance().tintColor = UIColor.blue
                 }
