@@ -842,7 +842,6 @@ open class ALKChatBar: UIView, Localizable {
         }else{
             self.updateMediaViewVisibility()
         }
-        self.updateMediaViewVisibility(hide: true)
     }
     
     func isJoinGroup() -> Bool {
