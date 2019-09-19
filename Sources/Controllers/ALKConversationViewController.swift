@@ -843,12 +843,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     ALUtilityClass.showAlertMessage(msg, andTitle: title)
                 }
             case .showUploadAttachmentFile:
-                let _vc = UIDocumentPickerViewController(documentTypes: ["public.content"], in: UIDocumentPickerMode.import)
-                if #available(iOS 11.0, *) {
-                    UINavigationBar.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = UIColor.blue
-                }else {
-                    UINavigationBar.appearance().tintColor = UIColor.blue
-                }
+                let _vc = ALKCVDocumentPickerViewController(documentTypes: ["public.content"], in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
@@ -2178,3 +2173,23 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
         return self.enableShowJoinGroupMode == false && self.enableShowBlockChatMode == false
     }
 }
+
+//MARK: - subclass
+fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewController{
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
+    override init(documentTypes allowedUTIs: [String], in mode: UIDocumentPickerMode) {
+        super.init(documentTypes: allowedUTIs, in: mode)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor:self.view.tintColor], for: .normal)
+    }
+    
+    
+}
+
