@@ -1619,7 +1619,7 @@ let dbMessage = messageDbService.getMessageByKey("key", value: message.identifie
         alMessage.contentType = Int16(contentType)
         alMessage.fileMeta = getFileMetaInfo()
         alMessage.imageFilePath = filePath.lastPathComponent
-        alMessage.fileMeta.name = String(format: "f_%@", filePath.lastPathComponent)
+        alMessage.fileMeta.name = String(format: "%@", filePath.lastPathComponent)
 //        if let contactId = contactId {
 //            alMessage.fileMeta.name = String(format: "%@-%@", contactId, filePath.lastPathComponent)
 //        }
