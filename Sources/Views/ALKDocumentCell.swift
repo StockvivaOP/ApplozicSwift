@@ -73,7 +73,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         label.numberOfLines = 1
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.ALKSVPrimaryDarkGrey()
-        label.textAlignment = .center
+        label.textAlignment = .left
         label.isOpaque = true
         return label
     }()

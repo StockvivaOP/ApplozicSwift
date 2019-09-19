@@ -92,8 +92,14 @@ extension ALKMessageViewModel {
             else {
                 return nil
         }
-        let path = String(format: "%@_local.%@", identifier, fileExtension)
-        let data = NSData(contentsOfFile: url.appendingPathComponent(path).path)
+        var path = String(format: "%@_local.%@", identifier, fileExtension)
+        var data = NSData(contentsOfFile: url.appendingPathComponent(path).path)
+        if let _fileDisplayName = self.fileMetaInfo?.name, data == nil {
+            data = NSData(contentsOfFile: url.appendingPathComponent(_fileDisplayName).path)
+            if data != nil {
+                path = _fileDisplayName
+            }
+        }
         return (path, data)
     }
 
