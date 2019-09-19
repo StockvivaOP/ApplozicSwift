@@ -115,6 +115,9 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         return view
     }()
 
+    //MARK: stockviva tag start
+    var fileNameTrailing :NSLayoutConstraint?
+    
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
     }
@@ -161,9 +164,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         fileNameLabel.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.FileNameLabel.top).isActive = true
         fileNameLabel.leadingAnchor.constraint(equalTo: docImageView.trailingAnchor, constant: CommonPadding.FileNameLabel.left).isActive = true
         fileNameLabel.heightAnchor.constraint(equalToConstant: CommonPadding.FileNameLabel.height).isActive = true
+        self.fileNameTrailing = fileNameLabel.trailingAnchor.constraint(equalTo: downloadButton.leadingAnchor, constant: -CommonPadding.DownloadButton.left)
+        self.fileNameTrailing?.isActive = true
 
         downloadButton.centerYAnchor.constraint(equalTo: frameUIView.centerYAnchor).isActive = true
-        downloadButton.leadingAnchor.constraint(equalTo: fileNameLabel.trailingAnchor, constant: CommonPadding.DownloadButton.left).isActive = true
         downloadButton.trailingAnchor.constraint(equalTo: frameUIView.trailingAnchor, constant: -CommonPadding.DownloadButton.right).isActive = true
         downloadButton.widthAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.width).isActive = true
         downloadButton.heightAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.height).isActive = true
@@ -191,6 +195,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
             let errorMessage = (self.viewModel?.filePath != nil) ? "File type is not supported":"File is not downloaded"
               print(errorMessage)
+            //try to download
+            if self.downloadButton.isHidden == false {
+                self.downloadButtonAction(self.downloadButton)
+            }
             return
         }
 
@@ -246,6 +254,12 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
             progressView.isHidden = true
         default:
             print("Not handled")
+        }
+        
+        if downloadButton.isHidden && progressView.isHidden {
+            self.fileNameTrailing?.constant = CommonPadding.DownloadButton.left + CommonPadding.DownloadButton.right
+        }else{
+            self.fileNameTrailing?.constant = -CommonPadding.DownloadButton.left
         }
     }
 
