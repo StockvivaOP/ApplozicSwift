@@ -2177,7 +2177,7 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
 //MARK: - subclass
 fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewController{
     
-    private var orgButtonTintColor:UIColor = UIColor.blue
+    private var orgButtonTintColor:UIColor? = nil
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
