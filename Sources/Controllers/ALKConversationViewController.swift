@@ -2177,6 +2177,8 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
 //MARK: - subclass
 fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewController{
     
+    private var orgButtonTintColor:UIColor = UIColor.blue
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -2187,9 +2189,14 @@ fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewControl
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        UIBarButtonItem.appearance().setTitleTextAttributes([NSAttributedString.Key.foregroundColor:self.view.tintColor], for: .normal)
+        self.orgButtonTintColor = UIButton.appearance().tintColor
+        UIButton.appearance().tintColor = self.view.tintColor
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        UIButton.appearance().tintColor = self.orgButtonTintColor
+    }
     
 }
 
