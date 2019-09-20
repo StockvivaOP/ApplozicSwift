@@ -299,7 +299,7 @@ public protocol ConversationMessageBoxActionDelegate: class{
 public protocol ConversationCellRequestInfoDelegate: class{
     func isEnableReplyMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
-    func showAlert(type:ALKConfiguration.ConversationErrorType) //response
+    func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
 }
 
 public protocol SystemTextLocalizableRequestDelegate: class{

@@ -2127,7 +2127,7 @@ extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUpload
         for  url in urls {
             let _fileSize = ALKFileUtils().getFileSizeWithMB(url: url)
             if _fileSize > self.configuration.maxUploadFileMBSize {
-                self.showAlert(type:.attachmentFileSizeOverLimit)
+                self.requestToShowAlert(type:.attachmentFileSizeOverLimit)
                 return
             }
         }
@@ -2198,7 +2198,7 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
         return self.enableShowJoinGroupMode == false && self.enableShowBlockChatMode == false
     }
     
-    public func showAlert(type:ALKConfiguration.ConversationErrorType){
+    public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
         self.delegateConversationChatContentAction?.showAlert(type:type)
     }
 }

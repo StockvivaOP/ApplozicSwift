@@ -191,7 +191,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
     @objc func openWKWebView(gesture: UITapGestureRecognizer) {
         if self.allowToShowDocument() == false {//is not self message
-            self.delegateCellRequestInfo?.showAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
             return
         }
         
@@ -237,7 +237,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
         if self.allowToShowDocument() == false {//is not self message
-            self.delegateCellRequestInfo?.showAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
             return
         }
         downloadTapped?(true)
@@ -294,7 +294,7 @@ extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
             DispatchQueue.main.async {
                 self.updateView(for: .upload)
                 //show error
-                self.delegateCellRequestInfo?.showAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure)
+                self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure)
             }
         }
     }
