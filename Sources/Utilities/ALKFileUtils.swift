@@ -71,4 +71,20 @@ class ALKFileUtils: NSObject {
         return  fileTypes.contains(pathExtension)
     }
 
+    //MARK: - stockviva tag
+    func getFileSizeWithMB(url:URL) -> Float{
+        let _url:NSURL = url as NSURL
+        guard let _fileName = _url.lastPathComponent else {
+            return 0
+        }
+        let _filePath = self.getDocumentDirectory(fileName: _fileName).path
+        guard let size = try? FileManager.default.attributesOfItem(atPath:_filePath)[FileAttributeKey.size],
+            let fileSize = size as? UInt64 else {
+                return 0
+        }
+        
+        let fileSizeKB:Float = Float(fileSize / 1024)
+        let fileSizeMB:Float = Float(fileSizeKB / 1024)
+        return fileSizeMB
+    }
 }

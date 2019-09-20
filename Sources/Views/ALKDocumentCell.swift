@@ -190,7 +190,11 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
 
     @objc func openWKWebView(gesture: UITapGestureRecognizer) {
-
+        if self.allowToShowDocument() == false {//is not self message
+            self.delegateCellRequestInfo?.showAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            return
+        }
+        
         guard  let filePath = self.viewModel?.filePath, ALKFileUtils().isSupportedFileType(filePath:filePath) else {
 
             let errorMessage = (self.viewModel?.filePath != nil) ? "File type is not supported":"File is not downloaded"
@@ -232,6 +236,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
+        if self.allowToShowDocument() == false {//is not self message
+            self.delegateCellRequestInfo?.showAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            return
+        }
         downloadTapped?(true)
     }
 
@@ -263,6 +271,9 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         }
     }
 
+    private func allowToShowDocument() -> Bool {
+        return self.viewModel?.isMyMessage == true || (self.delegateCellRequestInfo?.isEnablePaidFeature() == true && self.viewModel?.isMyMessage == false)
+    }
 }
 
 extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
@@ -282,6 +293,8 @@ extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
         } else {
             DispatchQueue.main.async {
                 self.updateView(for: .upload)
+                //show error
+                self.delegateCellRequestInfo?.showAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure)
             }
         }
     }

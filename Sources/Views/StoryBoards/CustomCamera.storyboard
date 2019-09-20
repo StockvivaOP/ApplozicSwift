@@ -263,12 +263,12 @@
                             </scrollView>
                             <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qmd-9l-XcD">
                                 <rect key="frame" x="321" y="549" width="38" height="38"/>
-                                <color key="backgroundColor" red="0.019607843137254902" green="0.47058823529411764" blue="1" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="38" id="S9q-oT-pvp"/>
                                     <constraint firstAttribute="width" constant="38" id="kju-BL-rjd"/>
                                 </constraints>
-                                <state key="normal" image="icon_send_white"/>
+                                <state key="normal" image="send"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                         <integer key="value" value="19"/>
@@ -316,8 +316,8 @@
     <resources>
         <image name="button_capture" width="81" height="81"/>
         <image name="icon_back" width="11" height="20"/>
-        <image name="icon_send_white" width="24" height="19"/>
         <image name="icon_switch_camera" width="33" height="25"/>
         <image name="oval_mask_picture" width="332" height="332"/>
+        <image name="send" width="37" height="37"/>
     </resources>
 </document>
