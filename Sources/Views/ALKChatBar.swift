@@ -800,6 +800,7 @@ open class ALKChatBar: UIView, Localizable {
         if let _img = rightIcon {
             self.joinGroupButton.setImage(_img, for: .normal)
         }
+        self.checkVisableAttachmentToolBar()
         //on, off join button
         self.delegate?.chatBarRequestIsHiddenJoinGroupButton(chatBar: self, isHidden:false)
     }
@@ -810,12 +811,14 @@ open class ALKChatBar: UIView, Localizable {
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
+        self.checkVisableAttachmentToolBar()
         //on, off join button
         self.delegate?.chatBarRequestIsHiddenJoinGroupButton(chatBar: self, isHidden:true)
     }
     
     public func hiddenBlockChatButton(_ hidden:Bool){
         self.blockChatButton.isHidden = hidden
+        self.checkVisableAttachmentToolBar()
         //on, off join button
         self.delegate?.chatBarRequestIsHiddenBlockChatButton(chatBar: self, isHidden:true)
     }
@@ -837,11 +840,7 @@ open class ALKChatBar: UIView, Localizable {
         if config.hideMicInChatBar {
             self.hideMicButton()
         }
-        if self.joinGroupView.isHidden == false {
-            self.updateMediaViewVisibility(hide: true)
-        }else{
-            self.updateMediaViewVisibility()
-        }
+        self.checkVisableAttachmentToolBar()
     }
     
     func isJoinGroup() -> Bool {
@@ -850,6 +849,12 @@ open class ALKChatBar: UIView, Localizable {
     
     func hiddenLineView(_ isHidden:Bool){
         self.lineView.isHidden = isHidden
+    }
+    
+    //private function
+    private func checkVisableAttachmentToolBar(){
+        let _isHidden = self.blockChatButton.isHidden == false || self.joinGroupView.isHidden == false
+        self.updateMediaViewVisibility(hide: _isHidden)
     }
 }
 
