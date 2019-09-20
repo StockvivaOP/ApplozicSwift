@@ -122,10 +122,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     let unreadScrollButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor.lightText
+        button.backgroundColor = UIColor.clear
         let image = UIImage(named: "scrollDown", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.layer.cornerRadius = 15
+        button.layer.cornerRadius = 19
         button.isHidden = true
         return button
     }()
@@ -615,10 +615,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             equalTo: chatBar.topAnchor,
             constant: 0).isActive = true
 
-        unreadScrollButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        unreadScrollButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -10).isActive = true
-        unreadScrollButton.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -10).isActive = true
+        unreadScrollButton.heightAnchor.constraint(equalToConstant: 38).isActive = true
+        unreadScrollButton.widthAnchor.constraint(equalToConstant: 38).isActive = true
+        unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -18).isActive = true
+        unreadScrollButton.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -18).isActive = true
 
         leftMoreBarConstraint = moreBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 56)
         leftMoreBarConstraint?.isActive = true
@@ -843,7 +843,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     ALUtilityClass.showAlertMessage(msg, andTitle: title)
                 }
             case .showUploadAttachmentFile:
-                let _vc = ALKCVDocumentPickerViewController(documentTypes: ["public.content"], in: UIDocumentPickerMode.import)
+                let _types:[String] = ["com.adobe.pdf", "public.image"]
+                let _vc = ALKCVDocumentPickerViewController(documentTypes: _types, in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
@@ -2109,31 +2110,43 @@ extension ALKConversationViewController {
 }
 
 //MARK: - stockviva (UIDocumentPickerDelegate)
-extension ALKConversationViewController: UIDocumentPickerDelegate {
-    
+extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUploadConfirmViewControllerDelegate {
+    //UIDocumentPickerDelegate
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        
-        let (message, indexPath) = self.viewModel.send(fileURL: url, metadata: self.configuration.messageMetadata)
-        guard message != nil, let newIndexPath = indexPath else { return }
-//        DispatchQueue.main.async {
-            self.tableView.beginUpdates()
-            self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
-            self.tableView.endUpdates()
-            self.tableView.scrollToBottom(animated: false)
-//        }
-        guard let cell = tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
-        guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
-            let notificationView = ALNotificationView()
-            notificationView.noDataConnectionNotificationView()
-            return
-        }
-        viewModel.uploadFile(view: cell, indexPath: newIndexPath)
+        self.showDocumentConfirmPage(urls: [url])
     }
     
     @available(iOS 11.0, *)
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        for url in urls {
-            self.documentPicker(controller, didPickDocumentAt: url)
+        self.showDocumentConfirmPage(urls: urls)
+    }
+    
+    //ALKFileUploadConfirmViewControllerDelegate
+    private func showDocumentConfirmPage(urls: [URL]){
+        let _vc:ALKFileUploadConfirmViewController = ALKFileUploadConfirmViewController(configuration:self.configuration)
+        _vc.urlList.append(contentsOf: urls)
+        _vc.delegate = self
+        self.navigationController?.pushViewController(_vc, animated: true)
+    }
+    
+    public func didStartUploadFiles(urls:[URL]){
+        //loop to upload file
+        for  url in urls {
+            let (message, indexPath) = self.viewModel.send(fileURL: url, metadata: self.configuration.messageMetadata)
+            guard message != nil, let newIndexPath = indexPath else { return }
+            //        DispatchQueue.main.async {
+            self.tableView.beginUpdates()
+            self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
+            self.tableView.endUpdates()
+            self.tableView.scrollToBottom(animated: false)
+            //        }
+            guard let cell = tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
+            guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
+                let notificationView = ALNotificationView()
+                notificationView.noDataConnectionNotificationView()
+                return
+            }
+            viewModel.uploadFile(view: cell, indexPath: newIndexPath)
         }
     }
 }

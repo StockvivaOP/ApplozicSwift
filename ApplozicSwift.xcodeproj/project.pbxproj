@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		68361A2F2333724500B4CD76 /* ALKFileUploadConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68361A2E2333724500B4CD76 /* ALKFileUploadConfirmViewController.swift */; };
 		8B36D0CB1F3DACA700FEFFD2 /* ApplozicSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B36D0C11F3DACA700FEFFD2 /* ApplozicSwift.framework */; };
 		8BB533871F69463B0008C1CF /* ALContact+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB533101F69463B0008C1CF /* ALContact+Extension.swift */; };
 		8BB533881F69463B0008C1CF /* ALKAddParticipantCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB533111F69463B0008C1CF /* ALKAddParticipantCollectionCell.swift */; };
@@ -140,6 +141,7 @@
 
 /* Begin PBXFileReference section */
 		4E5C55293F7048B4D332C9CC /* Pods-ApplozicSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApplozicSwift.release.xcconfig"; path = "Pods/Target Support Files/Pods-ApplozicSwift/Pods-ApplozicSwift.release.xcconfig"; sourceTree = "<group>"; };
+		68361A2E2333724500B4CD76 /* ALKFileUploadConfirmViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKFileUploadConfirmViewController.swift; sourceTree = "<group>"; };
 		72564C523B51E23D70217B52 /* Pods-ApplozicSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ApplozicSwift.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ApplozicSwift/Pods-ApplozicSwift.debug.xcconfig"; sourceTree = "<group>"; };
 		8B36D0C11F3DACA700FEFFD2 /* ApplozicSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ApplozicSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B36D0CA1F3DACA700FEFFD2 /* ApplozicSwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApplozicSwiftTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -325,6 +327,7 @@
 				8BB533291F69463B0008C1CF /* ALKCustomVideoPreviewViewController.swift */,
 				8BB533181F69463B0008C1CF /* ALKBaseViewController.swift */,
 				8BB533171F69463B0008C1CF /* ALKBaseNavigationController.swift */,
+				68361A2E2333724500B4CD76 /* ALKFileUploadConfirmViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -595,6 +598,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -696,6 +700,7 @@
 				8BB533C01F69463C0008C1CF /* ALKNewChatViewModel.swift in Sources */,
 				8BB5338F1F69463B0008C1CF /* ALKBaseViewController.swift in Sources */,
 				8BB533A91F69463C0008C1CF /* ALKFriendPhotoCell.swift in Sources */,
+				68361A2F2333724500B4CD76 /* ALKFileUploadConfirmViewController.swift in Sources */,
 				8BB533AE1F69463C0008C1CF /* ALKGeocode.swift in Sources */,
 				8BB533CF1F69463C0008C1CF /* Array+Extension.swift in Sources */,
 				8BB533BD1F69463C0008C1CF /* ALKMyVideoCell.swift in Sources */,
