@@ -47,7 +47,8 @@ final class ALKCustomCameraPreviewViewController: ALKBaseViewController, Localiz
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setupContent()
-        self.title = localizedString(forKey: "SendPhoto", withDefaultValue: SystemMessage.LabelName.SendPhoto, fileName: configuration.localizedStringFileName)
+        self.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? localizedString(forKey: "SendPhoto", withDefaultValue: SystemMessage.LabelName.SendPhoto, fileName: configuration.localizedStringFileName)
+        UIButton.appearance().tintColor = .white
     }
 
     override func viewWillAppear(_ animated: Bool) {

@@ -22,6 +22,11 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     let option = PHImageRequestOptions()
     var selectedRows = [Int]()
     var selectedFiles = [IndexPath]()
+    var isAllowShowVideo:Bool = true
+    var allowsMultipleSelection:Bool = false
+    
+    //private
+    private var isTabbarHidden:Bool = false
 
     @IBOutlet weak var doneButton: UIBarButtonItem!
     weak var delegate: ALKCustomPickerDelegate?
@@ -36,12 +41,12 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        doneButton.title = localizedString(forKey: "DoneButton", withDefaultValue: SystemMessage.ButtonName.Done, fileName: localizedStringFileName)
-        self.title = localizedString(forKey: "PhotosTitle", withDefaultValue: SystemMessage.LabelName.Photos, fileName: localizedStringFileName)
+        doneButton.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "general_button_confirm") ?? localizedString(forKey: "DoneButton", withDefaultValue: SystemMessage.ButtonName.Done, fileName: localizedStringFileName)
+        self.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? localizedString(forKey: "PhotosTitle", withDefaultValue: SystemMessage.LabelName.Photos, fileName: localizedStringFileName)
         checkPhotoLibraryPermission()
         previewGallery.delegate = self
         previewGallery.dataSource = self
-        previewGallery.allowsMultipleSelection = true
+        previewGallery.allowsMultipleSelection = self.allowsMultipleSelection
 
         view.addViewsForAutolayout(views: [activityIndicator])
         view.bringSubviewToFront(activityIndicator)
@@ -54,6 +59,13 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigation()
+        self.isTabbarHidden = self.tabBarController?.tabBar.isHidden ?? false
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.tabBarController?.tabBar.isHidden = self.isTabbarHidden
     }
 
     static func makeInstanceWith(delegate: ALKCustomPickerDelegate, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
@@ -64,6 +76,8 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
             let cameraVC = vc.viewControllers.first as? ALKCustomPickerViewController else { return nil }
         cameraVC.delegate = delegate
         cameraVC.configuration = configuration
+        cameraVC.isAllowShowVideo = configuration.isShowVideoFile
+        cameraVC.allowsMultipleSelection = configuration.isAllowsMultipleSelection
         return vc
     }
 
@@ -120,8 +134,12 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
         allPhotosOptions.includeHiddenAssets = false
 
         let p1 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-        let p2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
-        allPhotosOptions.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [p1, p2])
+        if self.isAllowShowVideo {
+            let p2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
+            allPhotosOptions.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [p1, p2])
+        }else{
+            allPhotosOptions.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [p1])
+        }
         allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         allPhotos = PHAsset.fetchAssets(with: allPhotosOptions)
         (allPhotos != nil) ? completion(true) :  completion(false)
@@ -276,16 +294,37 @@ extension ALKCustomPickerViewController: UICollectionViewDelegate, UICollectionV
     // MARK: UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //grab all the images
-        let asset = allPhotos.object(at: indexPath.item)
-        if selectedRows[indexPath.row] == 1 {
-            selectedFiles.remove(object: indexPath)
-            selectedRows[indexPath.row] = 0
-        } else {
-            selectedFiles.append(indexPath)
-            selectedRows[indexPath.row] = 1
+        //let asset = allPhotos.object(at: indexPath.item)
+        //for single select
+        if self.allowsMultipleSelection == false {
+            //un-select all
+            var _isDeselectMode = false
+            var _refreshCell = [IndexPath]()
+            _refreshCell.append(contentsOf: selectedFiles)
+            for sIndex in selectedFiles {
+                if sIndex.row == indexPath.row {
+                    _isDeselectMode = true
+                }
+                selectedRows[sIndex.row] = 0
+            }
+            selectedFiles.removeAll()
+            if _isDeselectMode == false {// not deselect mode
+                selectedFiles.append(indexPath)
+                _refreshCell.append(indexPath)
+                selectedRows[indexPath.row] = 1
+            }
+            //refresh cell
+            previewGallery.reloadItems(at: _refreshCell)
+        }else {
+            if selectedRows[indexPath.row] == 1 {
+                selectedFiles.remove(object: indexPath)
+                selectedRows[indexPath.row] = 0
+            } else {
+                selectedFiles.append(indexPath)
+                selectedRows[indexPath.row] = 1
+            }
+            previewGallery.reloadItems(at: [indexPath])
         }
-
-        previewGallery.reloadItems(at: [indexPath])
     }
 
     // MARK: UICollectionViewDataSource

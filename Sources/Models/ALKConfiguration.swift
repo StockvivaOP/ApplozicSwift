@@ -256,6 +256,10 @@ public struct ALKConfiguration {
     /// Attachment file max size
     public var maxUploadFileMBSize : Float = 500.0
     
+    /// image gallery file control
+    public var isShowVideoFile : Bool = true
+    public var isAllowsMultipleSelection : Bool = false
+    
     //tag: stockviva - end
     
     public init() { }
