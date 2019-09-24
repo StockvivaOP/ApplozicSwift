@@ -189,7 +189,8 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
 
     override func viewDidLayoutSubviews() {
         //set frame
-        self.previewLayer?.frame = self.previewView.frame
+        self.previewLayer?.frame.origin = CGPoint(x: 0, y: 0)
+        self.previewLayer?.frame.size = self.previewView.frame.size
     }
 
     override func didReceiveMemoryWarning() {
