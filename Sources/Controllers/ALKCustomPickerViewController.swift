@@ -225,13 +225,11 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                     message: alertMessage,
                     preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: buttonTitle, style: UIAlertAction.Style.default, handler: { _ in
-                    self.delegate?.filesSelected(images: images, videos: videos)
-                    self.navigationController?.dismiss(animated: false, completion: nil)
+                    self.goToPickerConfirmatPage(images: images, videos: videos)
                 }))
                 self.present(alert, animated: true, completion: nil)
             } else {
-                self.delegate?.filesSelected(images: images, videos: videos)
-                self.navigationController?.dismiss(animated: false, completion: nil)
+                self.goToPickerConfirmatPage(images: images, videos: videos)
             }
         }
 
@@ -277,6 +275,26 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     }
 
     @IBAction func dismissAction(_ sender: UIBarButtonItem) {
+        self.navigationController?.dismiss(animated: false, completion: nil)
+    }
+    
+    private func goToPickerConfirmatPage(images: [UIImage], videos: [String]){
+        var _goToConfirm = false
+        if images.count > 0 {
+            if let _vc = ALKCustomPickerConfirmViewController.instance(images: images, videos: videos, configuration: configuration, delegate: self) {
+                _goToConfirm = true
+                self.navigationController?.pushViewController(_vc, animated: true)
+            }
+        }
+        if _goToConfirm == false {
+            self.didConfirmToSend(images: images, videos: videos)
+        }
+    }
+}
+
+extension ALKCustomPickerViewController: ALKCustomPickerConfirmViewControllerProtocol {
+    func didConfirmToSend(images: [UIImage], videos: [String]) {
+        self.delegate?.filesSelected(images: images, videos: videos)
         self.navigationController?.dismiss(animated: false, completion: nil)
     }
 }
