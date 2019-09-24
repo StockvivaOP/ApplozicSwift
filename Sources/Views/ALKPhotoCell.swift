@@ -250,6 +250,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
+        if self.allowToShowPhoto() == false {//is not self message
+            self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            return
+        }
         downloadTapped?(true)
     }
 
@@ -401,6 +405,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     func setPhotoViewImageFromFileURL(_ fileURL: URL) {
         let provider = LocalFileImageDataProvider(fileURL: fileURL)
         photoView.kf.setImage(with: provider)
+    }
+    
+    private func allowToShowPhoto() -> Bool {
+        return self.viewModel?.isMyMessage == true || (self.delegateCellRequestInfo?.isEnablePaidFeature() == true && self.viewModel?.isMyMessage == false)
     }
 }
 

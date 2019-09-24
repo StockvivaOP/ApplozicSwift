@@ -2032,6 +2032,12 @@ extension ALKConversationViewController: NavigationBarCallbacks {
 
 extension ALKConversationViewController: AttachmentDelegate {
     func tapAction(message: ALKMessageViewModel) {
+        //before show need paid
+        let _isAllowOpen = message.isMyMessage == true || (self.isEnablePaidFeature() == true && message.isMyMessage == false)
+        if _isAllowOpen == false {
+            self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            return
+        }
         let storyboard = UIStoryboard.name(
             storyboard: UIStoryboard.Storyboard.mediaViewer,
             bundle: Bundle.applozic)
