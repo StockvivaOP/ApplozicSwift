@@ -208,20 +208,19 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
 
         let title = localizedString(forKey: "Camera", withDefaultValue: SystemMessage.LabelName.Camera, fileName: localizedStringFileName)
         self.navigationItem.title = title
-        self.navigationController?.navigationBar.backgroundColor = UIColor.white
-        self.navigationController?.navigationBar.tintColor = UIColor.black
+        self.navigationController?.navigationBar.backgroundColor = UIColor.darkGray
+        self.navigationController?.navigationBar.tintColor = UIColor.white
         guard let navVC = self.navigationController else { return }
         navVC.navigationBar.shadowImage = UIImage()
-        navVC.navigationBar.isTranslucent = true
+        navVC.navigationBar.isTranslucent = false
         var backImage = UIImage.init(named: "icon_back", in: Bundle.applozic, compatibleWith: nil)
         backImage = backImage?.imageFlippedForRightToLeftLayoutDirection()
         self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(image: backImage, style: .plain, target: self, action: #selector(dismissCameraPress(_:)))
-        self.navigationController?.navigationBar.tintColor = UIColor.white
     }
 
     private func setupView() {
-        btnCapture.imageView?.tintColor = UIColor.white
-        btnSwitchCam.imageView?.tintColor = UIColor.white
+        btnCapture.imageView?.tintColor = UIColor.ALKSVMainColorPurple()
+        btnSwitchCam.imageView?.tintColor = UIColor.ALKSVMainColorPurple()
     }
 
     private func reloadCamera() {

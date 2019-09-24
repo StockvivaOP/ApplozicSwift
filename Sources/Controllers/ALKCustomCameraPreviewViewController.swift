@@ -49,13 +49,18 @@ final class ALKCustomCameraPreviewViewController: ALKBaseViewController, Localiz
         self.setupContent()
         self.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? localizedString(forKey: "SendPhoto", withDefaultValue: SystemMessage.LabelName.SendPhoto, fileName: configuration.localizedStringFileName)
         UIButton.appearance().tintColor = .white
+        self.imageView.isHidden = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.setupNavigation()
-        self.updateMinZoomScaleForSize(size: view.bounds.size)
-        self.updateConstraintsForSize(size: view.bounds.size)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        self.updateMinZoomScaleForSize(size: self.scrollView.bounds.size)
+        self.updateConstraintsForSize(size: self.scrollView.bounds.size)
+        self.imageView.isHidden = false
     }
 
     override func didReceiveMemoryWarning() {
@@ -84,11 +89,11 @@ final class ALKCustomCameraPreviewViewController: ALKBaseViewController, Localiz
     private func setupNavigation() {
         self.navigationItem.title = title
 
-        self.navigationController?.navigationBar.backgroundColor = UIColor.white
-        self.navigationController?.navigationBar.tintColor = UIColor.black
+        self.navigationController?.navigationBar.backgroundColor = UIColor.darkGray
+        self.navigationController?.navigationBar.tintColor = UIColor.white
         guard let navVC = self.navigationController else {return}
         navVC.navigationBar.shadowImage = UIImage()
-        navVC.navigationBar.isTranslucent = true
+        navVC.navigationBar.isTranslucent = false
     }
 
     private func updateMinZoomScaleForSize(size: CGSize) {
@@ -138,7 +143,7 @@ final class ALKCustomCameraPreviewViewController: ALKBaseViewController, Localiz
             if self.scrollView.minimumZoomScale == self.scrollView.zoomScale {
                 self.scrollView.zoom(to: rect, animated: false)
             } else {
-                self.updateMinZoomScaleForSize(size: self.view.bounds.size)
+                self.updateMinZoomScaleForSize(size: self.scrollView.bounds.size)
             }
 
         }, completion: nil)
@@ -167,7 +172,7 @@ extension ALKCustomCameraPreviewViewController: UIScrollViewDelegate {
     }
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        updateConstraintsForSize(size: view.bounds.size)
+        updateConstraintsForSize(size: self.scrollView.bounds.size)
         view.layoutIfNeeded()
     }
 }
