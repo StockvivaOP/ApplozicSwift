@@ -110,11 +110,17 @@ final class ALKMediaViewerViewController: UIViewController {
         playButton.centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
         playButton.heightAnchor.constraint(equalToConstant: 80).isActive = true
         playButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-
-        imageView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        
         imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        if #available(iOS 11.0, *) {
+            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+            imageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+            imageView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+        } else {
+            imageView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        }
 
         audioPlayButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30).isActive = true
         audioPlayButton.centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
