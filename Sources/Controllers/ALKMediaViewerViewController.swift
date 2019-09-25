@@ -54,6 +54,17 @@ final class ALKMediaViewerViewController: UIViewController {
         imageView.image = UIImage(named: "mic", in: Bundle.applozic, compatibleWith: nil)
         return imageView
     }()
+    
+    fileprivate let loadingIndicator: CustomActivityIndicatorView = {
+        let _view = CustomActivityIndicatorView(frame: .zero)
+        _view.style = .whiteLarge
+        _view.backgroundColor = UIColor.darkGray
+        _view.layer.cornerRadius = 5.0
+        _view.widthAnchor.constraint(equalToConstant: 40.0).isActive = true
+        _view.heightAnchor.constraint(equalToConstant: 40.0).isActive = true
+        _view.hidesWhenStopped = true
+        return _view
+    }()
 
     private weak var imageViewBottomConstraint: NSLayoutConstraint?
     private weak var imageViewTopConstraint: NSLayoutConstraint?
@@ -90,7 +101,7 @@ final class ALKMediaViewerViewController: UIViewController {
         let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ALKMediaViewerViewController.swipeLeftAction))
         swipeLeft.direction = UISwipeGestureRecognizer.Direction.left
         self.view.addGestureRecognizer(swipeLeft)
-        view.addViewsForAutolayout(views: [imageView, playButton, audioPlayButton, audioIcon])
+        view.addViewsForAutolayout(views: [imageView, playButton, audioPlayButton, audioIcon, loadingIndicator])
         imageView.bringSubviewToFront(playButton)
         view.bringSubviewToFront(audioPlayButton)
         view.bringSubviewToFront(audioIcon)
@@ -114,6 +125,9 @@ final class ALKMediaViewerViewController: UIViewController {
         audioIcon.centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
         audioIcon.heightAnchor.constraint(equalToConstant: 50).isActive = true
         audioIcon.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        loadingIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
+        loadingIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
 
         view.layoutIfNeeded()
     }
@@ -123,21 +137,35 @@ final class ALKMediaViewerViewController: UIViewController {
     }
 
     @objc private func swipeRightAction() {
+        self.imageView.image = nil
         viewModel?.updateCurrentIndex(by: -1)
     }
 
     @objc private func swipeLeftAction() {
+        self.imageView.image = nil
         viewModel?.updateCurrentIndex(by: +1)
     }
 
     func showPhotoView(message: ALKMessageViewModel) {
-        guard let filePath = message.filePath,
-            let url = viewModel?.getURLFor(name: filePath) else {
-                return
+        if let filePath = message.filePath,
+            let url = viewModel?.getURLFor(name: filePath) {
+            let provider = LocalFileImageDataProvider(fileURL: url)
+            imageView.kf.setImage(with: provider)
+        }else if let fileUrlPath = message.imageURL {
+            imageView.kf.indicatorType = .custom(indicator: self.loadingIndicator)
+            imageView.kf.setImage(with: fileUrlPath)
+        }else {
+            self.loadingIndicator.startAnimating()
+            viewModel?.fetchMessageWithId(messageId: message.identifier, completed: { (msgList) in
+                self.loadingIndicator.stopAnimating()
+                if let _msg = msgList?[0] {
+                    self.viewModel?.replaceCurrentMessage(message: _msg)
+                    self.showPhotoView(message:_msg.messageModel)
+                }
+            })
+            return
         }
-
-        let provider = LocalFileImageDataProvider(fileURL: url)
-        imageView.kf.setImage(with: provider)
+        
         imageView.sizeToFit()
         playButton.isHidden = true
         audioPlayButton.isHidden = true
@@ -228,5 +256,27 @@ extension ALKMediaViewerViewController: ALKMediaViewerViewModelDelegate {
     func reloadView() {
         guard let message = viewModel?.getMessageForCurrentIndex() else { return }
         updateView(message: message)
+    }
+}
+
+fileprivate class CustomActivityIndicatorView : UIActivityIndicatorView, Indicator {
+    var view: IndicatorView {
+        return self
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+    
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func startAnimatingView() {
+        self.startAnimating()
+    }
+    
+    func stopAnimatingView() {
+        self.stopAnimating()
     }
 }
