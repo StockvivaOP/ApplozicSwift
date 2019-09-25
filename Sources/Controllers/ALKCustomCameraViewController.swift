@@ -560,9 +560,12 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //grab all the images
         let asset = allPhotos.object(at: indexPath.item)
-        let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
-        option.isSynchronous = true
-        PHCachingImageManager.default().requestImage(for: asset, targetSize: targetSize, contentMode: .default, options: option, resultHandler: {(image, _: [AnyHashable : Any]?) in
+        
+        let options = PHImageRequestOptions()
+        options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
+        options.isSynchronous = false
+        options.isNetworkAccessAllowed = true
+        PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .default, options: options, resultHandler: { (image, info) in
             guard let _image = image else { return }
             self.selectedImage = _image
             
