@@ -256,7 +256,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                         group.leave()
                     }
                 } else {
-                    PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize , contentMode: .default, options: nil, resultHandler: {(imageRespon, _: [AnyHashable : Any]?) in
+                    PHCachingImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize , contentMode: .default, options: nil, resultHandler: {(imageRespon, _: [AnyHashable : Any]?) in
                         guard let image = imageRespon else {
                             error = true
                             group.leave()
