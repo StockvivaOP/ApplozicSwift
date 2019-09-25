@@ -560,17 +560,16 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //grab all the images
         let asset = allPhotos.object(at: indexPath.item)
-        PHCachingImageManager.default().requestImageData(for: asset, options: option) { (imageData, _, _, _) in
-            let image = UIImage(data: imageData!)
+        PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize , contentMode: .default, options: nil, resultHandler: {(image, _: [AnyHashable : Any]?) in
             self.selectedImage = image
-
+            
             switch self.cameraMode {
             case .cropOption:
                 self.performSegue(withIdentifier: "goToCropImageView", sender: nil)
             default:
                 self.performSegue(withIdentifier: "pushToALKCustomCameraPreviewViewController", sender: nil)
             }
-        }
+        })
     }
 
     // MARK: UICollectionViewDataSource
