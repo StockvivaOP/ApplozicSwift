@@ -225,7 +225,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                     message: alertMessage,
                     preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: buttonTitle, style: UIAlertAction.Style.default, handler: { _ in
-                    self.goToPickerConfirmatPage(images: images, videos: videos)
+                    //self.goToPickerConfirmatPage(images: images, videos: videos)
                 }))
                 self.present(alert, animated: true, completion: nil)
             } else {

@@ -515,7 +515,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
         allPhotosOptions.includeHiddenAssets = false
         allPhotosOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
         allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        allPhotos = PHAsset.fetchAssets(with: allPhotosOptions)
+        allPhotos = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: allPhotosOptions)
         (allPhotos != nil) ? completion(true) : completion(false)
     }
 
@@ -560,7 +560,7 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //grab all the images
         let asset = allPhotos.object(at: indexPath.item)
-        PHCachingImageManager.default().requestImageData(for: asset, options: nil) { (imageData, _, _, _) in
+        PHCachingImageManager.default().requestImageData(for: asset, options: option) { (imageData, _, _, _) in
             let image = UIImage(data: imageData!)
             self.selectedImage = image
 
