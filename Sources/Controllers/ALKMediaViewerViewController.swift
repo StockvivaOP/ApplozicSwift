@@ -137,16 +137,15 @@ final class ALKMediaViewerViewController: UIViewController {
     }
 
     @objc private func swipeRightAction() {
-        self.imageView.image = nil
         viewModel?.updateCurrentIndex(by: -1)
     }
 
     @objc private func swipeLeftAction() {
-        self.imageView.image = nil
         viewModel?.updateCurrentIndex(by: +1)
     }
 
     func showPhotoView(message: ALKMessageViewModel) {
+        self.imageView.image = nil
         if let filePath = message.filePath,
             let url = viewModel?.getURLFor(name: filePath) {
             let provider = LocalFileImageDataProvider(fileURL: url)
