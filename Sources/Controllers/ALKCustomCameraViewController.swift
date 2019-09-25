@@ -38,6 +38,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
     var selectedImage: UIImage!
     var cameraMode: ALKCameraPhotoType = .noCropOption
     let option = PHImageRequestOptions()
+    var conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?
 
     var cameraOutput: Any? = {
         if #available(iOS 10.0, *) {
@@ -113,7 +114,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
 
     }
 
-    static func makeInstanceWith(delegate: ALKCustomCameraProtocol, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
+    static func makeInstanceWith(delegate: ALKCustomCameraProtocol,  conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
         let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.camera, bundle: Bundle.applozic)
         guard
             let vc = storyboard.instantiateViewController(withIdentifier: "CustomCameraNavigationController")
@@ -121,6 +122,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
             let cameraVC = vc.viewControllers.first as? ALKCustomCameraViewController else { return nil }
         cameraVC.setCustomCamDelegate(camMode: .noCropOption, camDelegate: delegate)
         cameraVC.configuration = configuration
+        cameraVC.conversationRequestInfoDelegate = conversationRequestInfoDelegate
         return vc
     }
 
@@ -560,6 +562,11 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //grab all the images
         let asset = allPhotos.object(at: indexPath.item)
+        //check file size
+        if self.isOverUploadFileLimit(asset: asset) {
+            self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit)
+            return
+        }
         
         let options = PHImageRequestOptions()
         options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
@@ -618,5 +625,14 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return CollectionViewEnvironment.Spacing.inset
+    }
+    
+    private func isOverUploadFileLimit(asset:PHAsset) -> Bool{
+        var _result = false
+        let _fileSize = ALKFileUtils().getFileSizeWithMB(asset: asset)
+        if _fileSize > self.configuration.maxUploadFileMBSize {
+            _result = true
+        }
+        return _result
     }
 }

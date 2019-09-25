@@ -24,6 +24,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     var selectedFiles = [IndexPath]()
     var isAllowShowVideo:Bool = true
     var allowsMultipleSelection:Bool = false
+    var conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?
     
     //private
     private var isTabbarHidden:Bool = false
@@ -68,7 +69,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
         self.tabBarController?.tabBar.isHidden = self.isTabbarHidden
     }
 
-    static func makeInstanceWith(delegate: ALKCustomPickerDelegate, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
+    static func makeInstanceWith(delegate: ALKCustomPickerDelegate, conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
         let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.picker, bundle: Bundle.applozic)
         guard
             let vc = storyboard.instantiateViewController(withIdentifier: "CustomPickerNavigationViewController")
@@ -78,6 +79,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
         cameraVC.configuration = configuration
         cameraVC.isAllowShowVideo = configuration.isShowVideoFile
         cameraVC.allowsMultipleSelection = configuration.isAllowsMultipleSelection
+        cameraVC.conversationRequestInfoDelegate = conversationRequestInfoDelegate
         return vc
     }
 
@@ -205,9 +207,12 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
 
     @IBAction func doneButtonAction(_ sender: UIBarButtonItem) {
         activityIndicator.startAnimating()
-        export { (images, videos, error) in
+        export { (images, videos, error, isShowAlert) in
             self.activityIndicator.stopAnimating()
             if error {
+                if isShowAlert == false {
+                    return
+                }
                 let alertTitle = self.localizedString(
                     forKey: "PhotoAlbumFailureTitle",
                     withDefaultValue: SystemMessage.PhotoAlbum.FailureTitle,
@@ -235,7 +240,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
 
     }
 
-    func export(_ completion: @escaping ((_ images: [UIImage], _ videos: [String], _ error: Bool) -> Void)) {
+    func export(_ completion: @escaping ((_ images: [UIImage], _ videos: [String], _ error: Bool, _ isShowAlert:Bool) -> Void)) {
         var selectedImages = [UIImage]()
         var selectedVideos = [String]()
         var error: Bool = false
@@ -245,6 +250,16 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                 group.wait()
                 group.enter()
                 let asset = self.allPhotos.object(at: indexPath.item)
+                
+                if self.isOverUploadFileLimit(asset: asset) {
+                    group.leave()
+                    DispatchQueue.main.async {
+                        self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit)
+                        completion([], [], true, false)
+                    }
+                    return
+                }
+                
                 if asset.mediaType == .video {
                     self.exportVideoAsset(asset) { (video) in
                         guard let video = video else {
@@ -273,7 +288,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
             }
             group.wait()
             DispatchQueue.main.async {
-                completion(selectedImages, selectedVideos, error)
+                completion(selectedImages, selectedVideos, error, true)
             }
         }
     }
@@ -293,6 +308,15 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
         if _goToConfirm == false {
             self.didConfirmToSend(images: images, videos: videos)
         }
+    }
+    
+    private func isOverUploadFileLimit(asset:PHAsset) -> Bool{
+        var _result = false
+        let _fileSize = ALKFileUtils().getFileSizeWithMB(asset: asset)
+        if _fileSize > self.configuration.maxUploadFileMBSize {
+            _result = true
+        }
+        return _result
     }
 }
 

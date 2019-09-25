@@ -7,6 +7,7 @@
 
 import Foundation
 import Applozic
+import Photos
 
 class ALKFileUtils: NSObject {
 
@@ -85,5 +86,22 @@ class ALKFileUtils: NSObject {
         let fileSizeKB:Float = Float(fileSize / 1024)
         let fileSizeMB:Float = Float(fileSizeKB / 1024)
         return fileSizeMB
+    }
+    
+    func getFileSizeWithMB(asset:PHAsset) -> Float{
+        let _fileResources = PHAssetResource.assetResources(for: asset)
+        var sizeOnDisk: Int64? = 0
+        if let _resource = _fileResources.first {
+            let unsignedInt64 = _resource.value(forKey: "fileSize") as? CLong
+            sizeOnDisk = Int64(bitPattern: UInt64(unsignedInt64!))
+        }
+        
+        if let _sizeOnDisk = sizeOnDisk, _sizeOnDisk > 0 {
+            let _sizeOnDiskStr = "\(_sizeOnDisk)"
+            if let _sizeOnDiskFloat = Float(_sizeOnDiskStr) {
+                return Float(Int(_sizeOnDiskFloat / Float(1024.0*1024.0)))
+            }
+        }
+        return 0.0
     }
 }

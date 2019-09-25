@@ -232,7 +232,7 @@ final class ALKCreateGroupViewController: ALKBaseViewController, Localizable {
 
     @IBAction private func selectGroupImgPress(_ sender: Any) {
         guard
-            let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: self, and: configuration)
+            let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: self, conversationRequestInfoDelegate: nil, and: configuration)
             else {return}
             self.present(vc, animated: false, completion: nil)
     }

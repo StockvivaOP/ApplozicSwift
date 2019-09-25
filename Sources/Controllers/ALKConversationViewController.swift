@@ -857,7 +857,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
             case .showImagePicker:
-                guard let vc = ALKCustomPickerViewController.makeInstanceWith(delegate: weakSelf, and: weakSelf.configuration)
+                guard let vc = ALKCustomPickerViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate:weakSelf, and: weakSelf.configuration)
                     else {
                         return
                 }
@@ -871,7 +871,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 mapViewVC.setConfiguration(weakSelf.configuration)
                 self?.present(nav, animated: true, completion: {})
             case .cameraButtonClicked(let button):
-                guard let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: weakSelf, and: weakSelf.configuration)
+                guard let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate: weakSelf, and: weakSelf.configuration)
                 else {
                     button.isUserInteractionEnabled = true
                     return
