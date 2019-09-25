@@ -272,7 +272,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
 
     private func allowToShowDocument() -> Bool {
-        return self.viewModel?.isMyMessage == true || (self.delegateCellRequestInfo?.isEnablePaidFeature() == true && self.viewModel?.isMyMessage == false)
+        return self.delegateCellRequestInfo?.isEnablePaidFeature() == true
     }
 }
 

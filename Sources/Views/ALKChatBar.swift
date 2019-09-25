@@ -853,7 +853,7 @@ open class ALKChatBar: UIView, Localizable {
     
     //private function
     private func checkVisableAttachmentToolBar(){
-        let _isHidden = self.blockChatButton.isHidden == false || self.joinGroupView.isHidden == false
+        let _isHidden = /*self.blockChatButton.isHidden == false ||*/ self.joinGroupView.isHidden == false
         self.updateMediaViewVisibility(hide: _isHidden)
     }
 }

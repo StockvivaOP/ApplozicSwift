@@ -408,7 +408,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
     
     private func allowToShowPhoto() -> Bool {
-        return self.viewModel?.isMyMessage == true || (self.delegateCellRequestInfo?.isEnablePaidFeature() == true && self.viewModel?.isMyMessage == false)
+        return self.delegateCellRequestInfo?.isEnablePaidFeature() == true
     }
 }
 
