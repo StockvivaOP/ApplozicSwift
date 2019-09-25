@@ -626,7 +626,7 @@ open class ALKChatBar: UIView, Localizable {
         joinGroupView.rightAnchor.constraint(equalTo: rightAnchor, constant: 0).isActive = true
         
         blockChatButton.topAnchor.constraint(equalTo: topAnchor, constant: 0).isActive = true
-        blockChatButton.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: 0).isActive = true
+        blockChatButton.bottomAnchor.constraint(equalTo: bottomGrayView.bottomAnchor, constant: 0).isActive = true
         blockChatButton.leftAnchor.constraint(equalTo: leftAnchor, constant: 0).isActive = true
         blockChatButton.rightAnchor.constraint(equalTo: rightAnchor, constant: 0).isActive = true
         
