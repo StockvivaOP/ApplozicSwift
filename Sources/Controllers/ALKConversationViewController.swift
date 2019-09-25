@@ -153,8 +153,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
     
     //tag: stockviva start
+    public enum ALKConversationType : CaseIterable {
+        case free
+        case trial
+        case paid
+    }
+    
     public var enableShowJoinGroupMode: Bool = false
     public var enableShowBlockChatMode: Bool = false
+    public var conversationType: ALKConversationType = .free
+    public var isUserPaid: Bool = false
     //delegate object
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
@@ -2201,7 +2209,7 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     }
     
     public func isEnablePaidFeature() -> Bool {
-        return self.enableShowJoinGroupMode == false && self.enableShowBlockChatMode == false
+        return self.conversationType == .free || ( self.conversationType == .paid && self.isUserPaid )
     }
     
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
