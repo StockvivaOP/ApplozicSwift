@@ -1121,7 +1121,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.view.setNeedsUpdateConstraints()
         self.view.layoutIfNeeded()
         self.tableView.setContentOffset(CGPoint(x: self.tableView.contentOffset.x, y: self.tableView.contentOffset.y + _height ), animated: true)
-        //replyMessageView.isHidden = false
+        replyMessageView.isHidden = false
         self.chatBar.hiddenLineView(true)
     }
 
@@ -1129,7 +1129,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         replyMessageView.constraint(
             withIdentifier: ConstraintIdentifier.replyMessageViewHeight)?
             .constant = 0
-        //replyMessageView.isHidden = true
+        replyMessageView.isHidden = true
         self.chatBar.hiddenLineView(true)
     }
 
