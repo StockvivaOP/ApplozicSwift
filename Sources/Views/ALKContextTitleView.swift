@@ -112,7 +112,7 @@ open class ALKContextTitleView: UIView, ALKContextTitleViewType {
         bottomRightInfoLabel.bottomAnchor.constraint(equalTo: contextImageView.bottomAnchor).isActive = true
         bottomRightInfoLabel.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.4).isActive = true
         bottomRightInfoLabel.heightAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.3).isActive = true
-        //view.layoutIfNeeded()
+        view.layoutIfNeeded()
     }
 
 }
