@@ -1501,10 +1501,7 @@ let dbMessage = messageDbService.getMessageByKey("key", value: message.identifie
             }
             if !replyMessageKeys.isEmpty {
                 ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
-                    guard let replyMessages = replyMessages as? [ALMessage] else {
-                        completion(alMessages)
-                        return
-                    }
+                    guard let replyMessages = replyMessages as? [ALMessage] else { return }
                     for message in replyMessages {
                         let contactId = message.to ?? ""
                         if !contactService.isContactExist(contactId) {
