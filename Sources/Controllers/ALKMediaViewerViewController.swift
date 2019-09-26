@@ -23,12 +23,16 @@ final class ALKMediaViewerViewController: UIViewController {
         sv.backgroundColor = UIColor.clear
         sv.isUserInteractionEnabled = true
         sv.isScrollEnabled = true
+        sv.zoomScale = 0.0
+        sv.minimumZoomScale = 1
+        sv.maximumZoomScale = 3
+        sv.bounces = false
         return sv
     }()
 
     fileprivate let imageView: UIImageView = {
         let mv = UIImageView(frame: .zero)
-        mv.contentMode = .scaleAspectFit
+        mv.contentMode = .scaleToFill
         mv.backgroundColor = UIColor.clear
         mv.isUserInteractionEnabled = false
         return mv
@@ -52,6 +56,7 @@ final class ALKMediaViewerViewController: UIViewController {
     fileprivate let audioIcon: UIImageView = {
         let imageView = UIImageView(frame: .zero)
         imageView.image = UIImage(named: "mic", in: Bundle.applozic, compatibleWith: nil)
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
     
@@ -70,12 +75,13 @@ final class ALKMediaViewerViewController: UIViewController {
     private weak var imageViewTopConstraint: NSLayoutConstraint?
     private weak var imageViewTrailingConstraint: NSLayoutConstraint?
     private weak var imageViewLeadingConstraint: NSLayoutConstraint?
+    
+    private var isFirstLoad = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.scrollView.delegate = self
         setupView()
-        guard let message = viewModel?.getMessageForCurrentIndex() else { return }
-        updateView(message: message)
     }
 
     private func setupNavigation() {
@@ -91,6 +97,15 @@ final class ALKMediaViewerViewController: UIViewController {
         viewModel?.delegate = self
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if self.isFirstLoad {
+            guard let message = viewModel?.getMessageForCurrentIndex() else { return }
+            updateView(message: message)
+            self.isFirstLoad = false
+        }
+    }
+    
     fileprivate func setupView() {
         playButton.addTarget(self, action: #selector(ALKMediaViewerViewController.playButtonAction(_:)), for: .touchUpInside)
         audioPlayButton.addTarget(self, action: #selector(ALKMediaViewerViewController.audioPlayButtonAction(_:)), for: .touchUpInside)
@@ -101,25 +116,27 @@ final class ALKMediaViewerViewController: UIViewController {
         let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(ALKMediaViewerViewController.swipeLeftAction))
         swipeLeft.direction = UISwipeGestureRecognizer.Direction.left
         self.view.addGestureRecognizer(swipeLeft)
-        view.addViewsForAutolayout(views: [imageView, playButton, audioPlayButton, audioIcon, loadingIndicator])
-        imageView.bringSubviewToFront(playButton)
+        view.addViewsForAutolayout(views: [scrollView, playButton, audioPlayButton, audioIcon, loadingIndicator])
+        scrollView.bringSubviewToFront(playButton)
         view.bringSubviewToFront(audioPlayButton)
         view.bringSubviewToFront(audioIcon)
+        scrollView.addSubview(imageView)
 
         playButton.centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
         playButton.centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
         playButton.heightAnchor.constraint(equalToConstant: 80).isActive = true
         playButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
         
-        imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         if #available(iOS 11.0, *) {
-            imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-            imageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
-            imageView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         } else {
-            imageView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-            imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-            imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         }
 
         audioPlayButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30).isActive = true
@@ -149,16 +166,36 @@ final class ALKMediaViewerViewController: UIViewController {
     @objc private func swipeLeftAction() {
         viewModel?.updateCurrentIndex(by: +1)
     }
-
+    
     func showPhotoView(message: ALKMessageViewModel) {
         self.imageView.image = nil
         if let filePath = message.filePath,
             let url = viewModel?.getURLFor(name: filePath) {
             let provider = LocalFileImageDataProvider(fileURL: url)
-            imageView.kf.setImage(with: provider)
+            imageView.kf.setImage(with: provider) { (result) in
+                switch result {
+                case .success(let value):
+                    //cal zoom size
+                    self.resetScrollImageStatus(imgSize: value.image.size)
+                    break
+                case .failure(_):
+                    //none action
+                    break
+                }
+            }
         }else if let fileUrlPath = message.imageURL {
             imageView.kf.indicatorType = .custom(indicator: self.loadingIndicator)
-            imageView.kf.setImage(with: fileUrlPath)
+            imageView.kf.setImage(with: fileUrlPath) { (result) in
+                switch result {
+                case .success(let value):
+                    //cal zoom size
+                    self.resetScrollImageStatus(imgSize: value.image.size)
+                    break
+                case .failure(_):
+                    //none action
+                    break
+                }
+            }
         }else {
             self.loadingIndicator.startAnimating()
             viewModel?.fetchMessageWithId(messageId: message.identifier, completed: { (msgList) in
@@ -171,7 +208,7 @@ final class ALKMediaViewerViewController: UIViewController {
             return
         }
         
-        imageView.sizeToFit()
+        //imageView.sizeToFit()
         playButton.isHidden = true
         audioPlayButton.isHidden = true
         audioIcon.isHidden = true
@@ -261,6 +298,45 @@ extension ALKMediaViewerViewController: ALKMediaViewerViewModelDelegate {
     func reloadView() {
         guard let message = viewModel?.getMessageForCurrentIndex() else { return }
         updateView(message: message)
+    }
+}
+
+extension ALKMediaViewerViewController: UIScrollViewDelegate {
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.imageView
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        let _svSize = self.scrollView.bounds.size
+        let _svContentSize = self.scrollView.contentSize
+        let offsetX = max( ((_svSize.width - _svContentSize.width) * 0.5) , 0.0)
+        let offsetY = max( ((_svSize.height - _svContentSize.height) * 0.5) , 0.0)
+        // adjust the center of image view
+        self.imageView.center = CGPoint(x: _svContentSize.width * 0.5 + offsetX, y: _svContentSize.height * 0.5 + offsetY)
+    }
+    
+    private func resetScrollImageStatus(imgSize:CGSize){
+        self.scrollView.contentOffset = CGPoint.zero
+        self.scrollView.setZoomScale(0.0, animated: false)
+        //cal zoom size
+        let _contentSize = self.scrollView.bounds.size
+        let _scaleWidth:CGFloat = (_contentSize.width / imgSize.width)
+        let _scaleHeight:CGFloat = (_contentSize.height / imgSize.height)
+        var _scale:CGFloat = min(_scaleWidth, _scaleHeight)
+        let _scaleUpWidth:CGFloat = (imgSize.width / _contentSize.width)
+        let _scaleUpHeight:CGFloat = (imgSize.height / _contentSize.height)
+        let _scaleUp:CGFloat = max(_scaleUpWidth, _scaleUpHeight)
+        self.scrollView.zoomScale = 0
+        self.scrollView.minimumZoomScale = 1
+        self.scrollView.maximumZoomScale = _scaleUp > 2 ? _scaleUp : 2
+        //zoom
+        if _scale >= 1 {
+            _scale = 1.0
+        }
+        self.imageView.frame = CGRect(x: 0, y: 0, width: imgSize.width * _scale, height: imgSize.height * _scale)
+        self.scrollView.contentSize = self.imageView.frame.size
+        
+        self.scrollViewDidZoom(self.scrollView)
     }
 }
 
