@@ -2238,11 +2238,13 @@ fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewControl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.orgButtonTintColor = UIButton.appearance().tintColor
+        UINavigationBar.appearance().tintColor = UIColor.blue
         UIButton.appearance().tintColor = UIColor.blue
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        UINavigationBar.appearance().tintColor = UIColor.blue
         UIButton.appearance().tintColor = UIColor.blue
     }
     
