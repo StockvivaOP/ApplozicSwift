@@ -2225,8 +2225,6 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
 //MARK: - subclass
 fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewController{
     
-    private var orgButtonTintColor:UIColor? = nil
-    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -2237,20 +2235,22 @@ fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewControl
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.orgButtonTintColor = UIButton.appearance().tintColor
-        UINavigationBar.appearance().tintColor = UIColor.blue
         UIButton.appearance().tintColor = UIColor.blue
+        UIBarButtonItem.appearance().tintColor = UIColor.blue
+        UINavigationBar.appearance().tintColor = UIColor.blue
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.blue]
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        UINavigationBar.appearance().tintColor = UIColor.blue
-        UIButton.appearance().tintColor = UIColor.blue
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        UIButton.appearance().tintColor = self.orgButtonTintColor
+        UIButton.appearance().tintColor = UIColor.white
+        UIBarButtonItem.appearance().tintColor = .white
+        UINavigationBar.appearance().tintColor = .white
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
     }
     
 }
