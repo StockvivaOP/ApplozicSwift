@@ -122,10 +122,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     let unreadScrollButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = UIColor.lightText
+        button.backgroundColor = UIColor.clear
         let image = UIImage(named: "scrollDown", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
-        button.layer.cornerRadius = 15
+        button.layer.cornerRadius = 19
         button.isHidden = true
         return button
     }()
@@ -153,8 +153,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
     
     //tag: stockviva start
+    public enum ALKConversationType : CaseIterable {
+        case free
+        case trial
+        case paid
+    }
+    
     public var enableShowJoinGroupMode: Bool = false
     public var enableShowBlockChatMode: Bool = false
+    public var conversationType: ALKConversationType = .free
+    public var isUserPaid: Bool = false
     //delegate object
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
@@ -615,10 +623,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             equalTo: chatBar.topAnchor,
             constant: 0).isActive = true
 
-        unreadScrollButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        unreadScrollButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
-        unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -10).isActive = true
-        unreadScrollButton.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -10).isActive = true
+        unreadScrollButton.heightAnchor.constraint(equalToConstant: 38).isActive = true
+        unreadScrollButton.widthAnchor.constraint(equalToConstant: 38).isActive = true
+        unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -18).isActive = true
+        unreadScrollButton.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -18).isActive = true
 
         leftMoreBarConstraint = moreBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 56)
         leftMoreBarConstraint?.isActive = true
@@ -843,12 +851,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     ALUtilityClass.showAlertMessage(msg, andTitle: title)
                 }
             case .showUploadAttachmentFile:
-                let _vc = UIDocumentPickerViewController(documentTypes: ["public.content"], in: UIDocumentPickerMode.import)
+                let _types:[String] = ["com.adobe.pdf", "public.image"]
+                let _vc = ALKCVDocumentPickerViewController(documentTypes: _types, in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
             case .showImagePicker:
-                guard let vc = ALKCustomPickerViewController.makeInstanceWith(delegate: weakSelf, and: weakSelf.configuration)
+                guard let vc = ALKCustomPickerViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate:weakSelf, and: weakSelf.configuration)
                     else {
                         return
                 }
@@ -862,7 +871,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 mapViewVC.setConfiguration(weakSelf.configuration)
                 self?.present(nav, animated: true, completion: {})
             case .cameraButtonClicked(let button):
-                guard let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: weakSelf, and: weakSelf.configuration)
+                guard let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate: weakSelf, and: weakSelf.configuration)
                 else {
                     button.isUserInteractionEnabled = true
                     return
@@ -1579,8 +1588,13 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func messageSent(at indexPath: IndexPath) {
         if let _messageModel = self.viewModel.messageForRow(indexPath: indexPath) {
+            var _messageReplyId:String = ""
+            if let msgMetadata = _messageModel.metadata,
+                let replyID = msgMetadata[AL_MESSAGE_REPLY_KEY] as? String {
+                _messageReplyId = replyID
+            }
             let _messageTypeStr = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _messageModel.messageType)
-            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr,  messageID:_messageModel.identifier, message: _messageModel.message)
+            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message)
         }
         NSLog("current indexpath: %i and tableview section %i", indexPath.section, self.tableView.numberOfSections)
         guard indexPath.section >= self.tableView.numberOfSections else {
@@ -2031,6 +2045,12 @@ extension ALKConversationViewController: NavigationBarCallbacks {
 
 extension ALKConversationViewController: AttachmentDelegate {
     func tapAction(message: ALKMessageViewModel) {
+        //before show need paid
+        let _isAllowOpen = self.isEnablePaidFeature()
+        if _isAllowOpen == false {
+            self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            return
+        }
         let storyboard = UIStoryboard.name(
             storyboard: UIStoryboard.Storyboard.mediaViewer,
             bundle: Bundle.applozic)
@@ -2109,31 +2129,51 @@ extension ALKConversationViewController {
 }
 
 //MARK: - stockviva (UIDocumentPickerDelegate)
-extension ALKConversationViewController: UIDocumentPickerDelegate {
-    
+extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUploadConfirmViewControllerDelegate {
+    //UIDocumentPickerDelegate
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
-        
-        let (message, indexPath) = self.viewModel.send(fileURL: url, metadata: self.configuration.messageMetadata)
-        guard message != nil, let newIndexPath = indexPath else { return }
-//        DispatchQueue.main.async {
-            self.tableView.beginUpdates()
-            self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
-            self.tableView.endUpdates()
-            self.tableView.scrollToBottom(animated: false)
-//        }
-        guard let cell = tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
-        guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
-            let notificationView = ALNotificationView()
-            notificationView.noDataConnectionNotificationView()
-            return
-        }
-        viewModel.uploadFile(view: cell, indexPath: newIndexPath)
+        self.showDocumentConfirmPage(urls: [url])
     }
     
     @available(iOS 11.0, *)
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        for url in urls {
-            self.documentPicker(controller, didPickDocumentAt: url)
+        self.showDocumentConfirmPage(urls: urls)
+    }
+    
+    //ALKFileUploadConfirmViewControllerDelegate
+    private func showDocumentConfirmPage(urls: [URL]){
+        //check and block over file size limit
+        for  url in urls {
+            let _fileSize = ALKFileUtils().getFileSizeWithMB(url: url)
+            if _fileSize > self.configuration.maxUploadFileMBSize {
+                self.requestToShowAlert(type:.attachmentFileSizeOverLimit)
+                return
+            }
+        }
+        let _vc:ALKFileUploadConfirmViewController = ALKFileUploadConfirmViewController(configuration:self.configuration)
+        _vc.urlList.append(contentsOf: urls)
+        _vc.delegate = self
+        self.navigationController?.pushViewController(_vc, animated: true)
+    }
+    
+    public func didStartUploadFiles(urls:[URL]){
+        //loop to upload file
+        for  url in urls {
+            let (message, indexPath) = self.viewModel.send(fileURL: url, metadata: self.configuration.messageMetadata)
+            guard message != nil, let newIndexPath = indexPath else { return }
+            //        DispatchQueue.main.async {
+            self.tableView.beginUpdates()
+            self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
+            self.tableView.endUpdates()
+            self.tableView.scrollToBottom(animated: false)
+            //        }
+            guard let cell = tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
+            guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
+                let notificationView = ALNotificationView()
+                notificationView.noDataConnectionNotificationView()
+                return
+            }
+            viewModel.uploadFile(view: cell, indexPath: newIndexPath)
         }
     }
 }
@@ -2172,4 +2212,46 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     public func isEnableReplyMenuItem() -> Bool {
         return self.enableShowJoinGroupMode == false && self.enableShowBlockChatMode == false
     }
+    
+    public func isEnablePaidFeature() -> Bool {
+        return self.conversationType == .free || ( self.conversationType == .paid && self.isUserPaid )
+    }
+    
+    public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
+        self.delegateConversationChatContentAction?.showAlert(type:type)
+    }
 }
+
+//MARK: - subclass
+fileprivate class ALKCVDocumentPickerViewController :UIDocumentPickerViewController{
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
+    override init(documentTypes allowedUTIs: [String], in mode: UIDocumentPickerMode) {
+        super.init(documentTypes: allowedUTIs, in: mode)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        UIButton.appearance().tintColor = UIColor.blue
+        UIBarButtonItem.appearance().tintColor = UIColor.blue
+        UINavigationBar.appearance().tintColor = UIColor.blue
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.blue]
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        UIButton.appearance().tintColor = UIColor.white
+        UIBarButtonItem.appearance().tintColor = .white
+        UINavigationBar.appearance().tintColor = .white
+        UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor : UIColor.white]
+    }
+    
+}
+

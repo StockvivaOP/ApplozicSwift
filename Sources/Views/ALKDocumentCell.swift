@@ -73,7 +73,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         label.numberOfLines = 1
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.ALKSVPrimaryDarkGrey()
-        label.textAlignment = .center
+        label.textAlignment = .left
         label.isOpaque = true
         return label
     }()
@@ -115,6 +115,9 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         return view
     }()
 
+    //MARK: stockviva tag start
+    var fileNameTrailing :NSLayoutConstraint?
+    
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
     }
@@ -161,9 +164,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         fileNameLabel.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.FileNameLabel.top).isActive = true
         fileNameLabel.leadingAnchor.constraint(equalTo: docImageView.trailingAnchor, constant: CommonPadding.FileNameLabel.left).isActive = true
         fileNameLabel.heightAnchor.constraint(equalToConstant: CommonPadding.FileNameLabel.height).isActive = true
+        self.fileNameTrailing = fileNameLabel.trailingAnchor.constraint(equalTo: downloadButton.leadingAnchor, constant: -CommonPadding.DownloadButton.left)
+        self.fileNameTrailing?.isActive = true
 
         downloadButton.centerYAnchor.constraint(equalTo: frameUIView.centerYAnchor).isActive = true
-        downloadButton.leadingAnchor.constraint(equalTo: fileNameLabel.trailingAnchor, constant: CommonPadding.DownloadButton.left).isActive = true
         downloadButton.trailingAnchor.constraint(equalTo: frameUIView.trailingAnchor, constant: -CommonPadding.DownloadButton.right).isActive = true
         downloadButton.widthAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.width).isActive = true
         downloadButton.heightAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.height).isActive = true
@@ -186,11 +190,19 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
 
     @objc func openWKWebView(gesture: UITapGestureRecognizer) {
-
+        if self.allowToShowDocument() == false {//is not self message
+            self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            return
+        }
+        
         guard  let filePath = self.viewModel?.filePath, ALKFileUtils().isSupportedFileType(filePath:filePath) else {
 
             let errorMessage = (self.viewModel?.filePath != nil) ? "File type is not supported":"File is not downloaded"
               print(errorMessage)
+            //try to download
+            if self.downloadButton.isHidden == false {
+                self.downloadButtonAction(self.downloadButton)
+            }
             return
         }
 
@@ -224,6 +236,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
+        if self.allowToShowDocument() == false {//is not self message
+            self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            return
+        }
         downloadTapped?(true)
     }
 
@@ -247,8 +263,17 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         default:
             print("Not handled")
         }
+        
+        if downloadButton.isHidden && progressView.isHidden {
+            self.fileNameTrailing?.constant = CommonPadding.DownloadButton.left + CommonPadding.DownloadButton.right
+        }else{
+            self.fileNameTrailing?.constant = -CommonPadding.DownloadButton.left
+        }
     }
 
+    private func allowToShowDocument() -> Bool {
+        return self.delegateCellRequestInfo?.isEnablePaidFeature() == true
+    }
 }
 
 extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
@@ -268,6 +293,8 @@ extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
         } else {
             DispatchQueue.main.async {
                 self.updateView(for: .upload)
+                //show error
+                self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure)
             }
         }
     }

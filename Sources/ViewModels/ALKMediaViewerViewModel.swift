@@ -8,6 +8,7 @@
 
 import Foundation
 import AVFoundation
+import Applozic
 
 protocol ALKMediaViewerViewModelDelegate: class {
     func reloadView()
@@ -119,5 +120,42 @@ final class ALKMediaViewerViewModel: NSObject, Localizable {
     private func checkCurrent(index: Int) {
         guard index < messages.count, (messages[currentIndex].messageType == .video || messages[currentIndex].messageType == .voice) else { return }
         isFirstIndexAudioVideo = true
+    }
+    
+    func replaceCurrentMessage(message:ALMessage) {
+        let _currentMsg = messages[currentIndex]
+        let _newMsg = message.messageModel
+        if _currentMsg.identifier == _newMsg.identifier {
+            messages[currentIndex] = _newMsg
+        }
+    }
+    
+    func fetchMessageWithId(messageId:String, completed:@escaping ((_ message:[ALMessage]?)->())){
+        ALMessageClientService().getMessagesWithkeys([messageId]) { (response, error) in
+            if error != nil  || response?.status != "success"{
+                completed(nil)
+                return
+            }
+            guard let responDict = response?.response as? [AnyHashable : Any],
+                let msgsDicts = responDict["message"] as? [Any] else {
+                    completed(nil)
+                    return
+            }
+            
+            var _msgList:[ALMessage] = []
+            for dict in msgsDicts {
+                if let _msgDict = dict as? [AnyHashable : Any] {
+                    let _msg:ALMessage = ALMessage(dictonary:_msgDict)
+                    _msg.messageReplyType = NSNumber(value: AL_REPLY_BUT_HIDDEN.rawValue)
+                    ALMessageDBService().add(_msg)
+                    _msgList.append(_msg)
+                }
+            }
+            if _msgList.count > 0 {
+                completed(_msgList)
+            }else{
+                completed(nil)
+            }
+        }
     }
 }

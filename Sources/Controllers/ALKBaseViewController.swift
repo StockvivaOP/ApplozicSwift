@@ -12,6 +12,7 @@ import Applozic
 open class ALKBaseViewController: UIViewController, ALKConfigurable {
 
     public var configuration: ALKConfiguration!
+    public var isCustomLeftNavBarButton: Bool = false
 
     required public init(configuration: ALKConfiguration) {
         self.configuration = configuration
@@ -33,7 +34,7 @@ open class ALKBaseViewController: UIViewController, ALKConfigurable {
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor:configuration.navigationBarTitleColor]
 
         self.navigationController?.navigationBar.isTranslucent = false
-        if self.navigationController?.viewControllers.first != self {
+        if self.navigationController?.viewControllers.first != self && self.isCustomLeftNavBarButton == false {
             var backImage = UIImage.init(named: "icon_back", in: Bundle.applozic, compatibleWith: nil)
             backImage = backImage?.imageFlippedForRightToLeftLayoutDirection()
             self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(image: backImage, style: .plain, target: self , action: #selector(backTapped))

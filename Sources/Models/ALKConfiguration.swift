@@ -211,6 +211,12 @@ public struct ALKConfiguration {
         }
     }
     
+    public enum ConversationErrorType : CaseIterable {
+        case attachmentFileSizeOverLimit
+        case attachmentUploadFailure
+        case funcNeedPaid
+    }
+    
     /// delegate for get text from app
     public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
     
@@ -247,6 +253,13 @@ public struct ALKConfiguration {
     /// chat box cell user name color mapping
     public var chatBoxCustomCellUserNameColorMapping:[String:UIColor] = [:]
     
+    /// Attachment file max size
+    public var maxUploadFileMBSize : Float = 500.0
+    
+    /// image gallery file control
+    public var isShowVideoFile : Bool = true
+    public var isAllowsMultipleSelection : Bool = false
+    
     //tag: stockviva - end
     
     public init() { }
@@ -259,11 +272,12 @@ public protocol ConversationChatContentActionDelegate: class{
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
-    func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, message:String?)
+    func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?)
     func openLink(url:URL, chatView:UIViewController)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
     func getAdditionalSendMessageForAdmin() -> String?
+    func showAlert(type:ALKConfiguration.ConversationErrorType)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
@@ -288,6 +302,8 @@ public protocol ConversationMessageBoxActionDelegate: class{
 
 public protocol ConversationCellRequestInfoDelegate: class{
     func isEnableReplyMenuItem() -> Bool
+    func isEnablePaidFeature() -> Bool
+    func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
 }
 
 public protocol SystemTextLocalizableRequestDelegate: class{

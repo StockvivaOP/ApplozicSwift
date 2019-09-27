@@ -1619,10 +1619,10 @@ let dbMessage = messageDbService.getMessageByKey("key", value: message.identifie
         alMessage.contentType = Int16(contentType)
         alMessage.fileMeta = getFileMetaInfo()
         alMessage.imageFilePath = filePath.lastPathComponent
-        alMessage.fileMeta.name = String(format: "AUD-5-%@", filePath.lastPathComponent)
-        if let contactId = contactId {
-            alMessage.fileMeta.name = String(format: "%@-5-%@", contactId, filePath.lastPathComponent)
-        }
+        alMessage.fileMeta.name = String(format: "%@", filePath.lastPathComponent)
+//        if let contactId = contactId {
+//            alMessage.fileMeta.name = String(format: "%@-%@", contactId, filePath.lastPathComponent)
+//        }
         let pathExtension = filePath.pathExtension
         let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as NSString, nil)?.takeRetainedValue()
         let mimetype = (UTTypeCopyPreferredTagWithClass(uti!, kUTTagClassMIMEType)?.takeRetainedValue()) as String?

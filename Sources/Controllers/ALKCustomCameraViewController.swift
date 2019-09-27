@@ -38,6 +38,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
     var selectedImage: UIImage!
     var cameraMode: ALKCameraPhotoType = .noCropOption
     let option = PHImageRequestOptions()
+    var conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?
 
     var cameraOutput: Any? = {
         if #available(iOS 10.0, *) {
@@ -63,8 +64,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.title = localizedString(forKey: "Camera", withDefaultValue: SystemMessage.LabelName.Camera, fileName: localizedStringFileName)
+        self.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_camera") ?? localizedString(forKey: "Camera", withDefaultValue: SystemMessage.LabelName.Camera, fileName: localizedStringFileName)
         btnSwitchCam.isHidden = true
         checkPhotoLibraryPermission()
         reloadCamera()
@@ -85,11 +85,10 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
         switch authStatus {
         case .denied:
             // ask for permissions
-
-            let camNotAvailable = localizedString(forKey: "CamNotAvaiable", withDefaultValue: SystemMessage.Warning.CamNotAvaiable, fileName: localizedStringFileName)
-            let pleaseAllowCamera = localizedString(forKey: "PleaseAllowCamera", withDefaultValue: SystemMessage.Camera.PleaseAllowCamera, fileName: localizedStringFileName)
+            let camNotAvailable = ""//localizedString(forKey: "CamNotAvaiable", withDefaultValue: SystemMessage.Warning.CamNotAvaiable, fileName: localizedStringFileName)
+            let pleaseAllowCamera = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "ERROR_PERMISSION_MISSING_CAMERA_READ") ?? localizedString(forKey: "PleaseAllowCamera", withDefaultValue: SystemMessage.Camera.PleaseAllowCamera, fileName: localizedStringFileName)
             let alertController = UIAlertController(title: camNotAvailable, message: pleaseAllowCamera, preferredStyle: .alert)
-            let settingsTitle = localizedString(forKey: "Settings", withDefaultValue: SystemMessage.LabelName.Settings, fileName: localizedStringFileName)
+            let settingsTitle = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "notification_setting_alert_confirm") ?? localizedString(forKey: "Settings", withDefaultValue: SystemMessage.LabelName.Settings, fileName: localizedStringFileName)
             let settingsAction = UIAlertAction(title: settingsTitle, style: .default) { (_) -> Void in
                 guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                     return
@@ -106,7 +105,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
                 }
             }
             alertController.addAction(settingsAction)
-            let cancelTitle = localizedString(forKey: "Cancel", withDefaultValue: SystemMessage.LabelName.Cancel, fileName: localizedStringFileName)
+            let cancelTitle = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "general_button_cancel") ?? localizedString(forKey: "Cancel", withDefaultValue: SystemMessage.LabelName.Cancel, fileName: localizedStringFileName)
             let cancelAction = UIAlertAction(title: cancelTitle, style: .default, handler: nil)
             alertController.addAction(cancelAction)
             present(alertController, animated: true, completion: nil)
@@ -115,7 +114,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
 
     }
 
-    static func makeInstanceWith(delegate: ALKCustomCameraProtocol, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
+    static func makeInstanceWith(delegate: ALKCustomCameraProtocol,  conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
         let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.camera, bundle: Bundle.applozic)
         guard
             let vc = storyboard.instantiateViewController(withIdentifier: "CustomCameraNavigationController")
@@ -123,6 +122,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
             let cameraVC = vc.viewControllers.first as? ALKCustomCameraViewController else { return nil }
         cameraVC.setCustomCamDelegate(camMode: .noCropOption, camDelegate: delegate)
         cameraVC.configuration = configuration
+        cameraVC.conversationRequestInfoDelegate = conversationRequestInfoDelegate
         return vc
     }
 
@@ -189,7 +189,8 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
 
     override func viewDidLayoutSubviews() {
         //set frame
-        self.previewLayer?.frame = self.previewView.frame
+        self.previewLayer?.frame.origin = CGPoint(x: 0, y: 0)
+        self.previewLayer?.frame.size = self.previewView.frame.size
     }
 
     override func didReceiveMemoryWarning() {
@@ -206,22 +207,21 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
     // MARK: - UI control
     private func setupNavigation() {
 
-        let title = localizedString(forKey: "Camera", withDefaultValue: SystemMessage.LabelName.Camera, fileName: localizedStringFileName)
+        let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_camera") ?? localizedString(forKey: "Camera", withDefaultValue: SystemMessage.LabelName.Camera, fileName: localizedStringFileName)
         self.navigationItem.title = title
-        self.navigationController?.navigationBar.backgroundColor = UIColor.white
-        self.navigationController?.navigationBar.tintColor = UIColor.black
+        self.navigationController?.navigationBar.backgroundColor = UIColor.darkGray
+        self.navigationController?.navigationBar.tintColor = UIColor.white
         guard let navVC = self.navigationController else { return }
         navVC.navigationBar.shadowImage = UIImage()
-        navVC.navigationBar.isTranslucent = true
+        navVC.navigationBar.isTranslucent = false
         var backImage = UIImage.init(named: "icon_back", in: Bundle.applozic, compatibleWith: nil)
         backImage = backImage?.imageFlippedForRightToLeftLayoutDirection()
         self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(image: backImage, style: .plain, target: self, action: #selector(dismissCameraPress(_:)))
-        self.navigationController?.navigationBar.tintColor = UIColor.white
     }
 
     private func setupView() {
-        btnCapture.imageView?.tintColor = UIColor.white
-        btnSwitchCam.imageView?.tintColor = UIColor.white
+        btnCapture.imageView?.tintColor = UIColor.ALKSVMainColorPurple()
+        btnSwitchCam.imageView?.tintColor = UIColor.ALKSVMainColorPurple()
     }
 
     private func reloadCamera() {
@@ -299,11 +299,11 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
         case .denied:
             // ask for permissions
 
-            let camNotAvailable = localizedString(forKey: "CamNotAvaiable", withDefaultValue: SystemMessage.Warning.CamNotAvaiable, fileName: localizedStringFileName)
-            let pleaseAllowCamera = localizedString(forKey: "PleaseAllowCamera", withDefaultValue: SystemMessage.Camera.PleaseAllowCamera, fileName: localizedStringFileName)
+            let camNotAvailable = ""//localizedString(forKey: "CamNotAvaiable", withDefaultValue: SystemMessage.Warning.CamNotAvaiable, fileName: localizedStringFileName)
+            let pleaseAllowCamera = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "ERROR_PERMISSION_MISSING_CAMERA_READ") ?? localizedString(forKey: "PleaseAllowCamera", withDefaultValue: SystemMessage.Camera.PleaseAllowCamera, fileName: localizedStringFileName)
 
             let alertController = UIAlertController (title: camNotAvailable, message: pleaseAllowCamera, preferredStyle: .alert)
-            let settingsTitle = localizedString(forKey: "Settings", withDefaultValue: SystemMessage.LabelName.Settings, fileName: localizedStringFileName)
+            let settingsTitle =  ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "notification_setting_alert_confirm") ?? localizedString(forKey: "Settings", withDefaultValue: SystemMessage.LabelName.Settings, fileName: localizedStringFileName)
             let settingsAction = UIAlertAction(title: settingsTitle, style: .default) { (_) -> Void in
                 guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                     return
@@ -321,7 +321,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
                 }
             }
             alertController.addAction(settingsAction)
-            let cancelTitle = localizedString(forKey: "Cancel", withDefaultValue: SystemMessage.LabelName.Cancel, fileName: localizedStringFileName)
+            let cancelTitle =  ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "general_button_cancel") ?? localizedString(forKey: "Cancel", withDefaultValue: SystemMessage.LabelName.Cancel, fileName: localizedStringFileName)
             let cancelAction = UIAlertAction(title: cancelTitle, style: .default, handler: nil)
             alertController.addAction(cancelAction)
             present(alertController, animated: true, completion: nil)
@@ -517,7 +517,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
         allPhotosOptions.includeHiddenAssets = false
         allPhotosOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
         allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        allPhotos = PHAsset.fetchAssets(with: allPhotosOptions)
+        allPhotos = PHAsset.fetchAssets(with: PHAssetMediaType.image, options: allPhotosOptions)
         (allPhotos != nil) ? completion(true) : completion(false)
     }
 
@@ -562,17 +562,27 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //grab all the images
         let asset = allPhotos.object(at: indexPath.item)
-        PHCachingImageManager.default().requestImageData(for: asset, options: nil) { (imageData, _, _, _) in
-            let image = UIImage(data: imageData!)
-            self.selectedImage = image
-
+        //check file size
+        if self.isOverUploadFileLimit(asset: asset) {
+            self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit)
+            return
+        }
+        
+        let options = PHImageRequestOptions()
+        options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
+        options.isSynchronous = false
+        options.isNetworkAccessAllowed = true
+        PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .default, options: options, resultHandler: { (image, info) in
+            guard let _image = image else { return }
+            self.selectedImage = _image
+            
             switch self.cameraMode {
             case .cropOption:
                 self.performSegue(withIdentifier: "goToCropImageView", sender: nil)
             default:
                 self.performSegue(withIdentifier: "pushToALKCustomCameraPreviewViewController", sender: nil)
             }
-        }
+        })
     }
 
     // MARK: UICollectionViewDataSource
@@ -615,5 +625,14 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return CollectionViewEnvironment.Spacing.inset
+    }
+    
+    private func isOverUploadFileLimit(asset:PHAsset) -> Bool{
+        var _result = false
+        let _fileSize = ALKFileUtils().getFileSizeWithMB(asset: asset)
+        if _fileSize > self.configuration.maxUploadFileMBSize {
+            _result = true
+        }
+        return _result
     }
 }

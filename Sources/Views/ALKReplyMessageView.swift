@@ -160,12 +160,16 @@ open class ALKReplyMessageView: UIView, Localizable {
         //update reply icon
         if message.messageType == ALKMessageType.voice  {
             messageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
+            messageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_audio") ?? messageLabel.text
         }else if message.messageType == ALKMessageType.video {
             messageTypeImageView.image = UIImage(named: "sv_icon_chatroom_video_grey", in: Bundle.applozic, compatibleWith: nil)
+            messageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_video") ?? messageLabel.text
         }else if message.messageType == ALKMessageType.photo {
             messageTypeImageView.image = UIImage(named: "sv_icon_chatroom_photo_grey", in: Bundle.applozic, compatibleWith: nil)
+            messageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? messageLabel.text
         }else if message.messageType == ALKMessageType.document {
             messageTypeImageView.image = UIImage(named: "sv_icon_chatroom_file_grey", in: Bundle.applozic, compatibleWith: nil)
+            messageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_document") ?? messageLabel.text
         }else{
             messageTypeImageView.image = nil
         }

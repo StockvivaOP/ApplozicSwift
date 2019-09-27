@@ -22,6 +22,12 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     let option = PHImageRequestOptions()
     var selectedRows = [Int]()
     var selectedFiles = [IndexPath]()
+    var isAllowShowVideo:Bool = true
+    var allowsMultipleSelection:Bool = false
+    var conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?
+    
+    //private
+    private var isTabbarHidden:Bool = false
 
     @IBOutlet weak var doneButton: UIBarButtonItem!
     weak var delegate: ALKCustomPickerDelegate?
@@ -36,12 +42,12 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        doneButton.title = localizedString(forKey: "DoneButton", withDefaultValue: SystemMessage.ButtonName.Done, fileName: localizedStringFileName)
-        self.title = localizedString(forKey: "PhotosTitle", withDefaultValue: SystemMessage.LabelName.Photos, fileName: localizedStringFileName)
+        doneButton.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "general_button_confirm") ?? localizedString(forKey: "DoneButton", withDefaultValue: SystemMessage.ButtonName.Done, fileName: localizedStringFileName)
+        self.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? localizedString(forKey: "PhotosTitle", withDefaultValue: SystemMessage.LabelName.Photos, fileName: localizedStringFileName)
         checkPhotoLibraryPermission()
         previewGallery.delegate = self
         previewGallery.dataSource = self
-        previewGallery.allowsMultipleSelection = true
+        previewGallery.allowsMultipleSelection = self.allowsMultipleSelection
 
         view.addViewsForAutolayout(views: [activityIndicator])
         view.bringSubviewToFront(activityIndicator)
@@ -54,9 +60,16 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupNavigation()
+        self.isTabbarHidden = self.tabBarController?.tabBar.isHidden ?? false
+        self.tabBarController?.tabBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.tabBarController?.tabBar.isHidden = self.isTabbarHidden
     }
 
-    static func makeInstanceWith(delegate: ALKCustomPickerDelegate, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
+    static func makeInstanceWith(delegate: ALKCustomPickerDelegate, conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?, and configuration: ALKConfiguration) -> ALKBaseNavigationViewController? {
         let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.picker, bundle: Bundle.applozic)
         guard
             let vc = storyboard.instantiateViewController(withIdentifier: "CustomPickerNavigationViewController")
@@ -64,6 +77,9 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
             let cameraVC = vc.viewControllers.first as? ALKCustomPickerViewController else { return nil }
         cameraVC.delegate = delegate
         cameraVC.configuration = configuration
+        cameraVC.isAllowShowVideo = configuration.isShowVideoFile
+        cameraVC.allowsMultipleSelection = configuration.isAllowsMultipleSelection
+        cameraVC.conversationRequestInfoDelegate = conversationRequestInfoDelegate
         return vc
     }
 
@@ -120,8 +136,12 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
         allPhotosOptions.includeHiddenAssets = false
 
         let p1 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-        let p2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
-        allPhotosOptions.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [p1, p2])
+        if self.isAllowShowVideo {
+            let p2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
+            allPhotosOptions.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [p1, p2])
+        }else{
+            allPhotosOptions.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [p1])
+        }
         allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         allPhotos = PHAsset.fetchAssets(with: allPhotosOptions)
         (allPhotos != nil) ? completion(true) :  completion(false)
@@ -187,9 +207,12 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
 
     @IBAction func doneButtonAction(_ sender: UIBarButtonItem) {
         activityIndicator.startAnimating()
-        export { (images, videos, error) in
+        export { (images, videos, error, isShowAlert) in
             self.activityIndicator.stopAnimating()
             if error {
+                if isShowAlert == false {
+                    return
+                }
                 let alertTitle = self.localizedString(
                     forKey: "PhotoAlbumFailureTitle",
                     withDefaultValue: SystemMessage.PhotoAlbum.FailureTitle,
@@ -207,19 +230,17 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                     message: alertMessage,
                     preferredStyle: UIAlertController.Style.alert)
                 alert.addAction(UIAlertAction(title: buttonTitle, style: UIAlertAction.Style.default, handler: { _ in
-                    self.delegate?.filesSelected(images: images, videos: videos)
-                    self.navigationController?.dismiss(animated: false, completion: nil)
+                    //self.goToPickerConfirmatPage(images: images, videos: videos)
                 }))
                 self.present(alert, animated: true, completion: nil)
             } else {
-                self.delegate?.filesSelected(images: images, videos: videos)
-                self.navigationController?.dismiss(animated: false, completion: nil)
+                self.goToPickerConfirmatPage(images: images, videos: videos)
             }
         }
 
     }
 
-    func export(_ completion: @escaping ((_ images: [UIImage], _ videos: [String], _ error: Bool) -> Void)) {
+    func export(_ completion: @escaping ((_ images: [UIImage], _ videos: [String], _ error: Bool, _ isShowAlert:Bool) -> Void)) {
         var selectedImages = [UIImage]()
         var selectedVideos = [String]()
         var error: Bool = false
@@ -229,6 +250,16 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                 group.wait()
                 group.enter()
                 let asset = self.allPhotos.object(at: indexPath.item)
+                
+                if self.isOverUploadFileLimit(asset: asset) {
+                    group.leave()
+                    DispatchQueue.main.async {
+                        self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit)
+                        completion([], [], true, false)
+                    }
+                    return
+                }
+                
                 if asset.mediaType == .video {
                     self.exportVideoAsset(asset) { (video) in
                         guard let video = video else {
@@ -240,25 +271,58 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                         group.leave()
                     }
                 } else {
-                    PHCachingImageManager.default().requestImageData(for: asset, options:nil) { (imageData, _, _, _) in
-                        guard let imageData = imageData, let image = UIImage(data: imageData) else {
+                    let options = PHImageRequestOptions()
+                    options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
+                    options.isSynchronous = false
+                    options.isNetworkAccessAllowed = true
+                    PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .default, options: options, resultHandler: { (imageRespon, info) in
+                        guard let image = imageRespon else {
                             error = true
                             group.leave()
                             return
                         }
                         selectedImages.append(image)
                         group.leave()
-                    }
+                    })
                 }
             }
             group.wait()
             DispatchQueue.main.async {
-                completion(selectedImages, selectedVideos, error)
+                completion(selectedImages, selectedVideos, error, true)
             }
         }
     }
 
     @IBAction func dismissAction(_ sender: UIBarButtonItem) {
+        self.navigationController?.dismiss(animated: false, completion: nil)
+    }
+    
+    private func goToPickerConfirmatPage(images: [UIImage], videos: [String]){
+        var _goToConfirm = false
+        if images.count > 0 {
+            if let _vc = ALKCustomPickerConfirmViewController.instance(images: images, videos: videos, configuration: configuration, delegate: self) {
+                _goToConfirm = true
+                self.navigationController?.pushViewController(_vc, animated: true)
+            }
+        }
+        if _goToConfirm == false {
+            self.didConfirmToSend(images: images, videos: videos)
+        }
+    }
+    
+    private func isOverUploadFileLimit(asset:PHAsset) -> Bool{
+        var _result = false
+        let _fileSize = ALKFileUtils().getFileSizeWithMB(asset: asset)
+        if _fileSize > self.configuration.maxUploadFileMBSize {
+            _result = true
+        }
+        return _result
+    }
+}
+
+extension ALKCustomPickerViewController: ALKCustomPickerConfirmViewControllerProtocol {
+    func didConfirmToSend(images: [UIImage], videos: [String]) {
+        self.delegate?.filesSelected(images: images, videos: videos)
         self.navigationController?.dismiss(animated: false, completion: nil)
     }
 }
@@ -276,16 +340,37 @@ extension ALKCustomPickerViewController: UICollectionViewDelegate, UICollectionV
     // MARK: UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //grab all the images
-        let asset = allPhotos.object(at: indexPath.item)
-        if selectedRows[indexPath.row] == 1 {
-            selectedFiles.remove(object: indexPath)
-            selectedRows[indexPath.row] = 0
-        } else {
-            selectedFiles.append(indexPath)
-            selectedRows[indexPath.row] = 1
+        //let asset = allPhotos.object(at: indexPath.item)
+        //for single select
+        if self.allowsMultipleSelection == false {
+            //un-select all
+            var _isDeselectMode = false
+            var _refreshCell = [IndexPath]()
+            _refreshCell.append(contentsOf: selectedFiles)
+            for sIndex in selectedFiles {
+                if sIndex.row == indexPath.row {
+                    _isDeselectMode = true
+                }
+                selectedRows[sIndex.row] = 0
+            }
+            selectedFiles.removeAll()
+            if _isDeselectMode == false {// not deselect mode
+                selectedFiles.append(indexPath)
+                _refreshCell.append(indexPath)
+                selectedRows[indexPath.row] = 1
+            }
+            //refresh cell
+            previewGallery.reloadItems(at: _refreshCell)
+        }else {
+            if selectedRows[indexPath.row] == 1 {
+                selectedFiles.remove(object: indexPath)
+                selectedRows[indexPath.row] = 0
+            } else {
+                selectedFiles.append(indexPath)
+                selectedRows[indexPath.row] = 1
+            }
+            previewGallery.reloadItems(at: [indexPath])
         }
-
-        previewGallery.reloadItems(at: [indexPath])
     }
 
     // MARK: UICollectionViewDataSource
