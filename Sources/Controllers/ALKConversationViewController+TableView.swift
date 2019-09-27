@@ -477,6 +477,8 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
+                cell.menuAction = {[weak self] action in
+                    self?.menuItemSelected(action: action, message: message) }
                 cell.uploadTapped = {[weak self]
                     value in
                     // upload
@@ -501,6 +503,8 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
+                cell.menuAction = {[weak self] action in
+                    self?.menuItemSelected(action: action, message: message) }
                 cell.uploadTapped = {[weak self]
                     value in
                     // upload
