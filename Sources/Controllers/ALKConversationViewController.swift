@@ -861,7 +861,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     else {
                         return
                 }
-                weakSelf.navigationController?.pushViewController(vc, animated: true)
+                weakSelf.present(vc, animated: false, completion: nil)
             case .showLocation:
                 let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mapView, bundle: Bundle.applozic)
 
@@ -876,7 +876,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     button.isUserInteractionEnabled = true
                     return
                 }
-                weakSelf.navigationController?.pushViewController(vc, animated: true)
+                weakSelf.present(vc, animated: false, completion: nil)
                 button.isUserInteractionEnabled = true
 
             case .shareContact:
