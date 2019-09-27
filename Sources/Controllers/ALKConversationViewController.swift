@@ -1588,8 +1588,13 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func messageSent(at indexPath: IndexPath) {
         if let _messageModel = self.viewModel.messageForRow(indexPath: indexPath) {
+            var _messageReplyId:String = ""
+            if let msgMetadata = _messageModel.metadata,
+                let replyID = msgMetadata[AL_MESSAGE_REPLY_KEY] as? String {
+                _messageReplyId = replyID
+            }
             let _messageTypeStr = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _messageModel.messageType)
-            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr,  messageID:_messageModel.identifier, message: _messageModel.message)
+            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message)
         }
         NSLog("current indexpath: %i and tableview section %i", indexPath.section, self.tableView.numberOfSections)
         guard indexPath.section >= self.tableView.numberOfSections else {
