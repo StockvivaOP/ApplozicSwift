@@ -105,7 +105,7 @@ open class ALKReplyMessageView: UIView, Localizable {
         enum PreviewImageView {
             static let height: CGFloat = 40.0
             static let width: CGFloat = 48.0
-            static let right: CGFloat = 11.0
+            static let right: CGFloat = 6.0
             static let top: CGFloat = 5.0
             static let bottom: CGFloat = 5.0
         }

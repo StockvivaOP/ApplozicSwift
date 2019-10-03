@@ -274,7 +274,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             let path = docDirPath.appendingPathComponent(filePath)
             setPhotoViewImageFromFileURL(path)
             uploadButton.isHidden = false
-        case .uploaded:
+        case .uploaded(_):
             if activityIndicator.isAnimating {
                 activityIndicator.stopAnimating()
             }
@@ -282,7 +282,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             uploadButton.isHidden = true
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
-        case .uploading:
+        case .uploading(_, _):
             uploadButton.isHidden = true
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = false
@@ -417,7 +417,8 @@ extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
         NSLog("Photo cell data uploading started for: %@", viewModel?.filePath ?? "")
         DispatchQueue.main.async {
             print("task filepath:: ", task.filePath ?? "")
-            self.updateView(for: .uploading)
+            let progress = task.totalBytesUploaded.degree(outOf: task.totalBytesExpectedToUpload)
+            self.updateView(for: .uploading(progress: progress, totalCount: task.totalBytesExpectedToUpload))
         }
     }
 
@@ -425,11 +426,13 @@ extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
         NSLog("Photo cell data uploaded for: %@", viewModel?.filePath ?? "")
         if task.uploadError == nil && task.completed == true && task.filePath != nil {
             DispatchQueue.main.async {
-                self.updateView(for: .uploaded)
+                self.updateView(for: .uploaded(filePath: task.filePath ?? ""))
             }
         } else {
             DispatchQueue.main.async {
                 self.updateView(for: .upload)
+                //show error
+                self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure)
             }
         }
     }

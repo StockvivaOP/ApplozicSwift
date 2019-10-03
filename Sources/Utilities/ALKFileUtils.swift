@@ -35,16 +35,16 @@ class ALKFileUtils: NSObject {
         }
         var floatSize = Float(fileSize / 1024)
         if floatSize < 1023 {
-            return String(format: "%.1f KB", floatSize)
+            return String(format: "%.1fKB", floatSize)
         }
 
         floatSize /= 1024
         if floatSize < 1023 {
-            return String(format: "%.1f MB", floatSize)
+            return String(format: "%.1fMB", floatSize)
         }
 
         floatSize /= 1024
-        return String(format: "%.1f GB", floatSize)
+        return String(format: "%.1fGB", floatSize)
     }
 
     func getFileExtenion(filePath: String?, fileMeta:ALFileMetaInfo?) -> String {
