@@ -20,7 +20,7 @@ final class ALKMediaViewerViewController: UIViewController {
 
     fileprivate let scrollView: UIScrollView = {
         let sv = UIScrollView(frame: .zero)
-        sv.backgroundColor = UIColor.clear
+        sv.backgroundColor = UIColor.black
         sv.isUserInteractionEnabled = true
         sv.isScrollEnabled = true
         sv.zoomScale = 0.0

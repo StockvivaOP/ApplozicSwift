@@ -22,7 +22,7 @@
                                 <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="f7D-nR-f6r" firstAttribute="top" secondItem="gOz-RT-gwQ" secondAttribute="top" id="AJ2-0A-wXV"/>
                             <constraint firstItem="f7D-nR-f6r" firstAttribute="leading" secondItem="gOz-RT-gwQ" secondAttribute="leading" id="gfP-u3-0Fy"/>
