@@ -180,6 +180,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     public var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
+    private var isViewFirstLoad: Bool = true
     private var isAutoRefreshMessage: Bool = false
     open var discrimationView: UIButton = {
         let view = UIButton()
@@ -352,9 +353,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 guard let profile = profile else { return }
                 weakSelf.navigationBar.updateView(profile: profile)
             })
-            self?.subscribeChannelToMqtt()
-            if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
-                self?.isAutoRefreshMessage = true
+            if self?.isViewFirstLoad == false {
+                self?.subscribeChannelToMqtt()
+                if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
+                    self?.isAutoRefreshMessage = true
+                }
             }
         }
 
@@ -362,7 +365,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
             weakSelf.viewModel.sendKeyboardDoneTyping()
             self?.isAutoRefreshMessage = false
-            self?.unsubscribingChannel()
+            if self?.isViewFirstLoad == false {
+                self?.unsubscribingChannel()
+            }
         }
     }
 
@@ -423,6 +428,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
         configureView()
         contentOffsetDictionary = Dictionary<NSObject,AnyObject>()
+        self.isViewFirstLoad = false
         print("id: ", viewModel.messageModels.first?.contactId as Any)
     }
 
@@ -431,6 +437,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewDidLoad() {
         super.viewDidLoad()
+        self.isViewFirstLoad = true
         setupConstraints()
         //tag: stockviva
         self.tableView.scrollsToTop = false
