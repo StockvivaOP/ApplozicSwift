@@ -278,6 +278,8 @@ public protocol ConversationChatContentActionDelegate: class{
     func rightMenuClicked(chatView:UIViewController)
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
+    func isAdminUser() -> Bool
+    func didPinMessageClose(isAdmin:Bool)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
@@ -298,10 +300,12 @@ public protocol ChatBarRequestActionDelegate: class{
 
 public protocol ConversationMessageBoxActionDelegate: class{
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
+    func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?, viewModel:ALKMessageViewModel?)
 }
 
 public protocol ConversationCellRequestInfoDelegate: class{
     func isEnableReplyMenuItem() -> Bool
+    func isEnablePinMsgMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
 }

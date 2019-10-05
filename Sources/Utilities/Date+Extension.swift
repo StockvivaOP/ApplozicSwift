@@ -48,4 +48,16 @@ extension Date {
         return dateFormatter.string(from: self)
     }
 
+    func toHHmmMMMddFormat() -> String {
+        let _dateFormatter = DateFormatter()
+        //set locale name
+        if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
+            let _locale = Locale(identifier: _localeName)
+            _dateFormatter.locale = _locale
+        }
+        
+        let _dateFormat = DateFormatter.dateFormat(fromTemplate: "HH:mm MMM dd", options: 0, locale: Locale.current)
+        _dateFormatter.dateFormat = _dateFormat
+        return _dateFormatter.string(from: self)
+    }
 }

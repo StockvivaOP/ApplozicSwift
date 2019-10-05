@@ -102,6 +102,7 @@ AreTyping = " are typing";
 Copy = "Copy";
 Reply = "Reply";
 Appeal = "Appeal";
+PinMsg = "PinMsg";
 You = "You";
 
 NotPartOfGroup = "You are not part of this group";

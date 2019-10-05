@@ -11,7 +11,7 @@ import Kingfisher
 import Applozic
 
 class ALKDocumentCell:ALKChatBaseCell<ALKMessageViewModel>,
-ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
+ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
     struct CommonPadding {
         
@@ -151,11 +151,11 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
     
     func menuAppeal(_ sender: Any) {
-        if let _chatGroupID = self.clientChannelKey,
-            let _userID = self.viewModel?.contactId,
-            let _msgID = self.viewModel?.identifier {
-            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
-        }
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+    }
+    
+    func menuPinMsg(_ sender: Any) {
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message, viewModel: self.viewModel))
     }
 
     override func setupStyle() {
