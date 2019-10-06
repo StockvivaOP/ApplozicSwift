@@ -293,7 +293,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         super.setupStyle()
         //timeLabel.setStyle(ALKMessageStyle.time)
     }
-
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
+    
     class func messageHeight(viewModel: ALKMessageViewModel,
                              width: CGFloat,
                              font: UIFont) -> CGFloat {

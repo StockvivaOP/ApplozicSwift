@@ -262,6 +262,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             self.updateView(state: state)
         }
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     private func updateView(state: AttachmentState) {
         switch state {

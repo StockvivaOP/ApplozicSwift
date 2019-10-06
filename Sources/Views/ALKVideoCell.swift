@@ -124,6 +124,10 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         guard let state = viewModel.attachmentState() else { return }
         updateView(for: state)
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     @objc func actionTapped(button: UIButton) {
         button.isEnabled = false

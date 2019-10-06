@@ -46,7 +46,11 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     func update(chatBar: ALKChatBar) {
         self.chatBar = chatBar
     }
-
+    
+    func isMyMessage() -> Bool {
+        return false
+    }
+    
     @objc func menuWillShow(_ sender: Any) {
         NotificationCenter.default.removeObserver(self, name: UIMenuController.willShowMenuNotification, object: nil)
     }
@@ -118,7 +122,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
             return true
         case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
-            return self.delegateCellRequestInfo?.isEnablePinMsgMenuItem() ?? false
+            return self.delegateCellRequestInfo?.isEnablePinMsgMenuItem() ?? false && self.isMyMessage()
         default:
             return false
         }

@@ -103,6 +103,10 @@ class ALKMyGenericListCell: ALKChatBaseCell<ALKMessageViewModel> {
         setUpButtons()
         setUpViews()
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     open class func rowHeightFor(template: [ALKGenericListTemplate], viewModel: ALKMessageViewModel) -> CGFloat {
         let buttonHeight = 35

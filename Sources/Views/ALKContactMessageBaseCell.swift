@@ -36,4 +36,8 @@ class ALKContactMessageBaseCell: ALKChatBaseCell<ALKMessageViewModel>, ALKHTTPMa
             self.updateContactDetails(key: identifier, filePath: filePath)
         }
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 }

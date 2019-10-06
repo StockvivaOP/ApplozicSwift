@@ -140,7 +140,11 @@ class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
                 in: Bundle.applozic,
                 compatibleWith: nil))
     }
-
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
+    
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
         let heigh: CGFloat = ceil((width * 0.64) / viewModel.ratio)
         return heigh + 26.0
