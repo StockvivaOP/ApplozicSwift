@@ -2195,11 +2195,7 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     }
     
     func closeButtonClicked(viewModel: ALKMessageViewModel) {
-        let _isAdmin = self.delegateConversationChatContentAction?.isAdminUser() ?? false
-        if _isAdmin == false {
-            self.showPinMessageView(isHidden: true)
-        }
-        self.delegateConversationChatContentAction?.didPinMessageClose(isAdmin:_isAdmin)
+        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked()
     }
 }
 
