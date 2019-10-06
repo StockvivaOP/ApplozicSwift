@@ -226,6 +226,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
         progressView.widthAnchor.constraint(equalTo: downloadButton.heightAnchor).isActive = true
 
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
         return super.rowHeigh(viewModel: viewModel, width: width)

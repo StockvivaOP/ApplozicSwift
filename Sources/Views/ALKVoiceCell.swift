@@ -112,6 +112,10 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
 
         // Configure the view for the selected state
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
 
