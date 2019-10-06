@@ -156,7 +156,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     }
     
     private func getPinMsgMenuItem(pinMsgItem: Any) -> UIMenuItem? {
-        guard let pinMsgMenuItem = pinMsgItem as? ALKAppealMenuItemProtocol else {
+        guard let pinMsgMenuItem = pinMsgItem as? ALKPinMsgMenuItemProtocol else {
             return nil
         }
         let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin") ?? localizedString(forKey: "PinMsg", withDefaultValue: SystemMessage.LabelName.Appeal, fileName: localizedStringFileName)
