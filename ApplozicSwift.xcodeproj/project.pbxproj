@@ -134,6 +134,7 @@
 		C4B36BB72345DAD800913FE6 /* ALKSVImageMessageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB62345DAD800913FE6 /* ALKSVImageMessageDetailViewController.swift */; };
 		C4B36BB92345DAE800913FE6 /* ALKSVMessageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB82345DAE800913FE6 /* ALKSVMessageDetailViewController.swift */; };
 		C4B36BBB2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BBA2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift */; };
+		C4CE0901234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4CE0900234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -279,6 +280,7 @@
 		C4B36BB62345DAD800913FE6 /* ALKSVImageMessageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVImageMessageDetailViewController.swift; sourceTree = "<group>"; };
 		C4B36BB82345DAE800913FE6 /* ALKSVMessageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageDetailViewController.swift; sourceTree = "<group>"; };
 		C4B36BBA2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVDocumentMessageDetailViewController.swift; sourceTree = "<group>"; };
+		C4CE0900234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageDetailHeaderViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -345,6 +347,7 @@
 				68361A2E2333724500B4CD76 /* ALKFileUploadConfirmViewController.swift */,
 				C4B36BB42345DAAE00913FE6 /* ALKSVBaseMessageDetailViewController.swift */,
 				C4B36BB82345DAE800913FE6 /* ALKSVMessageDetailViewController.swift */,
+				C4CE0900234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift */,
 				C4B36BB62345DAD800913FE6 /* ALKSVImageMessageDetailViewController.swift */,
 				C4B36BBA2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift */,
 			);
@@ -705,6 +708,7 @@
 				8BB533D21F69463C0008C1CF /* Bundle+Extension.swift in Sources */,
 				8BB533F91F69463C0008C1CF /* UITextField+Extension.swift in Sources */,
 				8BB533C11F69463C0008C1CF /* ALKPhotoCell.swift in Sources */,
+				C4CE0901234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift in Sources */,
 				8BB533E71F69463C0008C1CF /* ReusableView.swift in Sources */,
 				8BB533C71F69463C0008C1CF /* ALKPushNotificationHandler.swift in Sources */,
 				8BB533B61F69463C0008C1CF /* ALKMediaViewerViewModel.swift in Sources */,

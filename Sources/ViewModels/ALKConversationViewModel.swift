@@ -450,7 +450,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         return nil
     }
 
-    open func downloadAttachment(message: ALKMessageViewModel, view: UIView) {
+    open func downloadAttachment(message: ALKMessageViewModel, view: UIView? = nil, viewController: UIViewController? = nil) {
         guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
             let notificationView = ALNotificationView()
             notificationView.noDataConnectionNotificationView()
@@ -459,7 +459,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         /// For email attachments url is to be used directly
         if message.source == emailSourceType, let url = message.fileMetaInfo?.url {
             let httpManager = ALKHTTPManager()
-            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate
+            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate ?? viewController as? ALKHTTPManagerDownloadDelegate
             let task = ALKDownloadTask(downloadUrl: url, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
@@ -472,7 +472,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 return
             }
             let httpManager = ALKHTTPManager()
-            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate
+            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate ?? viewController as? ALKHTTPManagerDownloadDelegate
             let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size

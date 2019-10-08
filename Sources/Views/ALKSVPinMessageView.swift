@@ -94,6 +94,11 @@ open class ALKSVPinMessageView: UIView, Localizable {
         self.labMessage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -_padding.message.bottom).isActive = true
         self.labMessage.heightAnchor.constraint(equalToConstant: _padding.message.height).isActive = true
         
+        self.btnClickView.topAnchor.constraint(equalTo: self.topAnchor ).isActive = true
+        self.btnClickView.leadingAnchor.constraint(equalTo: self.leadingAnchor ).isActive = true
+        self.btnClickView.trailingAnchor.constraint(equalTo: self.trailingAnchor ).isActive = true
+        self.btnClickView.bottomAnchor.constraint(equalTo: self.bottomAnchor ).isActive = true
+        
         self.btnClose.topAnchor.constraint(equalTo: self.topAnchor, constant: _padding.closeButton.top).isActive = true
         self.btnClose.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -_padding.closeButton.right).isActive = true
         self.btnClose.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -_padding.closeButton.bottom).isActive = true
@@ -102,6 +107,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
     }
     
     func updateContent(viewModel: ALKMessageViewModel){
+        self.viewModel = viewModel
         let _date:Date = viewModel.date
         let _message:String = viewModel.message ?? ""
         

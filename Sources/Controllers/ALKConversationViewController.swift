@@ -2179,7 +2179,42 @@ extension ALKConversationViewController {
     }
     
     private func presentMessageDetail(viewModel: ALKMessageViewModel){
+        let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
         
+        if viewModel.messageType == .text {
+            if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
+                _vc.configuration = self.configuration
+                _vc.viewModel = viewModel
+                _vc.delegate = self
+                _vc.modalPresentationStyle = .overCurrentContext
+                _vc.modalTransitionStyle = .crossDissolve
+                self.present(_vc, animated: true, completion: nil)
+            }
+        }else if viewModel.messageType == .photo {
+            if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVImageMessageDetailViewController") as? ALKSVImageMessageDetailViewController {
+                _vc.configuration = self.configuration
+                _vc.viewModel = viewModel
+                _vc.delegate = self
+                _vc.downloadTapped = {[weak self] value in
+                    self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
+                }
+                _vc.modalPresentationStyle = .overCurrentContext
+                _vc.modalTransitionStyle = .crossDissolve
+                self.present(_vc, animated: true, completion: nil)
+            }
+        }else if viewModel.messageType == .document {
+            if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVDocumentMessageDetailViewController") as? ALKSVDocumentMessageDetailViewController {
+                _vc.configuration = self.configuration
+                _vc.viewModel = viewModel
+                _vc.delegate = self
+                _vc.downloadTapped = {[weak self] value in
+                    self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
+                }
+                _vc.modalPresentationStyle = .overCurrentContext
+                _vc.modalTransitionStyle = .crossDissolve
+                self.present(_vc, animated: true, completion: nil)
+            }
+        }
     }
 }
 
@@ -2196,6 +2231,13 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     
     func closeButtonClicked(viewModel: ALKMessageViewModel) {
         self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked()
+    }
+}
+
+//MARK: - stockviva (ALKSVMessageDetailViewControllerDelegate)
+extension ALKConversationViewController: ALKSVMessageDetailViewControllerDelegate {
+    func didUserIconClicked(viewModel: ALKMessageViewModel) {
+        //none action
     }
 }
 
