@@ -36,7 +36,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     enum MenuActionType {
         case reply
         case appeal(chatGroupHashID:String?, userHashID:String?, messageID:String?, message:String?)
-        case pinMsg(chatGroupHashID:String?, userHashID:String?, messageID:String?, message:String?, viewModel:ALKMessageViewModel?)
+        case pinMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     }
 
     /// It will be invoked when one of the actions

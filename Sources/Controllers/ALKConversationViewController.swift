@@ -1144,12 +1144,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:message)
             }
             break;
-        case .pinMsg(let chatGroupHashID, let userHashID, let messageID, let message, let viewModel):
+        case .pinMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
             print("PinMsg selected")
             if let _chatGroupID = chatGroupHashID,
                 let _userID = userHashID,
-                let _msgID = messageID {
-                self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:message, viewModel: viewModel)
+                let _model = viewModel {
+                self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, viewModel: _model, indexPath:indexPath)
             }
             break;
         }
@@ -2157,12 +2157,14 @@ extension ALKConversationViewController {
     }
     
     public func showPinMessageView(isHidden:Bool, viewModel: ALKMessageViewModel? = nil){
+        guard let _viewModel = viewModel else {
+            self.showPinMessageView(isHidden: true)
+            return
+        }
         self.pinMessageView.isHidden = isHidden
         let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
         self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-        if let _viewModel = viewModel {
-            self.pinMessageView.updateContent(viewModel: _viewModel)
-        }
+        self.pinMessageView.updateContent(viewModel: _viewModel)
     }
     
     private func prepareDiscrimationView() {

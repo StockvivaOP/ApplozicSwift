@@ -300,7 +300,7 @@ public protocol ChatBarRequestActionDelegate: class{
 
 public protocol ConversationMessageBoxActionDelegate: class{
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
-    func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?, viewModel:ALKMessageViewModel?)
+    func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
 }
 
 public protocol ConversationCellRequestInfoDelegate: class{
