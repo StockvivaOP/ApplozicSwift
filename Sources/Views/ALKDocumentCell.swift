@@ -31,7 +31,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
         struct DownloadButton {
             static let top: CGFloat = 4.0
-            static let left: CGFloat = 10
+            static let left: CGFloat = 20
             static let right: CGFloat = 5
             static let height: CGFloat = 24
             static let width: CGFloat = 24
@@ -195,25 +195,22 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
         docImageView.widthAnchor.constraint(equalToConstant: CommonPadding.DocumentView.width).isActive = true
         docImageView.heightAnchor.constraint(equalToConstant: CommonPadding.DocumentView.height).isActive = true
 
-        fileNameLabel.topAnchor.constraint(equalTo: attachBgView.topAnchor, constant: CommonPadding.FileNameLabel.top).isActive = true
-        fileNameLabel.leadingAnchor.constraint(equalTo: docImageView.trailingAnchor, constant: CommonPadding.FileNameLabel.left).isActive = true
-        fileNameLabel.bottomAnchor.constraint(equalTo: attachBgView.bottomAnchor, constant: -CommonPadding.FileNameLabel.bottom).isActive = true
+        fileNameLabel.centerYAnchor.constraint(equalTo: attachBgView.centerYAnchor).isActive = true
         fileNameLabel.heightAnchor.constraint(equalToConstant: CommonPadding.FileNameLabel.height).isActive = true
         self.fileNameTrailing = fileNameLabel.trailingAnchor.constraint(equalTo: attachBgView.trailingAnchor, constant: -CommonPadding.FileNameLabel.right)
         self.fileNameTrailing?.isActive = true
 
         downloadButton.topAnchor.constraint(equalTo: attachBgView.topAnchor, constant: CommonPadding.DownloadButton.top).isActive = true
-        downloadButton.centerXAnchor.constraint(equalTo: docImageView.centerXAnchor).isActive = true
+        downloadButton.leadingAnchor.constraint(equalTo: attachBgView.leadingAnchor, constant: CommonPadding.DownloadButton.left).isActive = true
         downloadButton.widthAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.width).isActive = true
         downloadButton.heightAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.height).isActive = true
 
         sizeAndFileType.topAnchor.constraint(equalTo: downloadButton.bottomAnchor).isActive = true
         sizeAndFileType.centerXAnchor.constraint(equalTo: downloadButton.centerXAnchor).isActive = true
-        sizeAndFileType.leadingAnchor.constraint(equalTo: attachBgView.leadingAnchor, constant: CommonPadding.FileTypeView.left).isActive = true
         sizeAndFileType.trailingAnchor.constraint(equalTo: fileNameLabel.leadingAnchor, constant: -CommonPadding.FileTypeView.right).isActive = true
         sizeAndFileType.bottomAnchor.constraint(equalTo: attachBgView.bottomAnchor, constant: -CommonPadding.FileTypeView.bottom).isActive = true
         sizeAndFileType.heightAnchor.constraint(equalToConstant: CommonPadding.FileTypeView.height).isActive = true
-        sizeAndFileType.widthAnchor.constraint(lessThanOrEqualToConstant: CommonPadding.FileTypeView.width).isActive = true
+        sizeAndFileType.widthAnchor.constraint(greaterThanOrEqualToConstant: CommonPadding.FileTypeView.width).isActive = true
 
         uploadButton.topAnchor.constraint(equalTo: downloadButton.topAnchor).isActive = true
         uploadButton.trailingAnchor.constraint(equalTo: downloadButton.trailingAnchor).isActive = true
