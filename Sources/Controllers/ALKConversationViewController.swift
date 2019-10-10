@@ -2188,6 +2188,11 @@ extension ALKConversationViewController {
         let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
         if _msgType == .text {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
+                _vc.messageViewLinkClicked = { (url) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                    }
+                }
                 _presentVC = _vc
             }
         }else if _msgType == .photo {

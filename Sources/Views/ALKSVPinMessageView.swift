@@ -113,7 +113,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
         let _date:Date = viewModel.date
         let _message:String = viewModel.message ?? ""
         
-        self.labTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? "" + _date.toHHmmMMMddFormat()
+        self.labTitle.text = (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? "") + " " + _date.toHHmmMMMddFormat()
         
         if self.conversationRequestInfoDelegate?.isEnablePaidFeature() == false {
             self.labTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_open_pin_msg_required_paid_user") ?? ""
