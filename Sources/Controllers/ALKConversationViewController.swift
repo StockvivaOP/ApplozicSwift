@@ -2156,7 +2156,7 @@ extension ALKConversationViewController {
         self.chatBar.hiddenBlockChatButton(!self.enableShowBlockChatMode)
     }
     
-    public func showPinMessageView(isHidden:Bool, viewModel: ALKMessageViewModel? = nil){
+    public func showPinMessageView(isHidden:Bool, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
         guard let _viewModel = viewModel else {
             if isHidden == false {
                 self.showPinMessageView(isHidden: true)
@@ -2166,7 +2166,7 @@ extension ALKConversationViewController {
         self.pinMessageView.isHidden = isHidden
         let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
         self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-        self.pinMessageView.updateContent(viewModel: _viewModel)
+        self.pinMessageView.updateContent(userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
     }
     
     private func prepareDiscrimationView() {
@@ -2182,55 +2182,51 @@ extension ALKConversationViewController {
         }
     }
     
-    private func presentMessageDetail(viewModel: ALKMessageViewModel){
+    private func presentMessageDetail(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
         let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
-        
+        var _presentVC:ALKSVBaseMessageDetailViewController?
         if viewModel.messageType == .text {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
-                _vc.configuration = self.configuration
-                _vc.viewModel = viewModel
-                _vc.delegate = self
-                _vc.modalPresentationStyle = .overCurrentContext
-                _vc.modalTransitionStyle = .crossDissolve
-                self.present(_vc, animated: true, completion: nil)
+                _presentVC = _vc
             }
         }else if viewModel.messageType == .photo {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVImageMessageDetailViewController") as? ALKSVImageMessageDetailViewController {
-                _vc.configuration = self.configuration
-                _vc.viewModel = viewModel
-                _vc.delegate = self
                 _vc.downloadTapped = {[weak self] value in
                     self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
                 }
-                _vc.modalPresentationStyle = .overCurrentContext
-                _vc.modalTransitionStyle = .crossDissolve
-                self.present(_vc, animated: true, completion: nil)
+                _presentVC = _vc
             }
         }else if viewModel.messageType == .document {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVDocumentMessageDetailViewController") as? ALKSVDocumentMessageDetailViewController {
-                _vc.configuration = self.configuration
-                _vc.viewModel = viewModel
-                _vc.delegate = self
                 _vc.downloadTapped = {[weak self] value in
                     self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
                 }
-                _vc.modalPresentationStyle = .overCurrentContext
-                _vc.modalTransitionStyle = .crossDissolve
-                self.present(_vc, animated: true, completion: nil)
+                _presentVC = _vc
             }
+        }
+        
+        if let _pVC = _presentVC {
+            _pVC.configuration = self.configuration
+            _pVC.userName = userName
+            _pVC.userIconUrl = userIconUrl
+            _pVC.viewModel = viewModel
+            _pVC.delegate = self
+            _pVC.modalPresentationStyle = .overCurrentContext
+            _pVC.modalTransitionStyle = .crossDissolve
+            self.present(_pVC, animated: true, completion: nil)
         }
     }
 }
 
 //MARK: - stockviva (ALKSVPinMessageViewDelegate)
 extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
-    func didPinMessageClicked(viewModel: ALKMessageViewModel) {
+    func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel) {
         if self.isEnablePaidFeature() == false {
             self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
             return
         }
         //show message
-        self.presentMessageDetail(viewModel: viewModel)
+        self.presentMessageDetail(userName:userName, userIconUrl:userIconUrl, viewModel: viewModel)
     }
     
     func closeButtonClicked(viewModel: ALKMessageViewModel) {

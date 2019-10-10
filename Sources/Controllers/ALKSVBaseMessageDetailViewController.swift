@@ -19,6 +19,8 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
     
     var configuration: ALKConfiguration!
     var delegate:ALKSVMessageDetailViewControllerDelegate?
+    var userName:String?
+    var userIconUrl:String?
     var viewModel:ALKMessageViewModel?
     private var messageheader:ALKSVMessageDetailHeaderViewController?
     
@@ -43,7 +45,7 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
             return
         }
         _header.delegate = self
-        _header.setHeader(viewModel: _viewModel)
+        _header.setHeader(userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
     }
     
     //button control

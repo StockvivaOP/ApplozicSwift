@@ -20,22 +20,27 @@ class ALKSVMessageDetailHeaderViewController: UIViewController {
     @IBOutlet weak var labMessageDate: UILabel!
     
     var delegate:ALKSVMessageDetailHeaderViewControllerDelegate?
+    var userName:String?
+    var userIconUrl:String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
     
-    func setHeader(viewModel:ALKMessageViewModel){
+    func setHeader(userName:String?, userIconUrl:String?, viewModel:ALKMessageViewModel){
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
         if let url = viewModel.avatarURL {
+            let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
+            self.btnUserIcon.kf.setImage(with: resource, for: .normal, placeholder: placeHolder)
+        }else if let urlStr = userIconUrl, let url = URL(string: urlStr) {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
             self.btnUserIcon.kf.setImage(with: resource, for: .normal, placeholder: placeHolder)
         } else {
             self.btnUserIcon.setImage(placeHolder, for: .normal)
         }
         
-        self.labUserName.text = viewModel.displayName
+        self.labUserName.text = viewModel.displayName ?? userName ?? ""
         self.labMessageDate.text = viewModel.date.toHHmmMMMddFormat()
     }
     

@@ -9,7 +9,7 @@
 import UIKit
 
 protocol ALKSVPinMessageViewDelegate : class {
-    func didPinMessageClicked(viewModel: ALKMessageViewModel)
+    func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel)
     func closeButtonClicked(viewModel: ALKMessageViewModel)
 }
 
@@ -55,6 +55,8 @@ open class ALKSVPinMessageView: UIView, Localizable {
     }()
     
     //object
+    var userName:String?
+    var userIconUrl:String?
     var delegate:ALKSVPinMessageViewDelegate?
     var conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?
     var configuration: ALKConfiguration!
@@ -106,7 +108,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
         self.btnClose.heightAnchor.constraint(equalToConstant: _padding.closeButton.height).isActive = true
     }
     
-    func updateContent(viewModel: ALKMessageViewModel){
+    func updateContent(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
         self.viewModel = viewModel
         let _date:Date = viewModel.date
         let _message:String = viewModel.message ?? ""
@@ -128,13 +130,9 @@ open class ALKSVPinMessageView: UIView, Localizable {
         }
     }
     
-    func clearAll(){
-        
-    }
-    
     //MARK: - button
     @objc private func clickViewButtonTouchUpInside(_ sender: UIButton) {
-        self.delegate?.didPinMessageClicked(viewModel:self.viewModel)
+        self.delegate?.didPinMessageClicked(userName:self.userName, userIconUrl:self.userIconUrl, viewModel:self.viewModel)
     }
     
     @objc private func closeButtonTouchUpInside(_ sender: UIButton) {
