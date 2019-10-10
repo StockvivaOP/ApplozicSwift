@@ -39,6 +39,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
         let _view = UILabel()
         _view.font = UIFont.systemFont(ofSize: 15.0)
         _view.textColor = UIColor.ALKSVPrimaryDarkGrey()
+        _view.numberOfLines = 2
         return _view
     }()
     
