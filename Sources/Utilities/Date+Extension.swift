@@ -52,13 +52,19 @@ extension Date {
         let _dateFormatter = DateFormatter()
         _dateFormatter.dateFormat = "HH:mm MMM dd"
         //set locale name
+        var _isChineseFormat = false
         if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
             let _locale = Locale(identifier: _localeName)
             _dateFormatter.locale = _locale
+            _isChineseFormat = _localeName.lowercased().starts(with: "zh_")
         }else{
             _dateFormatter.locale = Locale.current
         }
         
-        return _dateFormatter.string(from: self)
+        var _dateStr = _dateFormatter.string(from: self)
+        if _isChineseFormat {
+            _dateStr = _dateStr + (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
+        }
+        return _dateStr
     }
 }
