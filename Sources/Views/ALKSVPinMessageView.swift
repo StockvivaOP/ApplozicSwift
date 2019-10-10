@@ -116,7 +116,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
         self.labTitle.text = (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? "") + " " + _date.toHHmmMMMddFormat()
         
         if self.conversationRequestInfoDelegate?.isEnablePaidFeature() == false {
-            self.labTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_open_pin_msg_required_paid_user") ?? ""
+            self.labMessage.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_open_pin_msg_required_paid_user") ?? ""
         }else{
             let _msgType = viewModel.getContentTypeForPinMessage()
             if _msgType == .document {
