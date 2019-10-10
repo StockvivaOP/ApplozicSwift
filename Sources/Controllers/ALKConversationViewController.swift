@@ -2222,6 +2222,7 @@ extension ALKConversationViewController {
 //MARK: - stockviva (ALKSVPinMessageViewDelegate)
 extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel) {
+        self.delegateConversationChatContentAction?.didPinMessageClicked()
         if self.isEnablePaidFeature() == false {
             self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
             return

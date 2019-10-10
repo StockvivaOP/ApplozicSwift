@@ -281,6 +281,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser() -> Bool
     func didPinMessageCloseButtonClicked()
+    func didPinMessageClicked()
 }
 
 public protocol ConversationChatBarActionDelegate: class{
