@@ -10,7 +10,7 @@ import UIKit
 
 class ALKSVMessageDetailViewController: ALKSVBaseMessageDetailViewController {
 
-    @IBOutlet weak var tvMessageContent: ALKTextView!
+    @IBOutlet weak var tvMessageContent: UITextView!
     var messageViewLinkClicked:((_ url:URL) -> Void)?
     
     override func viewDidLoad() {
@@ -25,6 +25,7 @@ class ALKSVMessageDetailViewController: ALKSVBaseMessageDetailViewController {
     
     func updateContent(){
         self.tvMessageContent.text = self.viewModel?.message ?? ""
+        self.tvMessageContent.contentSize = CGSize(width: self.tvMessageContent.bounds.size.width, height: CGFloat(MAXFLOAT) )
     }
     
 }
