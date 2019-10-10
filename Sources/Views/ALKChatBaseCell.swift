@@ -122,7 +122,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
             return true
         case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
-            return self.delegateCellRequestInfo?.isEnablePinMsgMenuItem() ?? false && self.isMyMessage()
+            return self.delegateCellRequestInfo?.isEnablePinMsgMenuItem() ?? false
         default:
             return false
         }
