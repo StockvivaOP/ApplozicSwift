@@ -1147,9 +1147,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         case .pinMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
             print("PinMsg selected")
             if let _chatGroupID = chatGroupHashID,
-                let _userID = userHashID,
                 let _model = viewModel {
-                self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, viewModel: _model, indexPath:indexPath)
+                self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
             }
             break;
         }
