@@ -2157,16 +2157,16 @@ extension ALKConversationViewController {
     }
     
     public func showPinMessageView(isHidden:Bool, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
-        guard let _viewModel = viewModel else {
-            if isHidden == false {
-                self.showPinMessageView(isHidden: true)
-            }
-            return
+        if let _viewModel = viewModel, isHidden == false {
+            self.pinMessageView.isHidden = isHidden
+            let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
+            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
+            self.pinMessageView.updateContent(userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
+        }else{
+            self.pinMessageView.isHidden = true
+            let height: CGFloat = 0
+            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
         }
-        self.pinMessageView.isHidden = isHidden
-        let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
-        self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-        self.pinMessageView.updateContent(userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
     }
     
     private func prepareDiscrimationView() {
