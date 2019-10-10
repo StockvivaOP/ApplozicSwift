@@ -215,6 +215,7 @@ public struct ALKConfiguration {
         case attachmentFileSizeOverLimit
         case attachmentUploadFailure
         case funcNeedPaid
+        case funcNeedPaidForPinMsg
     }
     
     /// delegate for get text from app

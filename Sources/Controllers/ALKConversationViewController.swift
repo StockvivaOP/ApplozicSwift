@@ -2158,7 +2158,9 @@ extension ALKConversationViewController {
     
     public func showPinMessageView(isHidden:Bool, viewModel: ALKMessageViewModel? = nil){
         guard let _viewModel = viewModel else {
-            self.showPinMessageView(isHidden: true)
+            if isHidden == false {
+                self.showPinMessageView(isHidden: true)
+            }
             return
         }
         self.pinMessageView.isHidden = isHidden
@@ -2224,7 +2226,7 @@ extension ALKConversationViewController {
 extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     func didPinMessageClicked(viewModel: ALKMessageViewModel) {
         if self.isEnablePaidFeature() == false {
-            self.requestToShowAlert(type: .funcNeedPaid)
+            self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
             return
         }
         //show message
