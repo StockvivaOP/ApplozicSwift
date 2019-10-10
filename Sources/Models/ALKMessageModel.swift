@@ -172,7 +172,7 @@ extension ALKMessageViewModel {
         
         var _resultJsonUtf8Str:String? = nil
         do {
-            let jsonData = try JSONSerialization.data(withJSONObject: _result, options: .prettyPrinted)
+            let jsonData = try JSONSerialization.data(withJSONObject: _result, options: [])
             _resultJsonUtf8Str = String(data: jsonData, encoding: String.Encoding.utf8)!
             NSLog("\(_resultJsonUtf8Str ?? "")")
         } catch {
