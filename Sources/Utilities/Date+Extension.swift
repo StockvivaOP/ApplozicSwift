@@ -50,14 +50,15 @@ extension Date {
 
     func toHHmmMMMddFormat() -> String {
         let _dateFormatter = DateFormatter()
+        _dateFormatter.dateFormat = "HH:mm MMM dd"
         //set locale name
         if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
             let _locale = Locale(identifier: _localeName)
             _dateFormatter.locale = _locale
+        }else{
+            _dateFormatter.locale = Locale.current
         }
         
-        let _dateFormat = DateFormatter.dateFormat(fromTemplate: "HH:mm MMM dd", options: 0, locale: Locale.current)
-        _dateFormatter.dateFormat = _dateFormat
         return _dateFormatter.string(from: self)
     }
 }
