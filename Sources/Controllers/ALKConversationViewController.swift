@@ -2182,21 +2182,22 @@ extension ALKConversationViewController {
         }
     }
     
-    private func presentMessageDetail(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
+    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
         let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
         var _presentVC:ALKSVBaseMessageDetailViewController?
-        if viewModel.messageType == .text {
+        let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
+        if _msgType == .text {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
                 _presentVC = _vc
             }
-        }else if viewModel.messageType == .photo {
+        }else if _msgType == .photo {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVImageMessageDetailViewController") as? ALKSVImageMessageDetailViewController {
                 _vc.downloadTapped = {[weak self] value in
                     self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
                 }
                 _presentVC = _vc
             }
-        }else if viewModel.messageType == .document {
+        }else if _msgType == .document {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVDocumentMessageDetailViewController") as? ALKSVDocumentMessageDetailViewController {
                 _vc.downloadTapped = {[weak self] value in
                     self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
@@ -2226,7 +2227,7 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
             return
         }
         //show message
-        self.presentMessageDetail(userName:userName, userIconUrl:userIconUrl, viewModel: viewModel)
+        self.presentMessageDetail(isPinMsg:true, userName:userName, userIconUrl:userIconUrl, viewModel: viewModel)
     }
     
     func closeButtonClicked(viewModel: ALKMessageViewModel) {

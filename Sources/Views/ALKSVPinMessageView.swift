@@ -118,11 +118,12 @@ open class ALKSVPinMessageView: UIView, Localizable {
         if self.conversationRequestInfoDelegate?.isEnablePaidFeature() == false {
             self.labTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_open_pin_msg_required_paid_user") ?? ""
         }else{
-            if viewModel.messageType == .document {
+            let _msgType = viewModel.getContentTypeForPinMessage()
+            if _msgType == .document {
                 self.labMessage.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_document") ?? ""
-            }else if viewModel.messageType == .photo {
+            }else if _msgType == .photo {
                 self.labMessage.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_photo") ?? ""
-            }else if viewModel.messageType == .text {
+            }else if _msgType == .text {
                 self.labMessage.text = _message
             }else{
                 self.labMessage.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_not_support") ?? ""

@@ -116,6 +116,10 @@ extension ALKMessageViewModel {
         return quickReplyArray
     }
     
+    public func getContentTypeForPinMessage() -> ALKMessageType{
+        return self.rawModel?.getAttachmentType() ?? .text
+    }
+    
     public func convertModelToPinMessageEncodedString() -> String? {
         guard let _rawMsgObject = self.rawModel else {
             return nil
