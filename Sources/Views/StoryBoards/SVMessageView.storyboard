@@ -97,7 +97,7 @@
                                                     <constraint firstAttribute="height" constant="1" id="7Pb-xy-hat"/>
                                                 </constraints>
                                             </view>
-                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" bouncesZoom="NO" editable="NO" text="..." textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6pa-Se-0Ua" customClass="ALKTextView" customModule="ApplozicSwift" customModuleProvider="target">
+                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" bouncesZoom="NO" editable="NO" text="..." textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="6pa-Se-0Ua" customClass="ALKTextView" customModule="ApplozicSwift" customModuleProvider="target">
                                                 <rect key="frame" x="10" y="70" width="250" height="336"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="textColor" red="0.1529411765" green="0.1529411765" blue="0.1529411765" alpha="1" colorSpace="calibratedRGB"/>
