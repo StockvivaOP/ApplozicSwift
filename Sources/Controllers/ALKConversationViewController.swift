@@ -2189,7 +2189,7 @@ extension ALKConversationViewController {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
                 _vc.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: _vc, isPushFromSourceView:true)
                     }
                 }
                 _presentVC = _vc

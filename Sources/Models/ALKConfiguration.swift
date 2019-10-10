@@ -274,7 +274,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?)
-    func openLink(url:URL, chatView:UIViewController)
+    func openLink(url:URL, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
     func getAdditionalSendMessageForAdmin() -> String?

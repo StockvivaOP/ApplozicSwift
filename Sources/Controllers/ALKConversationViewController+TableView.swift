@@ -43,7 +43,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.update(chatBar: self.chatBar)
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
@@ -70,7 +70,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
@@ -98,7 +98,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.update(chatBar: self.chatBar)
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
@@ -121,7 +121,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
