@@ -2155,12 +2155,12 @@ extension ALKConversationViewController {
         self.chatBar.hiddenBlockChatButton(!self.enableShowBlockChatMode)
     }
     
-    public func showPinMessageView(isHidden:Bool, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
+    public func showPinMessageView(isHidden:Bool, pinMsgUuid:String? = nil, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
         if let _viewModel = viewModel, isHidden == false {
             self.pinMessageView.isHidden = isHidden
             let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-            self.pinMessageView.updateContent(userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
+            self.pinMessageView.updateContent(pinMsgUuid:pinMsgUuid, userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
         }else{
             self.pinMessageView.isHidden = true
             let height: CGFloat = 0
@@ -2235,8 +2235,8 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
         self.presentMessageDetail(isPinMsg:true, userName:userName, userIconUrl:userIconUrl, viewModel: viewModel)
     }
     
-    func closeButtonClicked(viewModel: ALKMessageViewModel) {
-        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked()
+    func closeButtonClicked(pinMsgUuid:String?, viewModel: ALKMessageViewModel) {
+        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked(pinMsgUuid:pinMsgUuid)
     }
 }
 

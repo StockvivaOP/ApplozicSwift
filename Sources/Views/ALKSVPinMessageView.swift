@@ -10,7 +10,7 @@ import UIKit
 
 protocol ALKSVPinMessageViewDelegate : class {
     func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel)
-    func closeButtonClicked(viewModel: ALKMessageViewModel)
+    func closeButtonClicked(pinMsgUuid:String?, viewModel: ALKMessageViewModel)
 }
 
 open class ALKSVPinMessageView: UIView, Localizable {
@@ -55,6 +55,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
     }()
     
     //object
+    var pinMsgUuid:String?
     var userName:String?
     var userIconUrl:String?
     var delegate:ALKSVPinMessageViewDelegate?
@@ -108,8 +109,9 @@ open class ALKSVPinMessageView: UIView, Localizable {
         self.btnClose.heightAnchor.constraint(equalToConstant: _padding.closeButton.height).isActive = true
     }
     
-    func updateContent(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
+    func updateContent(pinMsgUuid:String?, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
         self.viewModel = viewModel
+        self.pinMsgUuid = pinMsgUuid
         let _date:Date = viewModel.date
         let _message:String = viewModel.message ?? ""
         
@@ -137,6 +139,6 @@ open class ALKSVPinMessageView: UIView, Localizable {
     }
     
     @objc private func closeButtonTouchUpInside(_ sender: UIButton) {
-        self.delegate?.closeButtonClicked(viewModel:self.viewModel)
+        self.delegate?.closeButtonClicked(pinMsgUuid: self.pinMsgUuid, viewModel:self.viewModel)
     }
 }
