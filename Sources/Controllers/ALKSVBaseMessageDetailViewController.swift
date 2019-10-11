@@ -10,6 +10,7 @@ import UIKit
 
 protocol ALKSVMessageDetailViewControllerDelegate : class {
     func didUserIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
+    func didMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel, isFromPinMessage:Bool)
 }
 
 class ALKSVBaseMessageDetailViewController: UIViewController {
@@ -19,6 +20,7 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
     
     var configuration: ALKConfiguration!
     var delegate:ALKSVMessageDetailViewControllerDelegate?
+    var isViewFromPinMessage:Bool = false
     var userName:String?
     var userIconUrl:String?
     var viewModel:ALKMessageViewModel?
@@ -30,6 +32,13 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
         self.findAndSetUpHeader()
         //set title
         self.labPageTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? ""
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if let _viewModel = self.viewModel {
+            self.delegate?.didMessageShow(sender: self, viewModel: _viewModel, isFromPinMessage: self.isViewFromPinMessage)
+        }
     }
     
     func findAndSetUpHeader(){

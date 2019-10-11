@@ -2212,6 +2212,7 @@ extension ALKConversationViewController {
         
         if let _pVC = _presentVC {
             _pVC.configuration = self.configuration
+            _pVC.isViewFromPinMessage = isPinMsg
             _pVC.userName = userName
             _pVC.userIconUrl = userIconUrl
             _pVC.viewModel = viewModel
@@ -2244,6 +2245,12 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
 extension ALKConversationViewController: ALKSVMessageDetailViewControllerDelegate {
     func didUserIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel) {
          self.delegateConversationChatContentAction?.didUserProfileIconClicked(sender:sender, viewModel:viewModel)
+    }
+    
+    func didMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel, isFromPinMessage:Bool) {
+        if isFromPinMessage {
+            self.delegateConversationChatContentAction?.didPinMessageShow(sender: sender, viewModel: viewModel)
+        }
     }
 }
 

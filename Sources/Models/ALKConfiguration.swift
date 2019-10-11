@@ -282,6 +282,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func isAdminUser() -> Bool
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
+    func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageClicked()
 }
 
