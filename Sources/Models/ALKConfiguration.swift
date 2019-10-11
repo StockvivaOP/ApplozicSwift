@@ -221,6 +221,9 @@ public struct ALKConfiguration {
     /// delegate for get text from app
     public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
     
+    /// delegate for logging from app
+    public static var delegateSystemLoggingRequestDelegate:SystemLoggingRequestDelegate?
+    
     /// If true, system can scroll to reply org message while click
     public var enableScrollToReplyViewWhenClick: Bool = false
     
@@ -317,6 +320,10 @@ public protocol ConversationCellRequestInfoDelegate: class{
 public protocol SystemTextLocalizableRequestDelegate: class{
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
+}
+
+public protocol SystemLoggingRequestDelegate: class{
+    func logging(isDebug:Bool, message:String)
 }
 
 extension ALKConfiguration {
