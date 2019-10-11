@@ -30,20 +30,20 @@ class ALKSVMessageDetailHeaderViewController: UIViewController {
     
     func setHeader(userName:String?, userIconUrl:String?, viewModel:ALKMessageViewModel){
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
-        if let url = viewModel.avatarURL {
+        if let urlStr = userIconUrl, let url = URL(string: urlStr), urlStr.isEmpty == false {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
             self.btnUserIcon.kf.setImage(with: resource, for: .normal, placeholder: placeHolder)
-        }else if let urlStr = userIconUrl, let url = URL(string: urlStr) {
+        } else if let url = viewModel.avatarURL {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
             self.btnUserIcon.kf.setImage(with: resource, for: .normal, placeholder: placeHolder)
-        } else {
+        }else {
             self.btnUserIcon.setImage(placeHolder, for: .normal)
         }
         
-        if let _displayName = viewModel.displayName, _displayName.isEmpty == false {
+        if let _displayName = userName, _displayName.isEmpty == false {
             self.labUserName.text = _displayName
         }else{
-            self.labUserName.text = userName ?? ""
+            self.labUserName.text = viewModel.displayName ?? ""
         }
         self.labMessageDate.text = viewModel.date.toHHmmMMMddFormat()
     }
