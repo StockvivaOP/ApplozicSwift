@@ -14,7 +14,7 @@ public class ImageContainer: UIView {
 
     fileprivate let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "placeholder", in: Bundle.richMessageKit, compatibleWith: nil)
+        imageView.image = UIImage(named: "rk_placeholder", in: Bundle.richMessageKit, compatibleWith: nil)
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 12
         imageView.clipsToBounds = true
@@ -131,7 +131,7 @@ public class ImageContainer: UIView {
         ImageCache.downloadImage(url: url) { [weak self] image in
             DispatchQueue.main.async {
                 guard let image = image else {
-                    self?.imageView.image = UIImage(named: "placeholder", in: Bundle.richMessageKit, compatibleWith: nil)
+                    self?.imageView.image = UIImage(named: "rk_placeholder", in: Bundle.richMessageKit, compatibleWith: nil)
                     return
                 }
                 self?.imageView.image = image
