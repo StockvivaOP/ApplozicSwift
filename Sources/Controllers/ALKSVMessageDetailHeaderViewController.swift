@@ -40,7 +40,11 @@ class ALKSVMessageDetailHeaderViewController: UIViewController {
             self.btnUserIcon.setImage(placeHolder, for: .normal)
         }
         
-        self.labUserName.text = viewModel.displayName ?? userName ?? ""
+        if let _displayName = viewModel.displayName, _displayName.isEmpty == false {
+            self.labUserName.text = _displayName
+        }else{
+            self.labUserName.text = userName ?? ""
+        }
         self.labMessageDate.text = viewModel.date.toHHmmMMMddFormat()
     }
     
