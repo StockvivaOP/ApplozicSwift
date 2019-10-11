@@ -113,6 +113,8 @@ open class ALKSVPinMessageView: UIView, Localizable {
     func updateContent(pinMsgUuid:String?, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
         self.viewModel = viewModel
         self.pinMsgUuid = pinMsgUuid
+        self.userName = userName
+        self.userIconUrl = userIconUrl
         let _date:Date = viewModel.date
         let _message:String = viewModel.message ?? ""
         
