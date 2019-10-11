@@ -9,7 +9,7 @@
 import UIKit
 
 protocol ALKSVMessageDetailViewControllerDelegate : class {
-    func didUserIconClicked(viewModel: ALKMessageViewModel)
+    func didUserIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
 }
 
 class ALKSVBaseMessageDetailViewController: UIViewController {
@@ -60,7 +60,7 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
 extension ALKSVBaseMessageDetailViewController : ALKSVMessageDetailHeaderViewControllerDelegate {
     func didUserIconClicked() {
         if let _viewModel = self.viewModel {
-            self.delegate?.didUserIconClicked(viewModel: _viewModel)
+            self.delegate?.didUserIconClicked(sender: self, viewModel: _viewModel)
         }
     }
 }

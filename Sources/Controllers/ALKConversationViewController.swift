@@ -2242,8 +2242,8 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
 
 //MARK: - stockviva (ALKSVMessageDetailViewControllerDelegate)
 extension ALKConversationViewController: ALKSVMessageDetailViewControllerDelegate {
-    func didUserIconClicked(viewModel: ALKMessageViewModel) {
-        //none action
+    func didUserIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel) {
+         self.delegateConversationChatContentAction?.didUserProfileIconClicked(sender:sender, viewModel:viewModel)
     }
 }
 

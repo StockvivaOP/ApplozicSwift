@@ -280,6 +280,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser() -> Bool
+    func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
     func didPinMessageClicked()
 }
