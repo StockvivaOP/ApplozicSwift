@@ -42,6 +42,7 @@ final class ALKMediaViewerViewController: UIViewController {
         let button = UIButton(type: .custom)
         let image = UIImage(named: "PLAY", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
+        button.isHidden = true
         return button
     }()
 
@@ -50,6 +51,7 @@ final class ALKMediaViewerViewController: UIViewController {
         let image = UIImage(named: "audioPlay", in: Bundle.applozic, compatibleWith: nil)
         button.imageView?.tintColor = UIColor.gray
         button.setImage(image, for: .normal)
+        button.isHidden = true
         return button
     }()
 
@@ -57,6 +59,7 @@ final class ALKMediaViewerViewController: UIViewController {
         let imageView = UIImageView(frame: .zero)
         imageView.image = UIImage(named: "mic", in: Bundle.applozic, compatibleWith: nil)
         imageView.contentMode = .scaleAspectFit
+        imageView.isHidden = true
         return imageView
     }()
     
