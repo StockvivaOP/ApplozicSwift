@@ -21,13 +21,13 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        userName.text = "azrY"
-//        password.text = "17808|1570066096|cb171a60583c1848e2aa868ee23c55ef"
-//        emailId.text = "oldpig.chu@moleculez.co"
-        
-        userName.text = "jLYO"
-        password.text = "17807|1570065515|701361ba5d718c5142465525946c519e"
+        userName.text = "azrY"
+        password.text = "17808|1571018786|33fc17e95145c62078e4d2b954946ccc"
         emailId.text = "oldpig.chu@moleculez.co"
+        
+//        userName.text = "jLYO"
+//        password.text = "17807|1570786584|4a0971cd25760a06361a029ec4fd209c"
+//        emailId.text = "oldpig.chu@moleculez.co"
         
         // Do any additional setup after loading the view.
         ALUserDefaultsHandler.setUserAuthenticationTypeId(1) // APPLOZIC

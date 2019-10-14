@@ -19,7 +19,7 @@ var APNS_TYPE_DEVELOPMENT : Int16 = 0
 var APNS_TYPE_DISTRIBUTION : Int16 = 1
 
 class ALChatManager: NSObject {
-    static let applicationId = "stockviva29b4e2e72cb571e0a283d501736793849"
+    static let applicationId = "17b4eea2e54056d3c360d6c055cde603e"
     static let shared = ALChatManager(applicationKey: ALChatManager.applicationId as NSString)
     
     var pushNotificationTokenData: Data? {
@@ -116,13 +116,8 @@ class ALChatManager: NSObject {
     }
     
     func defaultChatViewSettings() {
-        #if DEBUG
-        self.setApplicationBaseUrl(true)
-        ALApplozicSettings.enableS3StorageService(false)
-        #else
         self.setApplicationBaseUrl(false)
         ALApplozicSettings.enableS3StorageService(true)
-        #endif
         ALUserDefaultsHandler.setGoogleMapAPIKey("AIzaSyCOacEeJi-ZWLLrOtYyj3PKMTOFEG7HDlw") //REPLACE WITH YOUR GOOGLE MAPKEY
         ALApplozicSettings.setListOfViewControllers([ALKConversationListViewController.description(), ALKConversationViewController.description()])
         ALApplozicSettings.setFilterContactsStatus(true)
