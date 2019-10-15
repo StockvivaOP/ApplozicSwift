@@ -345,7 +345,12 @@ extension ALMessage {
                 return .document
             }
         }
-        return nil
+        return .document//when content type is nil
+    }
+    
+    func isInvalidAttachement() -> Bool {//if file is exist, but the content type is empty to null
+        guard let fileMeta = fileMeta else {return false}
+        return fileMeta.contentType == nil || fileMeta.contentType.isEmpty
     }
 
     private func richMessageType() -> ALKMessageType {

@@ -120,6 +120,10 @@ extension ALKMessageViewModel {
         return self.rawModel?.getAttachmentType() ?? .text
     }
     
+    func isInvalidAttachement() -> Bool {
+        return self.rawModel?.isInvalidAttachement() ?? false
+    }
+    
     public func convertModelToPinMessageEncodedString(myUserName:String? = nil, myUserIconUrl:String? = nil) -> String? {
         guard let _rawMsgObject = self.rawModel else {
             return nil

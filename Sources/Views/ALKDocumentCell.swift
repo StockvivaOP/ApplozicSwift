@@ -263,6 +263,13 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
     override func update(viewModel: ALKMessageViewModel) {
         self.viewModel = viewModel
         timeLabel.text = viewModel.time
+        
+        if self.viewModel?.isInvalidAttachement() == true {
+            fileNameLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_not_support") ?? ""
+            sizeAndFileType.text = ""
+            self.updateViewForInvlidAttachmentState()
+            return
+        }
 
         fileNameLabel.text = ALKFileUtils().getFileName(filePath: viewModel.filePath, fileMeta: viewModel.fileMetaInfo)
 
@@ -338,6 +345,32 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
     private func allowToShowDocument() -> Bool {
         return self.delegateCellRequestInfo?.isEnablePaidFeature() == true
+    }
+    
+    //for invlid attachment
+    func updateViewForInvlidAttachmentState(){
+        docImageView.image = UIImage(named: "icon_send_file", in: Bundle.applozic, compatibleWith: nil)
+        attachBgView.isHidden = true
+        docImageView.isHidden = false
+        downloadButton.isHidden = true
+        uploadButton.isHidden = true
+        progressView.isHidden = true
+        sizeAndFileType.isHidden = true
+        self.uploadTapped = nil
+        self.uploadCompleted = nil
+        self.downloadTapped = nil
+    }
+
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch self {
+        case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.isInvalidAttachement() == true {
+                return false
+            }
+            return true
+        default:
+            return super.canPerformAction(action, withSender: sender)
+        }
     }
 }
 
