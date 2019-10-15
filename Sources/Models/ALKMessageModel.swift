@@ -120,14 +120,19 @@ extension ALKMessageViewModel {
         return self.rawModel?.getAttachmentType() ?? .text
     }
     
-    public func convertModelToPinMessageEncodedString() -> String? {
+    public func convertModelToPinMessageEncodedString(myUserName:String? = nil, myUserIconUrl:String? = nil) -> String? {
         guard let _rawMsgObject = self.rawModel else {
             return nil
         }
         var _result = [String:AnyObject?]()
         _result["uuid"] = String(Date().timeIntervalSince1970 * 1000) as AnyObject?
-        _result["userName"] = self.displayName as AnyObject?
-        _result["userIconUrl"] = self.avatarURL?.absoluteString as AnyObject?
+        if self.isMyMessage {
+            _result["userName"] = myUserName as AnyObject?
+            _result["userIconUrl"] = myUserIconUrl as AnyObject?
+        }else{
+            _result["userName"] = self.displayName as AnyObject?
+            _result["userIconUrl"] = self.avatarURL?.absoluteString as AnyObject?
+        }
         
         var _resultMsg = [String:AnyObject?]()
         _resultMsg["type"] = _rawMsgObject.type as AnyObject?
