@@ -325,7 +325,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let minimumHeight = Padding.AvatarImage.top + Padding.AvatarImage.height + 5
         
         /// Calculating available width for messageView
-        let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left /*+ bubbleViewLeftPadding*/
+        let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left + Padding.MessageView.left /*+ bubbleViewLeftPadding*/
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.receivedBubble.widthPadding
         let messageWidth = width - (leftSpacing + rightSpacing)
         
