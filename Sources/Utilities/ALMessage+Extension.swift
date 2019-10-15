@@ -334,15 +334,18 @@ extension ALMessage {
 
     func getAttachmentType() -> ALKMessageType? {
         guard let fileMeta = fileMeta else {return nil}
-        if fileMeta.contentType.hasPrefix("image") {
-            return .photo
-        } else if fileMeta.contentType.hasPrefix("audio") {
-            return .voice
-        } else if fileMeta.contentType.hasPrefix("video") {
-            return .video
-        } else {
-            return .document
+        if let _contentType = fileMeta.contentType {
+            if _contentType.hasPrefix("image") {
+                return .photo
+            } else if _contentType.hasPrefix("audio") {
+                return .voice
+            } else if _contentType.hasPrefix("video") {
+                return .video
+            } else {
+                return .document
+            }
         }
+        return nil
     }
 
     private func richMessageType() -> ALKMessageType {
