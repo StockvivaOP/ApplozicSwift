@@ -158,6 +158,7 @@
                     </view>
                     <connections>
                         <outlet property="btnClose" destination="M10-NF-Ljg" id="BJ9-Qu-Ee4"/>
+                        <outlet property="imgPageIcon" destination="ZYq-78-o0I" id="6ky-1D-4ky"/>
                         <outlet property="labPageTitle" destination="SlY-Ak-2fe" id="p1S-Bq-Tnh"/>
                         <outlet property="tvMessageContent" destination="6pa-Se-0Ua" id="pv5-0Z-GgO"/>
                     </connections>
@@ -377,6 +378,7 @@
                         <outlet property="btnDownload" destination="dFi-Ab-LZQ" id="hHp-8T-uWT"/>
                         <outlet property="imgDownloadIndicator" destination="TFd-Jk-Zcq" id="v09-gM-WbU"/>
                         <outlet property="imgMessageFile" destination="HTI-aZ-iND" id="SlG-n6-auP"/>
+                        <outlet property="imgPageIcon" destination="ru2-gA-hEr" id="M89-h2-4Cd"/>
                         <outlet property="labPageTitle" destination="faO-Bp-MtS" id="h9k-5d-jAh"/>
                         <outlet property="tvCaptionContent" destination="dix-c9-mG9" id="0yO-4c-7Fv"/>
                         <outlet property="viewDLKGroup" destination="m7m-lJ-JUi" id="9HI-iG-6DE"/>
@@ -605,6 +607,7 @@
                         <outlet property="btnDownload" destination="TzU-av-trN" id="2h3-HY-mdq"/>
                         <outlet property="btnOpenFile" destination="bl8-so-zRz" id="21T-NG-JGN"/>
                         <outlet property="imgClipIcon" destination="ldU-QU-grX" id="A3A-cH-ViM"/>
+                        <outlet property="imgPageIcon" destination="Oez-eY-KhY" id="wCr-E9-YrA"/>
                         <outlet property="labFileName" destination="Dy7-0w-lvd" id="dkS-cZ-I7X"/>
                         <outlet property="labFileTypeInfo" destination="8wd-C2-GhZ" id="d7p-We-fbR"/>
                         <outlet property="labPageTitle" destination="l9n-yX-8WQ" id="0hE-JS-yCe"/>
@@ -721,6 +724,6 @@
         <image name="sv_icon_pin" width="24" height="24"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="CWL-U8-9dm"/>
+        <segue reference="5WQ-V0-NTO"/>
     </inferredMetricsTieBreakers>
 </document>

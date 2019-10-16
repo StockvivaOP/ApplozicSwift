@@ -50,7 +50,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     self?.menuItemSelected(action: action, message: message) }
                 cell.replyViewAction = {[weak self] in
                     if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.scrollTo(message: message)
+                        self?.didReplyClickedInCell(replyMessage: replyMessage)
                     }
                 }
                 return cell
@@ -77,7 +77,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     self?.menuItemSelected(action: action, message: message) }
                 cell.replyViewAction = {[weak self] in
                     if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.scrollTo(message: message)
+                        self?.didReplyClickedInCell(replyMessage: replyMessage)
                     }
                 }
                 return cell

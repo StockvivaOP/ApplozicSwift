@@ -2222,6 +2222,22 @@ extension ALKConversationViewController {
             self.present(_pVC, animated: true, completion: nil)
         }
     }
+    
+    func didReplyClickedInCell(replyMessage: ALKMessageViewModel){
+        var _userDisplayName:String? = nil
+        var _userIconUrl:String? = nil
+        if replyMessage.isMyMessage {
+            _userDisplayName = ALUserDefaultsHandler.getDisplayName()
+            _userIconUrl = ALUserDefaultsHandler.getProfileImageLinkFromServer()
+            if _userDisplayName == nil {
+                _userDisplayName = ""
+            }
+            if _userIconUrl == nil {
+                _userIconUrl = ""
+            }
+        }
+        self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: replyMessage)
+    }
 }
 
 //MARK: - stockviva (ALKSVPinMessageViewDelegate)
