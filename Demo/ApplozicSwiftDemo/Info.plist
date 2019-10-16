@@ -2,6 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>APPLOZIC_PRODUCTION</key>
+	<dict>
+		<key>AL_FILE_URL</key>
+		<string>https://sg.applozic.com</string>
+		<key>AL_KBASE_URL</key>
+		<string>https://sg.applozic.com</string>
+		<key>AL_MQTT_PORT</key>
+		<string>1883</string>
+		<key>AL_MQTT_URL</key>
+		<string>sg.applozic.com</string>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -20,8 +31,8 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-    <key>NSContactsUsageDescription</key>
-    <string>$(PRODUCT_NAME) use contact </string>
+	<key>NSContactsUsageDescription</key>
+	<string>$(PRODUCT_NAME) use contact </string>
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) camera use</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

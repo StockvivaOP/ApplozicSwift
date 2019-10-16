@@ -35,6 +35,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     /// needs to be send are defined here.
     enum MenuActionType {
         case reply
+        case appeal(chatGroupHashID:String?, userHashID:String?, messageID:String?, message:String?)
+        case pinMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     }
 
     /// It will be invoked when one of the actions
@@ -44,7 +46,11 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     func update(chatBar: ALKChatBar) {
         self.chatBar = chatBar
     }
-
+    
+    func isMyMessage() -> Bool {
+        return false
+    }
+    
     @objc func menuWillShow(_ sender: Any) {
         NotificationCenter.default.removeObserver(self, name: UIMenuController.willShowMenuNotification, object: nil)
     }
@@ -92,6 +98,10 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             if let appealMenu = getAppealMenuItem(appealItem: self) {
                 menus.append(appealMenu)
             }
+            
+            if let pinMsgMenu = getPinMsgMenuItem(pinMsgItem: self) {
+                menus.append(pinMsgMenu)
+            }
 
             menuController.menuItems = menus
             menuController.setTargetRect(gestureView.frame, in: superView)
@@ -111,6 +121,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             return self.delegateCellRequestInfo?.isEnableReplyMenuItem() ?? false
         case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
             return true
+        case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
+            return self.delegateCellRequestInfo?.isEnablePinMsgMenuItem() ?? false
         default:
             return false
         }
@@ -142,6 +154,15 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         let appealMenu = UIMenuItem(title: title, action: appealMenuItem.selector)
         return appealMenu
     }
+    
+    private func getPinMsgMenuItem(pinMsgItem: Any) -> UIMenuItem? {
+        guard let pinMsgMenuItem = pinMsgItem as? ALKPinMsgMenuItemProtocol else {
+            return nil
+        }
+        let title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin") ?? localizedString(forKey: "PinMsg", withDefaultValue: SystemMessage.LabelName.PinMsg, fileName: localizedStringFileName)
+        let pinMsgMenu = UIMenuItem(title: title, action: pinMsgMenuItem.selector)
+        return pinMsgMenu
+    }
 }
 
 // MARK: - ALKCopyMenuItemProtocol
@@ -167,7 +188,6 @@ extension ALKAppealMenuItemProtocol {
 }
 
 // MARK: - ALKReplyMenuItemProtocol
-
 @objc protocol ALKReplyMenuItemProtocol {
     func menuReply(_ sender: Any)
 }
@@ -175,6 +195,17 @@ extension ALKAppealMenuItemProtocol {
 extension ALKReplyMenuItemProtocol {
     var selector: Selector {
         return #selector(menuReply(_:))
+    }
+}
+
+// MARK: - ALKPinMsgMenuItemProtocol
+@objc protocol ALKPinMsgMenuItemProtocol {
+    func menuPinMsg(_ sender: Any)
+}
+
+extension ALKPinMsgMenuItemProtocol {
+    var selector: Selector {
+        return #selector(menuPinMsg(_:))
     }
 }
 

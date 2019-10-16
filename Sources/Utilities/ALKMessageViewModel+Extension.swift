@@ -12,8 +12,8 @@ enum AttachmentState {
     case downloading(progress: Double, totalCount: Int64)
     case downloaded(filePath: String)
     case upload
-    case uploading
-    case uploaded
+    case uploading(progress: Double, totalCount: Int64)
+    case uploaded(filePath: String)
 }
 
 extension ALKMessageViewModel {

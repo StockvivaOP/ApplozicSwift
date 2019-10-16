@@ -11,32 +11,44 @@ import Kingfisher
 import Applozic
 
 class ALKDocumentCell:ALKChatBaseCell<ALKMessageViewModel>,
-ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
+ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
     struct CommonPadding {
         
         struct DocumentView {
-            static let left: CGFloat = 23
+            static let left: CGFloat = 20
             static let height: CGFloat = 25
             static let width: CGFloat = 26
         }
 
         struct FileNameLabel {
-            static let top: CGFloat = 15
-            static let bottom: CGFloat = 15
+            static let top: CGFloat = 12
+            static let bottom: CGFloat = 12
             static let left: CGFloat = 10
+            static let right: CGFloat = 10
             static let height: CGFloat = 20
         }
 
         struct DownloadButton {
-            static let left: CGFloat = 10
+            static let top: CGFloat = 4.0
+            static let left: CGFloat = 20
             static let right: CGFloat = 5
-            static let height: CGFloat = 27
-            static let width: CGFloat = 27
+            static let height: CGFloat = 24
+            static let width: CGFloat = 24
         }
         struct FileTypeView {
-            static let bottom: CGFloat = 7
-            static let height: CGFloat = 15
+            static let bottom: CGFloat = 2
+            static let height: CGFloat = 14
+            static let width: CGFloat = 56
+            static let left: CGFloat = 7.0
+            static let right: CGFloat = 7.0
+        }
+        
+        struct AttachBgUIView {
+            static let top: CGFloat = 7.0
+            static let bottom: CGFloat = 7.0
+            static let left: CGFloat = 7.0
+            static let right: CGFloat = 7.0
         }
     }
 
@@ -54,7 +66,15 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
 
     var downloadButton: UIButton = {
         let button = UIButton()
-        let image = UIImage(named: "ic_alk_download", in: Bundle.applozic, compatibleWith: nil)
+        let image = UIImage(named: "DownloadiOS", in: Bundle.applozic, compatibleWith: nil)
+        button.isUserInteractionEnabled = true
+        button.setImage(image, for: .normal)
+        return button
+    }()
+    
+    var uploadButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "UploadiOS2", in: Bundle.applozic, compatibleWith: nil)
         button.isUserInteractionEnabled = true
         button.setImage(image, for: .normal)
         return button
@@ -81,9 +101,9 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     var sizeAndFileType: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
-        label.font = UIFont.systemFont(ofSize: 11)
-        label.textColor = UIColor.ALKSVGreyColor153()
-        label.textAlignment = .right
+        label.font = UIFont.systemFont(ofSize: 9)
+        label.textColor = UIColor.ALKSVGreyColor102()
+        label.textAlignment = .center
         label.isOpaque = true
         return label
     }()
@@ -98,6 +118,14 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     var frameUIView: UIView = {
         let uiView = UIView()
         uiView.backgroundColor = UIColor.clear
+        return uiView
+    }()
+    
+    var attachBgView: UIImageView = {
+        let uiView = UIImageView()
+        uiView.image = UIImage.init(named: "temp_chat_attachment_bg", in: Bundle.applozic, compatibleWith: nil)
+        uiView.backgroundColor = UIColor.clear
+        uiView.tintColor = UIColor.ALKSVGreyColor250()
         return uiView
     }()
 
@@ -123,11 +151,11 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
     
     func menuAppeal(_ sender: Any) {
-        if let _chatGroupID = self.clientChannelKey,
-            let _userID = self.viewModel?.contactId,
-            let _msgID = self.viewModel?.identifier {
-            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
-        }
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+    }
+    
+    func menuPinMsg(_ sender: Any) {
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
     }
 
     override func setupStyle() {
@@ -138,7 +166,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     override func setupViews() {
         super.setupViews()
 
-        contentView.addViewsForAutolayout(views: [bubbleView, frameUIView,downloadButton,fileNameLabel,docImageView,sizeAndFileType,frontView,progressView])
+        contentView.addViewsForAutolayout(views: [bubbleView, frameUIView, attachBgView, downloadButton, uploadButton, fileNameLabel,docImageView,sizeAndFileType,frontView,progressView])
 
         contentView.bringSubviewToFront(downloadButton)
         contentView.bringSubviewToFront(progressView)
@@ -150,39 +178,54 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         frontView.addGestureRecognizer(topToOpen)
 
         downloadButton.addTarget(self, action: #selector(self.downloadButtonAction(_:)), for: UIControl.Event.touchUpInside)
+        uploadButton.addTarget(self, action: #selector(self.uploadButtonAction(_:)), for: UIControl.Event.touchUpInside)
 
         frontView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
         frontView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
         frontView.leftAnchor.constraint(equalTo: bubbleView.leftAnchor).isActive = true
         frontView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
 
-        docImageView.centerYAnchor.constraint(equalTo: frameUIView.centerYAnchor).isActive = true
-        docImageView.leadingAnchor.constraint(equalTo: frameUIView.leadingAnchor, constant: CommonPadding.DocumentView.left).isActive = true
+        attachBgView.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.AttachBgUIView.top).isActive = true
+        attachBgView.bottomAnchor.constraint(equalTo: frameUIView.bottomAnchor, constant: -CommonPadding.AttachBgUIView.bottom).isActive = true
+        attachBgView.leftAnchor.constraint(equalTo: frameUIView.leftAnchor, constant: CommonPadding.AttachBgUIView.left).isActive = true
+        attachBgView.rightAnchor.constraint(equalTo: frameUIView.rightAnchor, constant: -CommonPadding.AttachBgUIView.right).isActive = true
+        
+        docImageView.centerYAnchor.constraint(equalTo: attachBgView.centerYAnchor).isActive = true
+        docImageView.leadingAnchor.constraint(equalTo: attachBgView.leadingAnchor, constant: CommonPadding.DocumentView.left).isActive = true
         docImageView.widthAnchor.constraint(equalToConstant: CommonPadding.DocumentView.width).isActive = true
         docImageView.heightAnchor.constraint(equalToConstant: CommonPadding.DocumentView.height).isActive = true
 
-        fileNameLabel.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.FileNameLabel.top).isActive = true
-        fileNameLabel.leadingAnchor.constraint(equalTo: docImageView.trailingAnchor, constant: CommonPadding.FileNameLabel.left).isActive = true
+        fileNameLabel.centerYAnchor.constraint(equalTo: attachBgView.centerYAnchor).isActive = true
         fileNameLabel.heightAnchor.constraint(equalToConstant: CommonPadding.FileNameLabel.height).isActive = true
-        self.fileNameTrailing = fileNameLabel.trailingAnchor.constraint(equalTo: downloadButton.leadingAnchor, constant: -CommonPadding.DownloadButton.left)
+        self.fileNameTrailing = fileNameLabel.trailingAnchor.constraint(equalTo: attachBgView.trailingAnchor, constant: -CommonPadding.FileNameLabel.right)
         self.fileNameTrailing?.isActive = true
 
-        downloadButton.centerYAnchor.constraint(equalTo: frameUIView.centerYAnchor).isActive = true
-        downloadButton.trailingAnchor.constraint(equalTo: frameUIView.trailingAnchor, constant: -CommonPadding.DownloadButton.right).isActive = true
+        downloadButton.topAnchor.constraint(equalTo: attachBgView.topAnchor, constant: CommonPadding.DownloadButton.top).isActive = true
+        downloadButton.leadingAnchor.constraint(equalTo: attachBgView.leadingAnchor, constant: CommonPadding.DownloadButton.left).isActive = true
         downloadButton.widthAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.width).isActive = true
         downloadButton.heightAnchor.constraint(equalToConstant: CommonPadding.DownloadButton.height).isActive = true
 
-        sizeAndFileType.topAnchor.constraint(equalTo: fileNameLabel.bottomAnchor).isActive = true
-        sizeAndFileType.leadingAnchor.constraint(equalTo: fileNameLabel.leadingAnchor).isActive = true
-        sizeAndFileType.trailingAnchor.constraint(equalTo: fileNameLabel.trailingAnchor).isActive = true
-        sizeAndFileType.bottomAnchor.constraint(equalTo: frameUIView.bottomAnchor, constant: -CommonPadding.FileTypeView.bottom).isActive = true
+        sizeAndFileType.topAnchor.constraint(equalTo: downloadButton.bottomAnchor).isActive = true
+        sizeAndFileType.centerXAnchor.constraint(equalTo: downloadButton.centerXAnchor).isActive = true
+        sizeAndFileType.trailingAnchor.constraint(equalTo: fileNameLabel.leadingAnchor, constant: -CommonPadding.FileTypeView.right).isActive = true
+        sizeAndFileType.bottomAnchor.constraint(equalTo: attachBgView.bottomAnchor, constant: -CommonPadding.FileTypeView.bottom).isActive = true
         sizeAndFileType.heightAnchor.constraint(equalToConstant: CommonPadding.FileTypeView.height).isActive = true
+        sizeAndFileType.widthAnchor.constraint(greaterThanOrEqualToConstant: CommonPadding.FileTypeView.width).isActive = true
 
+        uploadButton.topAnchor.constraint(equalTo: downloadButton.topAnchor).isActive = true
+        uploadButton.trailingAnchor.constraint(equalTo: downloadButton.trailingAnchor).isActive = true
+        uploadButton.heightAnchor.constraint(equalTo: downloadButton.widthAnchor).isActive = true
+        uploadButton.widthAnchor.constraint(equalTo: downloadButton.heightAnchor).isActive = true
+        
         progressView.topAnchor.constraint(equalTo: downloadButton.topAnchor).isActive = true
         progressView.trailingAnchor.constraint(equalTo: downloadButton.trailingAnchor).isActive = true
         progressView.heightAnchor.constraint(equalTo: downloadButton.widthAnchor).isActive = true
         progressView.widthAnchor.constraint(equalTo: downloadButton.heightAnchor).isActive = true
 
+    }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
     }
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
@@ -214,12 +257,19 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
     }
 
     class func commonHeightPadding() -> CGFloat {
-        return CommonPadding.FileNameLabel.top + CommonPadding.FileNameLabel.height + CommonPadding.FileTypeView.height + CommonPadding.FileTypeView.bottom
+        return CommonPadding.FileNameLabel.top + CommonPadding.FileNameLabel.height + CommonPadding.FileNameLabel.bottom + CommonPadding.FileTypeView.height + CommonPadding.FileTypeView.bottom
     }
 
     override func update(viewModel: ALKMessageViewModel) {
         self.viewModel = viewModel
         timeLabel.text = viewModel.time
+        
+        if self.viewModel?.isInvalidAttachement() == true {
+            fileNameLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_not_support") ?? ""
+            sizeAndFileType.text = ""
+            self.updateViewForInvlidAttachmentState()
+            return
+        }
 
         fileNameLabel.text = ALKFileUtils().getFileName(filePath: viewModel.filePath, fileMeta: viewModel.fileMetaInfo)
 
@@ -242,37 +292,85 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
         }
         downloadTapped?(true)
     }
+    
+    @objc private func uploadButtonAction(_ selector: UIButton) {
+        uploadTapped?(true)
+    }
 
     func updateView(for state: AttachmentState) {
         switch state {
         case .download:
+            docImageView.isHidden = true
             downloadButton.isHidden = false
+            uploadButton.isHidden = true
             progressView.isHidden = true
+            sizeAndFileType.isHidden = false
         case .downloaded(let filePath):
+            docImageView.isHidden = false
             downloadButton.isHidden = true
+            uploadButton.isHidden = true
             progressView.isHidden = true
+            sizeAndFileType.isHidden = true
             viewModel?.filePath = filePath
         case .downloading(let progress, _):
             // show progress bar
+            docImageView.isHidden = true
             downloadButton.isHidden = true
+            uploadButton.isHidden = true
             progressView.isHidden = false
+            sizeAndFileType.isHidden = false
             progressView.angle = progress
         case .upload:
+            docImageView.isHidden = true
             downloadButton.isHidden = true
+            uploadButton.isHidden = false
             progressView.isHidden = true
-        default:
-            print("Not handled")
-        }
-        
-        if downloadButton.isHidden && progressView.isHidden {
-            self.fileNameTrailing?.constant = CommonPadding.DownloadButton.left + CommonPadding.DownloadButton.right
-        }else{
-            self.fileNameTrailing?.constant = -CommonPadding.DownloadButton.left
+            sizeAndFileType.isHidden = false
+        case .uploading(let progress, _):
+            docImageView.isHidden = true
+            downloadButton.isHidden = true
+            uploadButton.isHidden = true
+            progressView.isHidden = false
+            sizeAndFileType.isHidden = false
+            progressView.angle = progress
+        case .uploaded(let filePath):
+            docImageView.isHidden = false
+            downloadButton.isHidden = true
+            uploadButton.isHidden = true
+            progressView.isHidden = true
+            sizeAndFileType.isHidden = true
+            viewModel?.filePath = filePath
         }
     }
 
     private func allowToShowDocument() -> Bool {
         return self.delegateCellRequestInfo?.isEnablePaidFeature() == true
+    }
+    
+    //for invlid attachment
+    func updateViewForInvlidAttachmentState(){
+        docImageView.image = UIImage(named: "icon_send_file", in: Bundle.applozic, compatibleWith: nil)
+        attachBgView.isHidden = true
+        docImageView.isHidden = false
+        downloadButton.isHidden = true
+        uploadButton.isHidden = true
+        progressView.isHidden = true
+        sizeAndFileType.isHidden = true
+        self.uploadTapped = nil
+        self.uploadCompleted = nil
+        self.downloadTapped = nil
+    }
+
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch self {
+        case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.isInvalidAttachement() == true {
+                return false
+            }
+            return true
+        default:
+            return super.canPerformAction(action, withSender: sender)
+        }
     }
 }
 
@@ -281,14 +379,14 @@ extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
     func dataUploaded(task: ALKUploadTask) {
         print("Data uploaded: \(task.totalBytesUploaded) out of total: \(task.totalBytesExpectedToUpload)")
         let progress = task.totalBytesUploaded.degree(outOf: task.totalBytesExpectedToUpload)
-        self.updateView(for: .downloading(progress: progress, totalCount: task.totalBytesExpectedToUpload))
+        self.updateView(for: .uploading(progress: progress, totalCount: task.totalBytesExpectedToUpload))
     }
 
     func dataUploadingFinished(task: ALKUploadTask) {
         print("Document CELL DATA UPLOADED FOR PATH: %@", viewModel?.filePath ?? "")
         if task.uploadError == nil && task.completed == true && task.filePath != nil {
             DispatchQueue.main.async {
-                self.updateView(for: .downloaded(filePath: task.filePath ?? ""))
+                self.updateView(for: .uploaded(filePath: task.filePath ?? ""))
             }
         } else {
             DispatchQueue.main.async {

@@ -15,7 +15,11 @@ open class ALKMyMessageButtonCell: ALKChatBaseCell<ALKMessageViewModel> {
         super.setupViews()
         setupConstraints()
     }
-
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
+    
     open func update(viewModel: ALKMessageViewModel, maxWidth: CGFloat) {
         self.viewModel = viewModel
         let messageWidth = maxWidth -

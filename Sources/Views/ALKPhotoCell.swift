@@ -17,7 +17,7 @@ protocol AttachmentDelegate {
 
 // MARK: - ALKPhotoCell
 class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
     var delegate: AttachmentDelegate?
 
@@ -262,6 +262,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             self.updateView(state: state)
         }
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     private func updateView(state: AttachmentState) {
         switch state {
@@ -274,7 +278,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             let path = docDirPath.appendingPathComponent(filePath)
             setPhotoViewImageFromFileURL(path)
             uploadButton.isHidden = false
-        case .uploaded:
+        case .uploaded(_):
             if activityIndicator.isAnimating {
                 activityIndicator.stopAnimating()
             }
@@ -282,7 +286,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             uploadButton.isHidden = true
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
-        case .uploading:
+        case .uploading(_, _):
             uploadButton.isHidden = true
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = false
@@ -373,7 +377,9 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     fileprivate func updateThumbnailPath(_ key: String, filePath: String) {
         let messageKey = ThumbnailIdentifier.removePrefix(from: key)
-        let dbMessage = ALMessageDBService().getMessageByKey("key", value: messageKey) as! DB_Message
+        guard let dbMessage = ALMessageDBService().getMessageByKey("key", value: messageKey) as? DB_Message else {
+            return
+        }
         dbMessage.fileMetaInfo.thumbnailFilePath = filePath
 
         let alHandler = ALDBHandler.sharedInstance()
@@ -395,13 +401,13 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
     
     func menuAppeal(_ sender: Any) {
-        if let _chatGroupID = self.clientChannelKey,
-            let _userID = self.viewModel?.contactId,
-            let _msgID = self.viewModel?.identifier {
-            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
-        }
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
     }
 
+    func menuPinMsg(_ sender: Any) {
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+    }
+    
     func setPhotoViewImageFromFileURL(_ fileURL: URL) {
         let provider = LocalFileImageDataProvider(fileURL: fileURL)
         photoView.kf.setImage(with: provider)
@@ -417,7 +423,8 @@ extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
         NSLog("Photo cell data uploading started for: %@", viewModel?.filePath ?? "")
         DispatchQueue.main.async {
             print("task filepath:: ", task.filePath ?? "")
-            self.updateView(for: .uploading)
+            let progress = task.totalBytesUploaded.degree(outOf: task.totalBytesExpectedToUpload)
+            self.updateView(for: .uploading(progress: progress, totalCount: task.totalBytesExpectedToUpload))
         }
     }
 
@@ -425,11 +432,13 @@ extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
         NSLog("Photo cell data uploaded for: %@", viewModel?.filePath ?? "")
         if task.uploadError == nil && task.completed == true && task.filePath != nil {
             DispatchQueue.main.async {
-                self.updateView(for: .uploaded)
+                self.updateView(for: .uploaded(filePath: task.filePath ?? ""))
             }
         } else {
             DispatchQueue.main.async {
                 self.updateView(for: .upload)
+                //show error
+                self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure)
             }
         }
     }

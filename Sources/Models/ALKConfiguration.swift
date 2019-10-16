@@ -215,10 +215,14 @@ public struct ALKConfiguration {
         case attachmentFileSizeOverLimit
         case attachmentUploadFailure
         case funcNeedPaid
+        case funcNeedPaidForPinMsg
     }
     
     /// delegate for get text from app
     public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
+    
+    /// delegate for logging from app
+    public static var delegateSystemLoggingRequestDelegate:SystemLoggingRequestDelegate?
     
     /// If true, system can scroll to reply org message while click
     public var enableScrollToReplyViewWhenClick: Bool = false
@@ -273,11 +277,16 @@ public protocol ConversationChatContentActionDelegate: class{
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?)
-    func openLink(url:URL, chatView:UIViewController)
+    func openLink(url:URL, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
+    func isAdminUser() -> Bool
+    func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
+    func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
+    func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
+    func didPinMessageClicked()
 }
 
 public protocol ConversationChatBarActionDelegate: class{
@@ -298,10 +307,12 @@ public protocol ChatBarRequestActionDelegate: class{
 
 public protocol ConversationMessageBoxActionDelegate: class{
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
+    func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
 }
 
 public protocol ConversationCellRequestInfoDelegate: class{
     func isEnableReplyMenuItem() -> Bool
+    func isEnablePinMsgMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
 }
@@ -309,6 +320,10 @@ public protocol ConversationCellRequestInfoDelegate: class{
 public protocol SystemTextLocalizableRequestDelegate: class{
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
+}
+
+public protocol SystemLoggingRequestDelegate: class{
+    func logging(isDebug:Bool, message:String)
 }
 
 extension ALKConfiguration {

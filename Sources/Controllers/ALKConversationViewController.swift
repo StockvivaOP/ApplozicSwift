@@ -95,6 +95,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         static let contextTitleView = "contextTitleView"
         static let replyMessageViewHeight = "replyMessageViewHeight"
         static let discrimationViewHeight = "discrimationViewHeight"
+        static let pinMessageView = "pinMessageView"
     }
 
     fileprivate enum Padding {
@@ -103,6 +104,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             static let height: CGFloat = 100.0
         }
         enum ReplyMessageView {
+            static let height: CGFloat = 50.0
+        }
+        enum PinMessageView {
             static let height: CGFloat = 50.0
         }
     }
@@ -149,6 +153,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.backgroundColor = UIColor.ALKSVGreyColor250()
         return view
     }()
+    
+    lazy open var pinMessageView: ALKSVPinMessageView = {
+        let view = ALKSVPinMessageView(frame: CGRect.zero, configuration: configuration)
+        view.delegate = self
+        view.conversationRequestInfoDelegate = self
+        view.isHidden = true
+        return view
+    }()
 
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
     
@@ -168,6 +180,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     public var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
+    private var isViewFirstLoad: Bool = true
     private var isAutoRefreshMessage: Bool = false
     open var discrimationView: UIButton = {
         let view = UIButton()
@@ -340,9 +353,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 guard let profile = profile else { return }
                 weakSelf.navigationBar.updateView(profile: profile)
             })
-            self?.subscribeChannelToMqtt()
-            if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
-                self?.isAutoRefreshMessage = true
+            if self?.isViewFirstLoad == false {
+                self?.subscribeChannelToMqtt()
+                if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
+                    self?.isAutoRefreshMessage = true
+                }
             }
         }
 
@@ -350,7 +365,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
             weakSelf.viewModel.sendKeyboardDoneTyping()
             self?.isAutoRefreshMessage = false
-            self?.unsubscribingChannel()
+            if self?.isViewFirstLoad == false {
+                self?.unsubscribingChannel()
+            }
         }
     }
 
@@ -411,6 +428,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
         configureView()
         contentOffsetDictionary = Dictionary<NSObject,AnyObject>()
+        self.isViewFirstLoad = false
         print("id: ", viewModel.messageModels.first?.contactId as Any)
     }
 
@@ -419,6 +437,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewDidLoad() {
         super.viewDidLoad()
+        self.isViewFirstLoad = true
         setupConstraints()
         //tag: stockviva
         self.tableView.scrollsToTop = false
@@ -427,6 +446,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         //tag: on / off join group button
         self.enableJoinGroupButton(self.enableShowJoinGroupMode)
         self.enableBlockChatButton(self.enableShowBlockChatMode)
+        self.showPinMessageView(isHidden: true)
         self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
@@ -561,7 +581,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
 
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, replyMessageView, discrimationView]
+        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, replyMessageView, pinMessageView, discrimationView]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -582,7 +602,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         templateView?.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -10.0).isActive = true
         templateView?.heightAnchor.constraint(equalToConstant: 45).isActive = true
 
-        tableView.topAnchor.constraint(equalTo: contextTitleView.bottomAnchor).isActive = true
+        pinMessageView.topAnchor.constraint(equalTo: contextTitleView.topAnchor).isActive = true
+        pinMessageView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
+        pinMessageView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
+        pinMessageView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.pinMessageView).isActive = true
+        
+        tableView.topAnchor.constraint(equalTo: pinMessageView.bottomAnchor).isActive = true
         tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: (templateView != nil) ? templateView!.topAnchor:discrimationView.topAnchor).isActive = true
@@ -1110,6 +1135,22 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             viewModel.setSelectedMessageToReply(message)
             replyMessageView.update(message: message)
             showReplyMessageView()
+            break;
+        case .appeal(let chatGroupHashID, let userHashID, let messageID, let message):
+            print("Appeal selected")
+            if let _chatGroupID = chatGroupHashID,
+                let _userID = userHashID,
+                let _msgID = messageID {
+                self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:message)
+            }
+            break;
+        case .pinMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
+            print("PinMsg selected")
+            if let _chatGroupID = chatGroupHashID,
+                let _model = viewModel {
+                self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
+            }
+            break;
         }
     }
 
@@ -2114,6 +2155,19 @@ extension ALKConversationViewController {
         self.chatBar.hiddenBlockChatButton(!self.enableShowBlockChatMode)
     }
     
+    public func showPinMessageView(isHidden:Bool, pinMsgUuid:String? = nil, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
+        if let _viewModel = viewModel, isHidden == false {
+            self.pinMessageView.isHidden = isHidden
+            let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
+            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
+            self.pinMessageView.updateContent(pinMsgUuid:pinMsgUuid, userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
+        }else{
+            self.pinMessageView.isHidden = true
+            let height: CGFloat = 0
+            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
+        }
+    }
+    
     private func prepareDiscrimationView() {
         self.discrimationView.addTarget(self, action: #selector(discrimationToucUpInside(_:)), for: .touchUpInside)
         if let _discInfo = self.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
@@ -2124,6 +2178,78 @@ extension ALKConversationViewController {
             self.discrimationView.isHidden = true
             self.discrimationViewHeightConstraint?.constant = 0
             self.discrimationView.setTitle("", for: .normal)
+        }
+    }
+    
+    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
+        let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
+        var _presentVC:ALKSVBaseMessageDetailViewController?
+        let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
+        if _msgType == .text {
+            if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
+                _vc.messageViewLinkClicked = { (url) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: _vc, isPushFromSourceView:true)
+                    }
+                }
+                _presentVC = _vc
+            }
+        }else if _msgType == .photo {
+            if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVImageMessageDetailViewController") as? ALKSVImageMessageDetailViewController {
+                _vc.downloadTapped = {[weak self] value in
+                    self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
+                }
+                _presentVC = _vc
+            }
+        }else if _msgType == .document {
+            if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVDocumentMessageDetailViewController") as? ALKSVDocumentMessageDetailViewController {
+                _vc.downloadTapped = {[weak self] value in
+                    self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
+                }
+                _presentVC = _vc
+            }
+        }
+        
+        if let _pVC = _presentVC {
+            _pVC.configuration = self.configuration
+            _pVC.isViewFromPinMessage = isPinMsg
+            _pVC.userName = userName
+            _pVC.userIconUrl = userIconUrl
+            _pVC.viewModel = viewModel
+            _pVC.delegate = self
+            _pVC.modalPresentationStyle = .overCurrentContext
+            _pVC.modalTransitionStyle = .crossDissolve
+            self.present(_pVC, animated: true, completion: nil)
+        }
+    }
+}
+
+//MARK: - stockviva (ALKSVPinMessageViewDelegate)
+extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
+    func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel) {
+        self.delegateConversationChatContentAction?.didPinMessageClicked()
+        if self.isEnablePaidFeature() == false {
+            self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
+            return
+        }
+        //show message
+        self.presentMessageDetail(isPinMsg:true, userName:userName, userIconUrl:userIconUrl, viewModel: viewModel)
+    }
+    
+    func closeButtonClicked(pinMsgUuid:String?, viewModel: ALKMessageViewModel) {
+        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked(pinMsgUuid:pinMsgUuid)
+    }
+}
+
+//MARK: - stockviva (ALKSVMessageDetailViewControllerDelegate)
+extension ALKConversationViewController: ALKSVMessageDetailViewControllerDelegate {
+    func didUserIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel) {
+         self.delegateConversationChatContentAction?.didUserProfileIconClicked(sender:sender, viewModel:viewModel)
+    }
+    
+    func didMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel, isFromPinMessage:Bool) {
+        if isFromPinMessage {
+            self.delegateConversationChatContentAction?.didPinMessageShow(sender: sender, viewModel: viewModel)
         }
     }
 }
@@ -2215,6 +2341,10 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     
     public func isEnablePaidFeature() -> Bool {
         return self.conversationType == .free || ( self.conversationType == .paid && self.isUserPaid )
+    }
+    
+    public func isEnablePinMsgMenuItem() -> Bool {
+        return self.delegateConversationChatContentAction?.isAdminUser() ?? false
     }
     
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){

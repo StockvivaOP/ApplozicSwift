@@ -38,11 +38,12 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
@@ -60,6 +61,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.avatarTapped = {[weak self] in
@@ -68,7 +70,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
@@ -91,11 +93,12 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, replyMessage: nil)
                 cell.update(chatBar: self.chatBar)
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
@@ -109,6 +112,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, replyMessage: nil)
                 cell.update(chatBar: self.chatBar)
                 cell.avatarTapped = {[weak self] in
@@ -117,7 +121,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, chatView: self)
+                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
                     }
                 }
                 cell.menuAction = {[weak self] action in
@@ -136,6 +140,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     // Set the value to nil so that previous image gets removed before reuse
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                    cell.indexPath = indexPath
                     cell.photoView.image = nil
                     cell.update(viewModel: message)
                     cell.uploadTapped = {[weak self]
@@ -163,6 +168,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateCellRequestInfo = self
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                    cell.indexPath = indexPath
                     cell.update(viewModel: message)
                     cell.uploadCompleted = {[weak self]
                         responseDict in
@@ -181,6 +187,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateCellRequestInfo = self
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                    cell.indexPath = indexPath
                     cell.update(viewModel: message)
                     cell.downloadTapped = {[weak self]
                         value in
@@ -202,6 +209,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateCellRequestInfo = self
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                    cell.indexPath = indexPath
                     cell.update(viewModel: message)
                     cell.delegate = self
                     return cell
@@ -219,6 +227,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.downloadTapped = {[weak self] value in
                     self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
                 }
@@ -234,6 +243,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.downloadTapped = {[weak self] value in
                     self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
                 }
@@ -255,6 +265,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message)
                 cell.setDelegate(locDelegate: self)
                 cell.menuAction = {[weak self] action in
@@ -268,6 +279,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message)
                 cell.setDelegate(locDelegate: self)
                 cell.avatarTapped = {[weak self] in
@@ -291,6 +303,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message)
                 cell.uploadTapped = {[weak self]
                     value in
@@ -316,6 +329,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message)
                 cell.downloadTapped = {[weak self]
                     value in
@@ -338,6 +352,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.register(cell: ALKGenericCardCell.self)
                 cell.update(viewModel: message, width: UIScreen.main.bounds.width)
                 cell.menuAction = {[weak self] action in
@@ -350,6 +365,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.register(cell: ALKGenericCardCell.self)
                 cell.update(viewModel: message, width: UIScreen.main.bounds.width)
                 cell.menuAction = {[weak self] action in
@@ -381,6 +397,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
                 cell.update(chatBar: self.chatBar)
                 return cell
@@ -391,6 +408,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
                 cell.update(chatBar: self.chatBar)
                 guard let template = message.payloadFromMetadata() else {
@@ -418,6 +436,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
                 cell.update(chatBar: self.chatBar)
                 return cell
@@ -428,6 +447,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
                 cell.update(chatBar: self.chatBar)
                 cell.buttonView.buttonSelected = {[weak self] index, title in
@@ -448,6 +468,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
                 cell.update(chatBar: self.chatBar)
                 return cell
@@ -458,6 +479,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message, maxWidth: UIScreen.main.bounds.width)
                 cell.update(chatBar: self.chatBar)
                 cell.templateSelected = { [weak self] defaultText, action in
@@ -474,6 +496,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
 
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
@@ -501,6 +524,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message)
                 cell.update(chatBar: self.chatBar)
                 cell.menuAction = {[weak self] action in
@@ -528,6 +552,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message)
                 if let filePath = message.filePath {
                     cell.updateContactDetails(key: message.identifier, filePath: filePath)
@@ -547,6 +572,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateCellRequestInfo = self
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
                 cell.update(viewModel: message)
                 if let filePath = message.filePath {
                     cell.updateContactDetails(key: message.identifier, filePath: filePath)

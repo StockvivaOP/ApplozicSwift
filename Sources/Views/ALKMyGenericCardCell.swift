@@ -85,7 +85,11 @@ open class ALKGenericCardBaseCell: ALKChatBaseCell<ALKMessageViewModel> {
         let collectionViewHeight = ALKGenericCardCollectionView.rowHeightFor(message:viewModel, width:width)
         collectionView.constraint(withIdentifier: ConstraintIdentifier.collectionView.rawValue)?.constant = collectionViewHeight
     }
-
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
+    
     public class func cardHeightFor(message: ALKMessageViewModel, width: CGFloat) -> CGFloat {
         let cardHeight = ALKGenericCardCollectionView.rowHeightFor(message:message, width:width)
         return cardHeight + cardTopPadding

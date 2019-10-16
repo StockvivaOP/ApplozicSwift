@@ -450,7 +450,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         return nil
     }
 
-    open func downloadAttachment(message: ALKMessageViewModel, view: UIView) {
+    open func downloadAttachment(message: ALKMessageViewModel, view: UIView? = nil, viewController: UIViewController? = nil) {
         guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
             let notificationView = ALNotificationView()
             notificationView.noDataConnectionNotificationView()
@@ -459,7 +459,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         /// For email attachments url is to be used directly
         if message.source == emailSourceType, let url = message.fileMetaInfo?.url {
             let httpManager = ALKHTTPManager()
-            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate
+            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate ?? viewController as? ALKHTTPManagerDownloadDelegate
             let task = ALKDownloadTask(downloadUrl: url, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
@@ -472,7 +472,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 return
             }
             let httpManager = ALKHTTPManager()
-            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate
+            httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate ?? viewController as? ALKHTTPManagerDownloadDelegate
             let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
@@ -1245,18 +1245,24 @@ open class ALKConversationViewModel: NSObject, Localizable {
         fetchOpenGroupMessages(time: nil, contactId: contactId, channelKey: channelKey, completion: {
             messageList in
             guard let messages = messageList else {
+                ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessages - no message list")
                 self.delegate?.loadingFinished(error: nil)
                 return
             }
             let sortedArray = messages.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
-            guard !sortedArray.isEmpty else { return }
+            guard !sortedArray.isEmpty else {
+                ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessages - cannot sort array")
+                return
+            }
             self.alMessages = sortedArray
             self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: sortedArray))
             let models = sortedArray.map { $0.messageModel }
             self.messageModels = models
             if self.isFirstTime {
+                ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessages - successful with first load list count \(self.messageModels.count) ")
                 self.delegate?.loadingFinished(error: nil)
             } else {
+                ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessages - successful with update list count  \(self.messageModels.count) ")
                 self.delegate?.messageUpdated()
             }
         })
@@ -1268,9 +1274,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
             time = (messageList.firstObject as! ALMessage).createdAtTime
         }
         NSLog("Last time: \(String(describing: time))")
+        ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierMessagesForOpenGroup - time: \(String(describing: time))")
         fetchOpenGroupMessages(time: time, contactId: contactId, channelKey: channelKey, completion: {
             messageList in
             guard let newMessages = messageList else {
+                ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierMessagesForOpenGroup - no message list")
                 self.delegate?.loadingFinished(error: nil)
                 return
             }
@@ -1283,6 +1291,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 self.alMessages.insert(mesg, at: 0)
                 self.messageModels.insert(mesg.messageModel, at: 0)
             }
+            ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierMessagesForOpenGroup - successful list count  \(self.messageModels.count) ")
             self.delegate?.loadingFinished(error: nil)
         })
     }
@@ -1469,9 +1478,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
         messageClientService.getMessageList(forUser: messageListRequest, withCompletion: {
             messages, error, userDetailsList in
 
+            if let _error = error {
+                ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - have error \(_error.localizedDescription) ")
+            }
+            
             let contactDbService = ALContactDBService()
             contactDbService.addUserDetails(userDetailsList)
             guard var alMessages = messages as? [ALMessage] else {
+                ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no message list")
                 completion(nil)
                 return
             }
@@ -1501,12 +1515,15 @@ let dbMessage = messageDbService.getMessageByKey("key", value: message.identifie
             }
             if !replyMessageKeys.isEmpty {
                 ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
-                    guard let replyMessages = replyMessages as? [ALMessage] else { return }
-                    for message in replyMessages {
-                        let contactId = message.to ?? ""
-                        if !contactService.isContactExist(contactId) {
-                            contactsNotPresent.append(contactId)
+                    if let replyMessages = replyMessages as? [ALMessage] {
+                        for message in replyMessages {
+                            let contactId = message.to ?? ""
+                            if !contactService.isContactExist(contactId) {
+                                contactsNotPresent.append(contactId)
+                            }
                         }
+                    }else{
+                        ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no reply message with key \(replyMessageKeys)")
                     }
                     self.processContacts(contactsNotPresent, completion: {
                         completion(alMessages)

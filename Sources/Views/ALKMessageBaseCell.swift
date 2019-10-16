@@ -18,7 +18,7 @@ class ALKImageView: UIImageView {
     }
 }
 
-open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
+open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
     /// Dummy view required to calculate height for normal text.
     fileprivate static var dummyMessageView: ALKTextView = {
@@ -218,7 +218,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.backgroundColor = UIColor.clear
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             //set color
-            if let _messageUserId = viewModel.receiverId,
+            if let _messageUserId = replyMessage?.receiverId,
                 let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
                 replyNameLabel.textColor = _userColor
                 replyIndicatorView.tintColor = _userColor
@@ -229,7 +229,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.image = nil
             //set color
-            if let _messageUserId = viewModel.receiverId,
+            if let _messageUserId = replyMessage?.receiverId,
                 let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
                 replyNameLabel.textColor = _userColor
                 replyIndicatorView.backgroundColor = _userColor
@@ -293,7 +293,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         super.setupStyle()
         //timeLabel.setStyle(ALKMessageStyle.time)
     }
-
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
+    
     class func messageHeight(viewModel: ALKMessageViewModel,
                              width: CGFloat,
                              font: UIFont) -> CGFloat {
@@ -339,11 +343,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     }
     
     func menuAppeal(_ sender: Any) {
-        if let _chatGroupID = self.clientChannelKey,
-            let _userID = self.viewModel?.contactId,
-            let _msgID = self.viewModel?.identifier {
-            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
-        }
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+    }
+    
+    func menuPinMsg(_ sender: Any) {
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
     }
 
     func menuReply(_ sender: Any) {

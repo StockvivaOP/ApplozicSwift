@@ -45,6 +45,7 @@ extension UIStoryboard {
         case picker = "CustomPicker"
         case mediaViewer = "MediaViewer"
         case mapView = "MapView"
+        case svMessageDetailView = "SVMessageView"
     }
 
     convenience init(storyboard: Storyboard, bundle: Bundle? = nil) {

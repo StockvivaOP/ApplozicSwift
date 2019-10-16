@@ -313,8 +313,8 @@ open class ALKMyMessageCell: ALKMessageCell {
                         width: CGFloat,
                         replyMessage: ALKMessageViewModel?) -> CGFloat {
         /// Calculating messageHeight
-        let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.widthPadding
-        let rightSpacing = Padding.BubbleView.right /*+ bubbleViewRightPadding*/
+        let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.leftPadding
+        let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.sentBubble.widthPadding /*+ bubbleViewRightPadding*/
         let messageWidth = width - (leftSpacing + rightSpacing)
         let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.sentMessage.font)
         var heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + Padding.MessageView.bottom + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
@@ -348,7 +348,6 @@ open class ALKMyMessageCell: ALKMessageCell {
         
         
         return totalHeight + _replyViewHeightInfo.replyViewHeight
-        //return totalHeight + Padding.ReplyView.height
     }
 
     private func handleReplyView(replyMessage: ALKMessageViewModel?) {

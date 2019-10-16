@@ -11,7 +11,7 @@ import Applozic
 import AVKit
 
 class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
     var delegate: AttachmentDelegate?
 
@@ -124,6 +124,10 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         guard let state = viewModel.attachmentState() else { return }
         updateView(for: state)
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     @objc func actionTapped(button: UIButton) {
         button.isEnabled = false
@@ -194,13 +198,13 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
     
     func menuAppeal(_ sender: Any) {
-        if let _chatGroupID = self.clientChannelKey,
-            let _userID = self.viewModel?.contactId,
-            let _msgID = self.viewModel?.identifier {
-            self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:self.viewModel?.message)
-        }
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
     }
 
+    func menuPinMsg(_ sender: Any) {
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+    }
+    
     @objc private func downloadButtonAction(_ selector: UIButton) {
         downloadTapped?(true)
     }

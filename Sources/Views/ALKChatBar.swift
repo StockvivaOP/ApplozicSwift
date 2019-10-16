@@ -259,10 +259,12 @@ open class ALKChatBar: UIView, Localizable {
     var isMediaViewHidden = false {
         didSet {
             if isMediaViewHidden {
+                self.backgroundColor = UIColor.white
                 bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 0
                 attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 0
 
             } else {
+                self.backgroundColor = self.bottomGrayView.backgroundColor
                 bottomGrayView.constraint(withIdentifier: ConstraintIdentifier.mediaBackgroudViewHeight.rawValue)?.constant = 45
                 attachmentButtonStackView.constraint(withIdentifier: ConstraintIdentifier.mediaStackViewHeight.rawValue)?.constant = 45
             }
@@ -497,7 +499,7 @@ open class ALKChatBar: UIView, Localizable {
             }
         }
 
-        let buttonSize = CGSize(width: 25, height: 25)
+        let buttonSize = CGSize(width: 30, height: 30)
         let attachmentButtons = buttonsForOptions(chatBarConfiguration.optionsToShow)
         attachmentButtons.forEach { attachmentButtonStackView.addArrangedSubview($0) }
         attachmentButtonStackView.spacing = buttonSpacing
@@ -765,7 +767,7 @@ open class ALKChatBar: UIView, Localizable {
         func setup(
             image: UIImage?,
             to button: UIButton,
-            withSize size: CGSize = CGSize(width: 25, height: 25)) {
+            withSize size: CGSize = CGSize(width: 30, height: 30)) {
 
             var image = image?.imageFlippedForRightToLeftLayoutDirection()
             image = image?.scale(with: size)
@@ -793,7 +795,6 @@ open class ALKChatBar: UIView, Localizable {
     public func showJoinGroupButton(title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?){
         self.joinGroupView.isHidden = false
         self.updateMediaViewVisibility(hide: true)
-        self.backgroundColor = UIColor.white
         self.joinGroupButton.setTitle(title ?? "", for: .normal)
         self.joinGroupButton.backgroundColor = backgroundColor
         self.joinGroupButton.setTextColor(color: textColor, forState: .normal)
@@ -801,17 +802,18 @@ open class ALKChatBar: UIView, Localizable {
             self.joinGroupButton.setImage(_img, for: .normal)
         }
         self.checkVisableAttachmentToolBar()
+        self.backgroundColor = UIColor.white
         //on, off join button
         self.delegate?.chatBarRequestIsHiddenJoinGroupButton(chatBar: self, isHidden:false)
     }
     
     public func hiddenJoinGroupButton(){
         self.updateMediaViewVisibility()
-        self.backgroundColor = UIColor.ALKSVGreyColor250()
         self.joinGroupView.isHidden = true
         self.joinGroupButton.setTitle("", for: .normal)
         self.joinGroupButton.setImage(nil, for: .normal)
         self.checkVisableAttachmentToolBar()
+        self.backgroundColor = UIColor.ALKSVGreyColor250()
         //on, off join button
         self.delegate?.chatBarRequestIsHiddenJoinGroupButton(chatBar: self, isHidden:true)
     }

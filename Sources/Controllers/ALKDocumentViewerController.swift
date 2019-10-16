@@ -27,6 +27,7 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.addBackButtonNavigation()
         activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
         activityIndicator.color = UIColor.gray
         view.addSubview(activityIndicator)
@@ -59,4 +60,17 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
         activityIndicator.stopAnimating()
     }
 
+    func addBackButtonNavigation(){
+        if self.navigationController?.viewControllers.count == 1 &&
+            self.navigationController?.viewControllers.first is ALKDocumentViewerController {
+            let _backImage = UIImage.init(named: "icon_back", in: Bundle.applozic, compatibleWith: nil)
+            navigationItem.leftBarButtonItem = UIBarButtonItem.init(image: _backImage, style: .plain, target: self , action: #selector(backViewAction(_:)))
+        }
+    }
+    
+    @objc private func backViewAction(_ sender: UIBarButtonItem) {
+        if self.navigationController?.popViewController(animated: true) == nil {
+            self.navigationController?.dismiss(animated: true, completion: nil)
+        }
+    }
 }

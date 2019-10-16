@@ -334,15 +334,23 @@ extension ALMessage {
 
     func getAttachmentType() -> ALKMessageType? {
         guard let fileMeta = fileMeta else {return nil}
-        if fileMeta.contentType.hasPrefix("image") {
-            return .photo
-        } else if fileMeta.contentType.hasPrefix("audio") {
-            return .voice
-        } else if fileMeta.contentType.hasPrefix("video") {
-            return .video
-        } else {
-            return .document
+        if let _contentType = fileMeta.contentType {
+            if _contentType.hasPrefix("image") {
+                return .photo
+            } else if _contentType.hasPrefix("audio") {
+                return .voice
+            } else if _contentType.hasPrefix("video") {
+                return .video
+            } else {
+                return .document
+            }
         }
+        return .document//when content type is nil
+    }
+    
+    func isInvalidAttachement() -> Bool {//if file is exist, but the content type is empty to null
+        guard let fileMeta = fileMeta else {return false}
+        return fileMeta.contentType == nil || fileMeta.contentType.isEmpty
     }
 
     private func richMessageType() -> ALKMessageType {
@@ -403,6 +411,7 @@ extension ALMessage {
         messageModel.isReplyMessage = isAReplyMessage()
         messageModel.metadata = metadata as? Dictionary<String, Any>
         messageModel.source = source
+        messageModel.rawModel = self
         return messageModel
     }
 }

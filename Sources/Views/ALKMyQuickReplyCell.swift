@@ -21,6 +21,10 @@ public class ALKMyQuickReplyCell: ALKChatBaseCell<ALKMessageViewModel> {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 
     public func update(viewModel: ALKMessageViewModel, maxWidth: CGFloat) {
         let messageWidth = maxWidth -

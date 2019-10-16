@@ -19,44 +19,40 @@ var APNS_TYPE_DEVELOPMENT : Int16 = 0
 var APNS_TYPE_DISTRIBUTION : Int16 = 1
 
 class ALChatManager: NSObject {
-
-    static let applicationId = "applozic-sample-app"
+    static let applicationId = "17b4eea2e54056d3c360d6c055cde603e"
     static let shared = ALChatManager(applicationKey: ALChatManager.applicationId as NSString)
-
+    
     var pushNotificationTokenData: Data? {
         didSet {
             updateToken()
         }
     }
-
+    
     init(applicationKey: NSString) {
         super.init()
-        if(applicationKey.length == 0 ){
-            fatalError("Please pass your applicationId in the ALChatManager file.")
-        }
         ALUserDefaultsHandler.setApplicationKey(applicationKey as String)
         self.defaultChatViewSettings()
     }
-
+    
     class func isNilOrEmpty(_ string: NSString?) -> Bool {
         switch string {
-            case .some(let nonNilString):
-                return nonNilString.length == 0
-            default:
-                return true
+        case .some(let nonNilString):
+            return nonNilString.length == 0
+        default:
+            return true
         }
     }
-
+    
     func updateToken() {
         guard let deviceToken = pushNotificationTokenData else { return }
         print("DEVICE_TOKEN_DATA :: \(deviceToken.description)")  // (SWIFT = 3) : TOKEN PARSING
-
+        
         var deviceTokenString: String = ""
         for i in 0..<deviceToken.count {
             deviceTokenString += String(format: "%02.2hhx", deviceToken[i] as CVarArg)
         }
         print("DEVICE_TOKEN_STRING :: \(deviceTokenString)")
-
+        
         if ALUserDefaultsHandler.getApnDeviceToken() != deviceTokenString {
             let alRegisterUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
             alRegisterUserClientService.updateApnDeviceToken(withCompletion: deviceTokenString, withCompletion: { (response, error) in
@@ -64,7 +60,7 @@ class ALChatManager: NSObject {
             })
         }
     }
-
+    
     // ----------------------
     // Call This at time of your app's user authentication OR User registration.
     // This will register your User at applozic server.
@@ -80,7 +76,7 @@ class ALChatManager: NSObject {
                 return
             }
             guard let response = response, response.isRegisteredSuccessfully() else {
-                ALUtilityClass.showAlertMessage("Invalid Password", andTitle: "Oops!!!")
+                //ALUtilityClass.showAlertMessage("Invalid Password", andTitle: "Oops!!!")
                 let errorPass = NSError(domain:"Invalid Password", code:0, userInfo:nil)
                 completion(nil , errorPass as NSError?)
                 return
@@ -89,13 +85,13 @@ class ALChatManager: NSObject {
             completion(response, nil)
         })
     }
-
+    
     func getApplicationKey() -> NSString {
         let appKey = ALUserDefaultsHandler.getApplicationKey() as NSString?
-        let applicationKey = (appKey != nil) ? appKey : ALChatManager.applicationId as NSString?
+        let applicationKey = appKey
         return applicationKey!;
     }
-
+    
     func isUserPresent() -> Bool {
         guard let _ = ALUserDefaultsHandler.getApplicationKey() as String?,
             let _ = ALUserDefaultsHandler.getUserId() as String? else {
@@ -103,40 +99,48 @@ class ALChatManager: NSObject {
         }
         return true
     }
-
-    func logoutUser() {
+    
+    func logoutUser(_ complete:(()->Void)? = nil) {
         let registerUserClientService = ALRegisterUserClientService()
         if let _ = ALUserDefaultsHandler.getDeviceKeyString() {
             registerUserClientService.logout(completionHandler: {
                 _, _ in
                 NSLog("Applozic logout")
+                ALUserDefaultsHandler.clearAll()
+                complete?()
             })
+        }else{
+            ALUserDefaultsHandler.clearAll()
+            complete?()
         }
     }
-
+    
     func defaultChatViewSettings() {
+        self.setApplicationBaseUrl(false)
+        ALApplozicSettings.enableS3StorageService(true)
         ALUserDefaultsHandler.setGoogleMapAPIKey("AIzaSyCOacEeJi-ZWLLrOtYyj3PKMTOFEG7HDlw") //REPLACE WITH YOUR GOOGLE MAPKEY
         ALApplozicSettings.setListOfViewControllers([ALKConversationListViewController.description(), ALKConversationViewController.description()])
         ALApplozicSettings.setFilterContactsStatus(true)
+        ALUserDefaultsHandler.setUserAuthenticationTypeId(Int16(CLIENT.rawValue))
         ALUserDefaultsHandler.setDebugLogsRequire(true)
         ALApplozicSettings.setSwiftFramework(true)
     }
-
+    
     func launchChatList(from viewController: UIViewController, with configuration: ALKConfiguration) {
         let conversationVC = ALKConversationListViewController(configuration: configuration)
         let navVC = ALKBaseNavigationViewController(rootViewController: conversationVC)
         viewController.present(navVC, animated: false, completion: nil)
     }
-
-    func launch(viewController: UIViewController, from vc: UIViewController) {
+    
+    func launch(viewController: UIViewController, from vc: UIViewController, isPresentViewMode:Bool = false) {
         let navVC = ALKBaseNavigationViewController(rootViewController: viewController)
-        guard vc.navigationController != nil else {
-            vc.present(navVC, animated: false, completion: nil)
+        if vc.navigationController == nil || isPresentViewMode {
+            vc.present(navVC, animated: true, completion: nil)
             return
         }
-        vc.navigationController?.pushViewController(viewController, animated: false)
+        vc.navigationController?.pushViewController(viewController, animated: true)
     }
-
+    
     func launchChatWith(contactId: String, from viewController: UIViewController, configuration: ALKConfiguration) {
         let alContactDbService = ALContactDBService()
         var title = ""
@@ -149,18 +153,20 @@ class ALChatManager: NSObject {
         conversationViewController.viewModel = convViewModel
         launch(viewController: conversationViewController, from: viewController)
     }
-
+    
     func launchGroupWith(clientGroupId: String, from viewController: UIViewController, configuration: ALKConfiguration) {
         let alChannelService = ALChannelService()
         alChannelService.getChannelInformation(nil, orClientChannelKey: clientGroupId) { (channel) in
-            guard let channel = channel, let key = channel.key else {return}
-            let convViewModel = ALKConversationViewModel(contactId: nil, channelKey: key, localizedStringFileName: configuration.localizedStringFileName)
+            guard let channel = channel, let key = channel.key else {
+                return
+            }
+            let convViewModel = ALKConversationViewModel(contactId: nil, channelKey: key, localizedStringFileName: configuration.localizedStringFileName, channelInfo:channel)
             let conversationViewController = ALKConversationViewController(configuration: configuration)
             conversationViewController.viewModel = convViewModel
             self.launch(viewController: conversationViewController, from: viewController)
         }
     }
-
+    
     /// Use [launchGroupOfTwo](x-source-tag://GroupOfTwo) method instead.
     func launchChatWith(conversationProxy: ALConversationProxy, from viewController: UIViewController, configuration: ALKConfiguration) {
         let userId = conversationProxy.userId
@@ -170,7 +176,7 @@ class ALChatManager: NSObject {
         conversationViewController.viewModel = convViewModel
         launch(viewController: conversationViewController, from: viewController)
     }
-
+    
     /// Use [launchGroupOfTwo](x-source-tag://GroupOfTwo) method instead.
     func createAndLaunchChatWith(conversationProxy: ALConversationProxy, from viewController: UIViewController, configuration: ALKConfiguration) {
         let conversationService = ALConversationService()
@@ -183,7 +189,7 @@ class ALChatManager: NSObject {
             self.launchChatWith(conversationProxy: alConversationProxy, from: viewController, configuration: configuration)
         }
     }
-
+    
     /// Use this to launch context based Group of two.
     ///
     /// - Parameters:
@@ -207,7 +213,7 @@ class ALChatManager: NSObject {
         topic: String,
         from viewController: UIViewController,
         configuration: ALKConfiguration) {
-
+        
         let clientGroupId = String(format: "%@_%@_%@", topic, ALUserDefaultsHandler.getUserId(), userId)
         let channelService = ALChannelService()
         channelService.getChannelInformation(nil, orClientChannelKey: clientGroupId) {
@@ -232,14 +238,17 @@ class ALChatManager: NSObject {
             }
         }
     }
-
+    
     func launchContactList(from viewController: UIViewController, configuration: ALKConfiguration) {
         let newChatVC = ALKNewChatViewController(configuration: configuration, viewModel: ALKNewChatViewModel(localizedStringFileName: configuration.localizedStringFileName))
         let navVC = UINavigationController(rootViewController: newChatVC)
         viewController.present(navVC, animated: true, completion: nil)
     }
-
-    func setApplicationBaseUrl() {
+    
+    func setApplicationBaseUrl(_ isDebugApp:Bool) {
+        if isDebugApp {
+            return
+        }
         guard let dict = Bundle.main.infoDictionary?["APPLOZIC_PRODUCTION"] as? [AnyHashable : Any] else {
             return
         }
@@ -247,20 +256,20 @@ class ALChatManager: NSObject {
         if let baseUrl = dict["AL_KBASE_URL"] as? String {
             ALUserDefaultsHandler.setBASEURL(baseUrl)
         }
-
+        
         if let mqttUrl = dict["AL_MQTT_URL"] as? String {
             ALUserDefaultsHandler.setMQTTURL(mqttUrl)
         }
-
+        
         if let fileUrl = dict["AL_FILE_URL"] as? String {
             ALUserDefaultsHandler.setFILEURL(fileUrl)
         }
-
+        
         if let mqttPort = dict["AL_MQTT_PORT"] as? String {
             ALUserDefaultsHandler.setMQTTPort(mqttPort)
         }
     }
-
+    
     /// A convenient method to get logged-in user's information.
     ///
     /// If user information is stored in DB or preference, Code to get user's information should go here.
@@ -276,7 +285,7 @@ class ALChatManager: NSObject {
         user.displayName = ALUserDefaultsHandler.getDisplayName()
         return user
     }
-
+    
     private func conversationProxyFrom(original: ALConversationProxy, generated: ALConversationProxy) -> ALConversationProxy{
         let finalProxy = ALConversationProxy()
         finalProxy.userId = generated.userId
@@ -285,7 +294,7 @@ class ALChatManager: NSObject {
         finalProxy.groupId = original.groupId
         return finalProxy
     }
-
+    
     private func chatTitleUsing(userId: String?, groupId: NSNumber?) -> String {
         if let contactId = userId,
             let contact = ALContactDBService().loadContact(byKey: "userId", value: contactId),

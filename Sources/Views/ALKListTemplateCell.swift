@@ -150,4 +150,7 @@ public class ALKListTemplateCell: ALKChatBaseCell<ALKMessageViewModel> {
         fatalError("This method must be overriden.")
     }
 
+    override func isMyMessage() -> Bool {
+        return self.viewModel?.isMyMessage ?? false
+    }
 }

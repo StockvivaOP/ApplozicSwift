@@ -42,7 +42,7 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         }
 
         struct FrameUIView {
-            static let top: CGFloat = 7.0
+            static let top: CGFloat = 0.0
         }
     }
 
