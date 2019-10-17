@@ -440,6 +440,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.isViewFirstLoad = true
         setupConstraints()
         //tag: stockviva
+        self.viewModel.delegateConversationChatContentAction = self.delegateConversationChatContentAction
         self.tableView.scrollsToTop = false
         self.chatBar.delegate = self
         self.chatBar.setUpViewConfig()

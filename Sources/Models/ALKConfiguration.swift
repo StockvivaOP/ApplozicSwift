@@ -284,9 +284,13 @@ public protocol ConversationChatContentActionDelegate: class{
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser() -> Bool
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
+    //pin message
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageClicked()
+    //unread message
+    func saveLastReadMessageTime(time:TimeInterval)
+    func getLastReadMessageTime() -> TimeInterval
 }
 
 public protocol ConversationChatBarActionDelegate: class{

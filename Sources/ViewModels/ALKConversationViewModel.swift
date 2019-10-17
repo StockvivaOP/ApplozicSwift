@@ -93,6 +93,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     
     //tag: stockviva
     private var isLoadingLatestMessage = false
+    public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
 
     // MARK: - Initializer
     public required init(
@@ -492,6 +493,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
         var contactsNotPresent = [String]()
         for index in 0..<messages.count {
             let message = messages[index]
+            if message.getActionType().isSkipMessage() {
+                continue
+            }
+            
             var _isAdded = false
             if channelKey != nil && channelKey ==  message.groupId {
                 _isAdded = true
@@ -1358,115 +1363,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
             self.delegate?.loadingFinished(error: nil)
         })
     }
-    
-    open func loadLatestMessages(reTryCount:Int = 0) {
-        if self.isLoadingLatestMessage {
-            return
-        }
-        self.isLoadingLatestMessage = true
-        if reTryCount == 0 {
-            self.delegate?.loadingStarted()
-        }
-        var time: NSNumber?
-        if let messageList = alMessageWrapper.getUpdatedMessageArray(),
-            messageList.count > 1,
-            let last = alMessages.last {
-            time = NSNumber(value: (last.createdAtTime.intValue + 1))
-        }
-        let messageListRequest = MessageListRequest()
-        messageListRequest.userId = contactId
-        messageListRequest.channelKey = channelKey
-        messageListRequest.conversationId = conversationId
-        messageListRequest.startTimeStamp = time
-        messageListRequest.pageSize = "999999"
-        let messageClientService = ALMessageClientService()
-        messageClientService.getMessageList(forUser: messageListRequest, withCompletion: {
-            messages, error, userDetailsList in
-            guard error == nil,
-                let newMessages = messages as? [ALMessage],
-                let msg = self.alMessages.last, let time = Double(msg.createdAtTime.stringValue) else {
-                    self.isLoadingLatestMessage = false
-                    self.delegate?.messageUpdated()
-                    return
-            }
-            let contactDbService = ALContactDBService()
-            contactDbService.addUserDetails(userDetailsList)
-            
-            let contactService = ALContactService()
-            let messageDbService = ALMessageDBService()
-            var _finalMsgList:[ALMessage] = []
-            var contactsNotPresent = [String]()
-            var replyMessageKeys = [String]()
-            for index in 0..<newMessages.count {
-                var mesg = newMessages[index]
-                if let msgTime = Double(mesg.createdAtTime.stringValue),
-                    msgTime <= time && !self.alMessageWrapper.contains(message: mesg) {
-                    continue
-                }
-                if !contactService.isContactExist(self.contactId), self.contactId != nil {
-                    contactsNotPresent.append(self.contactId!)
-                }
-                
-                if let metadata = mesg.metadata,
-                    let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
-                    replyMessageKeys.append(key)
-                }
-                
-                if mesg.getAttachmentType() != nil,
-                    let dbMessage = messageDbService.getMessageByKey("key", value: mesg.identifier) as? DB_Message,
-                    dbMessage.filePath != nil {
-                    mesg = messageDbService.createMessageEntity(dbMessage)
-                }
-                
-                _finalMsgList.append(mesg)
-            }
-            
-            if _finalMsgList.isEmpty == false && newMessages.isEmpty == false {
-                let sortedArray = _finalMsgList.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
-                guard !sortedArray.isEmpty else {
-                    self.isLoadingLatestMessage = false
-                    self.delegate?.messageUpdated()
-                    return
-                }
-                //add to last
-                self.alMessages.append(contentsOf: sortedArray)
-                self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: sortedArray))
-                let _models = sortedArray.map { $0.messageModel }
-                self.messageModels.append(contentsOf: _models)
-                
-                if !replyMessageKeys.isEmpty {
-                    ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
-                        guard let replyMessages = replyMessages as? [ALMessage] else { return }
-                        for message in replyMessages {
-                            let contactId = message.to ?? ""
-                            if !contactService.isContactExist(contactId) {
-                                contactsNotPresent.append(contactId)
-                            }
-                        }
-                        self.processContacts(contactsNotPresent, completion: {
-                            self.isLoadingLatestMessage = false
-                            self.delegate?.messageUpdated()
-                        })
-                    })
-                } else {
-                    self.processContacts(contactsNotPresent, completion: {
-                        self.isLoadingLatestMessage = false
-                        self.delegate?.messageUpdated()
-                    })
-                }
-            }else{
-                if reTryCount == 0 {//reload again
-                    self.isLoadingLatestMessage = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self.loadLatestMessages(reTryCount: (reTryCount + 1) )
-                    }
-                    return
-                }
-                self.isLoadingLatestMessage = false
-                self.delegate?.messageUpdated()
-            }
-        })
-    }
 
     private func fetchOpenGroupMessages(time: NSNumber?, contactId: String?, channelKey: NSNumber?, completion:@escaping ([ALMessage]?)->Void) {
         let messageListRequest = MessageListRequest()
@@ -1484,6 +1380,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
             
             let contactDbService = ALContactDBService()
             contactDbService.addUserDetails(userDetailsList)
+            
+            var _resultMessages = [ALMessage]()
             guard var alMessages = messages as? [ALMessage] else {
                 ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no message list")
                 completion(nil)
@@ -1495,7 +1393,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
             var replyMessageKeys = [String]()
 
             for index in 0..<alMessages.count {
-                let message = alMessages[index]
+                var message = alMessages[index]
+                
+                if message.getActionType().isSkipMessage() {
+                    continue
+                }
                 let contactId = message.to ?? ""
                 if !contactService.isContactExist(contactId) {
                     contactsNotPresent.append(contactId)
@@ -1504,14 +1406,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
                     replyMessageKeys.append(key)
                 }
-                if message.getAttachmentType() != nil {
-let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message
-                }
+                
                 if message.getAttachmentType() != nil,
                     let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message,
                     dbMessage.filePath != nil {
-                    alMessages[index] = messageDbService.createMessageEntity(dbMessage)
+                    message = messageDbService.createMessageEntity(dbMessage)
                 }
+                //add to result list
+                _resultMessages.append(message)
             }
             if !replyMessageKeys.isEmpty {
                 ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
@@ -1526,12 +1428,12 @@ let dbMessage = messageDbService.getMessageByKey("key", value: message.identifie
                         ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no reply message with key \(replyMessageKeys)")
                     }
                     self.processContacts(contactsNotPresent, completion: {
-                        completion(alMessages)
+                        completion(_resultMessages)
                     })
                 })
             } else {
                 self.processContacts(contactsNotPresent, completion: {
-                    completion(alMessages)
+                    completion(_resultMessages)
                 })
             }
         })
@@ -1768,4 +1670,124 @@ let dbMessage = messageDbService.getMessageByKey("key", value: message.identifie
             return nil
         }
     }
+}
+
+
+//MARK: - stockviva fetch message
+extension ALKConversationViewModel {
+    
+    open func loadLatestMessages(reTryCount:Int = 0) {
+        if self.isLoadingLatestMessage {
+            return
+        }
+        self.isLoadingLatestMessage = true
+        if reTryCount == 0 {
+            self.delegate?.loadingStarted()
+        }
+        var time: NSNumber?
+        if let messageList = alMessageWrapper.getUpdatedMessageArray(),
+            messageList.count > 1,
+            let last = alMessages.last {
+            time = NSNumber(value: (last.createdAtTime.intValue + 1))
+        }
+        let messageListRequest = MessageListRequest()
+        messageListRequest.userId = contactId
+        messageListRequest.channelKey = channelKey
+        messageListRequest.conversationId = conversationId
+        messageListRequest.startTimeStamp = time
+        messageListRequest.pageSize = "999999"
+        let messageClientService = ALMessageClientService()
+        messageClientService.getMessageList(forUser: messageListRequest, withCompletion: {
+            messages, error, userDetailsList in
+            guard error == nil,
+                let newMessages = messages as? [ALMessage],
+                let msg = self.alMessages.last, let time = Double(msg.createdAtTime.stringValue) else {
+                    self.isLoadingLatestMessage = false
+                    self.delegate?.messageUpdated()
+                    return
+            }
+            let contactDbService = ALContactDBService()
+            contactDbService.addUserDetails(userDetailsList)
+            
+            let contactService = ALContactService()
+            let messageDbService = ALMessageDBService()
+            var _finalMsgList:[ALMessage] = []
+            var contactsNotPresent = [String]()
+            var replyMessageKeys = [String]()
+            for index in 0..<newMessages.count {
+                var mesg = newMessages[index]
+                if let msgTime = Double(mesg.createdAtTime.stringValue),
+                    msgTime <= time && !self.alMessageWrapper.contains(message: mesg) {
+                    continue
+                }
+                if !contactService.isContactExist(self.contactId), self.contactId != nil {
+                    contactsNotPresent.append(self.contactId!)
+                }
+                
+                if let metadata = mesg.metadata,
+                    let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
+                    replyMessageKeys.append(key)
+                }
+                
+                if mesg.getAttachmentType() != nil,
+                    let dbMessage = messageDbService.getMessageByKey("key", value: mesg.identifier) as? DB_Message,
+                    dbMessage.filePath != nil {
+                    mesg = messageDbService.createMessageEntity(dbMessage)
+                }
+                
+                _finalMsgList.append(mesg)
+            }
+            
+            if _finalMsgList.isEmpty == false && newMessages.isEmpty == false {
+                let sortedArray = _finalMsgList.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+                guard !sortedArray.isEmpty else {
+                    self.isLoadingLatestMessage = false
+                    self.delegate?.messageUpdated()
+                    return
+                }
+                //add to last
+                self.alMessages.append(contentsOf: sortedArray)
+                self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: sortedArray))
+                let _models = sortedArray.map { $0.messageModel }
+                self.messageModels.append(contentsOf: _models)
+                
+                if !replyMessageKeys.isEmpty {
+                    ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
+                        guard let replyMessages = replyMessages as? [ALMessage] else { return }
+                        for message in replyMessages {
+                            let contactId = message.to ?? ""
+                            if !contactService.isContactExist(contactId) {
+                                contactsNotPresent.append(contactId)
+                            }
+                        }
+                        self.processContacts(contactsNotPresent, completion: {
+                            self.isLoadingLatestMessage = false
+                            self.delegate?.messageUpdated()
+                        })
+                    })
+                } else {
+                    self.processContacts(contactsNotPresent, completion: {
+                        self.isLoadingLatestMessage = false
+                        self.delegate?.messageUpdated()
+                    })
+                }
+            }else{
+                if reTryCount == 0 {//reload again
+                    self.isLoadingLatestMessage = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self.loadLatestMessages(reTryCount: (reTryCount + 1) )
+                    }
+                    return
+                }
+                self.isLoadingLatestMessage = false
+                self.delegate?.messageUpdated()
+            }
+        })
+    }
+    
+}
+
+//MARK: - stockviva unread message
+extension ALKConversationViewModel {
+    
 }
