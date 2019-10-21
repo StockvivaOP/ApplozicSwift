@@ -36,8 +36,8 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
             self.imgPageIcon.image = UIImage(named: "sv_icon_pin", in: Bundle.applozic, compatibleWith: nil)
             self.labPageTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? ""
         }else{
-            self.imgPageIcon.image = nil
-            self.labPageTitle.text = ""
+            self.imgPageIcon.image = UIImage(named: "sv_icon_reply", in: Bundle.applozic, compatibleWith: nil)
+            self.labPageTitle.text =  ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_reply_message") ?? ""
         }
     }
     
