@@ -686,10 +686,19 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if (decelerate) {return}
         configurePaginationWindow()
+        //save for unread message
+        self.saveLastReadMessageIfNeeded()
     }
 
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         configurePaginationWindow()
+        //save for unread message
+        self.saveLastReadMessageIfNeeded()
+    }
+    
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        //save for unread message
+        self.saveLastReadMessageIfNeeded()
     }
 
     public func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
@@ -702,14 +711,40 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
         if (self.tableView.isDecelerating) {return}
         let topOffset = -self.tableView.contentInset.top
         let distanceFromTop = self.tableView.contentOffset.y - topOffset
-        let minimumDistanceFromTopToTriggerLoadingMore: CGFloat = 200
+        let distanceFromBottom = self.tableView.contentOffset.y + self.tableView.bounds.size.height
+        let minimumDistanceFromTopToTriggerLoadingMore: CGFloat = 50
         let nearTop = distanceFromTop <= minimumDistanceFromTopToTriggerLoadingMore
-        if (!nearTop) {return}
-
-        self.viewModel.nextPage()
+        let nearBottom = distanceFromBottom >= (self.tableView.contentSize.height - 50.0)
+        if (nearTop) {
+            if self.scrollingState == .up {
+                self.viewModel.nextPage(isNextPage: false)
+            }
+        }else{
+            if nearBottom && self.scrollingState == .down && self.viewModel.isUnreadMessageMode {
+                self.viewModel.nextPage(isNextPage: true)
+            }
+        }
     }
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        //try to know the scrolling state
+        let _newScrollPoint = scrollView.contentOffset
+        let _isViewScrollInBounces:Bool = Int(_newScrollPoint.y) >= 0 && Int(_newScrollPoint.y + scrollView.bounds.size.height) <= Int(scrollView.contentSize.height)
+        if _isViewScrollInBounces {
+            if self.lastScrollingPoint.y > _newScrollPoint.y && Int(_newScrollPoint.y + scrollView.bounds.size.height) < Int(scrollView.contentSize.height) {
+                self.scrollingState = .up
+            }else if self.lastScrollingPoint.y < _newScrollPoint.y && Int(_newScrollPoint.y) > 0 {
+                self.scrollingState = .down
+            }
+        }else{
+            if Int(_newScrollPoint.y) <= 0 {
+                self.scrollingState = .up
+            }else if Int(_newScrollPoint.y + scrollView.bounds.size.height) >= Int(scrollView.contentSize.height) {
+                self.scrollingState = .down
+            }
+        }
+        self.lastScrollingPoint = _newScrollPoint
+        
         if tableView.isCellVisible(section: viewModel.messageModels.count-1, row: 0) || self.isFirstTime {
             unreadScrollButton.isHidden = true
         }else {

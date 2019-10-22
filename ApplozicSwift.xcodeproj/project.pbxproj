@@ -128,6 +128,7 @@
 		8BB533FB1F69463C0008C1CF /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB533861F69463B0008C1CF /* UIViewController+Extension.swift */; };
 		8BB533FF1F6946970008C1CF /* ApplozicSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB533FD1F6946970008C1CF /* ApplozicSwiftTests.swift */; };
 		8BB534001F6946970008C1CF /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BB533FE1F6946970008C1CF /* Info.plist */; };
+		C41AAC2E235D49A600AFF4D9 /* ALKSVMessageListRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */; };
 		C4B36BB12345DA5D00913FE6 /* ALKSVPinMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB02345DA5D00913FE6 /* ALKSVPinMessageView.swift */; };
 		C4B36BB32345DA7300913FE6 /* SVMessageView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4B36BB22345DA7300913FE6 /* SVMessageView.storyboard */; };
 		C4B36BB52345DAAE00913FE6 /* ALKSVBaseMessageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB42345DAAE00913FE6 /* ALKSVBaseMessageDetailViewController.swift */; };
@@ -135,6 +136,7 @@
 		C4B36BB92345DAE800913FE6 /* ALKSVMessageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB82345DAE800913FE6 /* ALKSVMessageDetailViewController.swift */; };
 		C4B36BBB2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BBA2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift */; };
 		C4CE0901234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4CE0900234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift */; };
+		C4FA8A6E235955B9002D1AA5 /* ALKSVUserDefaultsControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FA8A6D235955B9002D1AA5 /* ALKSVUserDefaultsControl.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -274,6 +276,7 @@
 		8BB533FD1F6946970008C1CF /* ApplozicSwiftTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplozicSwiftTests.swift; sourceTree = "<group>"; };
 		8BB533FE1F6946970008C1CF /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B67BC368C8C8A4DDE39D1822 /* Pods_ApplozicSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApplozicSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageListRequest.swift; sourceTree = "<group>"; };
 		C4B36BB02345DA5D00913FE6 /* ALKSVPinMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVPinMessageView.swift; sourceTree = "<group>"; };
 		C4B36BB22345DA7300913FE6 /* SVMessageView.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SVMessageView.storyboard; sourceTree = "<group>"; };
 		C4B36BB42345DAAE00913FE6 /* ALKSVBaseMessageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVBaseMessageDetailViewController.swift; sourceTree = "<group>"; };
@@ -281,6 +284,7 @@
 		C4B36BB82345DAE800913FE6 /* ALKSVMessageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageDetailViewController.swift; sourceTree = "<group>"; };
 		C4B36BBA2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVDocumentMessageDetailViewController.swift; sourceTree = "<group>"; };
 		C4CE0900234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageDetailHeaderViewController.swift; sourceTree = "<group>"; };
+		C4FA8A6D235955B9002D1AA5 /* ALKSVUserDefaultsControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVUserDefaultsControl.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -438,8 +442,10 @@
 		8B6DE59E1F696043001DB7FC /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C41AAC2F235D49A900AFF4D9 /* SVCustomAPI */,
 				8BB533411F69463B0008C1CF /* ALKMessageModel.swift */,
 				8BB5332E1F69463B0008C1CF /* ALKFriendDatasource.swift */,
+				C4FA8A6D235955B9002D1AA5 /* ALKSVUserDefaultsControl.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -543,6 +549,14 @@
 				8BB533FE1F6946970008C1CF /* Info.plist */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		C41AAC2F235D49A900AFF4D9 /* SVCustomAPI */ = {
+			isa = PBXGroup;
+			children = (
+				C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */,
+			);
+			path = SVCustomAPI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -758,6 +772,7 @@
 				8BB5338A1F69463B0008C1CF /* ALKAPIRequest.swift in Sources */,
 				8BB533EE1F69463C0008C1CF /* SystemMessage.swift in Sources */,
 				8BB533A41F69463C0008C1CF /* ALKFriendContactCell.swift in Sources */,
+				C41AAC2E235D49A600AFF4D9 /* ALKSVMessageListRequest.swift in Sources */,
 				8BB533FB1F69463C0008C1CF /* UIViewController+Extension.swift in Sources */,
 				8BB533A71F69463C0008C1CF /* ALKFriendLocationCell.swift in Sources */,
 				8BB533C41F69463C0008C1CF /* ALKPreviewImageViewModel.swift in Sources */,
@@ -780,6 +795,7 @@
 				8BB533C61F69463C0008C1CF /* ALKPreviewPhotoViewController.swift in Sources */,
 				8BB533B81F69463C0008C1CF /* ALKMessageModel.swift in Sources */,
 				8BB533F31F69463C0008C1CF /* UIColor+Extension.swift in Sources */,
+				C4FA8A6E235955B9002D1AA5 /* ALKSVUserDefaultsControl.swift in Sources */,
 				8BB533921F69463B0008C1CF /* ALKChatBaseCell.swift in Sources */,
 				8BB533FA1F69463C0008C1CF /* UIView+Extension.swift in Sources */,
 				8BB533F41F69463C0008C1CF /* UIImage+Extension.swift in Sources */,

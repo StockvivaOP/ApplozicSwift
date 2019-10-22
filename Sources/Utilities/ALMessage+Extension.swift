@@ -406,6 +406,7 @@ extension ALMessage {
         messageModel.isReplyMessage = isAReplyMessage()
         messageModel.metadata = metadata as? Dictionary<String, Any>
         messageModel.source = source
+        messageModel.createdAtTime = createdAtTime
         messageModel.rawModel = self
         return messageModel
     }
@@ -437,6 +438,9 @@ extension ALMessage {
     //un read message
     func addIsUnreadMessageSeparatorInMetaData(_ isEnable:Bool){
         let _valueStr = isEnable ? "1" : "0"
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
         self.metadata.setValue(_valueStr, forKey: "SV_UnreadMessageSeparator")
     }
     

@@ -15,7 +15,7 @@ final class ALKInformationCell: UITableViewCell {
 
     fileprivate var messageView: UITextView = {
         let tv = UITextView()
-        tv.font = UIFont.systemFont(ofSize: 12.0)
+        tv.font = UIFont.systemFont(ofSize: 16.0)
         tv.isEditable = false
         tv.backgroundColor = .clear
         tv.isSelectable = false
@@ -36,18 +36,36 @@ final class ALKInformationCell: UITableViewCell {
         bv.isUserInteractionEnabled = false
         return bv
     }()
-
+    
+    var bubbleViewTopConst:NSLayoutConstraint?
+    var bubbleViewBottomConst:NSLayoutConstraint?
+    
     func setConfiguration(configuration:ALKConfiguration) {
        self.configuration = configuration
     }
 
     class func topPadding() -> CGFloat {
-        return 5 + 4
+        return 4
     }
 
     class func bottomPadding() -> CGFloat {
-        return 5 + 4
+        return 4
     }
+    
+    class func bubbleViewTopPadding(isUnreadMsg:Bool = false) -> CGFloat {
+        if isUnreadMsg {
+            return 2.5
+        }
+        return 4
+    }
+    
+    class func bubbleViewBottomPadding(isUnreadMsg:Bool = false) -> CGFloat {
+        if isUnreadMsg {
+            return 2.5
+        }
+        return 4
+    }
+    
 
     class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
 
@@ -59,7 +77,7 @@ final class ALKInformationCell: UITableViewCell {
 
             let rect = (nomalizedMessage as NSString).boundingRect(with: CGSize.init(width: widthNoPadding, height: CGFloat.greatestFiniteMagnitude),
                                                                    options: NSStringDrawingOptions.usesLineFragmentOrigin,
-                                                                   attributes: [NSAttributedString.Key.font:UIFont.font(.bold(size: 12))],
+                                                                   attributes: [NSAttributedString.Key.font:UIFont.font(.bold(size: 16))],
                                                                    context: nil)
             messageHeigh = rect.height/* + 17*/
 
@@ -69,7 +87,8 @@ final class ALKInformationCell: UITableViewCell {
         if messageHeigh < 17 {
             messageHeigh = 17
         }
-        return topPadding()+messageHeigh+bottomPadding()
+        let _isUnReadMsg = viewModel.isUnReadMessageSeparator() == true
+        return topPadding()+bubbleViewTopPadding(isUnreadMsg:_isUnReadMsg)+messageHeigh+bottomPadding()+bubbleViewBottomPadding(isUnreadMsg:_isUnReadMsg)
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -88,7 +107,19 @@ final class ALKInformationCell: UITableViewCell {
 
         self.viewModel = viewModel
 
-        messageView.text = viewModel.message
+        if self.viewModel?.isUnReadMessageSeparator() == true{
+            self.bubbleViewTopConst?.constant = ALKInformationCell.bubbleViewTopPadding(isUnreadMsg:true)
+            self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding(isUnreadMsg:true)
+            bubbleView.backgroundColor = UIColor.clear
+            self.contentView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
+            messageView.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? viewModel.message
+        }else{
+            self.bubbleViewTopConst?.constant = ALKInformationCell.bubbleViewTopPadding()
+            self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding()
+            bubbleView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
+            self.contentView.backgroundColor = UIColor.clear
+            messageView.text = viewModel.message
+        }
     }
 
     fileprivate func setupConstraints() {
@@ -100,8 +131,12 @@ final class ALKInformationCell: UITableViewCell {
         contentView.addViewsForAutolayout(views: [messageView,bubbleView])
         contentView.bringSubviewToFront(messageView)
         
-        bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5).isActive = true
-        bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        
+        self.bubbleViewTopConst = bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4)
+        self.bubbleViewBottomConst = bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
+        
+        self.bubbleViewTopConst?.isActive = true
+        self.bubbleViewBottomConst?.isActive = true
         bubbleView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 20).isActive = true
         bubbleView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -20).isActive = true
         bubbleView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor).isActive = true
