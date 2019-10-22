@@ -1899,7 +1899,7 @@ extension ALKConversationViewModel {
         let alMessage = ALMessage()
         alMessage.to = ""
         alMessage.contactIds = ""
-        alMessage.message = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_unread_message_separator_title") ?? "有未讀訊息"
+        alMessage.message = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_unread_message_separator_title") ?? ""
         alMessage.type = "4"
         let date = Date().timeIntervalSince1970*1000
         alMessage.createdAtTime = NSNumber(value: date)
