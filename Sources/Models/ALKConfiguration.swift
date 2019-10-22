@@ -288,9 +288,6 @@ public protocol ConversationChatContentActionDelegate: class{
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageClicked()
-    //unread message
-    func saveLastReadMessageTime(time:TimeInterval)
-    func getLastReadMessageTime() -> TimeInterval
 }
 
 public protocol ConversationChatBarActionDelegate: class{

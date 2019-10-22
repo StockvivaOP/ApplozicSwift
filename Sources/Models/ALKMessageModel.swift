@@ -75,6 +75,7 @@ public protocol ALKMessageViewModel {
     var isReplyMessage: Bool { get }
     var metadata: Dictionary<String, Any>? { get set }
     var source: Int16 { get }
+    var createdAtTime: NSNumber? { get set }
     var rawModel: ALMessage? { get }
 }
 
@@ -109,6 +110,7 @@ public class ALKMessageModel: ALKMessageViewModel {
     public var isReplyMessage: Bool = false
     public var metadata: Dictionary<String, Any>?
     public var source: Int16 = 0
+    public var createdAtTime: NSNumber?
     public var rawModel:ALMessage?
 }
 
