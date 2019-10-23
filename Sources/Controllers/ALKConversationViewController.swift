@@ -209,6 +209,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.titleLabel?.textAlignment = .center
         return view
     }()
+    
+    public let unReadMessageRemindIndicatorView: UIView = {
+        let _view = UIView(frame: CGRect.zero)
+        _view.backgroundColor = UIColor.ALKSVStockColorRed()
+        _view.layer.cornerRadius = 7.5
+        _view.isHidden = true
+        return _view
+    }()
     //tag: stockviva end
     
     deinit {
@@ -264,6 +272,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 tableView.scrollToBottomByOfset(animated: false)
             } else if weakSelf.viewModel.messageModels.count > 1 && self?.isFirstTime == false {
                 weakSelf.unreadScrollButton.isHidden = false
+                weakSelf.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
             }
         })
 
@@ -542,6 +551,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     func setupView() {
 
         unreadScrollButton.isHidden = true
+        self.unReadMessageRemindIndicatorView.isHidden = true
         unreadScrollButton.addTarget(self, action: #selector(unreadScrollDownAction(_:)), for: .touchUpInside)
 
         backgroundView.backgroundColor = configuration.backgroundColor
@@ -615,7 +625,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
 
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, replyMessageView, pinMessageView, discrimationView]
+        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -686,6 +696,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         unreadScrollButton.widthAnchor.constraint(equalToConstant: 38).isActive = true
         unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -18).isActive = true
         unreadScrollButton.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -18).isActive = true
+        
+        unReadMessageRemindIndicatorView.heightAnchor.constraint(equalToConstant: 15).isActive = true
+        unReadMessageRemindIndicatorView.widthAnchor.constraint(equalToConstant: 15).isActive = true
+        unReadMessageRemindIndicatorView.topAnchor.constraint(equalTo: unreadScrollButton.topAnchor, constant: -2).isActive = true
+        unReadMessageRemindIndicatorView.leadingAnchor.constraint(equalTo: unreadScrollButton.leadingAnchor, constant: -2).isActive = true
 
         leftMoreBarConstraint = moreBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 56)
         leftMoreBarConstraint?.isActive = true
@@ -1125,7 +1140,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
         if self.viewModel.isUnreadMessageMode {//just cancel if user want to read latest message of now
-            self.viewModel.isUnreadMessageMode = false
+            self.viewModel.clearUnReadMessageData()
             self.scrollingState = .idle
             self.lastScrollingPoint = CGPoint.zero
             ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
@@ -1133,6 +1148,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
         tableView.scrollToBottom(animated: true)
         unreadScrollButton.isHidden = true
+        self.unReadMessageRemindIndicatorView.isHidden = true
     }
     
     @objc func discrimationToucUpInside(_ sender: UIButton) {
@@ -1601,12 +1617,14 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         //show / off scroll down button
         let _lastItemIndex = self.viewModel.messageModels.count-1
         let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
-        if tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
-            _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height {
+        if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
+            _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
+            (targetFocusItemIndex == -1 && isLoadNextPage == false){
             self.unreadScrollButton.isHidden = true
         }else {
             self.unreadScrollButton.isHidden = false
         }
+        self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
         
         guard !viewModel.isOpenGroup else {return}
         viewModel.markConversationRead()
@@ -1623,6 +1641,8 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         }else if self.isFirstTime == false {
             self.unreadScrollButton.isHidden = false
         }
+        self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
+        
         //save for unread message
         self.saveLastReadMessageIfNeeded()
     }
@@ -1691,6 +1711,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 moveTableViewToBottom(indexPath: indexPath)
             } else if viewModel.messageModels.count > 1 { // Check if the function is called before message is added. It happens when user is added in the group.
                 unreadScrollButton.isHidden = false
+                self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
             }
         }
         guard self.isViewLoaded && self.view.window != nil && !viewModel.isOpenGroup else {
@@ -2316,7 +2337,7 @@ extension ALKConversationViewController {
     
     func sendMessageWithHandleUnreadModel(completedBlock:@escaping ()->Void){
         //check model
-        if self.viewModel.isUnreadMessageMode == true{
+        if self.viewModel.isUnreadMessageMode {
             self.viewModel.messageSendUnderUnreadModel(startProcess: {
                 self.scrollingState = .idle
                 self.lastScrollingPoint = CGPoint.zero
@@ -2497,6 +2518,18 @@ extension ALKConversationViewController {
             let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey {
             debugPrint("PL**** - \(_cellItem.message ?? "nil")")
             ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
+        }
+    }
+    
+    func hiddenUnReadMessageRemindIndicatorViewIfNeeded(){
+        if let _lastUnReadMsgKey = self.viewModel.lastUnreadMessageKey,
+            let _arrayVisableIndex = tableView.indexPathsForVisibleRows?.last,
+            let _msgModel = self.viewModel.messageForRow(indexPath: _arrayVisableIndex),
+            _msgModel.identifier == _lastUnReadMsgKey && self.viewModel.isFirstTime == false {//is scroll to last cell
+            self.unReadMessageRemindIndicatorView.isHidden = true
+            self.viewModel.clearUnReadMessageData(isCancelTheModel:false)
+        }else{
+            self.unReadMessageRemindIndicatorView.isHidden = self.viewModel.lastUnreadMessageKey == nil || self.unreadScrollButton.isHidden
         }
     }
 }

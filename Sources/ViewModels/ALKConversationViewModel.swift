@@ -97,6 +97,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private var isLoadingLatestMessage = false
     private var unreadMessageSeparator:ALMessage = ALMessage()
     public var isUnreadMessageMode = false
+    public var lastUnreadMessageKey:String? = nil
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
 
     // MARK: - Initializer
@@ -141,7 +142,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     func clearViewModel() {
         self.isFirstTime = true
-        self.isUnreadMessageMode = false
+        self.clearUnReadMessageData()
         self.messageModels.removeAll()
         self.alMessages.removeAll()
         self.richMessages.removeAll()
@@ -547,6 +548,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 
                 //add unread message
                 if self.isUnreadMessageMode == false && isNeedOnUnreadMessageModel, let _unReadMsgCreateTime:Int = sortedArray.first?.createdAtTime.intValue {
+                    self.isUnreadMessageMode = true
                     //remove unreadMessageSeparator from array
                     if let _index = self.findIndexOfUnreadMessageSeparator() {
                         self.delegate?.removeMessagesAt(indexPath:IndexPath(row: 0, section: _index), closureBlock: {
@@ -567,6 +569,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 //resort for try to fix ording problem
                 self.alMessages.sort { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
                 self.messageModels.sort { $0.createdAtTime?.intValue ?? 0 < $1.createdAtTime?.intValue ?? 0 }
+                
+                //get last unread message key
+                if self.isUnreadMessageMode {
+                    self.lastUnreadMessageKey = self.messageModels.last?.identifier ?? nil
+                }
                 
                 self.delegate?.newMessagesAdded()
             })
@@ -1822,6 +1829,11 @@ extension ALKConversationViewModel {
             let models = sortedArray.map { $0.messageModel }
             self.messageModels = models
             
+            //get last unread message key
+            if self.isUnreadMessageMode {
+                self.lastUnreadMessageKey = self.messageModels.last?.identifier ?? nil
+            }
+            
             if self.isFirstTime {
                 self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false)
             } else {
@@ -1864,10 +1876,10 @@ extension ALKConversationViewModel {
         let _defaultPageSize = self.defaultValue_requestMessagePageSize
         self.fetchOpenGroupMessages(startFromTime: time, time: nil, contactId: contactId, channelKey: channelKey, maxRecord:"\(_defaultPageSize)", isOrderByAsc:true, completion: {
             messageList in
-            self.isUnreadMessageMode = messageList?.count ?? 0 >= _defaultPageSize
-            guard let newMessages = messageList else {
+            guard let newMessages = messageList, newMessages.count > 0 else {
                 ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - no message list")
-                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:true)
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
+                self.clearUnReadMessageData()
                 return
             }
             
@@ -1881,6 +1893,13 @@ extension ALKConversationViewModel {
                 self.alMessages.append(mesg)
                 self.messageModels.append(mesg.messageModel)
             }
+            
+            //get last unread message key
+            if self.isUnreadMessageMode {
+                self.lastUnreadMessageKey = self.messageModels.last?.identifier ?? nil
+            }
+            self.isUnreadMessageMode = messageList?.count ?? 0 >= _defaultPageSize
+            
             ALKConfiguration.delegateSystemLoggingRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - successful list count  \(self.messageModels.count) ")
             self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:true)
         })
@@ -1893,6 +1912,13 @@ extension ALKConversationViewModel {
             return _index
         }
         return nil
+    }
+    
+    func clearUnReadMessageData(isCancelTheModel:Bool = true){
+        if isCancelTheModel {
+            self.isUnreadMessageMode = false
+        }
+        self.lastUnreadMessageKey = nil
     }
     
     private func getMessageForUnreadMessageSeparator(_ createTime:NSNumber) -> ALMessage {

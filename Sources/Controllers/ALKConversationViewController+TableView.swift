@@ -750,6 +750,8 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
         }else {
             unreadScrollButton.isHidden = false
         }
+        self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
+        
         if (scrollView is UICollectionView) {
             let horizontalOffset = scrollView.contentOffset.x
             let collectionView = scrollView as! UICollectionView
