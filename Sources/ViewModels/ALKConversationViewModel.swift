@@ -738,9 +738,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
         print("file is:  ", fileURL)
         let _url:NSURL = fileURL as NSURL
         let _docDir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
-        var _filePath = _docDir + String(format: "/%@.%@", _url.deletingPathExtension!.lastPathComponent, _url.pathExtension!)
+        var _fileName = _url.deletingPathExtension!.lastPathComponent
+        _fileName = _fileName.replacingOccurrences(of: " ", with:"_")
+        var _filePath = _docDir + String(format: "/%@.%@", _fileName, _url.pathExtension!)
         if FileManager.default.fileExists(atPath: _filePath) {
-            _filePath = _docDir + String(format: "/%@_%f.%@", _url.deletingPathExtension!.lastPathComponent, Date().timeIntervalSince1970 * 1000, _url.pathExtension!)
+            _filePath = _docDir + String(format: "/%@_%f.%@", _fileName, Date().timeIntervalSince1970 * 1000, _url.pathExtension!)
         }
         let _fileData = NSData(contentsOf: fileURL)
         print("filepath:: \(String(describing: _filePath))")
