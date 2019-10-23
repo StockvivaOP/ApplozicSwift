@@ -112,7 +112,7 @@ final class ALKInformationCell: UITableViewCell {
             self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding(isUnreadMsg:true)
             bubbleView.backgroundColor = UIColor.clear
             self.contentView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
-            messageView.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? viewModel.message
+            messageView.text = viewModel.message
         }else{
             self.bubbleViewTopConst?.constant = ALKInformationCell.bubbleViewTopPadding()
             self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding()
