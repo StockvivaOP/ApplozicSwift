@@ -37,6 +37,13 @@ final class ALKInformationCell: UITableViewCell {
         return bv
     }()
     
+    fileprivate var bgView: UIView = {
+        let bv = UIView()
+        bv.backgroundColor = UIColor.clear
+        bv.isUserInteractionEnabled = false
+        return bv
+    }()
+    
     var bubbleViewTopConst:NSLayoutConstraint?
     var bubbleViewBottomConst:NSLayoutConstraint?
     
@@ -54,14 +61,14 @@ final class ALKInformationCell: UITableViewCell {
     
     class func bubbleViewTopPadding(isUnreadMsg:Bool = false) -> CGFloat {
         if isUnreadMsg {
-            return 2.5
+            return 12.5
         }
         return 4
     }
     
     class func bubbleViewBottomPadding(isUnreadMsg:Bool = false) -> CGFloat {
         if isUnreadMsg {
-            return 2.5
+            return 12.5
         }
         return 4
     }
@@ -111,14 +118,16 @@ final class ALKInformationCell: UITableViewCell {
             self.bubbleViewTopConst?.constant = ALKInformationCell.bubbleViewTopPadding(isUnreadMsg:true)
             self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding(isUnreadMsg:true)
             bubbleView.backgroundColor = UIColor.clear
-            self.contentView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
+            bgView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
             messageView.text = viewModel.message
+            bgView.isHidden = false
         }else{
             self.bubbleViewTopConst?.constant = ALKInformationCell.bubbleViewTopPadding()
             self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding()
             bubbleView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
-            self.contentView.backgroundColor = UIColor.clear
+            bgView.backgroundColor = UIColor.clear
             messageView.text = viewModel.message
+            bgView.isHidden = true
         }
     }
 
@@ -128,9 +137,13 @@ final class ALKInformationCell: UITableViewCell {
         self.backgroundColor = UIColor.clear
         bubbleView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
         messageView.textColor = configuration.conversationViewCustomCellTextColor
-        contentView.addViewsForAutolayout(views: [messageView,bubbleView])
+        contentView.addViewsForAutolayout(views: [bgView, messageView,bubbleView])
         contentView.bringSubviewToFront(messageView)
         
+        bgView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
+        bgView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10).isActive = true
+        bgView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
+        bgView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
         
         self.bubbleViewTopConst = bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4)
         self.bubbleViewBottomConst = bubbleView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4)
