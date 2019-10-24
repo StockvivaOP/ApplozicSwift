@@ -738,15 +738,15 @@ open class ALKConversationViewModel: NSObject, Localizable {
         print("file is:  ", fileURL)
         let _url:NSURL = fileURL as NSURL
         let _docDir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
-        var _fileName = _url.deletingPathExtension!.lastPathComponent
-        _fileName = _fileName.replacingOccurrences(of: " ", with:"_")
+        let _fileName = _url.deletingPathExtension!.lastPathComponent
         var _filePath = _docDir + String(format: "/%@.%@", _fileName, _url.pathExtension!)
         if FileManager.default.fileExists(atPath: _filePath) {
             _filePath = _docDir + String(format: "/%@_%f.%@", _fileName, Date().timeIntervalSince1970 * 1000, _url.pathExtension!)
         }
+        let _encodedURLPath = _filePath.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) ?? _filePath
         let _fileData = NSData(contentsOf: fileURL)
         print("filepath:: \(String(describing: _filePath))")
-        guard _fileData?.write(toFile: _filePath, atomically: false) ?? false, let url = URL(string: _filePath) else { return (nil, nil) }
+        guard _fileData?.write(toFile: _filePath, atomically: false) ?? false, let url = URL(string: _encodedURLPath) else { return (nil, nil) }
         guard let alMessage = processAttachment(
             filePath: url,
             text: "",
