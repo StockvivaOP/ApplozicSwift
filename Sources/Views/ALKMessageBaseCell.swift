@@ -217,26 +217,27 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.image = UIImage.init(named: "sv_button_chatroom_reply_orange", in: Bundle.applozic, compatibleWith: nil)
             replyIndicatorView.backgroundColor = UIColor.clear
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
-            //set color
-            if let _messageUserId = replyMessage?.receiverId,
-                let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
-                replyNameLabel.textColor = _userColor
-                replyIndicatorView.tintColor = _userColor
-            }
         }else{
             replyView.image = setReplyViewImage(isReceiverSide: true)
             replyIndicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.image = nil
-            //set color
-            if let _messageUserId = replyMessage?.receiverId,
-                let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
-                replyNameLabel.textColor = _userColor
-                replyIndicatorView.backgroundColor = _userColor
-                replyIndicatorView.tintColor = _userColor
-            }
         }
-
+        //set color
+        var _contactID:String? = nil
+        if replyMessage?.isMyMessage == true {
+            _contactID = self.delegateCellRequestInfo?.getSelfUserHashId()
+        }else{
+            _contactID = replyMessage?.receiverId
+        }
+        
+        if let _messageUserId = _contactID,
+            let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            replyNameLabel.textColor = _userColor
+            replyIndicatorView.backgroundColor = _userColor
+            replyIndicatorView.tintColor = _userColor
+        }
+        
         self.timeLabel.text   = viewModel.time
         resetTextView(style)
         guard let message = viewModel.message else { return }
