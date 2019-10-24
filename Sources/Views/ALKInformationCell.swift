@@ -15,7 +15,7 @@ final class ALKInformationCell: UITableViewCell {
 
     fileprivate var messageView: UITextView = {
         let tv = UITextView()
-        tv.font = UIFont.systemFont(ofSize: 16.0)
+        tv.font = UIFont.systemFont(ofSize: 12.0)
         tv.isEditable = false
         tv.backgroundColor = .clear
         tv.isSelectable = false
@@ -76,6 +76,12 @@ final class ALKInformationCell: UITableViewCell {
 
     class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
 
+        let _isUnReadMsg = viewModel.isUnReadMessageSeparator() == true
+        var _targetFontSize = UIFont.font(.bold(size: 12.0))
+        if _isUnReadMsg {
+            _targetFontSize = UIFont.font(.bold(size: 16.0))
+        }
+        
         let widthNoPadding: CGFloat = 300
         var messageHeigh: CGFloat = 0
         if let message = viewModel.message {
@@ -84,7 +90,7 @@ final class ALKInformationCell: UITableViewCell {
 
             let rect = (nomalizedMessage as NSString).boundingRect(with: CGSize.init(width: widthNoPadding, height: CGFloat.greatestFiniteMagnitude),
                                                                    options: NSStringDrawingOptions.usesLineFragmentOrigin,
-                                                                   attributes: [NSAttributedString.Key.font:UIFont.font(.bold(size: 16))],
+                                                                   attributes: [NSAttributedString.Key.font:_targetFontSize],
                                                                    context: nil)
             messageHeigh = rect.height/* + 17*/
 
@@ -94,7 +100,6 @@ final class ALKInformationCell: UITableViewCell {
         if messageHeigh < 17 {
             messageHeigh = 17
         }
-        let _isUnReadMsg = viewModel.isUnReadMessageSeparator() == true
         return topPadding()+bubbleViewTopPadding(isUnreadMsg:_isUnReadMsg)+messageHeigh+bottomPadding()+bubbleViewBottomPadding(isUnreadMsg:_isUnReadMsg)
     }
 
@@ -115,6 +120,7 @@ final class ALKInformationCell: UITableViewCell {
         self.viewModel = viewModel
 
         if self.viewModel?.isUnReadMessageSeparator() == true{
+            self.messageView.font = UIFont.systemFont(ofSize: 16.0)
             self.bubbleViewTopConst?.constant = ALKInformationCell.bubbleViewTopPadding(isUnreadMsg:true)
             self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding(isUnreadMsg:true)
             bubbleView.backgroundColor = UIColor.clear
@@ -122,6 +128,7 @@ final class ALKInformationCell: UITableViewCell {
             messageView.text = viewModel.message
             bgView.isHidden = false
         }else{
+            self.messageView.font = UIFont.systemFont(ofSize: 12.0)
             self.bubbleViewTopConst?.constant = ALKInformationCell.bubbleViewTopPadding()
             self.bubbleViewBottomConst?.constant = -ALKInformationCell.bubbleViewBottomPadding()
             bubbleView.backgroundColor = configuration.conversationViewCustomCellBackgroundColor
