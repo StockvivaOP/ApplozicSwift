@@ -150,6 +150,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     lazy open var replyMessageView: ALKReplyMessageView = {
         let view = ALKReplyMessageView(frame: CGRect.zero, configuration: configuration)
+        view.delegateCellRequestInfo = self
         view.backgroundColor = UIColor.ALKSVGreyColor250()
         return view
     }()
@@ -2483,6 +2484,10 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
         self.delegateConversationChatContentAction?.showAlert(type:type)
+    }
+    
+    public func getSelfUserHashId() -> String? {
+        return self.delegateConversationChatContentAction?.getSelfUserHashId()
     }
 }
 

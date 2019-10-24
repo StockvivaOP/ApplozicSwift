@@ -283,6 +283,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser() -> Bool
+    func getSelfUserHashId() -> String?
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
     //pin message
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
@@ -316,6 +317,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func isEnablePinMsgMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
+    func getSelfUserHashId() -> String?
 }
 
 public protocol SystemTextLocalizableRequestDelegate: class{
