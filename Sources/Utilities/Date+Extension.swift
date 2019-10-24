@@ -50,7 +50,7 @@ extension Date {
 
     func toHHmmMMMddFormat() -> String {
         let _dateFormatter = DateFormatter()
-        _dateFormatter.dateFormat = "HH:mm MMM dd"
+        _dateFormatter.dateFormat = "HH:mm MMMdd"
         //set locale name
         var _isChineseFormat = false
         if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {

@@ -92,13 +92,13 @@
                                             </containerView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nMJ-vd-6lI" userLabel="line break">
                                                 <rect key="frame" x="10" y="58" width="250" height="1"/>
-                                                <color key="backgroundColor" red="0.63137254901960782" green="0.63137254901960782" blue="0.63137254901960782" alpha="1" colorSpace="calibratedRGB"/>
+                                                <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="1" id="7Pb-xy-hat"/>
                                                 </constraints>
                                             </view>
                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" bouncesZoom="NO" editable="NO" text="..." textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6pa-Se-0Ua">
-                                                <rect key="frame" x="10" y="70" width="250" height="336"/>
+                                                <rect key="frame" x="5" y="70" width="260" height="336"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="textColor" red="0.1529411765" green="0.1529411765" blue="0.1529411765" alpha="1" colorSpace="calibratedRGB"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
@@ -108,13 +108,13 @@
                                         </subviews>
                                         <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="6pa-Se-0Ua" secondAttribute="trailing" constant="10" id="BPQ-fU-mKv"/>
+                                            <constraint firstAttribute="trailing" secondItem="6pa-Se-0Ua" secondAttribute="trailing" constant="5" id="BPQ-fU-mKv"/>
                                             <constraint firstItem="zdc-je-z3M" firstAttribute="leading" secondItem="rdi-Dv-whI" secondAttribute="leading" id="Bzc-si-cW8"/>
                                             <constraint firstAttribute="trailing" secondItem="zdc-je-z3M" secondAttribute="trailing" id="CNU-VC-Uf9"/>
                                             <constraint firstItem="6pa-Se-0Ua" firstAttribute="top" secondItem="nMJ-vd-6lI" secondAttribute="bottom" constant="11" id="GzT-FJ-L4h"/>
                                             <constraint firstItem="nMJ-vd-6lI" firstAttribute="top" secondItem="zdc-je-z3M" secondAttribute="bottom" id="N7O-BC-iOm"/>
                                             <constraint firstItem="zdc-je-z3M" firstAttribute="top" secondItem="rdi-Dv-whI" secondAttribute="top" id="R4e-ru-gcq"/>
-                                            <constraint firstItem="6pa-Se-0Ua" firstAttribute="leading" secondItem="rdi-Dv-whI" secondAttribute="leading" constant="10" id="bKp-CK-phi"/>
+                                            <constraint firstItem="6pa-Se-0Ua" firstAttribute="leading" secondItem="rdi-Dv-whI" secondAttribute="leading" constant="5" id="bKp-CK-phi"/>
                                             <constraint firstAttribute="bottom" secondItem="6pa-Se-0Ua" secondAttribute="bottom" constant="9" id="dL7-SO-Lcc"/>
                                             <constraint firstAttribute="trailing" secondItem="nMJ-vd-6lI" secondAttribute="trailing" constant="10" id="g6u-Dz-cIj"/>
                                             <constraint firstItem="nMJ-vd-6lI" firstAttribute="leading" secondItem="rdi-Dv-whI" secondAttribute="leading" constant="10" id="pEN-iq-NSe"/>
@@ -158,6 +158,7 @@
                     </view>
                     <connections>
                         <outlet property="btnClose" destination="M10-NF-Ljg" id="BJ9-Qu-Ee4"/>
+                        <outlet property="imgPageIcon" destination="ZYq-78-o0I" id="6ky-1D-4ky"/>
                         <outlet property="labPageTitle" destination="SlY-Ak-2fe" id="p1S-Bq-Tnh"/>
                         <outlet property="tvMessageContent" destination="6pa-Se-0Ua" id="pv5-0Z-GgO"/>
                     </connections>
@@ -248,7 +249,7 @@
                                             </containerView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Bz3-0k-wgq" userLabel="line break">
                                                 <rect key="frame" x="10" y="58" width="250" height="1"/>
-                                                <color key="backgroundColor" red="0.63137254899999995" green="0.63137254899999995" blue="0.63137254899999995" alpha="1" colorSpace="calibratedRGB"/>
+                                                <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="1" id="FIx-P1-T4d"/>
                                                 </constraints>
@@ -377,6 +378,7 @@
                         <outlet property="btnDownload" destination="dFi-Ab-LZQ" id="hHp-8T-uWT"/>
                         <outlet property="imgDownloadIndicator" destination="TFd-Jk-Zcq" id="v09-gM-WbU"/>
                         <outlet property="imgMessageFile" destination="HTI-aZ-iND" id="SlG-n6-auP"/>
+                        <outlet property="imgPageIcon" destination="ru2-gA-hEr" id="M89-h2-4Cd"/>
                         <outlet property="labPageTitle" destination="faO-Bp-MtS" id="h9k-5d-jAh"/>
                         <outlet property="tvCaptionContent" destination="dix-c9-mG9" id="0yO-4c-7Fv"/>
                         <outlet property="viewDLKGroup" destination="m7m-lJ-JUi" id="9HI-iG-6DE"/>
@@ -469,7 +471,7 @@
                                             </containerView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Rtd-3i-2FW" userLabel="line break">
                                                 <rect key="frame" x="10" y="58" width="250" height="1"/>
-                                                <color key="backgroundColor" red="0.63137254899999995" green="0.63137254899999995" blue="0.63137254899999995" alpha="1" colorSpace="calibratedRGB"/>
+                                                <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="1" id="e15-eL-XUP"/>
                                                 </constraints>
@@ -605,6 +607,7 @@
                         <outlet property="btnDownload" destination="TzU-av-trN" id="2h3-HY-mdq"/>
                         <outlet property="btnOpenFile" destination="bl8-so-zRz" id="21T-NG-JGN"/>
                         <outlet property="imgClipIcon" destination="ldU-QU-grX" id="A3A-cH-ViM"/>
+                        <outlet property="imgPageIcon" destination="Oez-eY-KhY" id="wCr-E9-YrA"/>
                         <outlet property="labFileName" destination="Dy7-0w-lvd" id="dkS-cZ-I7X"/>
                         <outlet property="labFileTypeInfo" destination="8wd-C2-GhZ" id="d7p-We-fbR"/>
                         <outlet property="labPageTitle" destination="l9n-yX-8WQ" id="0hE-JS-yCe"/>
@@ -721,6 +724,6 @@
         <image name="sv_icon_pin" width="24" height="24"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="CWL-U8-9dm"/>
+        <segue reference="5WQ-V0-NTO"/>
     </inferredMetricsTieBreakers>
 </document>

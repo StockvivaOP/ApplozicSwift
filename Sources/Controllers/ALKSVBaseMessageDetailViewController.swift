@@ -15,6 +15,7 @@ protocol ALKSVMessageDetailViewControllerDelegate : class {
 
 class ALKSVBaseMessageDetailViewController: UIViewController {
 
+    @IBOutlet weak var imgPageIcon: UIImageView!
     @IBOutlet weak var labPageTitle: UILabel!
     @IBOutlet weak var btnClose: UIButton!
     
@@ -31,7 +32,13 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
         //set up header
         self.findAndSetUpHeader()
         //set title
-        self.labPageTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? ""
+        if self.isViewFromPinMessage {
+            self.imgPageIcon.image = UIImage(named: "sv_icon_pin", in: Bundle.applozic, compatibleWith: nil)
+            self.labPageTitle.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? ""
+        }else{
+            self.imgPageIcon.image = UIImage(named: "sv_icon_reply", in: Bundle.applozic, compatibleWith: nil)
+            self.labPageTitle.text =  ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_reply_message") ?? ""
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {

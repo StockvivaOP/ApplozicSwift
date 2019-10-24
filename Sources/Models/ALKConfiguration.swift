@@ -225,7 +225,7 @@ public struct ALKConfiguration {
     public static var delegateSystemLoggingRequestDelegate:SystemLoggingRequestDelegate?
     
     /// If true, system can scroll to reply org message while click
-    public var enableScrollToReplyViewWhenClick: Bool = false
+    public var enableScrollToReplyViewWhenClick: Bool = true
     
     /// If true, system will request the app to handle
     public var enableOpenLinkInApp: Bool = false
@@ -284,6 +284,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser() -> Bool
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
+    //pin message
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageClicked()

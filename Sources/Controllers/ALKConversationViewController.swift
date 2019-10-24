@@ -170,7 +170,22 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         case trial
         case paid
     }
-    
+    enum ALKConversationViewScrollingState : CaseIterable {
+        case idle
+        case up
+        case down
+        
+        func getDescription() -> String {
+            switch self {
+            case .idle:
+                return "idle"
+            case .up:
+                return "up"
+            case .down:
+                return "down"
+            }
+        }
+    }
     public var enableShowJoinGroupMode: Bool = false
     public var enableShowBlockChatMode: Bool = false
     public var conversationType: ALKConversationType = .free
@@ -182,6 +197,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     private var isViewFirstLoad: Bool = true
     private var isAutoRefreshMessage: Bool = false
+    private var isViewDisappear = false
+    private var isLeaveView = false
+    var scrollingState:ALKConversationViewScrollingState = .idle
+    var lastScrollingPoint:CGPoint = CGPoint.zero
     open var discrimationView: UIButton = {
         let view = UIButton()
         view.backgroundColor = UIColor.ALKSVGreyColor245()
@@ -190,7 +209,19 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.titleLabel?.textAlignment = .center
         return view
     }()
+    
+    public let unReadMessageRemindIndicatorView: UIView = {
+        let _view = UIView(frame: CGRect.zero)
+        _view.backgroundColor = UIColor.ALKSVStockColorRed()
+        _view.layer.cornerRadius = 7.5
+        _view.isHidden = true
+        return _view
+    }()
     //tag: stockviva end
+    
+    deinit {
+        self.removeObserver()
+    }
     
     required public init(configuration: ALKConfiguration) {
         super.init(configuration: configuration)
@@ -241,6 +272,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 tableView.scrollToBottomByOfset(animated: false)
             } else if weakSelf.viewModel.messageModels.count > 1 && self?.isFirstTime == false {
                 weakSelf.unreadScrollButton.isHidden = false
+                weakSelf.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
             }
         })
 
@@ -265,14 +297,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     viewModel.sendKeyboardDoneTyping()
                 })
         })
-
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "newMessageNotification"), object: nil, queue: nil, using: { [weak self]
+        
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "newMessageNotification"), object: nil, queue: nil, using: {
             notification in
-            guard let weakSelf = self, weakSelf.viewModel != nil else { return }
+            guard self.viewModel != nil && self.isLeaveView == false else { return }
+            guard self.viewModel.isUnreadMessageMode == false else { return }
             let msgArray = notification.object as? [ALMessage]
             print("new notification received: ", msgArray?.first?.message as Any, msgArray?.count ?? "")
-            guard let list = notification.object as? [Any], !list.isEmpty, weakSelf.isViewLoaded else { return }
-            weakSelf.viewModel.addMessagesToList(list)
+            guard let list = notification.object as? [Any], !list.isEmpty, self.isViewLoaded else { return }
+            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
 //            weakSelf.handlePushNotification = false
         })
 
@@ -389,6 +422,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.isViewDisappear = false
+        self.isLeaveView = false
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             tableView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
@@ -440,6 +475,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.isViewFirstLoad = true
         setupConstraints()
         //tag: stockviva
+        self.viewModel.delegateConversationChatContentAction = self.delegateConversationChatContentAction
         self.tableView.scrollsToTop = false
         self.chatBar.delegate = self
         self.chatBar.setUpViewConfig()
@@ -475,6 +511,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        self.isViewDisappear = true
+        //save for unread message
+        self.saveLastReadMessageIfNeeded()
         stopAudioPlayer()
         chatBar.stopRecording()
         if individualLaunch {
@@ -483,6 +522,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             }
         }
         unsubscribingChannel()
+        if self.isMovingFromParent {
+            self.isLeaveView = true
+            self.removeObserver()
+        }
     }
 
     override func backTapped() {
@@ -508,6 +551,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     func setupView() {
 
         unreadScrollButton.isHidden = true
+        self.unReadMessageRemindIndicatorView.isHidden = true
         unreadScrollButton.addTarget(self, action: #selector(unreadScrollDownAction(_:)), for: .touchUpInside)
 
         backgroundView.backgroundColor = configuration.backgroundColor
@@ -581,7 +625,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
 
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, replyMessageView, pinMessageView, discrimationView]
+        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -652,6 +696,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         unreadScrollButton.widthAnchor.constraint(equalToConstant: 38).isActive = true
         unreadScrollButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -18).isActive = true
         unreadScrollButton.bottomAnchor.constraint(equalTo: tableView.bottomAnchor, constant: -18).isActive = true
+        
+        unReadMessageRemindIndicatorView.heightAnchor.constraint(equalToConstant: 15).isActive = true
+        unReadMessageRemindIndicatorView.widthAnchor.constraint(equalToConstant: 15).isActive = true
+        unReadMessageRemindIndicatorView.topAnchor.constraint(equalTo: unreadScrollButton.topAnchor, constant: -2).isActive = true
+        unReadMessageRemindIndicatorView.leadingAnchor.constraint(equalTo: unreadScrollButton.leadingAnchor, constant: -2).isActive = true
 
         leftMoreBarConstraint = moreBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 56)
         leftMoreBarConstraint?.isActive = true
@@ -785,7 +834,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             switch action {
 
             case .sendText(let button, let message):
-
                 if message.count < 1 {
                     return
                 }
@@ -828,8 +876,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     _tempMsg = _tempMsg + _additionalMsg
                 }
                 
-                weakSelf.viewModel.send(message: _tempMsg, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
-                button.isUserInteractionEnabled = true
+                self?.sendMessageWithHandleUnreadModel(completedBlock: {
+                    weakSelf.viewModel.send(message: _tempMsg, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
+                    button.isUserInteractionEnabled = true
+                })
             case .chatBarTextChange:
 
                 weakSelf.viewModel.sendKeyboardBeginTyping()
@@ -847,8 +897,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     }
                 })
             case .sendVoice(let voice):
-                weakSelf.viewModel.send(voiceMessage: voice as Data, metadata:self?.configuration.messageMetadata)
-
+                self?.sendMessageWithHandleUnreadModel(completedBlock: {
+                    weakSelf.viewModel.send(voiceMessage: voice as Data, metadata:self?.configuration.messageMetadata)
+                })
             case .startVideoRecord:
                 if UIImagePickerController.isSourceTypeAvailable(.camera) {
                     AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
@@ -1008,6 +1059,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public func sync(message: ALMessage) {
         /// Return if message is sent by loggedin user
         guard !message.isSentMessage() else { return }
+        if self.viewModel.isUnreadMessageMode { return }
         guard !viewModel.isOpenGroup else {
             viewModel.syncOpenGroup(message: message)
             return
@@ -1087,8 +1139,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
+        if self.viewModel.isUnreadMessageMode {//just cancel if user want to read latest message of now
+            self.viewModel.clearUnReadMessageData()
+            self.scrollingState = .idle
+            self.lastScrollingPoint = CGPoint.zero
+            ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
+            self.refreshViewController()
+        }
         tableView.scrollToBottom(animated: true)
         unreadScrollButton.isHidden = true
+        self.unReadMessageRemindIndicatorView.isHidden = true
     }
     
     @objc func discrimationToucUpInside(_ sender: UIButton) {
@@ -1531,22 +1591,41 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         activityIndicator.startAnimating()
     }
 
-    public func loadingFinished(error: Error?) {
+    public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool) {
         activityIndicator.stopAnimating()
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
-        let newSectionCount = tableView.numberOfSections
-        if newSectionCount > oldSectionCount {
-            let offset = newSectionCount - oldSectionCount - 1
-            tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .none, animated: false)
+        if isLoadNextPage == false {
+            let newSectionCount = tableView.numberOfSections
+            if newSectionCount > oldSectionCount {
+                let offset = newSectionCount - oldSectionCount - 1
+                tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .none, animated: false)
+            }
         }
         print("loading finished")
         DispatchQueue.main.async {
             if self.viewModel.isFirstTime {
-                self.tableView.scrollToBottom(animated: false)
+                if targetFocusItemIndex != -1 {
+                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
+                }else{
+                    self.tableView.scrollToBottom(animated: false)
+                }
+                self.saveLastReadMessageIfNeeded()
                 self.viewModel.isFirstTime = false
             }
         }
+        //show / off scroll down button
+        let _lastItemIndex = self.viewModel.messageModels.count-1
+        let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
+        if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
+            _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
+            (targetFocusItemIndex == -1 && isLoadNextPage == false){
+            self.unreadScrollButton.isHidden = true
+        }else {
+            self.unreadScrollButton.isHidden = false
+        }
+        self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
+        
         guard !viewModel.isOpenGroup else {return}
         viewModel.markConversationRead()
     }
@@ -1562,6 +1641,10 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         }else if self.isFirstTime == false {
             self.unreadScrollButton.isHidden = false
         }
+        self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
+        
+        //save for unread message
+        self.saveLastReadMessageIfNeeded()
     }
 
     public func updateMessageAt(indexPath: IndexPath) {
@@ -1569,9 +1652,16 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             self.tableView.beginUpdates()
             self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
             self.tableView.endUpdates()
+            //save for unread message
+            self.saveLastReadMessageIfNeeded()
         }
     }
 
+    public func removeMessagesAt(indexPath: IndexPath, closureBlock: () -> Void) {
+        closureBlock()
+        self.tableView.reloadData()
+    }
+    
     //This is a temporary workaround for the issue that messages are not scrolling to bottom when opened from notification
     //This issue is happening because table view has different cells of different heights so it cannot go to the bottom of cell when using function scrollToBottom
     //And thats why when we check whether last cell is visible or not, it gives false result since the last cell is sometimes not fully visible.
@@ -1606,6 +1696,8 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     @objc open func newMessagesAdded() {
         updateTableView()
+        //save for unread message as last message
+        self.saveLastReadMessageAsLastMessge()
         //Check if current user is removed from the group
         isChannelLeft()
 
@@ -1619,6 +1711,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 moveTableViewToBottom(indexPath: indexPath)
             } else if viewModel.messageModels.count > 1 { // Check if the function is called before message is added. It happens when user is added in the group.
                 unreadScrollButton.isHidden = false
+                self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
             }
         }
         guard self.isViewLoaded && self.view.window != nil && !viewModel.isOpenGroup else {
@@ -1994,48 +2087,51 @@ extension ALKConversationViewController: UIImagePickerControllerDelegate, UINavi
 
 extension ALKConversationViewController: ALKCustomPickerDelegate {
     func filesSelected(images: [UIImage], videos: [String]) {
-        let fileCount = images.count + videos.count
-        for index in 0..<fileCount {
-            if index < images.count {
-                let image = images[index]
-                let (message, indexPath) = self.viewModel.send(
-                    photo: image,
-                    metadata: self.configuration.messageMetadata)
-                guard message != nil, let newIndexPath = indexPath else { return }
-                //            DispatchQueue.main.async {
-                self.tableView.beginUpdates()
-                self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
-                self.tableView.endUpdates()
-                self.tableView.scrollToBottom(animated: false)
-                //            }
-                guard let cell = tableView.cellForRow(at: newIndexPath) as? ALKMyPhotoPortalCell else { return }
-                guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
-                    let notificationView = ALNotificationView()
-                    notificationView.noDataConnectionNotificationView()
-                    return
+        self.sendMessageWithHandleUnreadModel {
+            let fileCount = images.count + videos.count
+            for index in 0..<fileCount {
+                if index < images.count {
+                    let image = images[index]
+                    let (message, indexPath) = self.viewModel.send(
+                        photo: image,
+                        metadata: self.configuration.messageMetadata)
+                    guard message != nil, let newIndexPath = indexPath else { return }
+                    //            DispatchQueue.main.async {
+                    self.tableView.beginUpdates()
+                    self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
+                    self.tableView.endUpdates()
+                    self.tableView.scrollToBottom(animated: false)
+                    //            }
+                    guard let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyPhotoPortalCell else { return }
+                    guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
+                        let notificationView = ALNotificationView()
+                        notificationView.noDataConnectionNotificationView()
+                        return
+                    }
+                    self.viewModel.uploadImage(view: cell, indexPath: newIndexPath)
+                } else {
+                    let path = videos[index - images.count]
+                    guard let indexPath = self.viewModel.sendVideo(
+                        atPath: path,
+                        sourceType: .photoLibrary,
+                        metadata : self.configuration.messageMetadata).1
+                        else { continue }
+                    self.tableView.beginUpdates()
+                    self.tableView.insertSections(IndexSet(integer: indexPath.section), with: .automatic)
+                    self.tableView.endUpdates()
+                    self.tableView.scrollToBottom(animated: false)
+                    guard let cell = self.tableView.cellForRow(at: indexPath) as? ALKMyVideoCell else { return }
+                    guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
+                        let notificationView = ALNotificationView()
+                        notificationView.noDataConnectionNotificationView()
+                        return
+                    }
+                    self.viewModel.uploadVideo(view: cell, indexPath: indexPath)
                 }
-                viewModel.uploadImage(view: cell, indexPath: newIndexPath)
-            } else {
-                let path = videos[index - images.count]
-                guard let indexPath = viewModel.sendVideo(
-                    atPath: path,
-                    sourceType: .photoLibrary,
-                    metadata : self.configuration.messageMetadata).1
-                    else { continue }
-                self.tableView.beginUpdates()
-                self.tableView.insertSections(IndexSet(integer: indexPath.section), with: .automatic)
-                self.tableView.endUpdates()
-                self.tableView.scrollToBottom(animated: false)
-                guard let cell = tableView.cellForRow(at: indexPath) as? ALKMyVideoCell else { return }
-                guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
-                    let notificationView = ALNotificationView()
-                    notificationView.noDataConnectionNotificationView()
-                    return
-                }
-                self.viewModel.uploadVideo(view: cell, indexPath: indexPath)
+                
             }
-
         }
+        
     }
 }
 
@@ -2222,6 +2318,40 @@ extension ALKConversationViewController {
             self.present(_pVC, animated: true, completion: nil)
         }
     }
+    
+    func didReplyClickedInCell(replyMessage: ALKMessageViewModel){
+        var _userDisplayName:String? = nil
+        var _userIconUrl:String? = nil
+        if replyMessage.isMyMessage {
+            _userDisplayName = ALUserDefaultsHandler.getDisplayName()
+            _userIconUrl = ALUserDefaultsHandler.getProfileImageLinkFromServer()
+            if _userDisplayName == nil {
+                _userDisplayName = ""
+            }
+            if _userIconUrl == nil {
+                _userIconUrl = ""
+            }
+        }
+        self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: replyMessage)
+    }
+    
+    func sendMessageWithHandleUnreadModel(completedBlock:@escaping ()->Void){
+        //check model
+        if self.viewModel.isUnreadMessageMode {
+            self.viewModel.messageSendUnderUnreadModel(startProcess: {
+                self.scrollingState = .idle
+                self.lastScrollingPoint = CGPoint.zero
+                self.loadingStarted()
+            }) {//completed
+                if self.activityIndicator.isAnimating == true {
+                    self.activityIndicator.stopAnimating()
+                }
+                completedBlock()
+            }
+        }else{
+            completedBlock()
+        }
+    }
 }
 
 //MARK: - stockviva (ALKSVPinMessageViewDelegate)
@@ -2283,23 +2413,25 @@ extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUpload
     }
     
     public func didStartUploadFiles(urls:[URL]){
-        //loop to upload file
-        for  url in urls {
-            let (message, indexPath) = self.viewModel.send(fileURL: url, metadata: self.configuration.messageMetadata)
-            guard message != nil, let newIndexPath = indexPath else { return }
-            //        DispatchQueue.main.async {
-            self.tableView.beginUpdates()
-            self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
-            self.tableView.endUpdates()
-            self.tableView.scrollToBottom(animated: false)
-            //        }
-            guard let cell = tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
-            guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
-                let notificationView = ALNotificationView()
-                notificationView.noDataConnectionNotificationView()
-                return
+        self.sendMessageWithHandleUnreadModel {
+            //loop to upload file
+            for  url in urls {
+                let (message, indexPath) = self.viewModel.send(fileURL: url, metadata: self.configuration.messageMetadata)
+                guard message != nil, let newIndexPath = indexPath else { return }
+                //        DispatchQueue.main.async {
+                self.tableView.beginUpdates()
+                self.tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
+                self.tableView.endUpdates()
+                self.tableView.scrollToBottom(animated: false)
+                //        }
+                guard let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
+                guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
+                    let notificationView = ALNotificationView()
+                    notificationView.noDataConnectionNotificationView()
+                    return
+                }
+                self.viewModel.uploadFile(view: cell, indexPath: newIndexPath)
             }
-            viewModel.uploadFile(view: cell, indexPath: newIndexPath)
         }
     }
 }
@@ -2349,6 +2481,56 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
         self.delegateConversationChatContentAction?.showAlert(type:type)
+    }
+}
+
+//MARK: - stockviva unread message
+extension ALKConversationViewController {
+    
+    func saveLastReadMessageIfNeeded(){
+        if self.isViewDisappear {
+            return
+        }
+        let _maxYForVisableContent = self.tableView.contentOffset.y + self.tableView.bounds.size.height
+        for _cellIndex in self.tableView.indexPathsForVisibleRows?.reversed() ?? [] {
+            let _cellPos = self.tableView.rectForRow(at: _cellIndex)
+            let _cellMinHeightOffset = _cellPos.height / 2.5
+            if (_cellPos.maxY - _cellMinHeightOffset) <= _maxYForVisableContent {
+                if let _cellItem =  self.viewModel.messageForRow(indexPath: _cellIndex),
+                    let _createDate = _cellItem.createdAtTime,
+                    let _chKey = self.viewModel.channelKey,
+                    let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey {
+                    debugPrint("PL**** - \(_cellItem.message ?? "nil")")
+                    ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
+                    break
+                }
+            }
+        }
+    }
+    
+    func saveLastReadMessageAsLastMessge(){
+        if self.isViewDisappear {
+            return
+        }
+        if let _cellItem =  self.viewModel.messageModels.last,
+            let _createDate = _cellItem.createdAtTime,
+            let _chKey = self.viewModel.channelKey,
+            let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey {
+            debugPrint("PL**** - \(_cellItem.message ?? "nil")")
+            ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
+        }
+    }
+    
+    func hiddenUnReadMessageRemindIndicatorViewIfNeeded(){
+        if let _lastUnReadMsgKey = self.viewModel.lastUnreadMessageKey,
+            let _arrayVisableIndex = tableView.indexPathsForVisibleRows?.last,
+            let _msgModel = self.viewModel.messageForRow(indexPath: _arrayVisableIndex),
+            _msgModel.identifier == _lastUnReadMsgKey && self.viewModel.isFirstTime == false {//is scroll to last cell
+            self.unReadMessageRemindIndicatorView.isHidden = true
+            self.viewModel.clearUnReadMessageData(isCancelTheModel:false)
+        }else{
+            self.unReadMessageRemindIndicatorView.isHidden = self.viewModel.lastUnreadMessageKey == nil || self.unreadScrollButton.isHidden
+        }
     }
 }
 

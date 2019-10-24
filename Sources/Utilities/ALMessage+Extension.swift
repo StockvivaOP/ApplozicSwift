@@ -348,11 +348,6 @@ extension ALMessage {
         return .document//when content type is nil
     }
     
-    func isInvalidAttachement() -> Bool {//if file is exist, but the content type is empty to null
-        guard let fileMeta = fileMeta else {return false}
-        return fileMeta.contentType == nil || fileMeta.contentType.isEmpty
-    }
-
     private func richMessageType() -> ALKMessageType {
         guard let metadata = metadata,
             let contentType = metadata["contentType"] as? String, contentType == "300",
@@ -411,6 +406,7 @@ extension ALMessage {
         messageModel.isReplyMessage = isAReplyMessage()
         messageModel.metadata = metadata as? Dictionary<String, Any>
         messageModel.source = source
+        messageModel.createdAtTime = createdAtTime
         messageModel.rawModel = self
         return messageModel
     }
@@ -423,5 +419,37 @@ extension ALMessage {
         } else {
             return false
         }
+    }
+}
+
+//MARK: tag stockviva
+extension ALMessage {
+    
+    func isInvalidAttachement() -> Bool {//if file is exist, but the content type is empty to null
+        guard let fileMeta = fileMeta else {return false}
+        return fileMeta.contentType == nil || fileMeta.contentType.isEmpty
+    }
+    
+    func getActionType() -> ALKMessageActionType {
+        guard let metadata = self.metadata, let _action = metadata["action"] as? String else { return ALKMessageActionType.normalMessage }
+        return ALKMessageActionType(rawValue: _action) ?? ALKMessageActionType.normalMessage
+    }
+
+    //un read message
+    func addIsUnreadMessageSeparatorInMetaData(_ isEnable:Bool){
+        let _valueStr = isEnable ? "1" : "0"
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue(_valueStr, forKey: "SV_UnreadMessageSeparator")
+    }
+    
+    //both for local key
+    func isUnReadMessageSeparator() -> Bool {
+        var _result = false
+        if let _unreadMsgKey = self.metadata.value(forKey: "SV_UnreadMessageSeparator") as? String, self.messageType == .information && _unreadMsgKey == "1" {
+            _result = true
+        }
+        return _result
     }
 }

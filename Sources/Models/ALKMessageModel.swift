@@ -33,6 +33,17 @@ public enum ALKMessageType: String {
     case imageMessage = "ImageMessage"
 }
 
+// MARK: - MessageActionType
+public enum ALKMessageActionType: String {
+    case peopleJoinGroup = "1"
+    case peopleLeaveGroup = "2"
+    case normalMessage = ""
+    
+    func isSkipMessage() -> Bool {
+        return self == .peopleJoinGroup || self == .peopleLeaveGroup
+    }
+}
+
 // MARK: - MessageViewModel
 public protocol ALKMessageViewModel {
     var message: String? { get }
@@ -62,8 +73,9 @@ public protocol ALKMessageViewModel {
     var fileMetaInfo: ALFileMetaInfo? { get }
     var receiverId: String? { get }
     var isReplyMessage: Bool { get }
-    var metadata: Dictionary<String, Any>? { get }
+    var metadata: Dictionary<String, Any>? { get set }
     var source: Int16 { get }
+    var createdAtTime: NSNumber? { get set }
     var rawModel: ALMessage? { get }
 }
 
@@ -98,6 +110,7 @@ public class ALKMessageModel: ALKMessageViewModel {
     public var isReplyMessage: Bool = false
     public var metadata: Dictionary<String, Any>?
     public var source: Int16 = 0
+    public var createdAtTime: NSNumber?
     public var rawModel:ALMessage?
 }
 
@@ -115,13 +128,22 @@ extension ALKMessageViewModel {
         guard let quickReplyArray = jsonArray as? [Dictionary<String,Any>] else { return nil }
         return quickReplyArray
     }
-    
-    public func getContentTypeForPinMessage() -> ALKMessageType{
-        return self.rawModel?.getAttachmentType() ?? .text
+}
+
+
+//MARK: tag stockviva
+extension ALKMessageViewModel {
+    func getActionType() -> ALKMessageActionType {
+        return self.rawModel?.getActionType() ?? ALKMessageActionType.normalMessage
     }
     
     func isInvalidAttachement() -> Bool {
         return self.rawModel?.isInvalidAttachement() ?? false
+    }
+    
+    //pin message
+    public func getContentTypeForPinMessage() -> ALKMessageType{
+        return self.rawModel?.getAttachmentType() ?? .text
     }
     
     public func convertModelToPinMessageEncodedString(myUserName:String? = nil, myUserIconUrl:String? = nil) -> String? {
@@ -216,5 +238,15 @@ extension ALKMessageViewModel {
             return nil
         }
         return _result
+    }
+    
+    //un read message
+    mutating func addIsUnreadMessageSeparatorInMetaData(_ isEnable:Bool){
+        self.rawModel?.addIsUnreadMessageSeparatorInMetaData(isEnable)
+        self.metadata = self.rawModel?.metadata as? Dictionary<String, Any>
+    }
+    
+    func isUnReadMessageSeparator() -> Bool {
+        return self.rawModel?.isUnReadMessageSeparator() ?? false
     }
 }
