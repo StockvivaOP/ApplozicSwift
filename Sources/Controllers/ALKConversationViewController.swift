@@ -2487,7 +2487,7 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     }
     
     public func getSelfUserHashId() -> String? {
-        return self.delegateConversationChatContentAction?.getSelfUserHashId()
+        return self.delegateConversationChatContentAction?.getLoginUserHashId()
     }
 }
 
