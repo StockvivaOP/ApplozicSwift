@@ -218,6 +218,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.backgroundColor = UIColor.clear
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
         }else{
+            replyNameLabel.textColor = UIColor.ALKSVOrangeColor()
             replyView.image = setReplyViewImage(isReceiverSide: true)
             replyIndicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
