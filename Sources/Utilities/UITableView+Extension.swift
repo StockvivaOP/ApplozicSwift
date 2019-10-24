@@ -16,9 +16,10 @@ extension UITableView {
     }
 
     func scrollToBottomSection1(animated: Bool = true) {
-
-        let indexPath = IndexPath.init(row: 0, section: 1)
-        scrollToRow(at: indexPath, at: .bottom, animated: animated)
+        if self.numberOfSections > 1 {
+            let indexPath = IndexPath.init(row: 0, section: 1)
+            scrollToRow(at: indexPath, at: .bottom, animated: animated)
+        }
     }
 
     func scrollToBottom(animated: Bool = true) {

@@ -15,6 +15,7 @@ import Applozic
 open class ALKReplyMessageView: UIView, Localizable {
 
     var configuration: ALKConfiguration!
+    var delegateCellRequestInfo:ConversationCellRequestInfoDelegate?
 
     open var nameLabel: UILabel = {
         let label = UILabel(frame: CGRect.zero)
@@ -144,8 +145,9 @@ open class ALKReplyMessageView: UIView, Localizable {
         fatalError("init(coder:) has not been implemented")
     }
 
-    open func update(message: ALKMessageViewModel) {
+    open func update(message: ALKMessageViewModel, configuration: ALKConfiguration) {
         self.message = message
+        self.configuration = configuration
         nameLabel.text = message.isMyMessage ?
             selfNameText:message.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
@@ -184,7 +186,14 @@ open class ALKReplyMessageView: UIView, Localizable {
         indicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
         
         //set color
-        if let _messageUserId = message.contactId,
+        var _contactID:String? = nil
+        if message.isMyMessage {
+            _contactID = self.delegateCellRequestInfo?.getSelfUserHashId()
+        }else{
+            _contactID = message.contactId
+        }
+        
+        if let _messageUserId = _contactID,
             let _userColor = self.configuration.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _userColor
             indicatorView.backgroundColor = _userColor
