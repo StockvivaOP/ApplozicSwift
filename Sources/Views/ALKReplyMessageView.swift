@@ -145,8 +145,9 @@ open class ALKReplyMessageView: UIView, Localizable {
         fatalError("init(coder:) has not been implemented")
     }
 
-    open func update(message: ALKMessageViewModel) {
+    open func update(message: ALKMessageViewModel, configuration: ALKConfiguration) {
         self.message = message
+        self.configuration = configuration
         nameLabel.text = message.isMyMessage ?
             selfNameText:message.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()

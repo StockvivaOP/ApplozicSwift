@@ -1194,7 +1194,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         case .reply:
             print("Reply selected")
             viewModel.setSelectedMessageToReply(message)
-            replyMessageView.update(message: message)
+            replyMessageView.update(message: message, configuration:self.configuration)
             showReplyMessageView()
             break;
         case .appeal(let chatGroupHashID, let userHashID, let messageID, let message):
