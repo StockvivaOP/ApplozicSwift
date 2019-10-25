@@ -164,7 +164,7 @@ extension ALKMessageViewModel {
         let _replacingStrArray = ["&" : ","]
         var _repUnicodeMsgStr = _rawMsgObject.message
         for replacingStrKey in _replacingStrArray.keys {
-            _repUnicodeMsgStr = _repUnicodeMsgStr?.replacingOccurrences(of: _replacingStrArray[replacingStrKey]!, with: replacingStrKey)
+            _repUnicodeMsgStr = _repUnicodeMsgStr?.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
         }
         
         var _resultMsg = [String:AnyObject?]()
