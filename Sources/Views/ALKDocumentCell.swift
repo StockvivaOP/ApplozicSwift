@@ -262,7 +262,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
 
     override func update(viewModel: ALKMessageViewModel) {
         self.viewModel = viewModel
-        timeLabel.text = viewModel.time
+        timeLabel.text = viewModel.date.toHumanFormat() //viewModel.time
         
         if self.viewModel?.isInvalidAttachement() == true {
             fileNameLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_not_support") ?? ""

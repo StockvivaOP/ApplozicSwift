@@ -67,4 +67,42 @@ extension Date {
         }
         return _dateStr
     }
+    
+    func toHumanFormat() -> String {
+        var _dayStr:String? = nil
+        let _components = Calendar.current.dateComponents([.day, .second], from: self, to: Date())
+        if let _numOfDay = _components.day, _numOfDay >= 0 && _numOfDay <= 1 {
+            if _numOfDay == 1 {
+                _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_yesterday")
+            }else{
+                _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_today")
+            }
+        }
+        
+        let _dateFormatter = DateFormatter()
+        //set locale name
+        var _isChineseFormat = false
+        if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
+            let _locale = Locale(identifier: _localeName)
+            _dateFormatter.locale = _locale
+            _isChineseFormat = _localeName.lowercased().starts(with: "zh_")
+        }else{
+            _dateFormatter.locale = Locale.current
+        }
+        
+        var _dateStr:String = ""
+        if let _dayHumanStr = _dayStr {
+            _dateFormatter.dateFormat = "HH:mm"
+            _dateStr = _dateFormatter.string(from: self)
+            _dateStr = _dateStr + " " + _dayHumanStr
+        }else{
+            _dateFormatter.dateFormat = "HH:mm MMMdd"
+            _dateStr = _dateFormatter.string(from: self)
+        }
+        
+        if _isChineseFormat {
+            _dateStr = _dateStr + (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
+        }
+        return _dateStr
+    }
 }

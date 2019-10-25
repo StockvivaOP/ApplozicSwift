@@ -116,7 +116,7 @@ class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
         super.update(viewModel: viewModel)
 
         // timeLable
-        timeLabel.text = viewModel.time
+        timeLabel.text = viewModel.date.toHumanFormat() //viewModel.time
 
         // addressLabel
         if let geocode = viewModel.geocode {

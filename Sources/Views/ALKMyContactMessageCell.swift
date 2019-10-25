@@ -45,7 +45,7 @@ class ALKMyContactMessageCell: ALKContactMessageBaseCell {
         if let filePath = viewModel.filePath {
             updateContactDetails(key: viewModel.identifier, filePath: filePath)
         }
-        timeLabel.text = viewModel.time
+        timeLabel.text = viewModel.date.toHumanFormat() //viewModel.time
         timeLabel.setStyle(ALKMessageStyle.time)
 
         // Set read status
