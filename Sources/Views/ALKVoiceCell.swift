@@ -171,7 +171,7 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         } else {
             progressBar.setValue(Float(percent), animated: false)
         }
-        timeLabel.text   = viewModel.date.toHumanFormat() //viewModel.time
+        timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
     }
 
     weak var voiceDelegate: ALKVoiceCellProtocol?

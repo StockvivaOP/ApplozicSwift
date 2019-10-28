@@ -68,7 +68,7 @@ extension Date {
         return _dateStr
     }
     
-    func toHumanFormat() -> String {
+    func toConversationViewDateFormat() -> String {
         var _dayStr:String? = nil
         let _components = Calendar.current.dateComponents([.day, .second], from: self, to: Date())
         if let _numOfDay = _components.day, _numOfDay >= 0 && _numOfDay <= 1 {
@@ -98,11 +98,12 @@ extension Date {
         }else{
             _dateFormatter.dateFormat = "HH:mm MMMdd"
             _dateStr = _dateFormatter.string(from: self)
+            
+            if _isChineseFormat {
+                _dateStr = _dateStr + (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
+            }
         }
         
-        if _isChineseFormat {
-            _dateStr = _dateStr + (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
-        }
         return _dateStr
     }
 }

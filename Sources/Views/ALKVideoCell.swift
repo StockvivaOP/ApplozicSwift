@@ -120,7 +120,7 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     override func update(viewModel: ALKMessageViewModel) {
         self.viewModel = viewModel
-        timeLabel.text = viewModel.date.toHumanFormat() //viewModel.time
+        timeLabel.text = viewModel.date.toConversationViewDateFormat() //viewModel.time
         guard let state = viewModel.attachmentState() else { return }
         updateView(for: state)
     }

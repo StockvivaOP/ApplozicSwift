@@ -84,7 +84,7 @@ class ALKMyMessageView: UIView {
         messageView.setStyle(ALKMessageStyle.sentMessage)
 
         // Set time
-        timeLabel.text = viewModel.date.toHumanFormat() //viewModel.time
+        timeLabel.text = viewModel.date.toConversationViewDateFormat() //viewModel.time
         timeLabel.setStyle(ALKMessageStyle.time)
 
         // Set read status

@@ -143,7 +143,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     override func update(viewModel: ALKMessageViewModel) {
         self.viewModel = viewModel
         activityIndicator.color = .black
-        timeLabel.text   = viewModel.date.toHumanFormat() //viewModel.time
+        timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         captionLabel.text = viewModel.message
 
         if captionLabel.text?.count ?? 0 > 0 {

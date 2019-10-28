@@ -140,7 +140,7 @@ class ALKFriendMessageView: UIView {
         
         messageView.text = viewModel.message ?? ""
         messageView.setStyle(ALKMessageStyle.receivedMessage)
-        timeLabel.text = viewModel.date.toHumanFormat() //viewModel.time
+        timeLabel.text = viewModel.date.toConversationViewDateFormat() //viewModel.time
         timeLabel.setStyle(ALKMessageStyle.time)
     }
 

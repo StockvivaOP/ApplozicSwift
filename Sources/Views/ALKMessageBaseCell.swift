@@ -239,7 +239,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.tintColor = _userColor
         }
         
-        self.timeLabel.text   = viewModel.date.toHumanFormat() //viewModel.time
+        self.timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         resetTextView(style)
         guard let message = viewModel.message else { return }
 
