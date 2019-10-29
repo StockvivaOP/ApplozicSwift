@@ -70,12 +70,15 @@ extension Date {
     
     func toConversationViewDateFormat() -> String {
         var _dayStr:String? = nil
-        let _components = Calendar.current.dateComponents([.day, .second], from: self, to: Date())
-        if let _numOfDay = _components.day, _numOfDay >= 0 && _numOfDay <= 1 {
-            if _numOfDay == 1 {
-                _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_yesterday")
-            }else{
-                _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_today")
+        if let fromDate = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: self),
+            let toDate = Calendar.current.date(bySettingHour: 0, minute: 0, second: 0, of: Date()) {
+            let _components = Calendar.current.dateComponents([.day, .second], from: fromDate, to: toDate)
+            if let _numOfDay = _components.day, _numOfDay >= 0 && _numOfDay <= 1 {
+                if _numOfDay == 1 {
+                    _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_yesterday")
+                }else{
+                    _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_today")
+                }
             }
         }
         
