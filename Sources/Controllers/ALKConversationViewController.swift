@@ -1609,7 +1609,15 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         DispatchQueue.main.async {
             if self.viewModel.isFirstTime {
                 if targetFocusItemIndex != -1 {
-                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
+                    let _newSectionCount = self.tableView.numberOfSections
+                    if targetFocusItemIndex < _newSectionCount {
+                        self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
+                    }else{
+                        let _sectionIndex = _newSectionCount - 1
+                        if _sectionIndex >= 0 {
+                            self.tableView.scrollToRow(at: IndexPath(row: 0, section: _sectionIndex) , at: .bottom, animated: false)
+                        }
+                    }
                 }else{
                     self.tableView.scrollToBottom(animated: false)
                 }
