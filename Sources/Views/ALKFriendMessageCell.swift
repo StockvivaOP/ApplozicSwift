@@ -176,7 +176,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTappedAction))
         avatarImageView.addGestureRecognizer(tapGesture)
         
-        contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel])
+        contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel,btnJoinOurGroup])
         contentView.bringSubviewToFront(messageView)
         
         NSLayoutConstraint.activate([

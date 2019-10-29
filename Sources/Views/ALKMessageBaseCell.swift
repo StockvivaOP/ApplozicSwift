@@ -152,6 +152,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         _view.setTitleColor(UIColor.ALKSVMainColorPurple(), for: .normal)
         _view.setImage(UIImage(named: "sv_icon_chatpurple", in: Bundle.applozic, compatibleWith: nil), for: .normal)
         _view.imageEdgeInsets = UIEdgeInsets(top: 0 , left: 5, bottom: 0, right: 5)
+        _view.isHidden = true
         return _view
     }()
 
@@ -301,7 +302,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
              replyMessageTypeImageView,
              replyMessageLabel,
              previewImageView,
-             btnJoinOurGroup,
              timeLabel])
         
         contentView.bringSubviewToFront(messageView)
