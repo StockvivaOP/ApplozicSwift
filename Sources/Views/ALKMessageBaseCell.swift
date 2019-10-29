@@ -141,6 +141,19 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
+    
+    let btnJoinOurGroup: UIButton = {
+        let _view = UIButton(type: .custom)
+        _view.layer.cornerRadius = 16.5
+        _view.layer.borderColor = UIColor.ALKSVMainColorPurple().cgColor
+        _view.layer.borderWidth = 1.5
+        _view.backgroundColor = .white
+        _view.setFont(font: UIFont.systemFont(ofSize: 16.0, weight: .semibold) )
+        _view.setTitleColor(UIColor.ALKSVMainColorPurple(), for: .normal)
+        _view.setImage(UIImage(named: "sv_icon_chatpurple", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        _view.imageEdgeInsets = UIEdgeInsets(top: 0 , left: 5, bottom: 0, right: 5)
+        return _view
+    }()
 
     let emailTopView = ALKEmailTopView(frame: .zero)
 
@@ -166,6 +179,8 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     
     var replyMessageTypeImagewidthConst:NSLayoutConstraint?
     var replyMessageLabelConst:NSLayoutConstraint?
+    
+    var joinOurGroupButtonClicked:((ALKMessageViewModel?)->Void)?
 
     func update(viewModel: ALKMessageViewModel, style: Style, replyMessage: ALKMessageViewModel?) {
         self.viewModel = viewModel
@@ -239,6 +254,9 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.tintColor = _userColor
         }
         
+        //join group button logic
+        self.btnJoinOurGroup.setTitle(ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_group_message_group_button_entry") ?? "", for: .normal)
+        
         self.timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         resetTextView(style)
         guard let message = viewModel.message else { return }
@@ -258,6 +276,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             print("😱😱😱Shouldn't come here.😱😱😱")
             return
         }
+        
         /// Comes here for html and email
         DispatchQueue.global().async {
             let attributedText = ALKMessageCell.attributedStringFrom(message, for: viewModel.identifier)
@@ -270,6 +289,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     override func setupViews() {
         super.setupViews()
         messageView.delegate = self
+        self.btnJoinOurGroup.addTarget(self, action: #selector(self.joinOurGroupButtonTouchUpInside(_:)), for: UIControl.Event.touchUpInside)
         
         contentView.addViewsForAutolayout(views:
             [messageView,
@@ -281,6 +301,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
              replyMessageTypeImageView,
              replyMessageLabel,
              previewImageView,
+             btnJoinOurGroup,
              timeLabel])
         
         contentView.bringSubviewToFront(messageView)
@@ -439,6 +460,10 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         messageView.text = nil
         messageView.typingAttributes = [:]
         messageView.setStyle(style)
+    }
+    
+    @objc private func joinOurGroupButtonTouchUpInside(_ selector: UIButton) {
+        self.joinOurGroupButtonClicked?(self.viewModel)
     }
     
     static func getReplyViewHeight(_ defaultReplyViewHeight:CGFloat = 0, defaultMsgHeight:CGFloat = 0, maxMsgHeight:CGFloat, maxMsgWidth:CGFloat, replyMessageContent:String?) -> (replyViewHeight:CGFloat, replyMsgViewHeight:CGFloat, offsetOfMsgIncreaseHeight:CGFloat){

@@ -224,6 +224,9 @@ public struct ALKConfiguration {
     /// delegate for logging from app
     public static var delegateSystemLoggingRequestDelegate:SystemLoggingRequestDelegate?
     
+    /// delegate for logging from app
+    public static var delegateConversationRequestInfo:ConversationRequestInfoDelegate?
+    
     /// If true, system can scroll to reply org message while click
     public var enableScrollToReplyViewWhenClick: Bool = true
     
@@ -289,6 +292,8 @@ public protocol ConversationChatContentActionDelegate: class{
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageClicked()
+    //join our group
+    func joinOurGroupButtonClicked(viewModel:ALKMessageViewModel?)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
@@ -318,6 +323,10 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
     func getSelfUserHashId() -> String?
+}
+
+public protocol ConversationRequestInfoDelegate: class{
+    func isShowJoinOurGroupButton(viewModel:ALKMessageViewModel?) -> Bool
 }
 
 public protocol SystemTextLocalizableRequestDelegate: class{

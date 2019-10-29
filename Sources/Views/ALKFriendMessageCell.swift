@@ -96,7 +96,6 @@ open class ALKFriendMessageCell: ALKMessageCell {
         
         struct MessageView {
             static let top: CGFloat = 5
-            static let bottom: CGFloat = 7
             static let left: CGFloat = 7
         }
         
@@ -105,6 +104,15 @@ open class ALKFriendMessageCell: ALKMessageCell {
             static let bottom: CGFloat = 5
             static let left: CGFloat = 7
             static let height: CGFloat = 13
+        }
+        
+        struct JoinOurGroupButton {
+            static let top: CGFloat = 10
+            static let bottom: CGFloat = 10
+            static let left: CGFloat = 7
+            static let right: CGFloat = 7
+            static let height: CGFloat = 33
+            static let width: CGFloat = 170
         }
     }
     
@@ -122,6 +130,9 @@ open class ALKFriendMessageCell: ALKMessageCell {
     var replyViewInnerImgBottomConst:NSLayoutConstraint?
     var replyMsgViewBottomConst:NSLayoutConstraint?
     var emailViewTopConst:NSLayoutConstraint?
+    var joinOurGroupButtonHeightConst:NSLayoutConstraint?
+    var joinOurGroupButtonTopConst:NSLayoutConstraint?
+    var joinOurGroupButtonBottomConst:NSLayoutConstraint?
     
     static let bubbleViewLeftPadding: CGFloat = {
         /// For edge add extra 5
@@ -153,6 +164,14 @@ open class ALKFriendMessageCell: ALKMessageCell {
             equalTo: replyView.bottomAnchor,
             constant: Padding.MessageView.top)
         replyMsgViewBottomConst = replyMessageLabel.bottomAnchor.constraint(equalTo: replyView.bottomAnchor, constant: -Padding.ReplyMessageLabel.bottom)
+        
+        joinOurGroupButtonHeightConst = btnJoinOurGroup.heightAnchor.constraint(equalToConstant: Padding.JoinOurGroupButton.height)
+        joinOurGroupButtonTopConst = btnJoinOurGroup.topAnchor.constraint(
+            equalTo: messageView.bottomAnchor,
+            constant: Padding.JoinOurGroupButton.top)
+        joinOurGroupButtonBottomConst = btnJoinOurGroup.bottomAnchor.constraint(
+            equalTo: bubbleView.bottomAnchor,
+            constant: -Padding.JoinOurGroupButton.bottom)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTappedAction))
         avatarImageView.addGestureRecognizer(tapGesture)
@@ -261,15 +280,19 @@ open class ALKFriendMessageCell: ALKMessageCell {
             
             messageView.topAnchor.constraint(
                 equalTo: emailTopView.bottomAnchor),
-            messageView.bottomAnchor.constraint(
-                equalTo: bubbleView.bottomAnchor,
-                constant: -Padding.MessageView.bottom),
             messageView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
                 constant: -ALKMessageStyle.receivedBubble.widthPadding),
             messageView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
                 constant: Padding.MessageView.left),
+            
+            joinOurGroupButtonHeightConst!,
+            btnJoinOurGroup.widthAnchor.constraint(greaterThanOrEqualToConstant: Padding.JoinOurGroupButton.width),
+            joinOurGroupButtonTopConst!,
+            joinOurGroupButtonBottomConst!,
+            btnJoinOurGroup.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.JoinOurGroupButton.left),
+            btnJoinOurGroup.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.JoinOurGroupButton.right),
             
             timeLabel.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
@@ -317,6 +340,8 @@ open class ALKFriendMessageCell: ALKMessageCell {
             let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _nameLabelColor
         }
+        //join group button status
+        self.showJoinOurGroupButton( ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) ?? false)
     }
 
     class func rowHeigh(viewModel: ALKMessageViewModel,
@@ -331,7 +356,13 @@ open class ALKFriendMessageCell: ALKMessageCell {
         
         /// Calculating messageHeight
         let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
-        var heightPadding = Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.MessageView.bottom + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
+        var heightPadding = Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.JoinOurGroupButton.bottom + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
+        
+        if ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) == true {
+            let _joinOurGroupHeight = Padding.JoinOurGroupButton.top + Padding.JoinOurGroupButton.height
+            heightPadding += _joinOurGroupHeight
+        }
+        
         if viewModel.isReplyMessage {
             heightPadding += Padding.MessageView.top + Padding.ReplyView.top
         }
@@ -452,5 +483,12 @@ open class ALKFriendMessageCell: ALKMessageCell {
         replyMessageTypeImageView.isHidden = !show
         replyMessageLabel.isHidden = !show
         previewImageView.isHidden = !show
+    }
+    
+    private func showJoinOurGroupButton(_ show: Bool){
+        self.btnJoinOurGroup.isHidden = !show
+        joinOurGroupButtonHeightConst?.constant = show ? Padding.JoinOurGroupButton.height : 0
+        joinOurGroupButtonTopConst?.constant = show ? Padding.JoinOurGroupButton.top : 0
+        joinOurGroupButtonBottomConst?.constant = show ? -Padding.JoinOurGroupButton.bottom : 0
     }
 }
