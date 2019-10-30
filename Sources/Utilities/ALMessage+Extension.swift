@@ -445,6 +445,16 @@ extension ALMessage {
         }
     }
     
+    //device platform
+    func addDevicePlatformInMetaData(){
+        if let _dPlatform = ALKConfiguration.delegateSystemInfoRequestDelegate?.getDevicePlatform() {
+            if self.metadata == nil {
+                self.metadata = NSMutableDictionary.init()
+            }
+            self.metadata.setValue(_dPlatform, forKey: SVMessageMetaDataFieldName.devicePlatform.rawValue)
+        }
+    }
+    
     //un read message
     func addIsUnreadMessageSeparatorInMetaData(_ isEnable:Bool){
         let _valueStr = isEnable ? "1" : "0"

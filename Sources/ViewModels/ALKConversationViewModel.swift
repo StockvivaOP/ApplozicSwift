@@ -1563,6 +1563,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         alMessage.conversationId = conversationId
         alMessage.groupId = channelKey
         alMessage.addAppVersionNameInMetaData()
+        alMessage.addDevicePlatformInMetaData()
         return  alMessage
     }
 

@@ -46,6 +46,7 @@ public enum ALKMessageActionType: String {
 
 // MARK: - stockviva SVMessageMetaDataFieldName
 public enum SVMessageMetaDataFieldName : String {
+    case devicePlatform = "SV_PLATFORM"
     case appVersionName = "SV_VERSION_NAME"
     case msgViolate = "SV_VIOLATE"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
@@ -257,6 +258,12 @@ extension ALKMessageViewModel {
     //system version name
     mutating func addAppVersionNameInMetaData(){
         self.rawModel?.addAppVersionNameInMetaData()
+        self.metadata = self.rawModel?.metadata as? Dictionary<String, Any>
+    }
+    
+    //system version name
+    mutating func addDevicePlatformInMetaData(){
+        self.rawModel?.addDevicePlatformInMetaData()
         self.metadata = self.rawModel?.metadata as? Dictionary<String, Any>
     }
     
