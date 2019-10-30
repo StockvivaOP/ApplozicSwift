@@ -218,13 +218,10 @@ public struct ALKConfiguration {
         case funcNeedPaidForPinMsg
     }
     
-    /// delegate for get text from app
-    public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
+    /// delegate for get / set system info
+    public static var delegateSystemInfoRequestDelegate:SystemInfoRequestDelegate?
     
-    /// delegate for logging from app
-    public static var delegateSystemLoggingRequestDelegate:SystemLoggingRequestDelegate?
-    
-    /// delegate for logging from app
+    /// delegate for get info
     public static var delegateConversationRequestInfo:ConversationRequestInfoDelegate?
     
     /// If true, system can scroll to reply org message while click
@@ -329,12 +326,9 @@ public protocol ConversationRequestInfoDelegate: class{
     func isShowJoinOurGroupButton(viewModel:ALKMessageViewModel?) -> Bool
 }
 
-public protocol SystemTextLocalizableRequestDelegate: class{
+public protocol SystemInfoRequestDelegate: class{
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
-}
-
-public protocol SystemLoggingRequestDelegate: class{
     func logging(isDebug:Bool, message:String)
 }
 

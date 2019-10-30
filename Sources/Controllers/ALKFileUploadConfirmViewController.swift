@@ -73,7 +73,7 @@ open class ALKFileUploadConfirmViewController: ALKBaseViewController {
         super.viewDidLoad()
         self.isCustomLeftNavBarButton = true
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.btnClose)
-        self.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_document") ?? "Document"
+        self.title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_document") ?? "Document"
         self.btnClose.addTarget(self, action: #selector(ALKFileUploadConfirmViewController.closeNavBarButtonSelectionNotification(_:)), for: .touchUpInside)
         self.setUpView()
         self.setupContent()

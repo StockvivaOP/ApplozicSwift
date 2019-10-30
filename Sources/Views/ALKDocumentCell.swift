@@ -265,7 +265,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
         timeLabel.text = viewModel.date.toConversationViewDateFormat() //viewModel.time
         
         if self.viewModel?.isInvalidAttachement() == true {
-            fileNameLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_not_support") ?? ""
+            fileNameLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_not_support") ?? ""
             sizeAndFileType.text = ""
             self.updateViewForInvlidAttachmentState()
             return

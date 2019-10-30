@@ -28,7 +28,7 @@ extension Date {
         let dateFormatter = DateFormatter()
         
         //set locale name
-        if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
+        if let _localeName = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemLocaleName() {
             let _locale = Locale(identifier: _localeName)
             dateFormatter.locale = _locale
         }
@@ -53,7 +53,7 @@ extension Date {
         _dateFormatter.dateFormat = "HH:mm MMMdd"
         //set locale name
         var _isChineseFormat = false
-        if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
+        if let _localeName = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemLocaleName() {
             let _locale = Locale(identifier: _localeName)
             _dateFormatter.locale = _locale
             _isChineseFormat = _localeName.lowercased().starts(with: "zh_")
@@ -63,7 +63,7 @@ extension Date {
         
         var _dateStr = _dateFormatter.string(from: self)
         if _isChineseFormat {
-            _dateStr = _dateStr + (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
+            _dateStr = _dateStr + (ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
         }
         return _dateStr
     }
@@ -75,9 +75,9 @@ extension Date {
             let _components = Calendar.current.dateComponents([.day, .second], from: fromDate, to: toDate)
             if let _numOfDay = _components.day, _numOfDay >= 0 && _numOfDay <= 1 {
                 if _numOfDay == 1 {
-                    _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_yesterday")
+                    _dayStr = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "unit_yesterday")
                 }else{
-                    _dayStr = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_today")
+                    _dayStr = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "unit_today")
                 }
             }
         }
@@ -85,7 +85,7 @@ extension Date {
         let _dateFormatter = DateFormatter()
         //set locale name
         var _isChineseFormat = false
-        if let _localeName = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemLocaleName() {
+        if let _localeName = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemLocaleName() {
             let _locale = Locale(identifier: _localeName)
             _dateFormatter.locale = _locale
             _isChineseFormat = _localeName.lowercased().starts(with: "zh_")
@@ -103,7 +103,7 @@ extension Date {
             _dateStr = _dateFormatter.string(from: self)
             
             if _isChineseFormat {
-                _dateStr = _dateStr + (ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
+                _dateStr = _dateStr + (ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "unit_day") ?? "")
             }
         }
         

@@ -42,8 +42,8 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        doneButton.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "general_button_confirm") ?? localizedString(forKey: "DoneButton", withDefaultValue: SystemMessage.ButtonName.Done, fileName: localizedStringFileName)
-        self.title = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? localizedString(forKey: "PhotosTitle", withDefaultValue: SystemMessage.LabelName.Photos, fileName: localizedStringFileName)
+        doneButton.title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "general_button_confirm") ?? localizedString(forKey: "DoneButton", withDefaultValue: SystemMessage.ButtonName.Done, fileName: localizedStringFileName)
+        self.title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? localizedString(forKey: "PhotosTitle", withDefaultValue: SystemMessage.LabelName.Photos, fileName: localizedStringFileName)
         checkPhotoLibraryPermission()
         previewGallery.delegate = self
         previewGallery.dataSource = self
