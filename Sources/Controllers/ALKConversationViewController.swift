@@ -1600,7 +1600,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             let newSectionCount = tableView.numberOfSections
             if newSectionCount > oldSectionCount {
                 let offset = newSectionCount - oldSectionCount - 1
-                if offset >= 0 && offset < tableView.numberOfSections {
+                if offset >= 0 && offset < newSectionCount {
                     tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .none, animated: false)
                 }
             }
