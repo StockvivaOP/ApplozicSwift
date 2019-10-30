@@ -327,6 +327,7 @@ public protocol ConversationRequestInfoDelegate: class{
 }
 
 public protocol SystemInfoRequestDelegate: class{
+    func getAppVersionName() -> String
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
     func logging(isDebug:Bool, message:String)

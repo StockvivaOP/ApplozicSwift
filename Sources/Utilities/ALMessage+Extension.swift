@@ -435,19 +435,29 @@ extension ALMessage {
         return ALKMessageActionType(rawValue: _action) ?? ALKMessageActionType.normalMessage
     }
 
+    //system version name
+    func addAppVersionNameInMetaData(){
+        if let _vName = ALKConfiguration.delegateSystemInfoRequestDelegate?.getAppVersionName() {
+            if self.metadata == nil {
+                self.metadata = NSMutableDictionary.init()
+            }
+            self.metadata.setValue(_vName, forKey: SVMessageMetaDataFieldName.appVersionName.rawValue)
+        }
+    }
+    
     //un read message
     func addIsUnreadMessageSeparatorInMetaData(_ isEnable:Bool){
         let _valueStr = isEnable ? "1" : "0"
         if self.metadata == nil {
             self.metadata = NSMutableDictionary.init()
         }
-        self.metadata.setValue(_valueStr, forKey: "SV_UnreadMessageSeparator")
+        self.metadata.setValue(_valueStr, forKey: SVMessageMetaDataFieldName.unreadMessageSeparator.rawValue)
     }
     
     //both for local key
     func isUnReadMessageSeparator() -> Bool {
         var _result = false
-        if let _unreadMsgKey = self.metadata.value(forKey: "SV_UnreadMessageSeparator") as? String, self.messageType == .information && _unreadMsgKey == "1" {
+        if let _unreadMsgKey = self.metadata.value(forKey: SVMessageMetaDataFieldName.unreadMessageSeparator.rawValue) as? String, self.messageType == .information && _unreadMsgKey == "1" {
             _result = true
         }
         return _result

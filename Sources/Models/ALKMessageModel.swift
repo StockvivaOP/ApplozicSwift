@@ -44,6 +44,13 @@ public enum ALKMessageActionType: String {
     }
 }
 
+// MARK: - stockviva SVMessageMetaDataFieldName
+public enum SVMessageMetaDataFieldName : String {
+    case appVersionName = "sv_version_name"
+    case msgViolate = "SV_VIOLATE"
+    case unreadMessageSeparator = "SV_UnreadMessageSeparator"
+}
+
 // MARK: - MessageViewModel
 public protocol ALKMessageViewModel {
     var message: String? { get }
@@ -245,6 +252,12 @@ extension ALKMessageViewModel {
             return nil
         }
         return _result
+    }
+    
+    //system version name
+    mutating func addAppVersionNameInMetaData(){
+        self.rawModel?.addAppVersionNameInMetaData()
+        self.metadata = self.rawModel?.metadata as? Dictionary<String, Any>
     }
     
     //un read message

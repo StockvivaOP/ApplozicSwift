@@ -1562,6 +1562,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         alMessage.source = Int16(SOURCE_IOS)
         alMessage.conversationId = conversationId
         alMessage.groupId = channelKey
+        alMessage.addAppVersionNameInMetaData()
         return  alMessage
     }
 
