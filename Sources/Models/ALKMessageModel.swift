@@ -46,7 +46,7 @@ public enum ALKMessageActionType: String {
 
 // MARK: - stockviva SVMessageMetaDataFieldName
 public enum SVMessageMetaDataFieldName : String {
-    case appVersionName = "sv_version_name"
+    case appVersionName = "SV_VERSION_NAME"
     case msgViolate = "SV_VIOLATE"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
 }
