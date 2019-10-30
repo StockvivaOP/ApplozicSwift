@@ -1597,7 +1597,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
         if isLoadNextPage == false {
-            let newSectionCount = tableView.numberOfSections
+            let newSectionCount = self.viewModel.numberOfSections()
             if newSectionCount > oldSectionCount {
                 let offset = newSectionCount - oldSectionCount - 1
                 if offset >= 0 && offset < newSectionCount {
@@ -1609,7 +1609,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         DispatchQueue.main.async {
             if self.viewModel.isFirstTime {
                 if targetFocusItemIndex != -1 {
-                    let _newSectionCount = self.tableView.numberOfSections
+                    let _newSectionCount = self.viewModel.numberOfSections()
                     if targetFocusItemIndex < _newSectionCount {
                         self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
                     }else{
@@ -1626,14 +1626,18 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             }
         }
         //show / off scroll down button
-        let _lastItemIndex = self.viewModel.messageModels.count-1
-        let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
-        if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
-            _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
-            (targetFocusItemIndex == -1 && isLoadNextPage == false){
+        if self.viewModel.messageModels.count > 0 {
+            let _lastItemIndex = self.viewModel.messageModels.count-1
+            let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
+            if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
+                _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
+                (targetFocusItemIndex == -1 && isLoadNextPage == false){
+                self.unreadScrollButton.isHidden = true
+            }else {
+                self.unreadScrollButton.isHidden = false
+            }
+        }else{
             self.unreadScrollButton.isHidden = true
-        }else {
-            self.unreadScrollButton.isHidden = false
         }
         self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
         
