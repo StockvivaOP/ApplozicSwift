@@ -11,13 +11,13 @@ class ALKMyContactMessageCell: ALKContactMessageBaseCell {
 
     struct Padding {
         struct StateView {
-            static let width: CGFloat = 17.0
-            static let height: CGFloat = 9.0
+            static let width: CGFloat = 15.0
+            static let height: CGFloat = 15.0
             static let bottom: CGFloat = 1
             static let right: CGFloat = 2
         }
         struct TimeLabel {
-            static let right: CGFloat = 2
+            static let right: CGFloat = 1
             static let bottom: CGFloat = 2
         }
         struct ContactView {
@@ -31,7 +31,7 @@ class ALKMyContactMessageCell: ALKContactMessageBaseCell {
     fileprivate var stateView: UIImageView = {
         let sv = UIImageView()
         sv.isUserInteractionEnabled = false
-        sv.contentMode = .center
+        sv.contentMode = .scaleAspectFit
         return sv
     }()
 
@@ -49,18 +49,28 @@ class ALKMyContactMessageCell: ALKContactMessageBaseCell {
         timeLabel.setStyle(ALKMessageStyle.time)
 
         // Set read status
-        if viewModel.isAllRead {
-            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = UIColor(netHex: 0x0578FF)
-        } else if viewModel.isAllReceived {
-            stateView.image = UIImage(named: "read_state_2", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = nil
-        } else if viewModel.isSent {
-            stateView.image = UIImage(named: "read_state_1", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = nil
-        } else {
-            stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = UIColor.ALKSVMainColorPurple()
+//        if viewModel.isAllRead {
+//            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = UIColor(netHex: 0x0578FF)
+//        } else if viewModel.isAllReceived {
+//            stateView.image = UIImage(named: "read_state_2", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = nil
+//        } else if viewModel.isSent {
+//            stateView.image = UIImage(named: "read_state_1", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = nil
+//        } else {
+//            stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = UIColor.ALKSVMainColorPurple()
+//        }
+        let _svMsgStatus = viewModel.getSVMessageStatus()
+        if _svMsgStatus == .sent {
+            stateView.image = UIImage(named: "sv_icon_msg_status_sent", in: Bundle.applozic, compatibleWith: nil)
+        }else if _svMsgStatus == .error {
+            stateView.image = UIImage(named: "sv_icon_msg_status_error", in: Bundle.applozic, compatibleWith: nil)
+        }else if _svMsgStatus == .block {
+            stateView.image = UIImage(named: "sv_icon_msg_status_block", in: Bundle.applozic, compatibleWith: nil)
+        }else{//processing
+            stateView.image = UIImage(named: "sv_icon_msg_status_processing", in: Bundle.applozic, compatibleWith: nil)
         }
     }
 

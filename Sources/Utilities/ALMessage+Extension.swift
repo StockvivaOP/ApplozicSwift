@@ -441,7 +441,7 @@ extension ALMessage {
             if self.metadata == nil {
                 self.metadata = NSMutableDictionary.init()
             }
-            self.metadata.setValue(_vName, forKey: SVMessageMetaDataFieldName.appVersionName.rawValue)
+            self.metadata.setValue(_vName, forKey: SVALKMessageMetaDataFieldName.appVersionName.rawValue)
         }
     }
     
@@ -451,8 +451,28 @@ extension ALMessage {
             if self.metadata == nil {
                 self.metadata = NSMutableDictionary.init()
             }
-            self.metadata.setValue(_dPlatform, forKey: SVMessageMetaDataFieldName.devicePlatform.rawValue)
+            self.metadata.setValue(_dPlatform, forKey: SVALKMessageMetaDataFieldName.devicePlatform.rawValue)
         }
+    }
+    
+    func getValueFromMetadata(_ key:SVALKMessageMetaDataFieldName) -> Any? {
+        if let _metaData = self.metadata {
+            return _metaData.value(forKey: key.rawValue)
+        }
+        return nil
+    }
+    
+    //validate message
+    func isViolateMessage() -> Bool {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.msgViolate) as? String ?? "false" == "true"
+        return _result
+    }
+    
+    func setViolateMessage(value:Bool) {
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue((value ? "true" : "false"), forKey: SVALKMessageMetaDataFieldName.msgViolate.rawValue)
     }
     
     //un read message
@@ -461,15 +481,41 @@ extension ALMessage {
         if self.metadata == nil {
             self.metadata = NSMutableDictionary.init()
         }
-        self.metadata.setValue(_valueStr, forKey: SVMessageMetaDataFieldName.unreadMessageSeparator.rawValue)
+        self.metadata.setValue(_valueStr, forKey: SVALKMessageMetaDataFieldName.unreadMessageSeparator.rawValue)
     }
     
     //both for local key
     func isUnReadMessageSeparator() -> Bool {
         var _result = false
-        if let _unreadMsgKey = self.metadata.value(forKey: SVMessageMetaDataFieldName.unreadMessageSeparator.rawValue) as? String, self.messageType == .information && _unreadMsgKey == "1" {
+        if let _unreadMsgKey = self.metadata.value(forKey: SVALKMessageMetaDataFieldName.unreadMessageSeparator.rawValue) as? String, self.messageType == .information && _unreadMsgKey == "1" {
             _result = true
         }
         return _result
+    }
+    
+    //send message error find
+    func isSendMessageErrorFind() -> Bool {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.sendMessageErrorFind) as? String ?? "false" == "true"
+        return _result
+    }
+    
+    func setSendMessageErrorFind(value:Bool) {
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue((value ? "true" : "false"), forKey: SVALKMessageMetaDataFieldName.sendMessageErrorFind.rawValue)
+    }
+    
+    //stockviva message status
+    func getSVMessageStatus() -> SVALKMessageStatus {
+        if self.isViolateMessage() {
+            return SVALKMessageStatus.block
+        } else if self.isSendMessageErrorFind() {
+            return SVALKMessageStatus.error
+        } else if self.isSent {
+            return SVALKMessageStatus.sent
+        }else {
+            return SVALKMessageStatus.processing
+        }
     }
 }

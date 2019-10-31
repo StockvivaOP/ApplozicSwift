@@ -13,13 +13,15 @@ public protocol ALKConversationViewModelDelegate: class {
     func loadingStarted()
     func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool)
     func messageUpdated()
-    func updateMessageAt(indexPath: IndexPath)
+    func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool)
     func removeMessagesAt(indexPath: IndexPath, closureBlock:()->Void)
     func newMessagesAdded()
     func messageSent(at: IndexPath)
+    func messageCanSent(at: IndexPath)
     func updateDisplay(contact: ALContact?, channel: ALChannel?)
     func willSendMessage()
     func updateTyingStatus(status: Bool, userId: String)
+    func isPassMessageContentChecking() -> Bool
 }
 
 // swiftlint:disable:next type_body_length
@@ -503,7 +505,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
         var contactsNotPresent = [String]()
         for index in 0..<messages.count {
             let message = messages[index]
-            if message.getActionType().isSkipMessage() || message.isHiddenMessage(){
+            
+            let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
+            if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                 continue
             }
             
@@ -644,7 +648,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 mesg.status = status as NSNumber
                 self.alMessages[index] = mesg
                 self.messageModels[index] = mesg.messageModel
-                delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index))
+                delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
             }
             guard index < messageModels.count else { return }
         }
@@ -656,13 +660,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
             alMessage.sentToServer = true
             self.alMessages[index] = alMessage
             self.messageModels[index] = alMessage.messageModel
-            delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index))
+            delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
         } else {
             loadMessagesFromDB()
         }
 
     }
 
+    //send message
     open func send(message: String, isOpenGroup: Bool = false, metadata: [AnyHashable : Any]?) {
         let alMessage = getMessageToPost(isTextMessage: true)
         alMessage.message = message
@@ -671,34 +676,97 @@ open class ALKConversationViewModel: NSObject, Localizable {
         addToWrapper(message: alMessage)
         let indexPath = IndexPath(row: 0, section: messageModels.count-1)
         self.delegate?.messageSent(at: indexPath)
+        //check and send
+        self.checkMessageBeforeSend(messageObject: alMessage, indexPath:indexPath, isOpenGroup: isOpenGroup)
+    }
+    
+    open func checkMessageBeforeSend(messageObject: ALMessage, indexPath:IndexPath, isOpenGroup: Bool = false) {
+        if ALKConfiguration.delegateConversationRequestInfo == nil || self.delegate?.isPassMessageContentChecking() == true {
+            var _indexPath = indexPath
+            if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                _indexPath.section = self.alMessages.index(of: messageObject) ?? _indexPath.section
+                if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                    return
+                }
+            }
+            self.delegate?.messageCanSent(at: _indexPath)
+            self.sendMessageToServer(messageObject: messageObject, indexPath:_indexPath, isOpenGroup: isOpenGroup)
+            return
+        }
+        
+        ALKConfiguration.delegateConversationRequestInfo?.validateMessageBeforeSend(message: messageObject.message, completed: { (isSuccessful, error) in
+            var _indexPath = indexPath
+            if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                _indexPath.section = self.alMessages.index(of: messageObject) ?? _indexPath.section
+                if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                    return
+                }
+            }
+            if error != nil {
+                messageObject.setSendMessageErrorFind(value: true)
+                self.messageModels[_indexPath.section] = messageObject.messageModel
+                self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: false)
+                return
+            }
+            self.delegate?.messageCanSent(at: _indexPath)
+            if isSuccessful == false {
+                messageObject.setViolateMessage(value: true)
+            }
+            self.sendMessageToServer(messageObject: messageObject, indexPath:_indexPath, isOpenGroup: isOpenGroup)
+        })
+    }
+    
+    open func sendMessageToServer(messageObject: ALMessage, indexPath:IndexPath, isOpenGroup: Bool = false) {
+        //send to server
         if isOpenGroup {
             let messageClientService = ALMessageClientService()
-            messageClientService.sendMessage(alMessage.dictionary(), withCompletionHandler: {json, error in
-                guard error == nil,
-                    indexPath.section < self.messageModels.count,
-                    let json = json as? [String: Any]
-                    else { return }
+            messageClientService.sendMessage(messageObject.dictionary(), withCompletionHandler: {json, error in
+                var _indexPath = indexPath
+                if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                    _indexPath.section = self.alMessages.index(of: messageObject) ?? _indexPath.section
+                    if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                        return
+                    }
+                }
+                guard error == nil, let json = json as? [String: Any] else {
+                    messageObject.setSendMessageErrorFind(value: true)
+                    self.messageModels[_indexPath.section] = messageObject.messageModel
+                    self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
+                    return
+                }
                 if let response = json["response"] as? [String: Any], let key = response["messageKey"] as? String {
-                    alMessage.key = key
-                    alMessage.status = NSNumber(integerLiteral: Int(SENT.rawValue))
+                    messageObject.key = key
+                    messageObject.status = NSNumber(integerLiteral: Int(SENT.rawValue))
                     if let _createdAtTime = response["createdAt"] as? Int {
-                        alMessage.createdAtTime = NSNumber(value: _createdAtTime)
+                        messageObject.createdAtTime = NSNumber(value: _createdAtTime)
                     }
                 } else {
-                    alMessage.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
+                    messageObject.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
                 }
-                self.messageModels[indexPath.section] = alMessage.messageModel
-                self.delegate?.updateMessageAt(indexPath: indexPath)
+                self.messageModels[_indexPath.section] = messageObject.messageModel
+                self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
                 return
             })
         } else {
-            ALMessageService.sharedInstance().sendMessages(alMessage, withCompletion: { message, error in
-                NSLog("Message sent section: \(indexPath.section), \(String(describing: alMessage.message))")
-                guard error == nil, indexPath.section < self.messageModels.count else { return }
+            ALMessageService.sharedInstance().sendMessages(messageObject, withCompletion: { message, error in
+                NSLog("Message sent section: \(indexPath.section), \(String(describing: messageObject.message))")
+                var _indexPath = indexPath
+                if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                    _indexPath.section = self.alMessages.index(of: messageObject) ?? _indexPath.section
+                    if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                        return
+                    }
+                }
+                guard error == nil else {
+                    messageObject.setSendMessageErrorFind(value: true)
+                    self.messageModels[_indexPath.section] = messageObject.messageModel
+                    self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
+                    return
+                }
                 NSLog("No errors while sending the message")
-                alMessage.status = NSNumber(integerLiteral: Int(SENT.rawValue))
-                self.messageModels[indexPath.section] = alMessage.messageModel
-                self.delegate?.updateMessageAt(indexPath: indexPath)
+                messageObject.status = NSNumber(integerLiteral: Int(SENT.rawValue))
+                self.messageModels[_indexPath.section] = messageObject.messageModel
+                self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
             })
         }
     }
@@ -773,6 +841,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             metadata: metadata) else { return }
         addToWrapper(message: alMessage)
         delegate?.messageSent(at: IndexPath(row: 0, section: self.messageModels.count-1))
+        delegate?.messageCanSent(at: IndexPath(row: 0, section: self.messageModels.count-1))
         uploadAudio(alMessage: alMessage, indexPath: IndexPath(row: 0, section: self.messageModels.count-1))
     }
 
@@ -793,6 +862,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             metadata : metadata) else { return }
         self.addToWrapper(message: alMessage)
         self.delegate?.messageSent(at:  IndexPath(row: 0, section: self.messageModels.count-1))
+        self.delegate?.messageCanSent(at: IndexPath(row: 0, section: self.messageModels.count-1))
         self.uploadAudio(alMessage: alMessage, indexPath: IndexPath(row: 0, section: self.messageModels.count-1))
 
     }
@@ -816,7 +886,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
                 self.alMessages[indexPath.section] = mesg
                 self.messageModels[indexPath.section] = (mesg.messageModel)
-                self.delegate?.updateMessageAt(indexPath: indexPath)
+                self.delegate?.updateMessageAt(indexPath: indexPath, needReloadTable: false)
             }
         }
     }
@@ -912,7 +982,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 NSLog("UI updated at section: \(indexPath.section), \(message.isSent)")
                 self.alMessages[indexPath.section] = mesg
                 self.messageModels[indexPath.section] = (mesg.messageModel)
-                self.delegate?.updateMessageAt(indexPath: indexPath)
+                self.delegate?.updateMessageAt(indexPath: indexPath, needReloadTable: false)
             }
         }
     }
@@ -921,7 +991,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         var message = messageForRow(indexPath: indexPath)
         message?.voiceData = data
         messageModels[indexPath.section] = message as! ALKMessageModel
-        delegate?.updateMessageAt(indexPath: indexPath)
+        delegate?.updateMessageAt(indexPath: indexPath, needReloadTable: false)
     }
 
     @objc func sendTypingStatus() {
@@ -1441,7 +1511,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
             for index in 0..<alMessages.count {
                 var message = alMessages[index]
                 
-                if message.getActionType().isSkipMessage() || message.isHiddenMessage() {
+                let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
+                if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                     continue
                 }
                 let contactId = message.to ?? ""
@@ -1681,7 +1752,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             message?.status = status as NSNumber
             guard let model = message?.messageModel, let index = messageModels.index(of: model) else { return }
             messageModels[index] = model
-            delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index))
+            delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
         }
     }
 

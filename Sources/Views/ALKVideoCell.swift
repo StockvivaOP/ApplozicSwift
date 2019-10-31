@@ -193,6 +193,28 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         actionButton.removeTarget(self, action: #selector(actionTapped), for: .touchUpInside)
     }
 
+    override open func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch self {
+        case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        default:
+            return super.canPerformAction(action, withSender: sender)
+        }
+    }
+    
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
     }

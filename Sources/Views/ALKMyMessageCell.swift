@@ -17,8 +17,14 @@ open class ALKMyMessageCell: ALKMessageCell {
     fileprivate var stateView: UIImageView = {
         let sv = UIImageView()
         sv.isUserInteractionEnabled = false
-        sv.contentMode = .center
+        sv.contentMode = .scaleAspectFit
         return sv
+    }()
+    
+    fileprivate var stateErrorRemarkView: UIButton = {
+        let button = UIButton(type: .custom)
+        button.isHidden = true
+        return button
     }()
 
     static var bubbleViewRightPadding: CGFloat = {
@@ -86,16 +92,22 @@ open class ALKMyMessageCell: ALKMessageCell {
 
         struct TimeLabel {
             static let top: CGFloat = 0
-            static let right: CGFloat = 6
+            static let right: CGFloat = 1
             static let height: CGFloat = 15
         }
         
         struct StateView {
             static let height: CGFloat = 15.0
-            static let width: CGFloat = 17.0
+            static let width: CGFloat = 15.0
             static let top: CGFloat = 5.0
             static let bottom: CGFloat = 5
-            static let right: CGFloat = 8.0
+            static let right: CGFloat = 0.0
+        }
+        
+        struct  StateErrorRemarkView {
+            static let right: CGFloat = 7
+            static let height: CGFloat = 18
+            static let width: CGFloat = 18
         }
     }
 
@@ -126,7 +138,9 @@ open class ALKMyMessageCell: ALKMessageCell {
     override func setupViews() {
         super.setupViews()
 
-        contentView.addViewsForAutolayout(views: [stateView])
+        contentView.addViewsForAutolayout(views: [stateView, stateErrorRemarkView])
+        //button action
+        stateErrorRemarkView.addTarget(self, action: #selector(stateErrorRemarkViewButtonTouchUpInside(_:)), for: .touchUpInside)
         
         replyViewTopConst = replyView.topAnchor.constraint(
             equalTo: bubbleView.bottomAnchor,
@@ -162,6 +176,14 @@ open class ALKMyMessageCell: ALKMessageCell {
             bubbleView.trailingAnchor.constraint(
                 equalTo: contentView.trailingAnchor,
                 constant: -Padding.BubbleView.right),
+            
+            stateErrorRemarkView.centerYAnchor.constraint(
+                equalTo: bubbleView.centerYAnchor),
+            stateErrorRemarkView.trailingAnchor.constraint(
+                equalTo: bubbleView.leadingAnchor,
+                constant: -Padding.StateErrorRemarkView.right),
+            stateErrorRemarkView.heightAnchor.constraint(equalToConstant: Padding.StateErrorRemarkView.height),
+            stateErrorRemarkView.widthAnchor.constraint(equalToConstant:Padding.StateErrorRemarkView.width),
 
             replyView.topAnchor.constraint(
                 equalTo: bubbleView.topAnchor,
@@ -281,21 +303,38 @@ open class ALKMyMessageCell: ALKMessageCell {
         }
     }
 
-   open func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
+    open func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.sentMessage, replyMessage: replyMessage)
         handleReplyView(replyMessage: replyMessage)
-        if viewModel.isAllRead {
-            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = UIColor(netHex: 0x0578FF)
-        } else if viewModel.isAllReceived {
-            stateView.image = UIImage(named: "read_state_2", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = UIColor.ALKSVGreyColor153()
-        } else if viewModel.isSent {
-            stateView.image = UIImage(named: "read_state_1", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = UIColor.ALKSVGreyColor153()
-        } else {
-            stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
-            stateView.tintColor = UIColor.ALKSVMainColorPurple()
+//        if viewModel.isAllRead {
+//            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = UIColor(netHex: 0x0578FF)
+//        } else if viewModel.isAllReceived {
+//            stateView.image = UIImage(named: "read_state_2", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = UIColor.ALKSVGreyColor153()
+//        } else if viewModel.isSent {
+//            stateView.image = UIImage(named: "read_state_1", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = UIColor.ALKSVGreyColor153()
+//        } else {
+//            stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
+//            stateView.tintColor = UIColor.ALKSVMainColorPurple()
+//        }
+        
+        self.stateErrorRemarkView.isHidden = true
+        self.stateErrorRemarkView.setImage(nil, for: .normal)
+        let _svMsgStatus = viewModel.getSVMessageStatus()
+        if _svMsgStatus == .sent {
+            stateView.image = UIImage(named: "sv_icon_msg_status_sent", in: Bundle.applozic, compatibleWith: nil)
+        }else if _svMsgStatus == .error {
+            stateView.image = UIImage(named: "sv_icon_msg_status_error", in: Bundle.applozic, compatibleWith: nil)
+            self.stateErrorRemarkView.isHidden = false
+            self.stateErrorRemarkView.setImage(UIImage(named: "sv_img_msg_status_error", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        }else if _svMsgStatus == .block {
+            stateView.image = UIImage(named: "sv_icon_msg_status_block", in: Bundle.applozic, compatibleWith: nil)
+            self.stateErrorRemarkView.isHidden = false
+            self.stateErrorRemarkView.setImage(UIImage(named: "sv_img_msg_status_block", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        }else{//processing
+            stateView.image = UIImage(named: "sv_icon_msg_status_processing", in: Bundle.applozic, compatibleWith: nil)
         }
         
         stateView.isHidden = self.systemConfig?.hideConversationBubbleState ?? false
@@ -432,5 +471,16 @@ open class ALKMyMessageCell: ALKMessageCell {
         if(ALKMessageStyle.sentBubble.style == .edge){
             self.bubbleView.image =  bubbleViewImage(for: ALKMessageStyle.sentBubble.style,isReceiverSide: false,showHangOverImage: false)
         }
+    }
+    
+    //button action
+    @objc private func stateErrorRemarkViewButtonTouchUpInside(_ selector: UIButton) {
+        var _isError = false
+        var _isViolate = false
+        if let _svMsgStatus = self.viewModel?.getSVMessageStatus() {
+            _isError = _svMsgStatus == .error
+            _isViolate = _svMsgStatus == .block
+        }
+        ALKConfiguration.delegateConversationRequestInfo?.messageStateRemarkButtonClicked(isError: _isError, isViolate: _isViolate)
     }
 }

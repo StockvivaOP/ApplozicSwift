@@ -364,10 +364,20 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         switch self {
         case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
-            if self.viewModel?.isInvalidAttachement() == true {
+            if self.viewModel?.isInvalidAttachement() == true || self.viewModel?.getSVMessageStatus() != .sent {
                 return false
             }
-            return true
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
         default:
             return super.canPerformAction(action, withSender: sender)
         }
