@@ -734,6 +734,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
                     return
                 }
+                
                 if let response = json["response"] as? [String: Any], let key = response["messageKey"] as? String {
                     messageObject.key = key
                     messageObject.status = NSNumber(integerLiteral: Int(SENT.rawValue))
@@ -743,6 +744,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 } else {
                     messageObject.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
                 }
+                
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(messageObject.key ?? "nil"), | \(messageObject.createdAtTime ?? -1 )")
+                
                 self.messageModels[_indexPath.section] = messageObject.messageModel
                 self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
                 return
@@ -1729,6 +1733,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             } else {
                 alMessage.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
             }
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(alMessage.key ?? "nil"), | \(alMessage.createdAtTime ?? -1 )")
             completion(alMessage)
         }
         

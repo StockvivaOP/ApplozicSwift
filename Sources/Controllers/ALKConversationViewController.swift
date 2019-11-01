@@ -1244,6 +1244,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         let actualMessage = messageService.getALMessage(byKey: replyId).messageModel
         guard let indexPath = viewModel.getIndexpathFor(message: actualMessage)
             else {return}
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - scrollTo() - scroll to indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
 
     }
@@ -1601,6 +1602,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             if newSectionCount > oldSectionCount {
                 let offset = newSectionCount - oldSectionCount - 1
                 if offset >= 0 && offset < newSectionCount {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to offset:\(offset), total section:\(newSectionCount)")
                     tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .none, animated: false)
                 }
             }
@@ -1611,10 +1613,12 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 if targetFocusItemIndex != -1 {
                     let _newSectionCount = self.viewModel.numberOfSections()
                     if targetFocusItemIndex < _newSectionCount {
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to targetFocusItemIndex:\(targetFocusItemIndex), total section:\(_newSectionCount)")
                         self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
                     }else{
                         let _sectionIndex = _newSectionCount - 1
                         if _sectionIndex >= 0 {
+                            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to _sectionIndex:\(_sectionIndex), total section:\(_newSectionCount)")
                             self.tableView.scrollToRow(at: IndexPath(row: 0, section: _sectionIndex) , at: .bottom, animated: false)
                         }
                     }
@@ -1628,6 +1632,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         //show / off scroll down button
         if self.viewModel.messageModels.count > 0 {
             let _lastItemIndex = self.viewModel.messageModels.count-1
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - rectForRow _lastItemIndex:\(_lastItemIndex), total section:\(self.viewModel.messageModels.count)")
             let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
             if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
                 _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
@@ -1689,10 +1694,12 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         guard indexPath.section >= 0 else {
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to indexPath:\(indexPath.section), total section:\(tableView.numberOfSections)")
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let sectionCount = self.tableView.numberOfSections
             if indexPath.section <= sectionCount {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to asyncAfter indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
                 self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
             }
         }
@@ -2522,6 +2529,7 @@ extension ALKConversationViewController {
         }
         let _maxYForVisableContent = self.tableView.contentOffset.y + self.tableView.bounds.size.height
         for _cellIndex in self.tableView.indexPathsForVisibleRows?.reversed() ?? [] {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections)")
             let _cellPos = self.tableView.rectForRow(at: _cellIndex)
             let _cellMinHeightOffset = _cellPos.height / 2.5
             if (_cellPos.maxY - _cellMinHeightOffset) <= _maxYForVisableContent {
