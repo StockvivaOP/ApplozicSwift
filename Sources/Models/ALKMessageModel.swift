@@ -179,16 +179,9 @@ extension ALKMessageViewModel {
             _result["userIconUrl"] = self.avatarURL?.absoluteString as AnyObject?
         }
         
-        //replace special character
-        let _replacingStrArray = ["&" : ","]
-        var _repUnicodeMsgStr = _rawMsgObject.message
-        for replacingStrKey in _replacingStrArray.keys {
-            _repUnicodeMsgStr = _repUnicodeMsgStr?.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
-        }
-        
         var _resultMsg = [String:AnyObject?]()
         _resultMsg["type"] = _rawMsgObject.type as AnyObject?
-        _resultMsg["message"] = _repUnicodeMsgStr as AnyObject?
+        _resultMsg["message"] = _rawMsgObject.message as AnyObject?
         _resultMsg["contactIds"] = _rawMsgObject.contactIds as AnyObject?
         _resultMsg["contentType"] = _rawMsgObject.contentType as AnyObject?
         _resultMsg["createdAtTime"] = _rawMsgObject.createdAtTime != nil ? _rawMsgObject.createdAtTime.intValue as AnyObject? : nil as AnyObject?
@@ -235,6 +228,13 @@ extension ALKMessageViewModel {
         } catch {
             print(error.localizedDescription)
         }
+        
+        //replace special character
+        let _replacingStrArray = ["&" : "\\u0026"]
+        for replacingStrKey in _replacingStrArray.keys {
+            _resultJsonUtf8Str = _resultJsonUtf8Str?.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
+        }
+        
         return _resultJsonUtf8Str
     }
     
