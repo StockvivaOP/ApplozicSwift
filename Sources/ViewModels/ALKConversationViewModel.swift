@@ -748,6 +748,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(messageObject.key ?? "nil"), | \(messageObject.createdAtTime ?? -1 )")
                 
                 self.messageModels[_indexPath.section] = messageObject.messageModel
+                //sort again
+                self.alMessages.sort { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+                self.messageModels.sort { $0.createdAtTime?.intValue ?? 0 < $1.createdAtTime?.intValue ?? 0 }
+                
                 self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
                 return
             })
