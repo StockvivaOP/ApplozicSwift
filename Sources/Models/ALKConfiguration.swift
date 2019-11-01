@@ -325,7 +325,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
 public protocol ConversationRequestInfoDelegate: class{
     func isShowJoinOurGroupButton(viewModel:ALKMessageViewModel?) -> Bool
     //validate message
-    func validateMessageBeforeSend(message:String?, completed:((_ isPass:Bool, _ error:Error?)->Void))
+    func validateMessageBeforeSend(message:String?, completed:@escaping ((_ isPass:Bool, _ error:Error?) -> ()))
     //show action for remark button
     func messageStateRemarkButtonClicked(isError:Bool, isViolate:Bool)
 }
