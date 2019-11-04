@@ -1591,6 +1591,9 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func loadingStarted() {
         activityIndicator.startAnimating()
+        if let _supView = activityIndicator.superview, _supView == self.tableView {
+            self.tableView.bringSubviewToFront(activityIndicator)
+        }
     }
 
     public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool) {
@@ -1669,6 +1672,9 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool) {
         DispatchQueue.main.async {
+            if self.activityIndicator.isAnimating {
+                self.activityIndicator.stopAnimating()
+            }
             if needReloadTable == false {
                 self.tableView.beginUpdates()
                 self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
@@ -1682,6 +1688,9 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func removeMessagesAt(indexPath: IndexPath, closureBlock: () -> Void) {
+        if activityIndicator.isAnimating {
+            activityIndicator.stopAnimating()
+        }
         closureBlock()
         self.tableView.reloadData()
     }
