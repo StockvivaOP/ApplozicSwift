@@ -1390,7 +1390,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 //        })
 //    }
 
-    open func loadEarlierMessagesForOpenGroup(earlierTime:NSNumber? = nil) {
+    open func loadEarlierMessagesForOpenGroup(earlierTime:NSNumber? = nil, lastLoopGotRecord:Int = 0) {
         var time: NSNumber?
         if earlierTime != nil {
             time = earlierTime
@@ -1421,7 +1421,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 self.alMessages.insert(mesg, at: 0)
                 self.messageModels.insert(mesg.messageModel, at: 0)
             }
+            
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierMessagesForOpenGroup - successful list count  \(self.messageModels.count) ")
+            
+            if (lastLoopGotRecord + newMessages.count) < self.defaultValue_requestMessagePageSize && firstItemCreateTime != nil {
+                self.loadEarlierMessagesForOpenGroup(lastLoopGotRecord: (lastLoopGotRecord + newMessages.count) )
+                return
+            }
+            
             self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
         })
     }
@@ -1974,10 +1981,10 @@ extension ALKConversationViewModel {
         }
     }
     
-    open func loadLateOpenGroupMessage(lastTime:NSNumber? = nil){
+    open func loadLateOpenGroupMessage(lastTime:NSNumber? = nil, lastLoopGotRecord:Int = 0){
         var time: NSNumber? = nil
         if lastTime != nil {
-            time = lastTime
+            time = NSNumber(value: (lastTime!.intValue + 1) )
         }else if let _lastMsgTime = self.alMessages.last?.createdAtTime {
             time = NSNumber(value: (_lastMsgTime.intValue + 1) )
         }
@@ -2010,13 +2017,18 @@ extension ALKConversationViewModel {
                 self.messageModels.append(mesg.messageModel)
             }
             
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - successful list count  \(self.messageModels.count) ")
+            if (lastLoopGotRecord + sortedArray.count) < self.defaultValue_requestMessagePageSize && lastItemCreateTime != nil {
+                self.loadLateOpenGroupMessage(lastLoopGotRecord: (lastLoopGotRecord + sortedArray.count) )
+                return
+            }
+            
             //get last unread message key
             if self.isUnreadMessageMode {
                 self.lastUnreadMessageKey = self.messageModels.last?.identifier ?? nil
             }
             self.isUnreadMessageMode = messageList?.count ?? 0 >= _defaultPageSize
             
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - successful list count  \(self.messageModels.count) ")
             self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:true)
         })
     }
