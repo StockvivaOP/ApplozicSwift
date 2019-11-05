@@ -1775,7 +1775,7 @@ extension ALKConversationViewModel {
         ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
         //reload
         //call before record
-        self.fetchOpenGroupMessages(time: nil, contactId: self.contactId, channelKey: _chKey) { (results, fistItemCreateTime, lastItemCreateTime) in
+        self.getSearchTimeBeforeOpenGroupMessage { (results, fistItemCreateTime, lastItemCreateTime) in
             var _resultSet:[ALMessage] = []
             if let _results = results {
                 _resultSet.append(contentsOf: _results)
