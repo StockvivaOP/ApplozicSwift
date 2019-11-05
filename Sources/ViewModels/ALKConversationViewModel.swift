@@ -1931,8 +1931,8 @@ extension ALKConversationViewModel {
             }
             
             //for return
-            _totalMsgList = _totalMsgList.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
-            completed(_totalMsgList, _totalMsgList.first?.createdAtTime, _totalMsgList.last?.createdAtTime)
+            let _tempMsgList = _totalMsgList.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+            completed(_totalMsgList, _tempMsgList.first?.createdAtTime, _tempMsgList.last?.createdAtTime)
         }
     }
     
@@ -1976,8 +1976,8 @@ extension ALKConversationViewModel {
             }
             
             //for return
-            _totalMsgList = _totalMsgList.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
-            completed(_totalMsgList, _totalMsgList.first?.createdAtTime, _totalMsgList.last?.createdAtTime)
+            let _tempMsgList = _totalMsgList.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+            completed(_totalMsgList, _tempMsgList.first?.createdAtTime, _tempMsgList.last?.createdAtTime)
         }
     }
     
@@ -2006,6 +2006,10 @@ extension ALKConversationViewModel {
                 self.alMessages.insert(mesg, at: 0)
                 self.messageModels.insert(mesg.messageModel, at: 0)
             }
+            
+            //resort for try to fix ording problem
+            self.alMessages.sort { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+            self.messageModels.sort { $0.createdAtTime?.intValue ?? 0 < $1.createdAtTime?.intValue ?? 0 }
             
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - successful list count  \(self.messageModels.count) ")
             self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
@@ -2050,6 +2054,10 @@ extension ALKConversationViewModel {
             }
             
             self.isUnreadMessageMode = messageList?.count ?? 0 >= _defaultPageSize
+            
+            //resort for try to fix ording problem
+            self.alMessages.sort { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+            self.messageModels.sort { $0.createdAtTime?.intValue ?? 0 < $1.createdAtTime?.intValue ?? 0 }
             
             self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:true)
         }
