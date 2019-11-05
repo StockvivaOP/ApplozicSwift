@@ -1929,16 +1929,16 @@ extension ALKConversationViewModel {
                                                     lastLoopGotRecord:Int = 0,
                                                     loopingStart:(()->())? = nil,
                                                     completed:@escaping ( (_ results:[ALMessage]?, _ fistItemCreateTime:NSNumber?, _ lastItemCreateTime:NSNumber?)->() )){
-        var searchTime: NSNumber? = nil
-        if time != nil {
-            searchTime = NSNumber(value: (time!.intValue + 1) )
-        }
-        
         guard let _chKey = self.channelKey else {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - getSearchTimeAfterOpenGroupMessage - no channel key or group id")
             completed(downloadedMessageList, downloadedMessageList?.first?.createdAtTime, downloadedMessageList?.last?.createdAtTime)
             return
         }
+        var searchTime: NSNumber? = nil
+        if time != nil {
+            searchTime = NSNumber(value: (time!.intValue + 1) )
+        }
+        
         let _defaultPageSize = pageSize ?? self.defaultValue_requestMessagePageSize
         //call before record
         self.fetchOpenGroupMessages(startFromTime: searchTime, time: nil, contactId: self.contactId, channelKey: _chKey, maxRecord:"\(_defaultPageSize)", isOrderByAsc:true) { (messageList, firstItemCreateTime, lastItemCreateTime) in
