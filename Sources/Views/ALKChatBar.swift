@@ -340,6 +340,8 @@ open class ALKChatBar: UIView, Localizable {
             textView.textAlignment = .right
         }
 
+        sendButton.isHidden = false
+        micButton.isHidden = true
         micButton.setAudioRecDelegate(recorderDelegate: self)
         soundRec.setAudioRecViewDelegate(recorderDelegate: self)
         textView.delegate = self

@@ -1244,6 +1244,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         let actualMessage = messageService.getALMessage(byKey: replyId).messageModel
         guard let indexPath = viewModel.getIndexpathFor(message: actualMessage)
             else {return}
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - scrollTo() - scroll to indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
 
     }
@@ -1590,6 +1591,9 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func loadingStarted() {
         activityIndicator.startAnimating()
+        if let _supView = activityIndicator.superview, _supView == self.tableView {
+            self.tableView.bringSubviewToFront(activityIndicator)
+        }
     }
 
     public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool) {
@@ -1597,11 +1601,12 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
         if isLoadNextPage == false {
-            let newSectionCount = tableView.numberOfSections
+            let newSectionCount = self.viewModel.numberOfSections()
             if newSectionCount > oldSectionCount {
                 let offset = newSectionCount - oldSectionCount - 1
-                if offset >= 0 && offset < tableView.numberOfSections {
-                    tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .none, animated: false)
+                if offset >= 0 && offset < newSectionCount {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to offset:\(offset), total section:\(newSectionCount)")
+                    tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .top, animated: false)
                 }
             }
         }
@@ -1609,7 +1614,17 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         DispatchQueue.main.async {
             if self.viewModel.isFirstTime {
                 if targetFocusItemIndex != -1 {
-                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
+                    let _newSectionCount = self.viewModel.numberOfSections()
+                    if targetFocusItemIndex < _newSectionCount {
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to targetFocusItemIndex:\(targetFocusItemIndex), total section:\(_newSectionCount)")
+                        self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
+                    }else{
+                        let _sectionIndex = _newSectionCount - 1
+                        if _sectionIndex >= 0 {
+                            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to _sectionIndex:\(_sectionIndex), total section:\(_newSectionCount)")
+                            self.tableView.scrollToRow(at: IndexPath(row: 0, section: _sectionIndex) , at: .bottom, animated: false)
+                        }
+                    }
                 }else{
                     self.tableView.scrollToBottom(animated: false)
                 }
@@ -1618,14 +1633,19 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             }
         }
         //show / off scroll down button
-        let _lastItemIndex = self.viewModel.messageModels.count-1
-        let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
-        if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
-            _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
-            (targetFocusItemIndex == -1 && isLoadNextPage == false){
+        if self.viewModel.messageModels.count > 0 {
+            let _lastItemIndex = self.viewModel.messageModels.count-1
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - rectForRow _lastItemIndex:\(_lastItemIndex), total section:\(self.viewModel.messageModels.count)")
+            let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
+            if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
+                _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
+                (targetFocusItemIndex == -1 && isLoadNextPage == false){
+                self.unreadScrollButton.isHidden = true
+            }else {
+                self.unreadScrollButton.isHidden = false
+            }
+        }else{
             self.unreadScrollButton.isHidden = true
-        }else {
-            self.unreadScrollButton.isHidden = false
         }
         self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
         
@@ -1650,17 +1670,27 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         self.saveLastReadMessageIfNeeded()
     }
 
-    public func updateMessageAt(indexPath: IndexPath) {
+    public func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool) {
         DispatchQueue.main.async {
-            self.tableView.beginUpdates()
-            self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
-            self.tableView.endUpdates()
+            if self.activityIndicator.isAnimating {
+                self.activityIndicator.stopAnimating()
+            }
+            if needReloadTable == false {
+                self.tableView.beginUpdates()
+                self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
+                self.tableView.endUpdates()
+            }else{
+                self.tableView.reloadData()
+            }
             //save for unread message
             self.saveLastReadMessageIfNeeded()
         }
     }
 
     public func removeMessagesAt(indexPath: IndexPath, closureBlock: () -> Void) {
+        if activityIndicator.isAnimating {
+            activityIndicator.stopAnimating()
+        }
         closureBlock()
         self.tableView.reloadData()
     }
@@ -1673,10 +1703,12 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         guard indexPath.section >= 0 else {
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to indexPath:\(indexPath.section), total section:\(tableView.numberOfSections)")
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let sectionCount = self.tableView.numberOfSections
             if indexPath.section <= sectionCount {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to asyncAfter indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
                 self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
             }
         }
@@ -1724,15 +1756,6 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func messageSent(at indexPath: IndexPath) {
-        if let _messageModel = self.viewModel.messageForRow(indexPath: indexPath) {
-            var _messageReplyId:String = ""
-            if let msgMetadata = _messageModel.metadata,
-                let replyID = msgMetadata[AL_MESSAGE_REPLY_KEY] as? String {
-                _messageReplyId = replyID
-            }
-            let _messageTypeStr = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _messageModel.messageType)
-            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message)
-        }
         NSLog("current indexpath: %i and tableview section %i", indexPath.section, self.tableView.numberOfSections)
         guard indexPath.section >= self.tableView.numberOfSections else {
             NSLog("rejected indexpath: %i and tableview and section %i", indexPath.section, self.tableView.numberOfSections)
@@ -1744,6 +1767,18 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         moveTableViewToBottom(indexPath: indexPath)
     }
 
+    public func messageCanSent(at indexPath: IndexPath) {
+        if let _messageModel = self.viewModel.messageForRow(indexPath: indexPath) {
+            var _messageReplyId:String = ""
+            if let msgMetadata = _messageModel.metadata,
+                let replyID = msgMetadata[AL_MESSAGE_REPLY_KEY] as? String {
+                _messageReplyId = replyID
+            }
+            let _messageTypeStr = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _messageModel.messageType)
+            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message)
+        }
+    }
+    
     public func updateDisplay(contact: ALContact?, channel: ALChannel?) {
         let profile = viewModel.conversationProfileFrom(contact: contact, channel: channel)
         navigationBar.updateView(profile: profile)
@@ -1810,6 +1845,9 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         self.showTypingLabel(status: status, userId: userId)
     }
 
+    public func isPassMessageContentChecking() -> Bool {
+       return self.delegateConversationChatContentAction?.isAdminUser() ?? false
+    }
 }
 
 extension ALKConversationViewController: ALKCreateGroupChatAddFriendProtocol {
@@ -2500,13 +2538,15 @@ extension ALKConversationViewController {
         }
         let _maxYForVisableContent = self.tableView.contentOffset.y + self.tableView.bounds.size.height
         for _cellIndex in self.tableView.indexPathsForVisibleRows?.reversed() ?? [] {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections)")
             let _cellPos = self.tableView.rectForRow(at: _cellIndex)
             let _cellMinHeightOffset = _cellPos.height / 2.5
             if (_cellPos.maxY - _cellMinHeightOffset) <= _maxYForVisableContent {
                 if let _cellItem =  self.viewModel.messageForRow(indexPath: _cellIndex),
                     let _createDate = _cellItem.createdAtTime,
                     let _chKey = self.viewModel.channelKey,
-                    let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey {
+                    let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
+                    _cellItem.isSent == true  {
                     debugPrint("PL**** - \(_cellItem.message ?? "nil")")
                     ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
                     break
@@ -2522,7 +2562,8 @@ extension ALKConversationViewController {
         if let _cellItem =  self.viewModel.messageModels.last,
             let _createDate = _cellItem.createdAtTime,
             let _chKey = self.viewModel.channelKey,
-            let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey {
+            let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
+            _cellItem.isSent == true {
             debugPrint("PL**** - \(_cellItem.message ?? "nil")")
             ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
         }

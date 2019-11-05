@@ -218,11 +218,11 @@ public struct ALKConfiguration {
         case funcNeedPaidForPinMsg
     }
     
-    /// delegate for get text from app
-    public static var delegateSystemTextLocalizableRequestDelegate:SystemTextLocalizableRequestDelegate?
+    /// delegate for get / set system info
+    public static var delegateSystemInfoRequestDelegate:SystemInfoRequestDelegate?
     
-    /// delegate for logging from app
-    public static var delegateSystemLoggingRequestDelegate:SystemLoggingRequestDelegate?
+    /// delegate for get info
+    public static var delegateConversationRequestInfo:ConversationRequestInfoDelegate?
     
     /// If true, system can scroll to reply org message while click
     public var enableScrollToReplyViewWhenClick: Bool = true
@@ -289,6 +289,8 @@ public protocol ConversationChatContentActionDelegate: class{
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageClicked()
+    //join our group
+    func joinOurGroupButtonClicked(viewModel:ALKMessageViewModel?)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
@@ -320,12 +322,19 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func getSelfUserHashId() -> String?
 }
 
-public protocol SystemTextLocalizableRequestDelegate: class{
-    func getSystemLocaleName() -> String
-    func getSystemTextLocalizable(key:String) -> String?
+public protocol ConversationRequestInfoDelegate: class{
+    func isShowJoinOurGroupButton(viewModel:ALKMessageViewModel?) -> Bool
+    //validate message
+    func validateMessageBeforeSend(message:String?, completed:@escaping ((_ isPass:Bool, _ error:Error?) -> ()))
+    //show action for remark button
+    func messageStateRemarkButtonClicked(isError:Bool, isViolate:Bool)
 }
 
-public protocol SystemLoggingRequestDelegate: class{
+public protocol SystemInfoRequestDelegate: class{
+    func getDevicePlatform() -> String?
+    func getAppVersionName() -> String?
+    func getSystemLocaleName() -> String
+    func getSystemTextLocalizable(key:String) -> String?
     func logging(isDebug:Bool, message:String)
 }
 

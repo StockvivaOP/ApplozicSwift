@@ -80,6 +80,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                         self?.didReplyClickedInCell(replyMessage: replyMessage)
                     }
                 }
+                cell.joinOurGroupButtonClicked = { (model) in
+                    self.delegateConversationChatContentAction?.joinOurGroupButtonClicked(viewModel: model)
+                }
                 return cell
             }
         }
@@ -126,6 +129,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
+                cell.joinOurGroupButtonClicked = { (model) in
+                    self.delegateConversationChatContentAction?.joinOurGroupButtonClicked(viewModel: model)
+                }
                 return cell
             }
         case .photo:

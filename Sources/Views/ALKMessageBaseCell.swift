@@ -141,6 +141,20 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
+    
+    let btnJoinOurGroup: UIButton = {
+        let _view = UIButton(type: .custom)
+        _view.layer.cornerRadius = 16.5
+        _view.layer.borderColor = UIColor.ALKSVMainColorPurple().cgColor
+        _view.layer.borderWidth = 1.5
+        _view.backgroundColor = .white
+        _view.setFont(font: UIFont.systemFont(ofSize: 16.0, weight: .semibold) )
+        _view.setTitleColor(UIColor.ALKSVMainColorPurple(), for: .normal)
+        _view.setImage(UIImage(named: "sv_icon_chatpurple", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        _view.imageEdgeInsets = UIEdgeInsets(top: 0 , left: 5, bottom: 0, right: 5)
+        _view.isHidden = true
+        return _view
+    }()
 
     let emailTopView = ALKEmailTopView(frame: .zero)
 
@@ -158,7 +172,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     }()
 
     lazy var selfNameText: String = {
-        let text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_you") ?? localizedString(forKey: "You", withDefaultValue: SystemMessage.LabelName.You, fileName: localizedStringFileName)
+        let text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_you") ?? localizedString(forKey: "You", withDefaultValue: SystemMessage.LabelName.You, fileName: localizedStringFileName)
         return text
     }()
 
@@ -166,6 +180,8 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     
     var replyMessageTypeImagewidthConst:NSLayoutConstraint?
     var replyMessageLabelConst:NSLayoutConstraint?
+    
+    var joinOurGroupButtonClicked:((ALKMessageViewModel?)->Void)?
 
     func update(viewModel: ALKMessageViewModel, style: Style, replyMessage: ALKMessageViewModel?) {
         self.viewModel = viewModel
@@ -178,16 +194,16 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             //update reply icon
             if replyMessage.messageType == ALKMessageType.voice  {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
-                replyMessageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_audio") ?? replyMessageLabel.text
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_audio") ?? replyMessageLabel.text
             }else if replyMessage.messageType == ALKMessageType.video {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_video_grey", in: Bundle.applozic, compatibleWith: nil)
-                replyMessageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_video") ?? replyMessageLabel.text
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_video") ?? replyMessageLabel.text
             }else if replyMessage.messageType == ALKMessageType.photo {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_photo_grey", in: Bundle.applozic, compatibleWith: nil)
-                replyMessageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? replyMessageLabel.text
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? replyMessageLabel.text
             }else if replyMessage.messageType == ALKMessageType.document {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_file_grey", in: Bundle.applozic, compatibleWith: nil)
-                replyMessageLabel.text = ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_document") ?? replyMessageLabel.text
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_document") ?? replyMessageLabel.text
             }else{
                 replyMessageTypeImageView.image = nil
             }
@@ -239,7 +255,10 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.tintColor = _userColor
         }
         
-        self.timeLabel.text   = viewModel.time
+        //join group button logic
+        self.btnJoinOurGroup.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_group_message_group_button_entry") ?? "", for: .normal)
+        
+        self.timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         resetTextView(style)
         guard let message = viewModel.message else { return }
 
@@ -258,6 +277,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             print("😱😱😱Shouldn't come here.😱😱😱")
             return
         }
+        
         /// Comes here for html and email
         DispatchQueue.global().async {
             let attributedText = ALKMessageCell.attributedStringFrom(message, for: viewModel.identifier)
@@ -270,6 +290,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     override func setupViews() {
         super.setupViews()
         messageView.delegate = self
+        self.btnJoinOurGroup.addTarget(self, action: #selector(self.joinOurGroupButtonTouchUpInside(_:)), for: UIControl.Event.touchUpInside)
         
         contentView.addViewsForAutolayout(views:
             [messageView,
@@ -340,6 +361,28 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         }
     }
 
+    override open func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch self {
+        case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        default:
+            return super.canPerformAction(action, withSender: sender)
+        }
+    }
+    
     func menuCopy(_ sender: Any) {
         UIPasteboard.general.string = self.viewModel?.message ?? ""
     }
@@ -439,6 +482,10 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         messageView.text = nil
         messageView.typingAttributes = [:]
         messageView.setStyle(style)
+    }
+    
+    @objc private func joinOurGroupButtonTouchUpInside(_ selector: UIButton) {
+        self.joinOurGroupButtonClicked?(self.viewModel)
     }
     
     static func getReplyViewHeight(_ defaultReplyViewHeight:CGFloat = 0, defaultMsgHeight:CGFloat = 0, maxMsgHeight:CGFloat, maxMsgWidth:CGFloat, replyMessageContent:String?) -> (replyViewHeight:CGFloat, replyMsgViewHeight:CGFloat, offsetOfMsgIncreaseHeight:CGFloat){

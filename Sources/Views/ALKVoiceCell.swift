@@ -171,7 +171,7 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         } else {
             progressBar.setValue(Float(percent), animated: false)
         }
-        timeLabel.text   = viewModel.time
+        timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
     }
 
     weak var voiceDelegate: ALKVoiceCellProtocol?
@@ -287,6 +287,28 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
         })
     }
 
+    override open func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        switch self {
+        case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKAppealMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
+        default:
+            return super.canPerformAction(action, withSender: sender)
+        }
+    }
+    
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
     }

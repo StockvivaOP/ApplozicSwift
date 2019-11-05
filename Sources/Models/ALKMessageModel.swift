@@ -44,6 +44,25 @@ public enum ALKMessageActionType: String {
     }
 }
 
+// MARK: - stockviva SVALKMessageMetaDataFieldName
+public enum SVALKMessageMetaDataFieldName : String {
+    case devicePlatform = "SV_PLATFORM"
+    case appVersionName = "SV_VERSION_NAME"
+    case msgViolate = "SV_VIOLATE"
+    //will not send to server
+    case sendMessageErrorFind = "SV_SEND_MSG_ERROR_FIND"
+    case unreadMessageSeparator = "SV_UnreadMessageSeparator"
+}
+
+
+// MARK: - stockviva SVALKMessageStatus
+public enum SVALKMessageStatus: Int {
+    case processing = 1
+    case sent = 2
+    case error = 3
+    case block = 4
+}
+
 // MARK: - MessageViewModel
 public protocol ALKMessageViewModel {
     var message: String? { get }
@@ -160,16 +179,9 @@ extension ALKMessageViewModel {
             _result["userIconUrl"] = self.avatarURL?.absoluteString as AnyObject?
         }
         
-        //replace special character
-        let _replacingStrArray = ["&" : ","]
-        var _repUnicodeMsgStr = _rawMsgObject.message
-        for replacingStrKey in _replacingStrArray.keys {
-            _repUnicodeMsgStr = _repUnicodeMsgStr?.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
-        }
-        
         var _resultMsg = [String:AnyObject?]()
         _resultMsg["type"] = _rawMsgObject.type as AnyObject?
-        _resultMsg["message"] = _repUnicodeMsgStr as AnyObject?
+        _resultMsg["message"] = _rawMsgObject.message as AnyObject?
         _resultMsg["contactIds"] = _rawMsgObject.contactIds as AnyObject?
         _resultMsg["contentType"] = _rawMsgObject.contentType as AnyObject?
         _resultMsg["createdAtTime"] = _rawMsgObject.createdAtTime != nil ? _rawMsgObject.createdAtTime.intValue as AnyObject? : nil as AnyObject?
@@ -216,6 +228,13 @@ extension ALKMessageViewModel {
         } catch {
             print(error.localizedDescription)
         }
+        
+        //replace special character
+        let _replacingStrArray = ["&" : "\\u0026"]
+        for replacingStrKey in _replacingStrArray.keys {
+            _resultJsonUtf8Str = _resultJsonUtf8Str?.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
+        }
+        
         return _resultJsonUtf8Str
     }
     
@@ -247,13 +266,64 @@ extension ALKMessageViewModel {
         return _result
     }
     
+    //system version name
+    mutating func addAppVersionNameInMetaData(){
+        if let _rawModel = self.rawModel {
+            _rawModel.addAppVersionNameInMetaData()
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    //system version name
+    mutating func addDevicePlatformInMetaData(){
+        if let _rawModel = self.rawModel {
+            _rawModel.addDevicePlatformInMetaData()
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    func getValueFromMetadata(_ key:SVALKMessageMetaDataFieldName) -> Any? {
+        return self.rawModel?.getValueFromMetadata(key)
+    }
+    
+    //validate message
+    func isViolateMessage() -> Bool {
+        return self.rawModel?.isViolateMessage() ?? false
+    }
+    
+    mutating func setViolateMessage(value:Bool) {
+        if let _rawModel = self.rawModel {
+            _rawModel.setViolateMessage(value: value)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
     //un read message
     mutating func addIsUnreadMessageSeparatorInMetaData(_ isEnable:Bool){
-        self.rawModel?.addIsUnreadMessageSeparatorInMetaData(isEnable)
-        self.metadata = self.rawModel?.metadata as? Dictionary<String, Any>
+        if let _rawModel = self.rawModel {
+            _rawModel.addIsUnreadMessageSeparatorInMetaData(isEnable)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
     }
     
     func isUnReadMessageSeparator() -> Bool {
         return self.rawModel?.isUnReadMessageSeparator() ?? false
+    }
+    
+    //send message error find
+    func isSendMessageErrorFind() -> Bool {
+        return self.rawModel?.isSendMessageErrorFind() ?? false
+    }
+    
+    mutating func setSendMessageErrorFind(value:Bool) {
+        if let _rawModel = self.rawModel {
+            _rawModel.setSendMessageErrorFind(value: value)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    //stockviva message status
+    func getSVMessageStatus() -> SVALKMessageStatus {
+        return self.rawModel?.getSVMessageStatus() ?? SVALKMessageStatus.processing
     }
 }

@@ -85,17 +85,17 @@ extension ALMessage: ALKChatViewModelProtocol {
         case .text:
             return message
         case .photo:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Photo"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Photo"
         case .location:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_location") ?? "Location"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_location") ?? "Location"
         case .voice:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_audio") ?? "Audio"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_audio") ?? "Audio"
         case .information:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Update"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Update"
         case .video:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_video") ?? "Video"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_video") ?? "Video"
         case .html:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_link") ?? "Text"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_link") ?? "Text"
         case .genericCard:
             return message
         case .faqTemplate:
@@ -109,7 +109,7 @@ extension ALMessage: ALKChatViewModelProtocol {
         case .cardTemplate:
             return message
         case .imageMessage:
-            return message ?? ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Photo"
+            return message ?? ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? "Photo"
         case .email:
             guard let channelMetadata = alChannel?.metadata,
                 let messageText = channelMetadata[ChannelMetadataKey.conversationSubject]
@@ -118,9 +118,9 @@ extension ALMessage: ALKChatViewModelProtocol {
             }
             return messageText as? String
         case .document:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_attachment") ?? "Document"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_attachment") ?? "Document"
         case .contact:
-            return ALKConfiguration.delegateSystemTextLocalizableRequestDelegate?.getSystemTextLocalizable(key: "chat_common_contact") ?? "Contact"
+            return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_contact") ?? "Contact"
         }
     }
 
@@ -435,21 +435,87 @@ extension ALMessage {
         return ALKMessageActionType(rawValue: _action) ?? ALKMessageActionType.normalMessage
     }
 
+    //system version name
+    func addAppVersionNameInMetaData(){
+        if let _vName = ALKConfiguration.delegateSystemInfoRequestDelegate?.getAppVersionName() {
+            if self.metadata == nil {
+                self.metadata = NSMutableDictionary.init()
+            }
+            self.metadata.setValue(_vName, forKey: SVALKMessageMetaDataFieldName.appVersionName.rawValue)
+        }
+    }
+    
+    //device platform
+    func addDevicePlatformInMetaData(){
+        if let _dPlatform = ALKConfiguration.delegateSystemInfoRequestDelegate?.getDevicePlatform() {
+            if self.metadata == nil {
+                self.metadata = NSMutableDictionary.init()
+            }
+            self.metadata.setValue(_dPlatform, forKey: SVALKMessageMetaDataFieldName.devicePlatform.rawValue)
+        }
+    }
+    
+    func getValueFromMetadata(_ key:SVALKMessageMetaDataFieldName) -> Any? {
+        if let _metaData = self.metadata {
+            return _metaData.value(forKey: key.rawValue)
+        }
+        return nil
+    }
+    
+    //validate message
+    func isViolateMessage() -> Bool {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.msgViolate) as? String ?? "false" == "true"
+        return _result
+    }
+    
+    func setViolateMessage(value:Bool) {
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue((value ? "true" : "false"), forKey: SVALKMessageMetaDataFieldName.msgViolate.rawValue)
+    }
+    
     //un read message
     func addIsUnreadMessageSeparatorInMetaData(_ isEnable:Bool){
         let _valueStr = isEnable ? "1" : "0"
         if self.metadata == nil {
             self.metadata = NSMutableDictionary.init()
         }
-        self.metadata.setValue(_valueStr, forKey: "SV_UnreadMessageSeparator")
+        self.metadata.setValue(_valueStr, forKey: SVALKMessageMetaDataFieldName.unreadMessageSeparator.rawValue)
     }
     
     //both for local key
     func isUnReadMessageSeparator() -> Bool {
         var _result = false
-        if let _unreadMsgKey = self.metadata.value(forKey: "SV_UnreadMessageSeparator") as? String, self.messageType == .information && _unreadMsgKey == "1" {
+        if let _unreadMsgKey = self.metadata.value(forKey: SVALKMessageMetaDataFieldName.unreadMessageSeparator.rawValue) as? String, self.messageType == .information && _unreadMsgKey == "1" {
             _result = true
         }
         return _result
+    }
+    
+    //send message error find
+    func isSendMessageErrorFind() -> Bool {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.sendMessageErrorFind) as? String ?? "false" == "true"
+        return _result
+    }
+    
+    func setSendMessageErrorFind(value:Bool) {
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue((value ? "true" : "false"), forKey: SVALKMessageMetaDataFieldName.sendMessageErrorFind.rawValue)
+    }
+    
+    //stockviva message status
+    func getSVMessageStatus() -> SVALKMessageStatus {
+        if self.isViolateMessage() {
+            return SVALKMessageStatus.block
+        } else if self.isSendMessageErrorFind() {
+            return SVALKMessageStatus.error
+        } else if self.isSent {
+            return SVALKMessageStatus.sent
+        }else {
+            return SVALKMessageStatus.processing
+        }
     }
 }

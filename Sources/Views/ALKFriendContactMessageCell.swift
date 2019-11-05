@@ -64,7 +64,7 @@ class ALKFriendContactMessageCell: ALKContactMessageBaseCell {
         if let filePath = viewModel.filePath {
             updateContactDetails(key: viewModel.identifier, filePath: filePath)
         }
-        timeLabel.text = viewModel.time
+        timeLabel.text = viewModel.date.toConversationViewDateFormat() //viewModel.time
         timeLabel.setStyle(ALKMessageStyle.time)
 
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
