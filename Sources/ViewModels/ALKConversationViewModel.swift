@@ -1969,7 +1969,7 @@ extension ALKConversationViewModel {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - getSearchTimeAfterOpenGroupMessage - successful list count  \(newMessages.count) ")
             var _totalMsgList:[ALMessage] = downloadedMessageList ?? []
             _totalMsgList.append(contentsOf: newMessages)
-            if _totalMsgList.count < self.defaultValue_requestMessagePageSize && lastItemCreateTime != nil {
+            if _totalMsgList.count < _defaultPageSize && lastItemCreateTime != nil {
                 loopingStart?()
                 self.getSearchTimeAfterOpenGroupMessage(time: lastItemCreateTime, downloadedMessageList:_totalMsgList, lastLoopGotRecord: _totalMsgList.count, completed:completed)
                 return
