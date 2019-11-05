@@ -1606,7 +1606,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 let offset = newSectionCount - oldSectionCount - 1
                 if offset >= 0 && offset < newSectionCount {
                     ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to offset:\(offset), total section:\(newSectionCount)")
-                    tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .none, animated: false)
+                    tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .top, animated: false)
                 }
             }
         }
