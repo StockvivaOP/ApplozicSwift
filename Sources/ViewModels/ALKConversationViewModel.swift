@@ -1813,7 +1813,7 @@ extension ALKConversationViewModel {
 
 //MARK: - stockviva unread message
 extension ALKConversationViewModel {
-    open func loadOpenGroupMessageWithUnreadModel(firstItemCreateTime:NSNumber? = nil, lastItemCreateTime:NSNumber? = nil){
+    open func loadOpenGroupMessageWithUnreadModel(){
         guard let _chKey = self.channelKey, let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey else {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessageWithUnreadModel - no channel key or group id")
             return
@@ -1839,15 +1839,7 @@ extension ALKConversationViewModel {
             
             if _resultSet.count == 0 {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessageWithUnreadModel - no message list")
-                if fistItemCreateTime != nil || lastItemCreateTime != nil {
-                    self.delegate?.loadingStarted()
-                    self.loadOpenGroupMessageWithUnreadModel(firstItemCreateTime: fistItemCreateTime, lastItemCreateTime: lastItemCreateTime)
-                }else{
-                    //clear unread mode
-                    self.clearUnReadMessageData(isCancelTheModel: true)
-                    ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
-                    self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false)
-                }
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false)
                 return
             }
             let sortedArray = _resultSet.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
@@ -1874,22 +1866,18 @@ extension ALKConversationViewModel {
             _lastReadMsgTimeNumber = NSNumber(value: (_lastReadMsgTime + 1))
         }
         
-        let _startBeforeTimeNumber:NSNumber? = firstItemCreateTime ?? _lastReadMsgTimeNumber
-        let _startAfterTimeNumber:NSNumber? = lastItemCreateTime ?? _lastReadMsgTimeNumber
-        //firstItemCreateTime:NSNumber? = nil, lastItemCreateTime:NSNumber? = nil
-        
-        if _lastReadMsgTimeNumber == nil && _startBeforeTimeNumber == nil && _startAfterTimeNumber == nil {
+        if _lastReadMsgTimeNumber == nil {
             //call record
             self.getSearchTimeBeforeOpenGroupMessage { (resultsOfBefore, firstItemCreateTime, lastItemCreateTime) in
                 _completedBlock(resultsOfBefore, nil, firstItemCreateTime, lastItemCreateTime)
             }
         }else{
-            self.getSearchTimeAfterOpenGroupMessage(time: _startAfterTimeNumber,  pageSize:_defaultPageSize) { (resultsOfAfter, firstItemCreateTimeAfter, lastItemCreateTimeAfter) in
-                if _lastReadMsgTimeNumber == nil && _startBeforeTimeNumber == nil {
+            self.getSearchTimeAfterOpenGroupMessage(time: _lastReadMsgTimeNumber,  pageSize:_defaultPageSize) { (resultsOfAfter, firstItemCreateTimeAfter, lastItemCreateTimeAfter) in
+                if _lastReadMsgTimeNumber == nil {
                     _completedBlock(resultsOfAfter, nil, firstItemCreateTimeAfter, lastItemCreateTimeAfter)
                 }else {
                     //call before record
-                    self.getSearchTimeBeforeOpenGroupMessage(time: _startBeforeTimeNumber, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
+                    self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
                         _completedBlock(resultsOfBefore, resultsOfAfter, firstItemCreateTimeBefore ?? firstItemCreateTimeAfter , lastItemCreateTimeAfter)
                     })
                 }
