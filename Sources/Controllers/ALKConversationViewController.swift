@@ -2546,8 +2546,7 @@ extension ALKConversationViewController {
                     let _createDate = _cellItem.createdAtTime,
                     let _chKey = self.viewModel.channelKey,
                     let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
-                    _cellItem.isSent == true  {
-                    debugPrint("PL**** - \(_cellItem.message ?? "nil")")
+                    (_cellItem.isSent == true || _cellItem.isMyMessage == false)  {
                     ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
                     break
                 }
@@ -2563,7 +2562,7 @@ extension ALKConversationViewController {
             let _createDate = _cellItem.createdAtTime,
             let _chKey = self.viewModel.channelKey,
             let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
-            _cellItem.isSent == true {
+            (_cellItem.isSent == true || _cellItem.isMyMessage == false) {
             debugPrint("PL**** - \(_cellItem.message ?? "nil")")
             ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
         }
