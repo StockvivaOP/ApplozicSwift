@@ -745,7 +745,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     messageObject.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
                 }
                 
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(messageObject.key ?? "nil"), | \(messageObject.createdAtTime ?? -1 )")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(messageObject.key ?? "nil"), | \(messageObject.createdAtTime ?? -1 ) | \(messageObject.to ?? "nil") | \(messageObject.contactId ?? "nil") | \(self.contactId ?? "nil")")
                 
                 self.messageModels[_indexPath.section] = messageObject.messageModel
                 //sort again
@@ -1685,7 +1685,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             } else {
                 alMessage.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
             }
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(alMessage.key ?? "nil"), | \(alMessage.createdAtTime ?? -1 )")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(alMessage.key ?? "nil"), | \(alMessage.createdAtTime ?? -1 ) | \(alMessage.to ?? "nil") | \(alMessage.contactId ?? "nil") | \(self.contactId ?? "nil")")
             completion(alMessage)
         }
     }
