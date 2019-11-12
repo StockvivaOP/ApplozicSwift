@@ -512,7 +512,7 @@ extension ALMessage {
             return SVALKMessageStatus.block
         } else if self.isSendMessageErrorFind() {
             return SVALKMessageStatus.error
-        } else if self.isSent {
+        } else if self.isSent || self.isMyMessage == false {
             return SVALKMessageStatus.sent
         }else {
             return SVALKMessageStatus.processing
