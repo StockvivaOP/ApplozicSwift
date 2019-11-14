@@ -385,18 +385,22 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     
     func menuCopy(_ sender: Any) {
         UIPasteboard.general.string = self.viewModel?.message ?? ""
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click copy:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
     
     func menuAppeal(_ sender: Any) {
         menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click appeal:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
     
     func menuPinMsg(_ sender: Any) {
         menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click pin msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 
     func menuReply(_ sender: Any) {
         menuAction?(.reply)
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click reply:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 
     @objc func replyViewTapped() {
