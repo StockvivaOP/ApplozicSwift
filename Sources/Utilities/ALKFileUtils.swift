@@ -108,8 +108,8 @@ class ALKFileUtils: NSObject {
     func isImageFile(url:URL) -> Bool{
         var _result = false
         let _fileExtenstion = url.pathExtension as CFString
-        if let _uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, _fileExtenstion, nil) as? CFString {
-            _result = UTTypeConformsTo(_uti, kUTTypeImage)
+        if let _uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, _fileExtenstion, nil) {
+            _result = UTTypeConformsTo((_uti as! CFString), kUTTypeImage)
         }
         return _result
     }
