@@ -2465,13 +2465,16 @@ extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUpload
                 self.tableView.endUpdates()
                 self.tableView.scrollToBottom(animated: false)
                 //        }
-                guard let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
                 guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
                     let notificationView = ALNotificationView()
                     notificationView.noDataConnectionNotificationView()
                     return
                 }
-                self.viewModel.uploadFile(view: cell, indexPath: newIndexPath)
+                if let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell {
+                    self.viewModel.uploadFile(view: cell, indexPath: newIndexPath)
+                }else if let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyPhotoPortalCell {
+                    self.viewModel.uploadImage(view: cell, indexPath: newIndexPath)
+                }
             }
         }
     }
