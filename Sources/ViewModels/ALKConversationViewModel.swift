@@ -493,7 +493,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         }
     }
 
-    /// Received from notification
+    /// Received from notification and from network
     open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false) {
         guard let messages = messageList as? [ALMessage] else { return }
         
@@ -510,6 +510,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
             if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                 continue
             }
+            //mark message to true if not my message
+            message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
             
             var _isAdded = false
             if channelKey != nil && channelKey ==  message.groupId {
@@ -718,13 +720,19 @@ open class ALKConversationViewModel: NSObject, Localizable {
     
     open func sendMessageToServer(messageObject: ALMessage, indexPath:IndexPath, isOpenGroup: Bool = false) {
         //send to server
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent before (send(message:,isOpenGroup:,metadata:)):\(messageObject.dictionary() ?? ["nil":"nil"])")
+        
         if isOpenGroup {
             let messageClientService = ALMessageClientService()
-            messageClientService.sendMessage(messageObject.dictionary(), withCompletionHandler: {json, error in
+            let _tempMsgForSent = ALMessage(dictonary: messageObject.dictionary())!
+            _tempMsgForSent.status = NSNumber(integerLiteral: Int(SENT.rawValue))
+            messageClientService.sendMessage(_tempMsgForSent.dictionary(), withCompletionHandler: {json, error in
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent after (send(message:,isOpenGroup:,metadata:))):\(json ?? "nil")")
                 var _indexPath = indexPath
                 if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
                     _indexPath.section = self.alMessages.index(of: messageObject) ?? _indexPath.section
                     if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent after (send(message:,isOpenGroup:,metadata:))):index \(_indexPath.section) not correct")
                         return
                     }
                 }
@@ -732,6 +740,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     messageObject.setSendMessageErrorFind(value: true)
                     self.messageModels[_indexPath.section] = messageObject.messageModel
                     self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: true)
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent after (send(message:,isOpenGroup:,metadata:))):got error \(error?.localizedDescription ?? "nil") or json nil")
                     return
                 }
                 
@@ -745,8 +754,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     messageObject.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
                 }
                 
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(messageObject.key ?? "nil"), | \(messageObject.createdAtTime ?? -1 )")
-                
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent successful (send(message:,isOpenGroup:,metadata:))):\(messageObject.dictionary() ?? ["nil":"nil"])")
                 self.messageModels[_indexPath.section] = messageObject.messageModel
                 //sort again
                 self.alMessages.sort { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
@@ -1471,6 +1479,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                     continue
                 }
+                message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
+                
                 let contactId = message.to ?? ""
                 if !contactService.isContactExist(contactId) {
                     contactsNotPresent.append(contactId)
@@ -1666,10 +1676,15 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     private func send(alMessage: ALMessage, completion: @escaping (ALMessage?)->Void) {
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent before (send(alMessage:,completion:)):\(alMessage.dictionary() ?? ["nil":"nil"])")
         
         let messageClientService = ALMessageClientService()
-        messageClientService.sendMessage(alMessage.dictionary()) { json, error in
+        let _tempMsgForSent = ALMessage(dictonary: alMessage.dictionary())!
+        _tempMsgForSent.status = NSNumber(integerLiteral: Int(SENT.rawValue))
+        messageClientService.sendMessage(_tempMsgForSent.dictionary()) { json, error in
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent after (send(alMessage:,completion:)):\(json ?? "nil")")
             guard error == nil, let json = json as? [String: Any] else {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent after (send(alMessage:,completion:)):got error \(error?.localizedDescription ?? "nil") or json nil")
                 completion(nil)
                 return
             }
@@ -1685,7 +1700,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             } else {
                 alMessage.status = NSNumber(integerLiteral: Int(PENDING.rawValue))
             }
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent \(alMessage.key ?? "nil"), | \(alMessage.createdAtTime ?? -1 )")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message sent successful (send(alMessage:,completion:)):\(alMessage.dictionary() ?? ["nil":"nil"])")
             completion(alMessage)
         }
     }

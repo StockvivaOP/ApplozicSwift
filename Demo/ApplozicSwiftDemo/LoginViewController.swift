@@ -26,7 +26,7 @@ class LoginViewController: UIViewController {
 //        emailId.text = "oldpig.chu@moleculez.co"
         
         userName.text = "QW3A"
-        password.text = "18555|1572927232|5b574ef2c7f094a078977e0f2fe767ac"
+        password.text = "18555|1574231300|e8c65e3b51f706d1f5cc83ceea935b35"
         emailId.text = "oldpig.chu@moleculez.co"
         
         // Do any additional setup after loading the view.

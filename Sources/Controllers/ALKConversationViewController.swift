@@ -1704,12 +1704,30 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             return
         }
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to indexPath:\(indexPath.section), total section:\(tableView.numberOfSections)")
-        tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+        if indexPath.section > 0 && indexPath.section < tableView.numberOfSections {
+            tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+        }else{
+            var _lastIndex = tableView.numberOfSections - 1
+            if _lastIndex < 0 {
+                _lastIndex = 0
+            }
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - adjust the index because the index should under 0, scroll to indexPath:\(_lastIndex), total section:\(tableView.numberOfSections)")
+            tableView.scrollToRow(at: IndexPath(row: 0, section: _lastIndex) , at: .bottom, animated: false)
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let sectionCount = self.tableView.numberOfSections
             if indexPath.section <= sectionCount {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to asyncAfter indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
-                self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+                if indexPath.section > 0 && indexPath.section < self.tableView.numberOfSections {
+                    self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
+                }else{
+                    var _lastIndex = self.tableView.numberOfSections - 1
+                    if _lastIndex < 0 {
+                        _lastIndex = 0
+                    }
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - adjust the index because the index should under 0, scroll to asyncAfter indexPath:\(_lastIndex), total section:\(self.tableView.numberOfSections)")
+                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: _lastIndex) , at: .bottom, animated: false)
+                }
             }
         }
     }
@@ -2465,13 +2483,16 @@ extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUpload
                 self.tableView.endUpdates()
                 self.tableView.scrollToBottom(animated: false)
                 //        }
-                guard let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell else { return }
                 guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
                     let notificationView = ALNotificationView()
                     notificationView.noDataConnectionNotificationView()
                     return
                 }
-                self.viewModel.uploadFile(view: cell, indexPath: newIndexPath)
+                if let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyDocumentCell {
+                    self.viewModel.uploadFile(view: cell, indexPath: newIndexPath)
+                }else if let cell = self.tableView.cellForRow(at: newIndexPath) as? ALKMyPhotoPortalCell {
+                    self.viewModel.uploadImage(view: cell, indexPath: newIndexPath)
+                }
             }
         }
     }
@@ -2546,8 +2567,7 @@ extension ALKConversationViewController {
                     let _createDate = _cellItem.createdAtTime,
                     let _chKey = self.viewModel.channelKey,
                     let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
-                    _cellItem.isSent == true  {
-                    debugPrint("PL**** - \(_cellItem.message ?? "nil")")
+                    (_cellItem.isSent == true || _cellItem.isMyMessage == false)  {
                     ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
                     break
                 }
@@ -2563,7 +2583,7 @@ extension ALKConversationViewController {
             let _createDate = _cellItem.createdAtTime,
             let _chKey = self.viewModel.channelKey,
             let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
-            _cellItem.isSent == true {
+            (_cellItem.isSent == true || _cellItem.isMyMessage == false) {
             debugPrint("PL**** - \(_cellItem.message ?? "nil")")
             ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
         }
