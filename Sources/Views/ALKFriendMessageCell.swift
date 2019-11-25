@@ -131,6 +131,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
     var replyMsgViewBottomConst:NSLayoutConstraint?
     var emailViewTopConst:NSLayoutConstraint?
     var joinOurGroupButtonHeightConst:NSLayoutConstraint?
+    var joinOurGroupButtonWidthConst:NSLayoutConstraint?
     var joinOurGroupButtonTopConst:NSLayoutConstraint?
     var joinOurGroupButtonBottomConst:NSLayoutConstraint?
     
@@ -166,6 +167,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         replyMsgViewBottomConst = replyMessageLabel.bottomAnchor.constraint(equalTo: replyView.bottomAnchor, constant: -Padding.ReplyMessageLabel.bottom)
         
         joinOurGroupButtonHeightConst = btnJoinOurGroup.heightAnchor.constraint(equalToConstant: Padding.JoinOurGroupButton.height)
+        joinOurGroupButtonWidthConst = btnJoinOurGroup.widthAnchor.constraint(greaterThanOrEqualToConstant: Padding.JoinOurGroupButton.width)
         joinOurGroupButtonTopConst = btnJoinOurGroup.topAnchor.constraint(
             equalTo: messageView.bottomAnchor,
             constant: Padding.JoinOurGroupButton.top)
@@ -207,7 +209,6 @@ open class ALKFriendMessageCell: ALKMessageCell {
             bubbleView.trailingAnchor.constraint(
                 lessThanOrEqualTo: contentView.trailingAnchor,
                 constant: -Padding.BubbleView.right),
-            bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: Padding.JoinOurGroupButton.width),
             
             replyViewTopConst!,
             replyView.heightAnchor.constraintEqualToAnchor(
@@ -289,7 +290,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 constant: Padding.MessageView.left),
             
             joinOurGroupButtonHeightConst!,
-            btnJoinOurGroup.widthAnchor.constraint(greaterThanOrEqualToConstant: Padding.JoinOurGroupButton.width),
+            joinOurGroupButtonWidthConst!,
             joinOurGroupButtonTopConst!,
             joinOurGroupButtonBottomConst!,
             btnJoinOurGroup.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.JoinOurGroupButton.left),
@@ -489,6 +490,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
     private func showJoinOurGroupButton(_ show: Bool){
         self.btnJoinOurGroup.isHidden = !show
         joinOurGroupButtonHeightConst?.constant = show ? Padding.JoinOurGroupButton.height : 0
+        joinOurGroupButtonWidthConst?.constant = show ? Padding.JoinOurGroupButton.width : 0
         joinOurGroupButtonTopConst?.constant = show ? Padding.JoinOurGroupButton.top : 0
         joinOurGroupButtonBottomConst?.constant = show ? -Padding.JoinOurGroupButton.bottom : 0
     }
