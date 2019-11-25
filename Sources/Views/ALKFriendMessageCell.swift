@@ -112,7 +112,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
             static let left: CGFloat = 7
             static let right: CGFloat = 7
             static let height: CGFloat = 33
-            static let width: CGFloat = 170
+            static let width: CGFloat = 240
         }
     }
     
@@ -207,6 +207,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
             bubbleView.trailingAnchor.constraint(
                 lessThanOrEqualTo: contentView.trailingAnchor,
                 constant: -Padding.BubbleView.right),
+            bubbleView.widthAnchor.constraint(lessThanOrEqualToConstant: Padding.JoinOurGroupButton.width),
             
             replyViewTopConst!,
             replyView.heightAnchor.constraintEqualToAnchor(
