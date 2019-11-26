@@ -49,6 +49,8 @@ public enum SVALKMessageMetaDataFieldName : String {
     case devicePlatform = "SV_PLATFORM"
     case appVersionName = "SV_VERSION_NAME"
     case msgViolate = "SV_VIOLATE"
+    case mentions = "SV_MENTIONS"
+    case userHashId = "userHashId"
     //will not send to server
     case sendMessageErrorFind = "SV_SEND_MSG_ERROR_FIND"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
@@ -278,6 +280,14 @@ extension ALKMessageViewModel {
     mutating func addDevicePlatformInMetaData(){
         if let _rawModel = self.rawModel {
             _rawModel.addDevicePlatformInMetaData()
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    //Mentions User
+    mutating func addMentionsUserList(_ list:[(hashID:String, name:String)]?){
+        if let _rawModel = self.rawModel {
+            _rawModel.addMentionsUserList(list)
             self.metadata = _rawModel.metadata as? Dictionary<String, Any>
         }
     }

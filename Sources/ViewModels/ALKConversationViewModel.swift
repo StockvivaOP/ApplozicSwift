@@ -670,10 +670,22 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     //send message
-    open func send(message: String, isOpenGroup: Bool = false, metadata: [AnyHashable : Any]?) {
+    open func send(message: String, mentionUserList:[(hashID:String, name:String)]? = nil, isOpenGroup: Bool = false, metadata: [AnyHashable : Any]?) {
         let alMessage = getMessageToPost(isTextMessage: true)
-        alMessage.message = message
+        //if user has mention some user
+        if let _mUserList = mentionUserList, _mUserList.count > 0 {
+            var _userDisplayList = ""
+            for item in _mUserList {
+                _userDisplayList += "@\(item.name) "
+            }
+            _userDisplayList = _userDisplayList.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            _userDisplayList += "\n"
+            alMessage.message = _userDisplayList + message
+        }else{
+            alMessage.message = message
+        }
         alMessage.metadata = self.modfiedMessageMetadata(alMessage: alMessage, metadata: metadata)
+        alMessage.addMentionsUserList(mentionUserList)
 
         addToWrapper(message: alMessage)
         let indexPath = IndexPath(row: 0, section: messageModels.count-1)

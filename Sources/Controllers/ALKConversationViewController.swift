@@ -469,6 +469,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     override open func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
 
     override open func viewDidLoad() {
@@ -834,7 +835,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
             switch action {
 
-            case .sendText(let button, let message):
+            case .sendText(let button, let message, let mentionUserList):
                 if message.count < 1 {
                     return
                 }
@@ -878,7 +879,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 }
                 
                 self?.sendMessageWithHandleUnreadModel(completedBlock: {
-                    weakSelf.viewModel.send(message: _tempMsg, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
+                    weakSelf.viewModel.send(message: _tempMsg, mentionUserList:mentionUserList, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
                     button.isUserInteractionEnabled = true
                 })
             case .chatBarTextChange:
@@ -2524,6 +2525,10 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
         view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatBarAction?.blockChatButtonClicked(chatBar: chatBar, chatView:self)
+    }
+    
+    public func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String) {
+        self.delegateConversationChatBarAction?.didUserEnteredSpecialCharacterKey(key:key)
     }
 }
 

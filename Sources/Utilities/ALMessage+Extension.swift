@@ -455,6 +455,20 @@ extension ALMessage {
         }
     }
     
+    //Mentions User
+    func addMentionsUserList(_ list:[(hashID:String, name:String)]?){
+        //mentions
+        guard let _list = list else {
+            return
+        }
+        var _result:[[String:String]] = []
+        for _item in _list {
+            let _dict:[String:String] = [SVALKMessageMetaDataFieldName.userHashId.rawValue : _item.hashID]
+            _result.append(_dict)
+        }
+        self.metadata.setValue(_result, forKey: SVALKMessageMetaDataFieldName.mentions.rawValue)
+    }
+    
     func getValueFromMetadata(_ key:SVALKMessageMetaDataFieldName) -> Any? {
         if let _metaData = self.metadata {
             return _metaData.value(forKey: key.rawValue)
