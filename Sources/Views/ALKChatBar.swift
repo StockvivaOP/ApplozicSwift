@@ -892,12 +892,12 @@ open class ALKChatBar: UIView, Localizable {
 
 //MARK: - stockviva tag (tag user)
 extension ALKChatBar {
-    func getMentionUserList() -> [(hashID:String, name:String)]? {
+    public func getMentionUserList() -> [(hashID:String, name:String)]? {
         let _returnObj:[(hashID:String, name:String)] = Array(self.mentionUserItems)
         return self.mentionUserItems.count > 0 ? _returnObj : nil
     }
     
-    func addMentionUser(hashID:String?, name:String?){
+    public func addMentionUser(hashID:String?, name:String?){
         guard let _hashID = hashID, let _name = name, _hashID.count > 0 && _name.count > 0  else {
             return
         }
@@ -908,7 +908,7 @@ extension ALKChatBar {
         }
     }
     
-    func removeMentionUser(index:Int){
+    public func removeMentionUser(index:Int){
         guard index >= 0 && index < self.mentionUserItems.count else {
             return
         }
