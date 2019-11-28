@@ -932,6 +932,7 @@ extension ALKChatBar {
     
     private func clearMentionUserList(){
         self.mentionUserItems.removeAll()
+        self.mentionUserList.reloadData()
         self.hiddenMentionUserList(true)
     }
     
@@ -948,7 +949,7 @@ extension ALKChatBar {
                 }
             }) { (isSuccessful) in
                 let _lastItemIndex = self.mentionUserItems.count - 1
-                if _lastItemIndex <= 0 {
+                if _lastItemIndex < 0 {
                     if self.mentionUserItems.count == 0 {
                         self.hiddenMentionUserList(true, completed: {
                             self.mentionUserList.reloadData()
@@ -958,6 +959,7 @@ extension ALKChatBar {
                     self.mentionUserList.reloadData()
                     return
                 }
+                self.mentionUserList.reloadData()
                 //check need show the user list view
                 self.mentionUserList.selectItem(at: IndexPath(item: _lastItemIndex, section: 0), animated: true, scrollPosition: UICollectionView.ScrollPosition.right)
             }
