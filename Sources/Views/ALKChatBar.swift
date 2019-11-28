@@ -935,31 +935,33 @@ extension ALKChatBar {
         self.hiddenMentionUserList(true)
     }
     
-    private func updateCollectionView(isAdd:Bool, index:Int, progressUpdate:(()->())){
-        self.mentionUserList.performBatchUpdates({
-            progressUpdate()
-            if isAdd {
-                self.mentionUserList.insertItems(at: [IndexPath(item: index, section: 0)])
-            }else{
-                self.mentionUserList.deleteItems(at: [IndexPath(item: index, section: 0)])
-            }
-        }) { (isSuccessful) in
-            let _lastItemIndex = self.mentionUserItems.count - 1
-            if _lastItemIndex < 0 {
-                if self.mentionUserItems.count == 0 {
-                    self.hiddenMentionUserList(true, completed: {
-                        self.mentionUserList.reloadData()
-                    })
+    private func updateCollectionView(isAdd:Bool, index:Int, progressUpdate:@escaping (()->())){
+        
+        //check need show the user list view
+        self.hiddenMentionUserList(false, completed: {
+            self.mentionUserList.performBatchUpdates({
+                progressUpdate()
+                if isAdd {
+                    self.mentionUserList.insertItems(at: [IndexPath(item: index, section: 0)])
+                }else{
+                    self.mentionUserList.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+            }) { (isSuccessful) in
+                let _lastItemIndex = self.mentionUserItems.count - 1
+                if _lastItemIndex <= 0 {
+                    if self.mentionUserItems.count == 0 {
+                        self.hiddenMentionUserList(true, completed: {
+                            self.mentionUserList.reloadData()
+                        })
+                        return
+                    }
+                    self.mentionUserList.reloadData()
                     return
                 }
-                self.mentionUserList.reloadData()
-                return
-            }
-            //check need show the user list view
-            self.hiddenMentionUserList(false, completed: {
+                //check need show the user list view
                 self.mentionUserList.selectItem(at: IndexPath(item: _lastItemIndex, section: 0), animated: true, scrollPosition: UICollectionView.ScrollPosition.right)
-            })
-        }
+            }
+        })
     }
 }
 
