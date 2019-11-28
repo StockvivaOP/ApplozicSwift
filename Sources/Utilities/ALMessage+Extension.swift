@@ -466,7 +466,10 @@ extension ALMessage {
             let _dict:[String:String] = [SVALKMessageMetaDataFieldName.userHashId.rawValue : _item.hashID]
             _result.append(_dict)
         }
-        self.metadata.setValue(_result, forKey: SVALKMessageMetaDataFieldName.mentions.rawValue)
+        
+        if let _resultStr = _result.convertToJsonString() {
+            self.metadata.setValue(_resultStr, forKey: SVALKMessageMetaDataFieldName.mentions.rawValue)
+        }
     }
     
     func getValueFromMetadata(_ key:SVALKMessageMetaDataFieldName) -> Any? {

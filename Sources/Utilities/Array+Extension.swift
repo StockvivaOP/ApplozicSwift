@@ -21,6 +21,23 @@ extension Array {
         return categories
     }
 
+    func convertToJsonString() ->String? {
+        var _resultJsonUtf8Str:String? = nil
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: self, options: [])
+            _resultJsonUtf8Str = String(data: jsonData, encoding: String.Encoding.utf8)!
+            NSLog("\(_resultJsonUtf8Str ?? "")")
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        //replace special character
+        let _replacingStrArray = ["&" : "\\u0026"]
+        for replacingStrKey in _replacingStrArray.keys {
+            _resultJsonUtf8Str = _resultJsonUtf8Str?.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
+        }
+        return _resultJsonUtf8Str
+    }
 }
 
 extension Array where Element: Equatable {
