@@ -142,6 +142,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     override func update(viewModel: ALKMessageViewModel) {
         self.viewModel = viewModel
+        self.photoView.image = nil
         activityIndicator.color = .black
         timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         captionLabel.text = viewModel.message
@@ -264,7 +265,6 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     func updateView(for state: AttachmentState) {
-        self.photoView.image = nil
         DispatchQueue.main.async {
             self.updateView(state: state)
         }
