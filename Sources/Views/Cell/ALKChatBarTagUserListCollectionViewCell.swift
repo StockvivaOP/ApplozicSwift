@@ -31,4 +31,13 @@ class ALKChatBarTagUserListCollectionViewCell: UICollectionViewCell {
     @IBAction func closeButtonTouchUpInside(_ sender: Any) {
         self.delegate?.didItemCloseButtonClicked(index:self.index)
     }
+    
+    static func calculateCellWidth(title:String) -> CGSize {
+        let _boundingBox = title.boundingRect(with: CGSize(width: 999, height: 30), options: .usesLineFragmentOrigin, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 16)], context: nil)
+        let _buttonWidth:CGFloat = 24.0
+        let _viewLeftPadding:CGFloat = 10.0
+        let _viewRightPadding:CGFloat = 5.0
+        let _totalWidth = ceil(_boundingBox.width) + _viewLeftPadding + _buttonWidth + _viewRightPadding
+        return CGSize(width: _totalWidth, height: 30)
+    }
 }

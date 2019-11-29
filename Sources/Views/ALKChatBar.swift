@@ -253,11 +253,7 @@ open class ALKChatBar: UIView, Localizable {
     
     open var mentionUserItems:[(hashID:String, name:String)] = []
     open var mentionUserList:UICollectionView = {
-        var _folowLayout:UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        _folowLayout.sectionInset = UIEdgeInsets(top: 6.5, left: 10, bottom: 6.5, right: 10)
-        _folowLayout.scrollDirection = .horizontal
-        _folowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        let view = UICollectionView(frame: CGRect.zero, collectionViewLayout:_folowLayout)
+        let view = UICollectionView(frame: CGRect.zero, collectionViewLayout:ALKChatBarMentionUserCollectionViewFlowLayout())
         view.showsHorizontalScrollIndicator = true
         view.showsVerticalScrollIndicator = false
         view.isHidden = true
@@ -961,7 +957,9 @@ extension ALKChatBar {
                 }
                 self.mentionUserList.reloadData()
                 //check need show the user list view
-                self.mentionUserList.selectItem(at: IndexPath(item: _lastItemIndex, section: 0), animated: true, scrollPosition: UICollectionView.ScrollPosition.right)
+                if isAdd {
+                    self.mentionUserList.selectItem(at: IndexPath(item: _lastItemIndex, section: 0), animated: true, scrollPosition: UICollectionView.ScrollPosition.right)
+                }
             }
         })
     }
