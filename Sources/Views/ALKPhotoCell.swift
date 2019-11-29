@@ -173,6 +173,12 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         fileSizeLabel.setStyle(ALKMessageStyle.time)
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.photoView.image = nil
+        self.photoView.kf.cancelDownloadTask()
+    }
+    
     override func setupViews() {
         super.setupViews()
         frontView.addGestureRecognizer(longPressGesture)

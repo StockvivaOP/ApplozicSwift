@@ -23,7 +23,6 @@ public class ALKChatBarMentionUserCollectionViewFlowLayout: UICollectionViewFlow
     private func setUp(){
         self.sectionInset = UIEdgeInsets(top: 7.5, left: 10, bottom: 7.5, right: 10)
         self.scrollDirection = .horizontal
-//        self.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         self.invalidateLayout(with: UICollectionViewFlowLayoutInvalidationContext())
     }
     
