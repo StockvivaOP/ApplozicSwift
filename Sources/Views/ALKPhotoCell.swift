@@ -264,6 +264,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     func updateView(for state: AttachmentState) {
+        self.photoView.image = nil
         DispatchQueue.main.async {
             self.updateView(state: state)
         }
