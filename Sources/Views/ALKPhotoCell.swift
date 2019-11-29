@@ -265,9 +265,9 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     func updateView(for state: AttachmentState) {
-        DispatchQueue.main.async {
+        //DispatchQueue.main.async {
             self.updateView(state: state)
-        }
+        //}
     }
     
     override func isMyMessage() -> Bool {
