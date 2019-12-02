@@ -199,7 +199,12 @@ extension ALMessage {
             }
             return .email
         }
-        switch Int32(contentType) {
+        
+        var _conType = Int32(contentType)
+        if self.fileMeta != nil {
+            _conType = ALMESSAGE_CONTENT_ATTACHMENT
+        }
+        switch _conType {
         case ALMESSAGE_CONTENT_DEFAULT:
             return richMessageType()
         case ALMESSAGE_CONTENT_LOCATION:
