@@ -17,7 +17,7 @@ public protocol ALKConversationViewModelDelegate: class {
     func removeMessagesAt(indexPath: IndexPath, closureBlock:()->Void)
     func newMessagesAdded()
     func messageSent(at: IndexPath)
-    func messageCanSent(at: IndexPath)
+    func messageCanSent(at: IndexPath, mentionUserList:[(hashID:String, name:String)]?)
     func updateDisplay(contact: ALContact?, channel: ALChannel?)
     func willSendMessage()
     func updateTyingStatus(status: Bool, userId: String)
@@ -694,7 +694,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         self.checkMessageBeforeSend(messageObject: alMessage, indexPath:indexPath, isOpenGroup: isOpenGroup)
     }
     
-    open func checkMessageBeforeSend(messageObject: ALMessage, indexPath:IndexPath, isOpenGroup: Bool = false) {
+    open func checkMessageBeforeSend(messageObject: ALMessage, mentionUserList:[(hashID:String, name:String)]? = nil, indexPath:IndexPath, isOpenGroup: Bool = false) {
         if ALKConfiguration.delegateConversationRequestInfo == nil || self.delegate?.isPassMessageContentChecking() == true {
             var _indexPath = indexPath
             if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
@@ -703,7 +703,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     return
                 }
             }
-            self.delegate?.messageCanSent(at: _indexPath)
+            self.delegate?.messageCanSent(at: _indexPath, mentionUserList: mentionUserList)
             self.sendMessageToServer(messageObject: messageObject, indexPath:_indexPath, isOpenGroup: isOpenGroup)
             return
         }
@@ -722,7 +722,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 self.delegate?.updateMessageAt(indexPath: _indexPath, needReloadTable: false)
                 return
             }
-            self.delegate?.messageCanSent(at: _indexPath)
+            self.delegate?.messageCanSent(at: _indexPath, mentionUserList: mentionUserList)
             if isSuccessful == false {
                 messageObject.setViolateMessage(value: true)
             }
@@ -869,7 +869,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             metadata: metadata) else { return }
         addToWrapper(message: alMessage)
         delegate?.messageSent(at: IndexPath(row: 0, section: self.messageModels.count-1))
-        delegate?.messageCanSent(at: IndexPath(row: 0, section: self.messageModels.count-1))
+        delegate?.messageCanSent(at: IndexPath(row: 0, section: self.messageModels.count-1), mentionUserList: nil)
         uploadAudio(alMessage: alMessage, indexPath: IndexPath(row: 0, section: self.messageModels.count-1))
     }
 
@@ -890,7 +890,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             metadata : metadata) else { return }
         self.addToWrapper(message: alMessage)
         self.delegate?.messageSent(at:  IndexPath(row: 0, section: self.messageModels.count-1))
-        self.delegate?.messageCanSent(at: IndexPath(row: 0, section: self.messageModels.count-1))
+        self.delegate?.messageCanSent(at: IndexPath(row: 0, section: self.messageModels.count-1), mentionUserList: nil)
         self.uploadAudio(alMessage: alMessage, indexPath: IndexPath(row: 0, section: self.messageModels.count-1))
 
     }

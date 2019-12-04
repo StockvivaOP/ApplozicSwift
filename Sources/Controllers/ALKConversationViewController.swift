@@ -1786,7 +1786,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         moveTableViewToBottom(indexPath: indexPath)
     }
 
-    public func messageCanSent(at indexPath: IndexPath) {
+    public func messageCanSent(at indexPath: IndexPath, mentionUserList:[(hashID:String, name:String)]?) {
         if let _messageModel = self.viewModel.messageForRow(indexPath: indexPath) {
             var _messageReplyId:String = ""
             if let msgMetadata = _messageModel.metadata,
@@ -1794,7 +1794,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 _messageReplyId = replyID
             }
             let _messageTypeStr = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _messageModel.messageType)
-            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message)
+            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message, mentionUserList:mentionUserList)
         }
     }
     
