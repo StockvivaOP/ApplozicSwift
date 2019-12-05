@@ -691,10 +691,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
         let indexPath = IndexPath(row: 0, section: messageModels.count-1)
         self.delegate?.messageSent(at: indexPath)
         //check and send
-        self.checkMessageBeforeSend(messageObject: alMessage, rawMessageContent: message, indexPath:indexPath, isOpenGroup: isOpenGroup)
+        self.checkMessageBeforeSend(messageObject: alMessage, rawMessageContent: message, mentionUserList:mentionUserList, indexPath:indexPath, isOpenGroup: isOpenGroup)
     }
     
-    open func checkMessageBeforeSend(messageObject: ALMessage, rawMessageContent:String?, mentionUserList:[(hashID:String, name:String)]? = nil, indexPath:IndexPath, isOpenGroup: Bool = false) {
+    open func checkMessageBeforeSend(messageObject: ALMessage, rawMessageContent:String?, mentionUserList:[(hashID:String, name:String)]?, indexPath:IndexPath, isOpenGroup: Bool = false) {
         if ALKConfiguration.delegateConversationRequestInfo == nil || self.delegate?.isPassMessageContentChecking() == true {
             var _indexPath = indexPath
             if _indexPath.section < 0 || _indexPath.section >= self.messageModels.count {
