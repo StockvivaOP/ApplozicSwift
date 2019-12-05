@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ALKChatBarTagUserListCollectionViewCell" id="gTV-IL-0wX" customClass="ALKChatBarTagUserListCollectionViewCell" customModule="ApplozicSwift" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="119" height="30"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="119" height="30"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Kal-jV-H81">
+                        <rect key="frame" x="0.0" y="0.0" width="119" height="30"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=".." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Va5-Wo-Lgy">
+                                <rect key="frame" x="10" y="3" width="80" height="24"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <color key="textColor" red="0.2627450980392157" green="0.59607843137254901" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jy1-sg-jKi">
+                                <rect key="frame" x="90" y="2" width="24" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="24" id="HsY-wo-S9k"/>
+                                    <constraint firstAttribute="height" constant="26" id="RGG-SQ-clR"/>
+                                </constraints>
+                                <state key="normal" title="Button" image="sv_icon_circle_close"/>
+                                <connections>
+                                    <action selector="closeButtonTouchUpInside:" destination="gTV-IL-0wX" eventType="touchUpInside" id="lOj-5u-Acw"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="jy1-sg-jKi" secondAttribute="trailing" constant="5" id="7yV-Yb-e8I"/>
+                            <constraint firstAttribute="bottom" secondItem="Va5-Wo-Lgy" secondAttribute="bottom" constant="3" id="Dwu-gQ-y4c"/>
+                            <constraint firstItem="jy1-sg-jKi" firstAttribute="leading" secondItem="Va5-Wo-Lgy" secondAttribute="trailing" id="F3C-s0-oif"/>
+                            <constraint firstItem="jy1-sg-jKi" firstAttribute="top" secondItem="Kal-jV-H81" secondAttribute="top" constant="2" id="PdP-6z-T24"/>
+                            <constraint firstItem="Va5-Wo-Lgy" firstAttribute="top" secondItem="Kal-jV-H81" secondAttribute="top" constant="3" id="S0f-5S-vXI"/>
+                            <constraint firstItem="Va5-Wo-Lgy" firstAttribute="leading" secondItem="Kal-jV-H81" secondAttribute="leading" constant="10" id="Yf4-81-kcr"/>
+                            <constraint firstAttribute="bottom" secondItem="jy1-sg-jKi" secondAttribute="bottom" constant="2" id="wCk-nD-tlx"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="15"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstItem="Kal-jV-H81" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="6ad-T2-vnn"/>
+                <constraint firstItem="Kal-jV-H81" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="6zc-bC-gSp"/>
+                <constraint firstAttribute="trailing" secondItem="Kal-jV-H81" secondAttribute="trailing" id="9qc-Y8-B0G"/>
+                <constraint firstAttribute="bottom" secondItem="Kal-jV-H81" secondAttribute="bottom" id="9wD-cP-TFz"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <connections>
+                <outlet property="btnClose" destination="jy1-sg-jKi" id="vuQ-7e-NlI"/>
+                <outlet property="labTitle" destination="Va5-Wo-Lgy" id="1Co-Au-SQD"/>
+                <outlet property="viewContent" destination="Kal-jV-H81" id="HRa-xq-FPX"/>
+            </connections>
+            <point key="canvasLocation" x="48.550724637681164" y="34.821428571428569"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="sv_icon_circle_close" width="24" height="24"/>
+    </resources>
+</document>

@@ -469,6 +469,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     override open func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
 
     override open func viewDidLoad() {
@@ -834,7 +835,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
             switch action {
 
-            case .sendText(let button, let message):
+            case .sendText(let button, let message, let mentionUserList):
                 if message.count < 1 {
                     return
                 }
@@ -878,7 +879,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 }
                 
                 self?.sendMessageWithHandleUnreadModel(completedBlock: {
-                    weakSelf.viewModel.send(message: _tempMsg, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
+                    weakSelf.viewModel.send(message: _tempMsg, mentionUserList:mentionUserList, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
                     button.isUserInteractionEnabled = true
                 })
             case .chatBarTextChange:
@@ -1785,7 +1786,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         moveTableViewToBottom(indexPath: indexPath)
     }
 
-    public func messageCanSent(at indexPath: IndexPath) {
+    public func messageCanSent(at indexPath: IndexPath, mentionUserList:[(hashID:String, name:String)]?) {
         if let _messageModel = self.viewModel.messageForRow(indexPath: indexPath) {
             var _messageReplyId:String = ""
             if let msgMetadata = _messageModel.metadata,
@@ -1793,7 +1794,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 _messageReplyId = replyID
             }
             let _messageTypeStr = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _messageModel.messageType)
-            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message)
+            self.delegateConversationChatContentAction?.didMessageSent(type: _messageTypeStr, messageID:_messageModel.identifier, messageReplyID:_messageReplyId, message: _messageModel.message, mentionUserList:mentionUserList)
         }
     }
     
@@ -2524,6 +2525,10 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
         view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatBarAction?.blockChatButtonClicked(chatBar: chatBar, chatView:self)
+    }
+    
+    public func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String) {
+        self.delegateConversationChatBarAction?.didUserEnteredSpecialCharacterKey(key:key)
     }
 }
 

@@ -199,7 +199,12 @@ extension ALMessage {
             }
             return .email
         }
-        switch Int32(contentType) {
+        
+        var _conType = Int32(contentType)
+        if self.fileMeta != nil {
+            _conType = ALMESSAGE_CONTENT_ATTACHMENT
+        }
+        switch _conType {
         case ALMESSAGE_CONTENT_DEFAULT:
             return richMessageType()
         case ALMESSAGE_CONTENT_LOCATION:
@@ -452,6 +457,23 @@ extension ALMessage {
                 self.metadata = NSMutableDictionary.init()
             }
             self.metadata.setValue(_dPlatform, forKey: SVALKMessageMetaDataFieldName.devicePlatform.rawValue)
+        }
+    }
+    
+    //Mentions User
+    func addMentionsUserList(_ list:[(hashID:String, name:String)]?){
+        //mentions
+        guard let _list = list else {
+            return
+        }
+        var _result:[[String:String]] = []
+        for _item in _list {
+            let _dict:[String:String] = [SVALKMessageMetaDataFieldName.userHashId.rawValue : _item.hashID]
+            _result.append(_dict)
+        }
+        
+        if let _resultStr = _result.convertToJsonString() {
+            self.metadata.setValue(_resultStr, forKey: SVALKMessageMetaDataFieldName.mentions.rawValue)
         }
     }
     

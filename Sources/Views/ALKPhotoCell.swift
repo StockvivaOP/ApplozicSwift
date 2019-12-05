@@ -142,6 +142,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     override func update(viewModel: ALKMessageViewModel) {
         self.viewModel = viewModel
+        self.photoView.image = nil
         activityIndicator.color = .black
         timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         captionLabel.text = viewModel.message
@@ -173,6 +174,12 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         fileSizeLabel.setStyle(ALKMessageStyle.time)
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.photoView.image = nil
+        self.photoView.kf.cancelDownloadTask()
+    }
+    
     override func setupViews() {
         super.setupViews()
         frontView.addGestureRecognizer(longPressGesture)
@@ -258,9 +265,9 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     func updateView(for state: AttachmentState) {
-        DispatchQueue.main.async {
+        //DispatchQueue.main.async {
             self.updateView(state: state)
-        }
+        //}
     }
     
     override func isMyMessage() -> Bool {

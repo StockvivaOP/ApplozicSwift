@@ -257,6 +257,9 @@ public struct ALKConfiguration {
     /// chat box cell user name color mapping
     public var chatBoxCustomCellUserNameColorMapping:[String:UIColor] = [:]
     
+    /// chat box special characterey detected
+    public var chatBoxSpecialCharacterKeyCheckingList:[String] = ["@"]
+    
     /// Attachment file max size
     public var maxUploadFileMBSize : Float = 500.0
     
@@ -276,7 +279,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
-    func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?)
+    func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?, mentionUserList:[(hashID:String, name:String)]?)
     func openLink(url:URL, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
@@ -299,6 +302,8 @@ public protocol ConversationChatBarActionDelegate: class{
     func isHiddenBlockChatButton(chatBar:ALKChatBar, isHidden:Bool)
     func joinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     func blockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+    //did user entered special character key
+    func didUserEnteredSpecialCharacterKey(key:String)
 }
 
 public protocol ChatBarRequestActionDelegate: class{
@@ -307,6 +312,7 @@ public protocol ChatBarRequestActionDelegate: class{
     func chatBarRequestIsHiddenBlockChatButton(chatBar:ALKChatBar, isHidden:Bool)
     func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     func chatBarRequestBlockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
+    func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String)
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{

@@ -38,7 +38,7 @@ open class ALKChatBar: UIView, Localizable {
     }
 
     public enum ActionType {
-        case sendText(UIButton,String)
+        case sendText(UIButton,String,[(hashID:String, name:String)]?)
         case chatBarTextBeginEdit
         case chatBarTextChange(UIButton)
         case sendVoice(NSData)
@@ -251,6 +251,19 @@ open class ALKChatBar: UIView, Localizable {
         return view
     }()
     
+    open var mentionUserItems:[(hashID:String, name:String)] = []
+    open var mentionUserList:UICollectionView = {
+        let view = UICollectionView(frame: CGRect.zero, collectionViewLayout:ALKChatBarMentionUserCollectionViewFlowLayout())
+        view.showsHorizontalScrollIndicator = true
+        view.showsVerticalScrollIndicator = false
+        view.isHidden = true
+        view.backgroundColor = .clear
+        //register cell
+        let _cell = UINib(nibName: "ALKChatBarTagUserListCollectionViewCell", bundle: Bundle.applozic)
+        view.register(_cell, forCellWithReuseIdentifier: "ALKChatBarTagUserListCollectionViewCell")
+        return view
+    }()
+    
     /// Returns true if the textView is first responder.
     open var isTextViewFirstResponder: Bool {
         return textView.isFirstResponder
@@ -281,6 +294,7 @@ open class ALKChatBar: UIView, Localizable {
         case poweredByMessageHeight = "poweredByMessageHeight"
         case headerViewHeight = "headerViewHeight"
         case mediaStackViewHeight = "mediaStackViewHeight"
+        case tagUserListHeight = "tagUserListHeight"
     }
 
     @objc func tapped(button: UIButton) {
@@ -288,7 +302,7 @@ open class ALKChatBar: UIView, Localizable {
         case sendButton:
             let text = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
             if text.lengthOfBytes(using: .utf8) > 0 {
-                action?(.sendText(button,text))
+                action?(.sendText(button,text, self.getMentionUserList()))
             }
             break
         case plusButton:
@@ -345,6 +359,8 @@ open class ALKChatBar: UIView, Localizable {
         micButton.setAudioRecDelegate(recorderDelegate: self)
         soundRec.setAudioRecViewDelegate(recorderDelegate: self)
         textView.delegate = self
+        mentionUserList.delegate = self
+        mentionUserList.dataSource = self
         backgroundColor = UIColor.ALKSVGreyColor245()
         translatesAutoresizingMaskIntoConstraints = false
 
@@ -364,6 +380,7 @@ open class ALKChatBar: UIView, Localizable {
 
         setupAttachment(buttonIcons: chatBarConfiguration.attachmentIcons)
         setupConstraints()
+        self.hiddenMentionUserList(true)
 
         //off join button
         self.hiddenJoinGroupButton()
@@ -393,6 +410,7 @@ open class ALKChatBar: UIView, Localizable {
         clearTextInTextView()
         toggleKeyboardType(textView: textView)
         hideAutoCompletionView()
+        clearMentionUserList()
     }
 
     func hideMicButton() {
@@ -522,6 +540,7 @@ open class ALKChatBar: UIView, Localizable {
             placeHolder,
             soundRec,
             poweredByMessageLabel,
+            mentionUserList,
             joinGroupView,
             blockChatButton])
         
@@ -540,6 +559,11 @@ open class ALKChatBar: UIView, Localizable {
         headerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         headerView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.headerViewHeight.rawValue).isActive = true
 
+        mentionUserList.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
+        mentionUserList.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        mentionUserList.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        mentionUserList.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.tagUserListHeight.rawValue).isActive = true
+        
         let buttonheightConstraints = attachmentButtonStackView.subviews
             .map { $0.widthAnchor.constraint(equalToConstant: buttonSize.width)}
         
@@ -590,7 +614,7 @@ open class ALKChatBar: UIView, Localizable {
         poweredByMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         poweredByMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         poweredByMessageLabel.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.poweredByMessageHeight.rawValue).isActive = true
-        poweredByMessageLabel.topAnchor.constraint(equalTo: headerView.bottomAnchor).isActive = true
+        poweredByMessageLabel.topAnchor.constraint(equalTo: mentionUserList.bottomAnchor).isActive = true
 
         textView.trailingAnchor.constraint(equalTo: lineImageView.leadingAnchor).isActive = true
 
@@ -862,13 +886,96 @@ open class ALKChatBar: UIView, Localizable {
     }
 }
 
+//MARK: - stockviva tag (tag user)
+extension ALKChatBar {
+    public func getMentionUserList() -> [(hashID:String, name:String)]? {
+        let _returnObj:[(hashID:String, name:String)] = Array(self.mentionUserItems)
+        return self.mentionUserItems.count > 0 ? _returnObj : nil
+    }
+    
+    public func addMentionUser(hashID:String?, name:String?){
+        guard let _hashID = hashID, let _name = name, _hashID.count > 0 && _name.count > 0  else {
+            return
+        }
+        if self.mentionUserItems.contains(where: { $0.hashID == _hashID }) == false {
+            self.updateCollectionView(isAdd: true, index: self.mentionUserItems.count) {
+                self.mentionUserItems.append((hashID: _hashID, name: _name))
+            }
+        }
+    }
+    
+    public func removeMentionUser(index:Int){
+        guard index >= 0 && index < self.mentionUserItems.count else {
+            return
+        }
+        self.updateCollectionView(isAdd:false, index: index) {
+            self.mentionUserItems.remove(at: index)
+        }
+    }
+    
+    func hiddenMentionUserList(_ isHidden:Bool, completed:(()->())? = nil){
+        guard self.mentionUserList.isHidden != isHidden else {
+            completed?()
+            return
+        }
+        self.mentionUserList.isHidden = isHidden
+        UIView.animate(withDuration: 0.2, animations: {
+            self.mentionUserList.constraint(withIdentifier: ConstraintIdentifier.tagUserListHeight.rawValue)?.constant = isHidden ? 0 : CGFloat(45.0)
+        }) { (isSuccessful) in
+            completed?()
+        }
+    }
+    
+    private func clearMentionUserList(){
+        self.mentionUserItems.removeAll()
+        self.mentionUserList.reloadData()
+        self.hiddenMentionUserList(true)
+    }
+    
+    private func updateCollectionView(isAdd:Bool, index:Int, progressUpdate:@escaping (()->())){
+        
+        //check need show the user list view
+        self.hiddenMentionUserList(false, completed: {
+            self.mentionUserList.performBatchUpdates({
+                progressUpdate()
+                if isAdd {
+                    self.mentionUserList.insertItems(at: [IndexPath(item: index, section: 0)])
+                }else{
+                    self.mentionUserList.deleteItems(at: [IndexPath(item: index, section: 0)])
+                }
+            }) { (isSuccessful) in
+                let _lastItemIndex = self.mentionUserItems.count - 1
+                if _lastItemIndex < 0 {
+                    if self.mentionUserItems.count == 0 {
+                        self.hiddenMentionUserList(true, completed: {
+                            self.mentionUserList.reloadData()
+                        })
+                        return
+                    }
+                    self.mentionUserList.reloadData()
+                    return
+                }
+                self.mentionUserList.reloadData()
+                //check need show the user list view
+                if isAdd {
+                    self.mentionUserList.selectItem(at: IndexPath(item: _lastItemIndex, section: 0), animated: true, scrollPosition: UICollectionView.ScrollPosition.right)
+                }
+            }
+        })
+    }
+}
+
 extension ALKChatBar: UITextViewDelegate {
 
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText string: String) -> Bool {
+        if self.configuration.chatBoxSpecialCharacterKeyCheckingList.contains(string) {
+            self.delegate?.chatBarRequestUserEnteredSpecialCharacterKeyDetected(key: string)
+            return false
+        }
+        
         guard var text = textView.text as NSString? else {
             return true
         }
-
         text = text.replacingCharacters(in: range, with: string) as NSString
         updateTextViewHeight(textView: textView, text: text as String)
         return true
