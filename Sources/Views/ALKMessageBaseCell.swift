@@ -18,7 +18,7 @@ class ALKImageView: UIImageView {
     }
 }
 
-open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
+open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
 
     /// Dummy view required to calculate height for normal text.
     fileprivate static var dummyMessageView: ALKTextView = {
@@ -322,6 +322,10 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         return self.viewModel?.isMyMessage ?? false
     }
     
+    override func canDeleteMessage() -> Bool {
+        return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
+    }
+    
     class func messageHeight(viewModel: ALKMessageViewModel,
                              width: CGFloat,
                              font: UIFont) -> CGFloat {
@@ -379,6 +383,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
                 return false
             }
             return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return self.canDeleteMessage()
         default:
             return super.canPerformAction(action, withSender: sender)
         }
@@ -404,6 +413,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click reply:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 
+    func menuDeleteMsg(_ sender: Any){
+        menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click delete msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+    }
+    
     @objc func replyViewTapped() {
         replyViewAction?()
     }

@@ -1213,6 +1213,21 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
             }
             break;
+        case .deleteMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
+            print("DeleteMsg selected")
+             if let _chatGroupID = chatGroupHashID,
+                let _model = viewModel {
+                self.delegateConversationMessageBoxAction?.didMenuDeleteMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
+                self.viewModel.deleteMessagForAll(viewModel: _model, indexPath: indexPath, startProcess: {
+                    self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(false)
+                }) { (result, error) in
+                    self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(true)
+                    if error == nil && result?.count ?? 0 > 0 {
+                        self.delegateConversationChatContentAction?.messageHadDeleted(viewModel: _model, indexPath: indexPath)
+                    }
+                }
+            }
+            break;
         }
     }
 

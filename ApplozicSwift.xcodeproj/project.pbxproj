@@ -132,6 +132,7 @@
 		C43F9CF9238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */; };
 		C43F9CFF238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */; };
 		C43F9D00238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */; };
+		C4863F23239F3DD100C99BE3 /* ALKSVMessageAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4863F22239F3DD100C99BE3 /* ALKSVMessageAPI.swift */; };
 		C4B36BB12345DA5D00913FE6 /* ALKSVPinMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB02345DA5D00913FE6 /* ALKSVPinMessageView.swift */; };
 		C4B36BB32345DA7300913FE6 /* SVMessageView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4B36BB22345DA7300913FE6 /* SVMessageView.storyboard */; };
 		C4B36BB52345DAAE00913FE6 /* ALKSVBaseMessageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB42345DAAE00913FE6 /* ALKSVBaseMessageDetailViewController.swift */; };
@@ -283,6 +284,7 @@
 		C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALKChatBar+UICollectionViewDelegate.swift"; sourceTree = "<group>"; };
 		C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKChatBarTagUserListCollectionViewCell.swift; sourceTree = "<group>"; };
 		C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ALKChatBarTagUserListCollectionViewCell.xib; sourceTree = "<group>"; };
+		C4863F22239F3DD100C99BE3 /* ALKSVMessageAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageAPI.swift; sourceTree = "<group>"; };
 		C4B36BB02345DA5D00913FE6 /* ALKSVPinMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVPinMessageView.swift; sourceTree = "<group>"; };
 		C4B36BB22345DA7300913FE6 /* SVMessageView.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SVMessageView.storyboard; sourceTree = "<group>"; };
 		C4B36BB42345DAAE00913FE6 /* ALKSVBaseMessageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVBaseMessageDetailViewController.swift; sourceTree = "<group>"; };
@@ -539,6 +541,7 @@
 		8BB5330F1F69463B0008C1CF /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				C4863F21239F3DB300C99BE3 /* API */,
 				8B6DE5A11F69671D001DB7FC /* Resources */,
 				8B6DE5A01F696337001DB7FC /* Extras */,
 				8B6DE59F1F69604F001DB7FC /* Utilities */,
@@ -574,6 +577,14 @@
 				C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */,
 			);
 			path = Cell;
+			sourceTree = "<group>";
+		};
+		C4863F21239F3DB300C99BE3 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				C4863F22239F3DD100C99BE3 /* ALKSVMessageAPI.swift */,
+			);
+			path = API;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -714,6 +725,7 @@
 				8BB5338D1F69463B0008C1CF /* ALKBaseCell.swift in Sources */,
 				8BB533961F69463B0008C1CF /* ALKConversationViewController+TableView.swift in Sources */,
 				8BB533B91F69463C0008C1CF /* ALKMoreBar.swift in Sources */,
+				C4863F23239F3DD100C99BE3 /* ALKSVMessageAPI.swift in Sources */,
 				8BB533F21F69463C0008C1CF /* UIAlertController+Extension.swift in Sources */,
 				8BB533D91F69463C0008C1CF /* Data+Extension.swift in Sources */,
 				8BB533B71F69463C0008C1CF /* ALKMessageCell.swift in Sources */,

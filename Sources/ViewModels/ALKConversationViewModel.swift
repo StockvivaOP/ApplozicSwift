@@ -1790,7 +1790,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 extension ALKConversationViewModel {
     
     func messageSendUnderUnreadModel( startProcess:@escaping ()->Void, completed:@escaping ()->Void){
-        guard let _chKey = self.channelKey else {
+        guard self.channelKey != nil else {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - messageSendUnderUnreadModel - no channel key or group id")
             completed()
             return
@@ -2115,5 +2115,16 @@ extension ALKConversationViewModel {
         alMessage.addIsUnreadMessageSeparatorInMetaData(true)
         alMessage.createdAtTime = createTime
         return  alMessage
+    }
+}
+
+//MARK: - stockviva delete message
+extension ALKConversationViewModel {
+    func deleteMessagForAll(viewModel:ALKMessageViewModel, indexPath:IndexPath?, startProcess:(()->())? = nil, completed:@escaping ((_ result:String?, _ error:Error?)->())){
+        //start process
+        startProcess?()
+        ALKSVMessageAPI.deleteMessage(msgKey: viewModel.identifier, isDeleteForAll: true) { (result, error) in
+            completed(result, error)
+        }
     }
 }

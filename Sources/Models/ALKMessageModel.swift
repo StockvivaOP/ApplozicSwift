@@ -336,4 +336,18 @@ extension ALKMessageViewModel {
     func getSVMessageStatus() -> SVALKMessageStatus {
         return self.rawModel?.getSVMessageStatus() ?? SVALKMessageStatus.processing
     }
+    
+    //delete message
+    func isAllowToDeleteMessage(_ availableDeleteSecond:Double?) -> Bool {
+        guard let _availableDeleteSecond = availableDeleteSecond else {
+            return self.isMyMessage && true
+        }
+        var _isOverMin = true
+        if let _createMsgTime = self.createdAtTime?.doubleValue {
+            let _createMsgDate  = Date(timeIntervalSince1970: (_createMsgTime / 1000) )
+            let _diffTimeOfSecond = Date().timeIntervalSince(_createMsgDate)
+            _isOverMin = _diffTimeOfSecond <= _availableDeleteSecond
+        }
+        return self.isMyMessage && _isOverMin
+    }
 }

@@ -11,7 +11,7 @@ import Kingfisher
 import Applozic
 
 class ALKDocumentCell:ALKChatBaseCell<ALKMessageViewModel>,
-ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
+ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
 
     struct CommonPadding {
         
@@ -160,6 +160,11 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
         menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click pin msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
+    
+    func menuDeleteMsg(_ sender: Any){
+        menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click delete msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+    }
 
     override func setupStyle() {
         super.setupStyle()
@@ -229,6 +234,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
     
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
+    }
+    
+    override func canDeleteMessage() -> Bool {
+        return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
     }
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
@@ -381,6 +390,11 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
                 return false
             }
             return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return self.canDeleteMessage()
         default:
             return super.canPerformAction(action, withSender: sender)
         }

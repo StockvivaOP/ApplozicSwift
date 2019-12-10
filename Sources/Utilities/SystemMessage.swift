@@ -154,6 +154,7 @@ struct SystemMessage : Localizable {
         static let Copy = localizedString(forKey: "Copy")
         static let Appeal = localizedString(forKey: "Appeal")
         static let PinMsg = localizedString(forKey: "PinMsg")
+        static let DeleteMsg = localizedString(forKey: "DeleteMsg")
         static let Reply = localizedString(forKey: "Reply")
         static let You = localizedString(forKey: "You")
         static let Admin = localizedString(forKey: "Admin")

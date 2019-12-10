@@ -17,7 +17,7 @@ protocol AttachmentDelegate {
 
 // MARK: - ALKPhotoCell
 class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
 
     var delegate: AttachmentDelegate?
 
@@ -300,6 +300,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
     }
+    
+    override func canDeleteMessage() -> Bool {
+        return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
+    }
 
     private func updateView(state: AttachmentState) {
         switch state {
@@ -459,6 +463,11 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                 return false
             }
             return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return self.canDeleteMessage()
         default:
             return super.canPerformAction(action, withSender: sender)
         }
@@ -477,6 +486,11 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     func menuPinMsg(_ sender: Any) {
         menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click pin msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+    }
+    
+    func menuDeleteMsg(_ sender: Any){
+        menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click delete msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
     
     func setPhotoViewImageFromFileURL(_ fileURL: URL) {
