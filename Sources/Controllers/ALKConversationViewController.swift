@@ -1224,6 +1224,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(true)
                     if error == nil && result?.count ?? 0 > 0 {
                         self.delegateConversationChatContentAction?.messageHadDeleted(viewModel: _model, indexPath: indexPath)
+                    }else{
+                        self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.networkProblem)
                     }
                 }
             }

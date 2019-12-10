@@ -2130,8 +2130,10 @@ extension ALKConversationViewModel {
         //start process
         startProcess?()
         
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - start")
         ALKSVMessageAPI.deleteMessage(msgKey: viewModel.identifier, isDeleteForAll: true) { (result, error) in
             if error == nil && result?.count ?? 0 > 0 {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - successful result:\(result ?? ""), message:\(viewModel.message ?? "")")
                 //change the cell, if deleted done
                 if  let _rawHolder = viewModel.rawModel,
                     let _objIndexPath = indexPath,
@@ -2146,6 +2148,12 @@ extension ALKConversationViewModel {
                     HeightCache.shared.removeHeight(for: viewModel.identifier)
                     self.delegate?.updateMessageAt(indexPath: _objIndexPath, needReloadTable: false)
                 }
+            }
+            
+            if let _error = error as NSError? {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - error result:\(result ?? ""), code:\(_error.code), desc:\(_error.localizedDescription)")
+            }else if result?.count ?? 0 == 0 {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - error empty result")
             }
             completed(result, error)
         }

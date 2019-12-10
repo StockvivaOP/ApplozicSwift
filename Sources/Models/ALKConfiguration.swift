@@ -216,6 +216,7 @@ public struct ALKConfiguration {
         case attachmentUploadFailure
         case funcNeedPaid
         case funcNeedPaidForPinMsg
+        case networkProblem
     }
     
     /// delegate for get / set system info
