@@ -1693,7 +1693,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             }
             if needReloadTable == false {
                 self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
+                self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .fade)
                 self.tableView.endUpdates()
             }else{
                 self.tableView.reloadData()

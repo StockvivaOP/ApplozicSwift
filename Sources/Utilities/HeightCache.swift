@@ -36,6 +36,10 @@ class HeightCache {
         return height.value
     }
     
+    func removeHeight(for key: String){
+        cache.removeObject(forKey: key as NSString )
+    }
+    
     func clearAll(){
         cache.removeAllObjects()
     }

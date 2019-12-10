@@ -51,6 +51,7 @@ public enum SVALKMessageMetaDataFieldName : String {
     case msgViolate = "SV_VIOLATE"
     case mentions = "SV_MENTIONS"
     case userHashId = "userHashId"
+    case alDeleteGroupMessageForAll = "AL_DELETE_GROUP_MESSAGE_FOR_ALL"
     //will not send to server
     case sendMessageErrorFind = "SV_SEND_MSG_ERROR_FIND"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
@@ -349,5 +350,16 @@ extension ALKMessageViewModel {
             _isOverMin = _diffTimeOfSecond <= _availableDeleteSecond
         }
         return self.isMyMessage && _isOverMin
+    }
+    
+    func getDeletedMessageInfo() -> (isDeleteMessage:Bool , isDeleteMessageForAll:Bool) {
+        return self.rawModel?.getDeletedMessageInfo() ?? (isDeleteMessage:false , isDeleteMessageForAll:false)
+    }
+    
+    mutating func setDeletedMessage(_ isForAll:Bool) {
+        if let _rawModel = self.rawModel {
+            _rawModel.setDeletedMessage(isForAll)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
     }
 }

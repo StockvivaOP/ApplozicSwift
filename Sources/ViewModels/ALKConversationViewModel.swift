@@ -1491,6 +1491,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                     continue
                 }
+                
+                if message.getDeletedMessageInfo().isDeleteMessage {
+                    message.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
+                        ?? message.message
+                }
+                
                 message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
                 
                 let contactId = message.to ?? ""
@@ -2123,7 +2129,24 @@ extension ALKConversationViewModel {
     func deleteMessagForAll(viewModel:ALKMessageViewModel, indexPath:IndexPath?, startProcess:(()->())? = nil, completed:@escaping ((_ result:String?, _ error:Error?)->())){
         //start process
         startProcess?()
+        
         ALKSVMessageAPI.deleteMessage(msgKey: viewModel.identifier, isDeleteForAll: true) { (result, error) in
+            if error == nil && result?.count ?? 0 > 0 {
+                //change the cell, if deleted done
+                if  let _rawHolder = viewModel.rawModel,
+                    let _objIndexPath = indexPath,
+                    _objIndexPath.section >= 0 && _objIndexPath.section < self.messageModels.count &&
+                        _objIndexPath.section >= 0 && _objIndexPath.section < self.alMessageWrapper.messageArray.count {
+                    _rawHolder.setDeletedMessage(true)
+                    _rawHolder.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
+                        ?? "Message deleted"
+                    let alMsgObj = _rawHolder.messageModel
+                    self.messageModels[_objIndexPath.section] = alMsgObj
+                    self.alMessageWrapper.messageArray[_objIndexPath.section] = _rawHolder
+                    HeightCache.shared.removeHeight(for: viewModel.identifier)
+                    self.delegate?.updateMessageAt(indexPath: _objIndexPath, needReloadTable: false)
+                }
+            }
             completed(result, error)
         }
     }
