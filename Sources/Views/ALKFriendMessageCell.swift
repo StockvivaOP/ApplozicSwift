@@ -357,7 +357,13 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let messageWidth = width - (leftSpacing + rightSpacing)
         
         /// Calculating messageHeight
-        let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+        var messageHeight:CGFloat = 0.0
+        if viewModel.getDeletedMessageInfo().isDeleteMessage {
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.deletedMessage.font)
+        }else{
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+        }
+        
         var heightPadding = Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.JoinOurGroupButton.bottom + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
         
         if ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) == true {

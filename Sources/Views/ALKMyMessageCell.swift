@@ -355,7 +355,14 @@ open class ALKMyMessageCell: ALKMessageCell {
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.leftPadding
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.sentBubble.widthPadding /*+ bubbleViewRightPadding*/
         let messageWidth = width - (leftSpacing + rightSpacing)
-        let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.sentMessage.font)
+        var messageHeight:CGFloat = 0.0
+        if viewModel.getDeletedMessageInfo().isDeleteMessage {
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.sentMessage.font)
+        }else{
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+        }
+        
+        
         var heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + Padding.MessageView.bottom + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
         if viewModel.isReplyMessage {
             heightPadding += Padding.MessageView.top

@@ -260,9 +260,14 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         self.btnJoinOurGroup.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_group_message_group_button_entry") ?? "", for: .normal)
         
         self.timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
-        resetTextView(style)
+        //update style
+        if self.isDeletedMessage() {
+            resetTextView(ALKMessageStyle.deletedMessage)
+        }else{
+            resetTextView(style)
+        }
         guard let message = viewModel.message else { return }
-
+        
         switch viewModel.messageType {
         case .text:
             emailTopHeight.constant = 0
