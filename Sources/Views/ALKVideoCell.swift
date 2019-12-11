@@ -128,7 +128,11 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
     }
-
+    
+    override func isDeletedMessage() -> Bool {
+        return self.viewModel?.getDeletedMessageInfo().isDeleteMessage ?? false
+    }
+    
     override func canDeleteMessage() -> Bool {
         return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
     }

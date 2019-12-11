@@ -52,6 +52,10 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         return false
     }
     
+    func isDeletedMessage() -> Bool {
+        return false
+    }
+    
     func canDeleteMessage() -> Bool {
         return false
     }
@@ -69,6 +73,9 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     }
 
     @objc func showMenuController(withLongPress sender: UILongPressGestureRecognizer) {
+        if self.isDeletedMessage() {
+            return
+        }
         if sender.state == .began {
             NotificationCenter.default.addObserver(self, selector: #selector(menuWillShow(_:)), name: UIMenuController.willShowMenuNotification, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(menuWillHide(_:)), name: UIMenuController.willHideMenuNotification, object: nil)
