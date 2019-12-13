@@ -326,7 +326,6 @@ open class ALKFriendMessageCell: ALKMessageCell {
 
     func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.receivedMessage, replyMessage: replyMessage)
-        handleReplyView(replyMessage: replyMessage)
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
         if let url = viewModel.avatarURL {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
@@ -342,10 +341,12 @@ open class ALKFriendMessageCell: ALKMessageCell {
             let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _nameLabelColor
         }
-        //join group button status
+        //reply view and join group button status
         if viewModel.getDeletedMessageInfo().isDeleteMessage {
+            handleReplyView(replyMessage: nil)
             self.showJoinOurGroupButton(false)
         }else{
+            handleReplyView(replyMessage: replyMessage)
             self.showJoinOurGroupButton( ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) ?? false)
         }
     }

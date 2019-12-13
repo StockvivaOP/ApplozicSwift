@@ -305,7 +305,6 @@ open class ALKMyMessageCell: ALKMessageCell {
 
     open func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.sentMessage, replyMessage: replyMessage)
-        handleReplyView(replyMessage: replyMessage)
 //        if viewModel.isAllRead {
 //            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
 //            stateView.tintColor = UIColor(netHex: 0x0578FF)
@@ -319,6 +318,13 @@ open class ALKMyMessageCell: ALKMessageCell {
 //            stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
 //            stateView.tintColor = UIColor.ALKSVMainColorPurple()
 //        }
+        
+        //reply view
+        if viewModel.getDeletedMessageInfo().isDeleteMessage {
+            handleReplyView(replyMessage: nil)
+        }else{
+            handleReplyView(replyMessage: replyMessage)
+        }
         
         self.stateErrorRemarkView.isHidden = true
         self.stateErrorRemarkView.setImage(nil, for: .normal)
