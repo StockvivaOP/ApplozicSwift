@@ -505,11 +505,21 @@ open class ALKConversationViewModel: NSObject, Localizable {
         var contactsNotPresent = [String]()
         for index in 0..<messages.count {
             let message = messages[index]
-            
+            //if this added message is logined account
+            if let _selfID = self.contactId, message.contactIds == _selfID && message.type != myMessage {
+                message.type = myMessage
+            }
+            let _isDeletedMsg = message.getDeletedMessageInfo().isDeleteMessage
             let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
             if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                 continue
             }
+            
+            if _isDeletedMsg {
+                message.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
+                    ?? message.message
+            }
+            
             //mark message to true if not my message
             message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
             
@@ -524,7 +534,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 delegate?.updateTyingStatus(status: false, userId: message.to)
             }
             //if add into list
-            if _isAdded {
+            if _isAdded && _isDeletedMsg == false {
                 let contactId = message.to ?? ""
                 if !contactService.isContactExist(contactId) {
                     contactsNotPresent.append(contactId)
@@ -1487,20 +1497,20 @@ open class ALKConversationViewModel: NSObject, Localizable {
             for index in 0..<alMessages.count {
                 var message = alMessages[index]
                 
-                let _isDeltedMsg = message.getDeletedMessageInfo().isDeleteMessage
+                let _isDeletedMsg = message.getDeletedMessageInfo().isDeleteMessage
                 let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
                 if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                     continue
                 }
                 
-                if _isDeltedMsg {
+                if _isDeletedMsg {
                     message.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
                         ?? message.message
                 }
                 
                 message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
                 
-                if _isDeltedMsg == false {
+                if _isDeletedMsg == false {
                     let contactId = message.to ?? ""
                     if !contactService.isContactExist(contactId) {
                         contactsNotPresent.append(contactId)
