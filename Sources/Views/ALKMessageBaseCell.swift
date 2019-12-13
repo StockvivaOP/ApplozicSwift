@@ -150,6 +150,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         _view.backgroundColor = .white
         _view.setFont(font: UIFont.systemFont(ofSize: 16.0, weight: .semibold) )
         _view.setTitleColor(UIColor.ALKSVMainColorPurple(), for: .normal)
+        _view.setTitle("", for: .normal)
         _view.setImage(UIImage(named: "sv_icon_chatpurple", in: Bundle.applozic, compatibleWith: nil), for: .normal)
         _view.imageView?.contentMode = UIView.ContentMode.scaleAspectFit
         _view.imageEdgeInsets = UIEdgeInsets(top: 5 , left: 5, bottom: 5, right: 5)
@@ -255,9 +256,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.backgroundColor = _userColor
             replyIndicatorView.tintColor = _userColor
         }
-        
-        //join group button logic
-        self.btnJoinOurGroup.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_group_message_group_button_entry") ?? "", for: .normal)
         
         self.timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         //update style

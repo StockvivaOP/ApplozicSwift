@@ -501,6 +501,11 @@ open class ALKFriendMessageCell: ALKMessageCell {
     
     private func showJoinOurGroupButton(_ show: Bool){
         self.btnJoinOurGroup.isHidden = !show
+        if self.btnJoinOurGroup.isHidden {
+            self.btnJoinOurGroup.setTitle("", for: .normal)
+        }else{
+            self.btnJoinOurGroup.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_group_message_group_button_entry") ?? "", for: .normal)
+        }
         joinOurGroupButtonHeightConst?.constant = show ? Padding.JoinOurGroupButton.height : 0
         joinOurGroupButtonWidthConst?.constant = show ? Padding.JoinOurGroupButton.width : 0
         joinOurGroupButtonTopConst?.constant = show ? Padding.JoinOurGroupButton.top : 0
