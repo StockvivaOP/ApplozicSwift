@@ -354,35 +354,36 @@ open class ALKFriendMessageCell: ALKMessageCell {
     class func rowHeigh(viewModel: ALKMessageViewModel,
                         width: CGFloat,
                         replyMessage: ALKMessageViewModel?) -> CGFloat {
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
         let minimumHeight = Padding.AvatarImage.top + Padding.AvatarImage.height + 5
         
         /// Calculating available width for messageView
         let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left + Padding.MessageView.left /*+ bubbleViewLeftPadding*/
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.receivedBubble.widthPadding
-        let messageWidth = width - (leftSpacing + rightSpacing)
-        
-        /// Calculating messageHeight
-        var messageHeight:CGFloat = 0.0
-        if viewModel.getDeletedMessageInfo().isDeleteMessage {
-            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.deletedMessage.font)
-        }else{
-            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
-        }
         
         var heightPadding = Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.JoinOurGroupButton.bottom + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
         
-        if ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) == true {
-            let _joinOurGroupHeight = Padding.JoinOurGroupButton.top + Padding.JoinOurGroupButton.height
-            heightPadding += _joinOurGroupHeight
-        }
-        
-        if viewModel.isReplyMessage {
-            heightPadding += Padding.MessageView.top + Padding.ReplyView.top
+        let messageWidth = width - (leftSpacing + rightSpacing)
+        /// Calculating messageHeight
+        var messageHeight:CGFloat = 0.0
+        if _isDeletedMsg {
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.deletedMessage.font)
+        }else{
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+            
+            if ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) == true {
+                let _joinOurGroupHeight = Padding.JoinOurGroupButton.top + Padding.JoinOurGroupButton.height
+                heightPadding += _joinOurGroupHeight
+            }
+            
+            if viewModel.isReplyMessage {
+                heightPadding += Padding.MessageView.top + Padding.ReplyView.top
+            }
         }
         
         let totalHeight = max((messageHeight + heightPadding), minimumHeight)
         
-        guard replyMessage != nil else { return totalHeight }
+        guard replyMessage != nil && _isDeletedMsg == false else { return totalHeight }
         //add reply view height
         //get width
         let _haveMsgIcon = [ALKMessageType.voice, ALKMessageType.video, ALKMessageType.photo, ALKMessageType.document].contains(replyMessage!.messageType)

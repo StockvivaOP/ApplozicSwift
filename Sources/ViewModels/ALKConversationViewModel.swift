@@ -1487,31 +1487,34 @@ open class ALKConversationViewModel: NSObject, Localizable {
             for index in 0..<alMessages.count {
                 var message = alMessages[index]
                 
+                let _isDeltedMsg = message.getDeletedMessageInfo().isDeleteMessage
                 let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
                 if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
                     continue
                 }
                 
-                if message.getDeletedMessageInfo().isDeleteMessage {
+                if _isDeltedMsg {
                     message.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
                         ?? message.message
                 }
                 
                 message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
                 
-                let contactId = message.to ?? ""
-                if !contactService.isContactExist(contactId) {
-                    contactsNotPresent.append(contactId)
-                }
-                if let metadata = message.metadata,
-                    let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
-                    replyMessageKeys.append(key)
-                }
-                
-                if message.getAttachmentType() != nil,
-                    let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message,
-                    dbMessage.filePath != nil {
-                    message = messageDbService.createMessageEntity(dbMessage)
+                if _isDeltedMsg == false {
+                    let contactId = message.to ?? ""
+                    if !contactService.isContactExist(contactId) {
+                        contactsNotPresent.append(contactId)
+                    }
+                    if let metadata = message.metadata,
+                        let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
+                        replyMessageKeys.append(key)
+                    }
+                    
+                    if message.getAttachmentType() != nil,
+                        let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message,
+                        dbMessage.filePath != nil {
+                        message = messageDbService.createMessageEntity(dbMessage)
+                    }
                 }
                 //add to result list
                 _resultMessages.append(message)

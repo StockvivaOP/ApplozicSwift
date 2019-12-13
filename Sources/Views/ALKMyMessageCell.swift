@@ -357,25 +357,28 @@ open class ALKMyMessageCell: ALKMessageCell {
     class func rowHeigh(viewModel: ALKMessageViewModel,
                         width: CGFloat,
                         replyMessage: ALKMessageViewModel?) -> CGFloat {
-        /// Calculating messageHeight
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.leftPadding
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.sentBubble.widthPadding /*+ bubbleViewRightPadding*/
-        let messageWidth = width - (leftSpacing + rightSpacing)
-        var messageHeight:CGFloat = 0.0
-        if viewModel.getDeletedMessageInfo().isDeleteMessage {
-            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.sentMessage.font)
-        }else{
-            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
-        }
-        
         
         var heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + Padding.MessageView.bottom + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
-        if viewModel.isReplyMessage {
-            heightPadding += Padding.MessageView.top
+        
+        /// Calculating messageHeight
+        let messageWidth = width - (leftSpacing + rightSpacing)
+        var messageHeight:CGFloat = 0.0
+        if _isDeletedMsg {
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.deletedMessage.font)
+        }else{
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+            
+            if viewModel.isReplyMessage {
+                heightPadding += Padding.MessageView.top
+            }
         }
         
         let totalHeight = messageHeight + heightPadding
-        guard replyMessage != nil else { return totalHeight }
+        guard replyMessage != nil && _isDeletedMsg == false else { return totalHeight }
         //add reply view height
         //get width
         let _haveMsgIcon = [ALKMessageType.voice, ALKMessageType.video, ALKMessageType.photo, ALKMessageType.document].contains(replyMessage!.messageType)
