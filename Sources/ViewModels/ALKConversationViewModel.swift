@@ -2124,6 +2124,26 @@ extension ALKConversationViewModel {
     }
 }
 
+//MARK: - stockviva update message content
+extension ALKConversationViewModel {
+    open func updateMessageContent(updatedMessage: ALMessage) {
+        let _foundMessageIndex = self.messageModels.lastIndex { (curMessage) -> Bool in
+            if let _curKey = curMessage.rawModel?.key ,
+                _curKey == updatedMessage.key {
+                return true
+            }
+            return false
+        }
+        
+        if let _tempIndex = _foundMessageIndex {
+            self.alMessages[_tempIndex] = updatedMessage
+            self.messageModels[_tempIndex] = updatedMessage.messageModel
+            HeightCache.shared.removeHeight(for: updatedMessage.key)
+            delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: _tempIndex), needReloadTable: false)
+        }
+    }
+}
+
 //MARK: - stockviva delete message
 extension ALKConversationViewModel {
     func deleteMessagForAll(viewModel:ALKMessageViewModel, indexPath:IndexPath?, startProcess:(()->())? = nil, completed:@escaping ((_ result:String?, _ error:Error?)->())){
