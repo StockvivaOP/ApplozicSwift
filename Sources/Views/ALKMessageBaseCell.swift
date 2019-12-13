@@ -186,8 +186,8 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     func update(viewModel: ALKMessageViewModel, style: Style, replyMessage: ALKMessageViewModel?) {
         self.viewModel = viewModel
-
-        if let replyMessage = replyMessage {
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        if let replyMessage = replyMessage, _isDeletedMsg == false {
             replyNameLabel.text = replyMessage.isMyMessage ?
                 selfNameText : replyMessage.displayName
             replyMessageLabel.text =
@@ -261,7 +261,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         
         self.timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
         //update style
-        if self.isDeletedMessage() {
+        if _isDeletedMsg {
             resetTextView(ALKMessageStyle.deletedMessage)
         }else{
             resetTextView(style)

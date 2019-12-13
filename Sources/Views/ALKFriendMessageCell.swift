@@ -343,7 +343,11 @@ open class ALKFriendMessageCell: ALKMessageCell {
             nameLabel.textColor = _nameLabelColor
         }
         //join group button status
-        self.showJoinOurGroupButton( ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) ?? false)
+        if viewModel.getDeletedMessageInfo().isDeleteMessage {
+            self.showJoinOurGroupButton(false)
+        }else{
+            self.showJoinOurGroupButton( ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) ?? false)
+        }
     }
 
     class func rowHeigh(viewModel: ALKMessageViewModel,
