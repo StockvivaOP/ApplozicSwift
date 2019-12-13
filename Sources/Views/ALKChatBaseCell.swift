@@ -9,8 +9,8 @@
 import UIKit
 
 open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
-
     var localizedStringFileName: String!
+    var showReport: Bool = false
 
     public func setLocalizedStringFileName(_ localizedStringFileName: String) {
         self.localizedStringFileName = localizedStringFileName
@@ -19,15 +19,16 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     fileprivate weak var chatBar: ALKChatBar?
 
     lazy var longPressGesture: UILongPressGestureRecognizer = {
-        return UILongPressGestureRecognizer(target: self, action: #selector(showMenuController(withLongPress:)))
+        UILongPressGestureRecognizer(target: self, action: #selector(showMenuController(withLongPress:)))
     }()
 
-    var avatarTapped:(() -> Void)?
+    var avatarTapped: (() -> Void)?
 
     /// Actions available on menu where callbacks
     /// needs to be send are defined here.
     enum MenuActionType {
         case reply
+        case reportMessage
     }
 
     /// It will be invoked when one of the actions
@@ -38,11 +39,11 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         self.chatBar = chatBar
     }
 
-    @objc func menuWillShow(_ sender: Any) {
+    @objc func menuWillShow(_: Any) {
         NotificationCenter.default.removeObserver(self, name: UIMenuController.willShowMenuNotification, object: nil)
     }
 
-    @objc func menuWillHide(_ sender: Any) {
+    @objc func menuWillHide(_: Any) {
         NotificationCenter.default.removeObserver(self, name: UIMenuController.willHideMenuNotification, object: nil)
 
         if let chatBar = self.chatBar {
@@ -56,9 +57,9 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             NotificationCenter.default.addObserver(self, selector: #selector(menuWillHide(_:)), name: UIMenuController.willHideMenuNotification, object: nil)
 
             if let chatBar = self.chatBar, chatBar.textView.isFirstResponder {
-                chatBar.textView.overrideNextResponder = self.contentView
+                chatBar.textView.overrideNextResponder = contentView
             } else {
-                _ = self.canBecomeFirstResponder
+                _ = canBecomeFirstResponder
             }
 
             guard let gestureView = sender.view, let superView = sender.view?.superview else {
@@ -78,8 +79,13 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             if let copyMenu = getCopyMenuItem(copyItem: self) {
                 menus.append(copyMenu)
             }
+
             if let replyMenu = getReplyMenuItem(replyItem: self) {
                 menus.append(replyMenu)
+            }
+
+            if showReport, let reportMessageMenu = getReportMessageItem(reportMessageItem: self) {
+                menus.append(reportMessageMenu)
             }
 
             menuController.menuItems = menus
@@ -88,22 +94,24 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         }
     }
 
-    override open var canBecomeFirstResponder: Bool {
+    open override var canBecomeFirstResponder: Bool {
         return true
     }
 
-    override open func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+    open override func canPerformAction(_ action: Selector, withSender _: Any?) -> Bool {
         switch self {
         case let menuItem as ALKCopyMenuItemProtocol where action == menuItem.selector:
             return true
         case let menuItem as ALKReplyMenuItemProtocol where action == menuItem.selector:
+            return true
+        case let menuItem as ALKReportMessageMenuItemProtocol where action == menuItem.selector:
             return true
         default:
             return false
         }
     }
 
-    private func getCopyMenuItem(copyItem: Any) -> UIMenuItem? {
+    func getCopyMenuItem(copyItem: Any) -> UIMenuItem? {
         guard let copyMenuItem = copyItem as? ALKCopyMenuItemProtocol else {
             return nil
         }
@@ -112,7 +120,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         return copyMenu
     }
 
-    private func getReplyMenuItem(replyItem: Any) -> UIMenuItem? {
+    func getReplyMenuItem(replyItem: Any) -> UIMenuItem? {
         guard let replyMenuItem = replyItem as? ALKReplyMenuItemProtocol else {
             return nil
         }
@@ -120,9 +128,19 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         let replyMenu = UIMenuItem(title: title, action: replyMenuItem.selector)
         return replyMenu
     }
+
+    func getReportMessageItem(reportMessageItem: Any) -> UIMenuItem? {
+        guard let reportMessageMenuItem = reportMessageItem as? ALKReportMessageMenuItemProtocol else {
+            return nil
+        }
+        let title = localizedString(forKey: "Report", withDefaultValue: SystemMessage.LabelName.Report, fileName: localizedStringFileName)
+        let reportMessageMenu = UIMenuItem(title: title, action: reportMessageMenuItem.selector)
+        return reportMessageMenu
+    }
 }
 
 // MARK: - ALKCopyMenuItemProtocol
+
 @objc protocol ALKCopyMenuItemProtocol {
     func menuCopy(_ sender: Any)
 }
@@ -142,5 +160,17 @@ extension ALKCopyMenuItemProtocol {
 extension ALKReplyMenuItemProtocol {
     var selector: Selector {
         return #selector(menuReply(_:))
+    }
+}
+
+// MARK: - ALKReportMessageMenuItemProtocol
+
+@objc protocol ALKReportMessageMenuItemProtocol {
+    func menuReport(_ sender: Any)
+}
+
+extension ALKReportMessageMenuItemProtocol {
+    var selector: Selector {
+        return #selector(menuReport(_:))
     }
 }

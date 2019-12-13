@@ -6,8 +6,8 @@
 //  Copyright © 2017 Applozic. All rights reserved.
 //
 
-import Foundation
 import Applozic
+import Foundation
 
 let friendsMessage = "4"
 let myMessage = "5"
@@ -21,7 +21,6 @@ enum ChannelMetadataKey {
 let emailSourceType = 7
 
 extension ALMessage: ALKChatViewModelProtocol {
-
     private var alContact: ALContact? {
         let alContactDbService = ALContactDBService()
         guard let alContact = alContactDbService.loadContact(byKey: "userId", value: self.to) else {
@@ -33,10 +32,12 @@ extension ALMessage: ALKChatViewModelProtocol {
     private var alChannel: ALChannel? {
         let alChannelService = ALChannelService()
 
-        // TODO:  This is a workaround as other method uses closure.
+        // TODO: This is a workaround as other method uses closure.
         // Later replace this with:
         // alChannelService.getChannelInformation(, orClientChannelKey: , withCompletion: )
-        guard let alChannel = alChannelService.getChannelByKey(self.groupId) else {
+        guard let groupId = groupId,
+            let alChannel = alChannelService.getChannelByKey(groupId)
+        else {
             return nil
         }
         return alChannel
@@ -54,7 +55,6 @@ extension ALMessage: ALKChatViewModelProtocol {
     }
 
     public var avatarGroupImageUrl: String? {
-
         guard let alChannel = alChannel, let avatar = alChannel.channelImageURL else {
             return nil
         }
@@ -62,7 +62,7 @@ extension ALMessage: ALKChatViewModelProtocol {
     }
 
     public var name: String {
-        guard let alContact = alContact, let id = alContact.userId  else {
+        guard let alContact = alContact, let id = alContact.userId else {
             return ""
         }
         guard let displayName = alContact.getDisplayName(), !displayName.isEmpty else { return id }
@@ -71,13 +71,15 @@ extension ALMessage: ALKChatViewModelProtocol {
     }
 
     public var groupName: String {
-        if isGroupChat {
-            guard let alChannel = alChannel, let name = alChannel.name else {
-                return ""
-            }
+        guard let alChannel = alChannel else { return "" }
+        let name = alChannel.name ?? ""
+        guard
+            let userId = alChannel.getReceiverIdInGroupOfTwo(),
+            let contact = ALContactDBService().loadContact(byKey: "userId", value: userId)
+        else {
             return name
         }
-        return ""
+        return contact.getDisplayName()
     }
 
     public var theLastMessage: String? {
@@ -96,8 +98,6 @@ extension ALMessage: ALKChatViewModelProtocol {
             return "Video"
         case .html:
             return "Text"
-        case .genericCard:
-            return message
         case .faqTemplate:
             return message ?? "FAQ"
         case .quickReply:
@@ -113,14 +113,16 @@ extension ALMessage: ALKChatViewModelProtocol {
         case .email:
             guard let channelMetadata = alChannel?.metadata,
                 let messageText = channelMetadata[ChannelMetadataKey.conversationSubject]
-                else {
-                    return message
+            else {
+                return message
             }
             return messageText as? String
         case .document:
             return "Document"
         case .contact:
             return "Contact"
+        case .allButtons:
+            return message ?? "Buttons"
         }
     }
 
@@ -161,22 +163,21 @@ extension ALMessage: ALKChatViewModelProtocol {
             }
             return UInt(truncating: unreadCount)
         }
-
     }
 
     public var isGroupChat: Bool {
-        guard let _ = self.groupId else {
+        guard groupId != nil else {
             return false
         }
         return true
     }
 
     public var contactId: String? {
-        return self.contactIds
+        return contactIds
     }
 
     public var channelKey: NSNumber? {
-        return self.groupId
+        return groupId
     }
 
     public var createdAt: String? {
@@ -186,9 +187,8 @@ extension ALMessage: ALKChatViewModelProtocol {
 }
 
 extension ALMessage {
-
     var isMyMessage: Bool {
-        return (type != nil) ? (type == myMessage):false
+        return (type != nil) ? (type == myMessage) : false
     }
 
     public var messageType: ALKMessageType {
@@ -211,19 +211,18 @@ extension ALMessage {
         case ALMESSAGE_CONTENT_VCARD:
             return .contact
         default:
-            guard let attachmentType = getAttachmentType() else {return .text}
+            guard let attachmentType = getAttachmentType() else { return .text }
             return attachmentType
         }
     }
 
     var date: Date {
         guard let time = createdAtTime else { return Date() }
-        let sentAt = Date(timeIntervalSince1970: Double(time.doubleValue/1000))
+        let sentAt = Date(timeIntervalSince1970: Double(time.doubleValue / 1000))
         return sentAt
     }
 
     var time: String? {
-
         let dateFormatterGet = DateFormatter()
         dateFormatterGet.dateFormat = "HH:mm"
         return dateFormatterGet.string(from: date)
@@ -266,7 +265,7 @@ extension ALMessage {
     }
 
     var thumbnailURL: URL? {
-        guard let fileMeta = fileMeta, let urlStr = fileMeta.thumbnailUrl, let url = URL(string: urlStr)  else {
+        guard let fileMeta = fileMeta, let urlStr = fileMeta.thumbnailUrl, let url = URL(string: urlStr) else {
             return nil
         }
         return url
@@ -295,10 +294,11 @@ extension ALMessage {
         func getCoordinates(from message: String) -> (Any, Any)? {
             guard let messageData = message.data(using: .utf8),
                 let jsonObject = try? JSONSerialization.jsonObject(
-                with: messageData,
-                options: .mutableContainers),
+                    with: messageData,
+                    options: .mutableContainers
+                ),
                 let messageJSON = jsonObject as? [String: Any] else {
-                    return nil
+                return nil
             }
             guard let lat = messageJSON["lat"],
                 let lon = messageJSON["lon"] else {
@@ -309,7 +309,7 @@ extension ALMessage {
 
         guard let message = message,
             let (lat, lon) = getCoordinates(from: message) else {
-                return nil
+            return nil
         }
         // Check if type is double or string
         if let lat = lat as? Double,
@@ -321,7 +321,7 @@ extension ALMessage {
                 let lonString = lon as? String,
                 let lat = Double(latString),
                 let lon = Double(lonString) else {
-                    return nil
+                return nil
             }
             let location = CLLocationCoordinate2D(latitude: lat, longitude: lon)
             return Geocode(coordinates: location)
@@ -329,11 +329,11 @@ extension ALMessage {
     }
 
     var fileMetaInfo: ALFileMetaInfo? {
-        return self.fileMeta ?? nil
+        return fileMeta ?? nil
     }
 
     private func getAttachmentType() -> ALKMessageType? {
-        guard let fileMeta = fileMeta else {return nil}
+        guard let fileMeta = fileMeta else { return nil }
         if fileMeta.contentType.hasPrefix("image") {
             return .photo
         } else if fileMeta.contentType.hasPrefix("audio") {
@@ -349,33 +349,31 @@ extension ALMessage {
         guard let metadata = metadata,
             let contentType = metadata["contentType"] as? String, contentType == "300",
             let templateId = metadata["templateId"] as? String
-            else {
-                return .text
+        else {
+            return .text
         }
         switch templateId {
-            case "2":
-                return .genericCard
-            case "3":
-                return .button
-            case "6":
-                return .quickReply
-            case "7":
-                return .listTemplate
-            case "8":
-                return .faqTemplate
-            case "9":
-                return .imageMessage
-            case "10":
-                return .cardTemplate
-            default:
-                return .text
+        case "3":
+            return .button
+        case "6":
+            return .quickReply
+        case "7":
+            return .listTemplate
+        case "8":
+            return .faqTemplate
+        case "9":
+            return .imageMessage
+        case "10":
+            return .cardTemplate
+        case "11":
+            return .allButtons
+        default:
+            return .text
         }
     }
-
 }
 
 extension ALMessage {
-
     public var messageModel: ALKMessageModel {
         let messageModel = ALKMessageModel()
         messageModel.message = message
@@ -401,14 +399,14 @@ extension ALMessage {
         messageModel.fileMetaInfo = fileMetaInfo
         messageModel.receiverId = to
         messageModel.isReplyMessage = isAReplyMessage()
-        messageModel.metadata = metadata as? Dictionary<String, Any>
+        messageModel.metadata = metadata as? [String: Any]
         messageModel.source = source
         return messageModel
     }
 }
 
 extension ALMessage {
-    override open func isEqual(_ object: Any?) -> Bool {
+    open override func isEqual(_ object: Any?) -> Bool {
         if let object = object as? ALMessage, let objectKey = object.key, let key = self.key {
             return key == objectKey
         } else {

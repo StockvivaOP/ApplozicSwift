@@ -8,9 +8,8 @@
 
 import Foundation
 
-//handle all in app's display messages
-struct SystemMessage : Localizable {
-
+// handle all in app's display messages
+struct SystemMessage: Localizable {
     struct Camera {
         static let cameraPermission = localizedString(forKey: "EnableCameraPermissionMessage")
         static let CamNotAvailable = localizedString(forKey: "CameraNotAvailableMessage")
@@ -46,6 +45,11 @@ struct SystemMessage : Localizable {
         static let UnblockToEnableChat = localizedString(forKey: "UnblockToEnableChat")
         static let ChatHere = localizedString(forKey: "ChatHere")
         static let LoadingIndicatorText = localizedString(forKey: "LoadingIndicatorText")
+        static let ReportMessageSuccess = localizedString(forKey: "ReportMessageSuccess")
+        static let ReportMessageError = localizedString(forKey: "ReportMessageError")
+        static let ReportAlertTitle = localizedString(forKey: "ReportAlertTitle")
+        static let ReportAlertMessage = localizedString(forKey: "ReportAlertMessage")
+        static let ReportInfoMessage = localizedString(forKey: "ReplyInfoMessage")
     }
 
     struct Update {
@@ -64,6 +68,7 @@ struct SystemMessage : Localizable {
         static let CamNotAvaiable = localizedString(forKey: "CamNotAvaiable")
         static let Cancelled = localizedString(forKey: "CancelMessage")
         static let PleaseTryAgain = localizedString(forKey: "ConnectionFailedMessage")
+        static let NetworkAccessFailedMessage = localizedString(forKey: "NetworkAccessFailedMessage")
         static let FetchFail = localizedString(forKey: "FetchFailedMessage")
         static let OperationFail = localizedString(forKey: "OperationFailedMessage")
         static let DeleteSingleConversation = localizedString(forKey: "DeleteSingleConversation")
@@ -86,6 +91,7 @@ struct SystemMessage : Localizable {
         static let Remove = localizedString(forKey: "RemoveButtonName")
         static let Leave = localizedString(forKey: "LeaveButtonName")
         static let Cancel = localizedString(forKey: "ButtonCancel")
+        static let CapitalLetterCancelText = localizedString(forKey: "CapitalLetterCancelText")
         static let Discard = localizedString(forKey: "ButtonDiscard")
         static let Save = localizedString(forKey: "SaveButtonTitle")
         static let ResetPhoto = localizedString(forKey: "ResetPhotoButton")
@@ -93,8 +99,10 @@ struct SystemMessage : Localizable {
         static let Done = localizedString(forKey: "DoneButton")
         static let Invite = localizedString(forKey: "InviteButton")
         static let Confirm = localizedString(forKey: "ConfirmButton")
+        static let ReportMessage = localizedString(forKey: "ReportMessage")
         static let Delete = localizedString(forKey: "DeleteButtonName")
         static let ok = localizedString(forKey: "OkMessage")
+        static let okay = localizedString(forKey: "OkayMessage")
     }
 
     struct NoData {
@@ -106,8 +114,8 @@ struct SystemMessage : Localizable {
     }
 
     struct PhotoAlbum {
-        static let Success  = localizedString(forKey: "PhotoAlbumSuccess")
-        static let Fail     = localizedString(forKey: "PhotoAlbumFail")
+        static let Success = localizedString(forKey: "PhotoAlbumSuccess")
+        static let Fail = localizedString(forKey: "PhotoAlbumFail")
         static let SuccessTitle = localizedString(forKey: "PhotoAlbumSuccessTitle")
         static let FailureTitle = localizedString(forKey: "PhotoAlbumFailureTitle")
         static let Ok = localizedString(forKey: "PhotoAlbumOk")
@@ -132,6 +140,7 @@ struct SystemMessage : Localizable {
     struct NavbarTitle {
         static let createGroupTitle = localizedString(forKey: "CreateGroupTitle")
         static let editGroupTitle = localizedString(forKey: "EditGroupTitle")
+        static let emailWebViewTitle = localizedString(forKey: "EmailWebViewTitle")
     }
 
     struct LabelName {
@@ -153,6 +162,7 @@ struct SystemMessage : Localizable {
         static let NotNow = localizedString(forKey: "NotNow")
         static let Copy = localizedString(forKey: "Copy")
         static let Reply = localizedString(forKey: "Reply")
+        static let Report = localizedString(forKey: "Report")
         static let You = localizedString(forKey: "You")
         static let Admin = localizedString(forKey: "Admin")
     }

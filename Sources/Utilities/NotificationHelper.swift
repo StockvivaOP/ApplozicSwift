@@ -8,7 +8,6 @@
 import Applozic
 
 public class NotificationHelper {
-
     /// Stores information about the notification that arrives
     public struct NotificationData {
         public let userId: String?
@@ -36,7 +35,7 @@ public class NotificationHelper {
         }
     }
 
-    public init() { }
+    public init() {}
 
     // MARK: - Public methods
 
@@ -51,7 +50,7 @@ public class NotificationHelper {
         guard
             let userInfo = notification.userInfo,
             let alertValue = userInfo["alertValue"] as? String
-            else {
+        else {
             return (notifData, nil)
         }
         return (notifData, alertValue)
@@ -68,10 +67,17 @@ public class NotificationHelper {
             let topVC = ALPushAssist().topViewController as? ALKConversationViewController,
             let viewModel = topVC.viewModel
         else {
-            return false
+            guard let topVC = ALPushAssist().topViewController as? ALKReplyController else {
+                return false
+            }
+            return isChatThreadIsOpen(notification, userId: topVC.userId, groupId: topVC.groupId)
         }
-        let isGroupMessage = notification.groupId != nil && notification.groupId == viewModel.channelKey
-        let isOneToOneMessage = notification.groupId == nil && viewModel.channelKey == nil && notification.userId == viewModel.contactId
+        return isChatThreadIsOpen(notification, userId: viewModel.contactId, groupId: viewModel.channelKey)
+    }
+
+    private func isChatThreadIsOpen(_ notification: NotificationData, userId: String?, groupId: NSNumber?) -> Bool {
+        let isGroupMessage = notification.groupId != nil && notification.groupId == groupId
+        let isOneToOneMessage = notification.groupId == nil && groupId == nil && notification.userId == userId
         if isGroupMessage || isOneToOneMessage {
             return true
         }
@@ -132,13 +138,17 @@ public class NotificationHelper {
         let topVCName = String(describing: topVC.classForCoder)
         switch topVCName {
         case "MuteConversationViewController",
-             "WebViewController",
+             "ALKWebViewController",
              "SelectProfilePicViewController",
              "CAMImagePickerCameraViewController":
             return true
         case _ where topVCName.hasPrefix("ALK"):
             return true
         default:
+            if let searchVC = topVC as? UISearchController,
+                searchVC.searchResultsController as? ALKSearchResultViewController != nil {
+                return true
+            }
             return false
         }
     }
@@ -150,15 +160,20 @@ public class NotificationHelper {
     public func handleNotificationTap(_ notification: NotificationData) {
         guard let topVC = ALPushAssist().topViewController else { return }
         switch topVC {
-            case let vc as ALKConversationListViewController:
-                print("ConversationListViewController on top")
+        case let vc as ALKConversationListViewController:
+            print("ConversationListViewController on top")
+            openConversationFromListVC(vc, notification: notification)
+        case let vc as ALKConversationViewController:
+            print("ConversationViewController on top")
+            refreshConversation(vc, with: notification)
+        default:
+            if let searchVC = topVC as? UISearchController,
+                let vc = searchVC.presentingViewController as? ALKConversationListViewController {
                 openConversationFromListVC(vc, notification: notification)
-            case let vc as ALKConversationViewController:
-                print("ConversationViewController on top")
-                refreshConversation(vc, with: notification)
-            default:
-                print("Some other view controller need to find chat vc")
-                findChatVC(notification)
+                return
+            }
+            print("Some other view controller need to find chat vc")
+            findChatVC(notification)
         }
     }
 
@@ -167,27 +182,27 @@ public class NotificationHelper {
     private func notificationData(using object: String) -> NotificationData? {
         let components = object.components(separatedBy: ":")
         switch components.count {
-            case 3:
-                guard let componentElement = Int(components[1]) else { return nil }
-                let groupId = NSNumber(integerLiteral: componentElement)
-                return NotificationData(userId: nil, groupId: groupId, conversationId: nil)
-            case 2:
-                guard let conversationComponent = Int(components[1]) else { return nil }
-                let conversationId = NSNumber(integerLiteral: conversationComponent)
-                let userId = components[0]
-                return NotificationData(userId: userId, groupId: nil, conversationId: conversationId)
-            case 1:
-                let userId = object
-                return NotificationData(userId: userId, groupId: nil, conversationId: nil)
-            default:
-                print("Not handled")
-                return nil
+        case 3:
+            guard let componentElement = Int(components[1]) else { return nil }
+            let groupId = NSNumber(integerLiteral: componentElement)
+            return NotificationData(userId: nil, groupId: groupId, conversationId: nil)
+        case 2:
+            guard let conversationComponent = Int(components[1]) else { return nil }
+            let conversationId = NSNumber(integerLiteral: conversationComponent)
+            let userId = components[0]
+            return NotificationData(userId: userId, groupId: nil, conversationId: conversationId)
+        case 1:
+            let userId = object
+            return NotificationData(userId: userId, groupId: nil, conversationId: nil)
+        default:
+            print("Not handled")
+            return nil
         }
     }
 
     private func findChatVC(_ notification: NotificationData) {
         guard let vc = ALPushAssist().topViewController else { return }
-        if let _ = vc.navigationController?.viewControllers {
+        if vc.navigationController?.viewControllers != nil {
             findControllerInStack(vc) {
                 self.handleNotificationTap(notification)
             }

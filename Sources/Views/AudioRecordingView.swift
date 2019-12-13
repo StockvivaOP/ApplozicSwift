@@ -9,15 +9,14 @@ import Foundation
 
 import AVFoundation
 
-public protocol ALKAudioRecorderViewProtocol {
+public protocol ALKAudioRecorderViewProtocol: AnyObject {
     func cancelAudioRecording()
 }
 
 open class ALKAudioRecorderView: UIView, Localizable {
-
     var configuration: ALKConfiguration!
 
-    private var isTimerStart:Bool = false
+    private var isTimerStart: Bool = false
     private var timer = Timer()
     private var counter = 0
     private var previousGestureLocation: CGFloat = 0.0
@@ -25,7 +24,7 @@ open class ALKAudioRecorderView: UIView, Localizable {
     private var recordingViewStartLocation: CGFloat = 0.0
     private var redDotStartLocation: CGFloat = 0.0
 
-    private var delegate: ALKAudioRecorderViewProtocol!
+    weak var delegate: ALKAudioRecorderViewProtocol?
 
     lazy var slideToCancel: UILabel = {
         let label = self.commonLabel()
@@ -35,7 +34,8 @@ open class ALKAudioRecorderView: UIView, Localizable {
     }()
 
     let leftArrow: UIImageView = {
-        let image = UIImage(named: "leftArrow", in: Bundle.applozic, compatibleWith: nil)
+        var image = UIImage(named: "leftArrow", in: Bundle.applozic, compatibleWith: nil)
+        image = image?.imageFlippedForRightToLeftLayoutDirection()
         let imageView = UIImageView(image: image)
         imageView.heightAnchor.constraint(equalToConstant: 11).isActive = true
         return imageView
@@ -64,6 +64,7 @@ open class ALKAudioRecorderView: UIView, Localizable {
         let label = self.commonLabel()
         label.font = UIFont(name: "HelveticaNeue", size: 13)
         label.textColor = UIColor(red: 255, green: 14, blue: 0)
+        label.text = "RecordingMessage"
         return label
     }()
 
@@ -95,7 +96,7 @@ open class ALKAudioRecorderView: UIView, Localizable {
         return label
     }
 
-    func setAudioRecViewDelegate(recorderDelegate:ALKAudioRecorderViewProtocol) {
+    func setAudioRecViewDelegate(recorderDelegate: ALKAudioRecorderViewProtocol?) {
         delegate = recorderDelegate
     }
 
@@ -113,13 +114,13 @@ open class ALKAudioRecorderView: UIView, Localizable {
     public init(frame: CGRect, configuration: ALKConfiguration) {
         super.init(frame: frame)
         self.configuration = configuration
-        self.translatesAutoresizingMaskIntoConstraints = false
+        translatesAutoresizingMaskIntoConstraints = false
         setupUI()
         layer.cornerRadius = 12
         animateView()
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -130,14 +131,16 @@ open class ALKAudioRecorderView: UIView, Localizable {
 
         redDot.widthAnchor.constraint(equalToConstant: 8).isActive = true
         redDot.heightAnchor.constraint(equalToConstant: 8).isActive = true
-        redDot.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
-        redDot.bottomAnchor.constraint(equalTo: self.centerYAnchor, constant: -5).isActive = true
+        redDot.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20).isActive = true
+        redDot.bottomAnchor.constraint(equalTo: centerYAnchor, constant: -5).isActive = true
 
         recordingView.leadingAnchor.constraint(equalTo: redDot.leadingAnchor, constant: 20).isActive = true
-        recordingView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        recordingView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        recordingView.widthAnchor.constraint(equalToConstant: 60).isActive = true
 
-        slideView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
-        slideView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        slideView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20).isActive = true
+        slideView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        slideView.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor).isActive = true
     }
 
     private func stopTimer() {
@@ -148,37 +151,44 @@ open class ALKAudioRecorderView: UIView, Localizable {
     }
 
     private func initializeParameters() {
-        self.backgroundColor = UIColor.color(.none)
+        backgroundColor = UIColor.color(.none)
         slideToCancel.text = localizedString(forKey: "SlideToCancelMessage", withDefaultValue: SystemMessage.Microphone.SlideToCancel, fileName: configuration.localizedStringFileName)
         recordingLabel.text = localizedString(forKey: "RecordingMessage", withDefaultValue: SystemMessage.Microphone.Recording, fileName: configuration.localizedStringFileName)
         redDot.backgroundColor = UIColor(red: 255, green: 14, blue: 0)
         recordingValue.text = "00:00"
+
         previousGestureLocation = 0.0
 
-        slideToCancelStartLocation = slideView.frame.origin.x - slideToCancel.intrinsicContentSize.width
-        recordingViewStartLocation = recordingView.frame.origin.x + recordingLabel.intrinsicContentSize.width + 10.0
-        redDotStartLocation = redDot.frame.origin.x + 5.0
+        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
+            slideToCancelStartLocation = slideView.frame.origin.x
+            recordingViewStartLocation = recordingView.frame.origin.x - 10.0
+            redDotStartLocation = redDot.frame.origin.x - 5.0
+        } else {
+            slideToCancelStartLocation = slideView.frame.origin.x - slideToCancel.intrinsicContentSize.width
+            recordingViewStartLocation = recordingView.frame.origin.x + recordingLabel.intrinsicContentSize.width + 10.0
+            redDotStartLocation = redDot.frame.origin.x + 5.0
+        }
     }
 
     @objc private func updateCounter() {
         counter += 1
 
-        //min
+        // min
         let min = (counter / 60) % 60
         let sec = (counter % 60)
         var minStr = String(min)
         var secStr = String(sec)
-        if sec < 10 {secStr = "0\(secStr)"}
-        if min < 10 {minStr = "0\(minStr)"}
-        self.recordingValue.text = "\(minStr):\(secStr)"
+        if sec < 10 { secStr = "0\(secStr)" }
+        if min < 10 { minStr = "0\(minStr)" }
+        recordingValue.text = "\(minStr):\(secStr)"
     }
 
     @objc public func userDidStartRecording() {
         isTimerStart = true
         counter = 0
 
-        self.initializeParameters()
-        timer = Timer.scheduledTimer(timeInterval: 1, target:self, selector: #selector(updateCounter), userInfo: nil, repeats: true)
+        initializeParameters()
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateCounter), userInfo: nil, repeats: true)
     }
 
     @objc public func userDidStopRecording() {
@@ -198,21 +208,42 @@ open class ALKAudioRecorderView: UIView, Localizable {
     }
 
     @objc public func moveView(location: CGPoint) {
+        if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
+            moveViewRTL(location: location)
+            return
+        }
         let newPos = slideView.frame.origin.x + (location.x - previousGestureLocation)
         if newPos > slideToCancelStartLocation {
             return
         }
         if slideView.frame.origin.x <= recordingViewStartLocation,
             redDot.frame.origin.x + (location.x - previousGestureLocation) <= redDotStartLocation {
-
             recordingView.frame.origin.x += (location.x - previousGestureLocation)
             redDot.frame.origin.x += (location.x - previousGestureLocation)
             if recordingView.frame.origin.x <= 0.0 {
-                delegate.cancelAudioRecording()
+                delegate?.cancelAudioRecording()
             }
         }
         slideView.frame.origin.x = newPos
         previousGestureLocation = location.x
     }
 
+    private func moveViewRTL(location: CGPoint) {
+        let newPos = slideView.frame.origin.x + (location.x - previousGestureLocation)
+
+        if newPos < slideToCancelStartLocation {
+            return
+        }
+        let slideViewEnd = slideView.frame.origin.x + slideView.frame.size.width
+        if slideViewEnd >= recordingViewStartLocation,
+            redDot.frame.origin.x + (location.x - previousGestureLocation) >= redDotStartLocation {
+            recordingView.frame.origin.x += (location.x - previousGestureLocation)
+            redDot.frame.origin.x += (location.x - previousGestureLocation)
+            if recordingView.frame.origin.x + recordingView.frame.size.width >= redDotStartLocation + 30 {
+                delegate?.cancelAudioRecording()
+            }
+        }
+        slideView.frame.origin.x = newPos
+        previousGestureLocation = location.x
+    }
 }

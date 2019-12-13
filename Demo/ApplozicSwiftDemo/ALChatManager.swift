@@ -31,6 +31,9 @@ class ALChatManager: NSObject {
 
     init(applicationKey: NSString) {
         super.init()
+        if(applicationKey.length == 0 ){
+            fatalError("Please pass your applicationId in the ALChatManager file.")
+        }
         ALUserDefaultsHandler.setApplicationKey(applicationKey as String)
         self.defaultChatViewSettings()
     }
@@ -71,15 +74,17 @@ class ALChatManager: NSObject {
         let registerUserClientService: ALRegisterUserClientService = ALRegisterUserClientService()
         registerUserClientService.initWithCompletion(alUser, withCompletion: { (response, error) in
             guard error == nil else {
-                print("Error while registering to applozic");
-                let errorPass = NSError(domain:"Error while registering to applozic", code:0, userInfo:nil)
-                completion(nil , errorPass as NSError?)
+                completion(nil , error as NSError?)
                 return
             }
-            guard let response = response, response.isRegisteredSuccessfully() else {
-                ALUtilityClass.showAlertMessage("Invalid Password", andTitle: "Oops!!!")
-                let errorPass = NSError(domain:"Invalid Password", code:0, userInfo:nil)
-                completion(nil , errorPass as NSError?)
+            guard let response = response else {
+                let apiError = NSError(domain:"Applozic", code:0, userInfo:[NSLocalizedDescriptionKey: "Api error while registering to applozic"])
+                completion(nil , apiError as NSError?)
+                return;
+            }
+            guard response.isRegisteredSuccessfully() else {
+                let errorResponse = NSError(domain:"Applozic", code:0, userInfo:[NSLocalizedDescriptionKey: response.message])
+                completion(nil , errorResponse as NSError?)
                 return
             }
             print("Registration successfull")
@@ -89,7 +94,7 @@ class ALChatManager: NSObject {
 
     func getApplicationKey() -> NSString {
         let appKey = ALUserDefaultsHandler.getApplicationKey() as NSString?
-        let applicationKey = appKey
+        let applicationKey = (appKey != nil) ? appKey : ALChatManager.applicationId as NSString?
         return applicationKey!;
     }
 
@@ -122,6 +127,7 @@ class ALChatManager: NSObject {
     func launchChatList(from viewController: UIViewController, with configuration: ALKConfiguration) {
         let conversationVC = ALKConversationListViewController(configuration: configuration)
         let navVC = ALKBaseNavigationViewController(rootViewController: conversationVC)
+        navVC.modalPresentationStyle = .fullScreen
         viewController.present(navVC, animated: false, completion: nil)
     }
 
@@ -131,6 +137,7 @@ class ALChatManager: NSObject {
             vc.present(navVC, animated: false, completion: nil)
             return
         }
+        vc.modalPresentationStyle = .fullScreen
         vc.navigationController?.pushViewController(viewController, animated: false)
     }
 
@@ -211,10 +218,11 @@ class ALChatManager: NSObject {
             channel in
             guard let channel = channel else {
                 channelService.createChannel(userId, orClientChannelKey: clientGroupId, andMembersList: [userId], andImageLink: nil, channelType: Int16(GROUP_OF_TWO.rawValue), andMetaData: metadata, withCompletion: { channel, error in
-                    guard error == nil else {
+                    guard error == nil, let channel = channel else {
                         print("Error while creating channel : \(String(describing: error))")
                         return
                     }
+                    ALChannelDBService().addMember(toChannel: userId, andChannelKey: channel.key)
                     self.launchGroupWith(clientGroupId: clientGroupId, from: viewController, configuration: configuration)
                 })
                 return

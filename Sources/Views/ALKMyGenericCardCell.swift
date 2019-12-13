@@ -6,16 +6,15 @@
 //
 
 open class ALKMyGenericCardCell: ALKGenericCardBaseCell {
-
     var messageView = ALKMyMessageView()
     lazy var messageViewHeight = messageView.heightAnchor.constraint(equalToConstant: 0)
 
-    override public init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -46,7 +45,7 @@ open class ALKMyGenericCardCell: ALKGenericCardBaseCell {
         collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -cardRightPadding).isActive = true
         collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
         collectionView.topAnchor.constraint(equalTo: messageView.bottomAnchor, constant: ALKGenericCardBaseCell.cardTopPadding).isActive = true
-        collectionView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.collectionView.rawValue)?.isActive = true
+        collectionView.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.collectionView.rawValue).isActive = true
     }
 
     public override class func rowHeigh(viewModel: ALKMessageViewModel, width: CGFloat) -> CGFloat {
@@ -82,12 +81,26 @@ open class ALKGenericCardBaseCell: ALKChatBaseCell<ALKMessageViewModel> {
 
         collectionView.setMessage(viewModel: viewModel)
         collectionView.reloadData()
-        let collectionViewHeight = ALKGenericCardCollectionView.rowHeightFor(message:viewModel, width:width)
+        let collectionViewHeight = ALKGenericCardCollectionView.rowHeightFor(message: viewModel, width: width)
         collectionView.constraint(withIdentifier: ConstraintIdentifier.collectionView.rawValue)?.constant = collectionViewHeight
     }
 
+    open override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        guard UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft else {
+            return
+        }
+        scrollToBeginning()
+    }
+
+    private func scrollToBeginning() {
+        guard collectionView.numberOfItems(inSection: 0) > 0 else { return }
+        let indexPath = IndexPath(item: 0, section: 0)
+        collectionView.scrollToItem(at: indexPath, at: .left, animated: false)
+    }
+
     public class func cardHeightFor(message: ALKMessageViewModel, width: CGFloat) -> CGFloat {
-        let cardHeight = ALKGenericCardCollectionView.rowHeightFor(message:message, width:width)
+        let cardHeight = ALKGenericCardCollectionView.rowHeightFor(message: message, width: width)
         return cardHeight + cardTopPadding
     }
 
@@ -109,5 +122,4 @@ open class ALKGenericCardBaseCell: ALKChatBaseCell<ALKMessageViewModel> {
     open func register(cell: UICollectionViewCell.Type) {
         collectionView.register(cell, forCellWithReuseIdentifier: cell.reuseIdentifier)
     }
-
 }

@@ -80,13 +80,29 @@ class ALKConversationViewControllerListSnapShotTests: QuickSpec {
 
             beforeEach {
                 configuration = ALKConfiguration()
-                configuration.rightNavBarImageForConversationListView = UIImage(named: "close", in: Bundle.applozic, compatibleWith: nil)
+                configuration.hideStartChatButton = true
+                configuration.navigationItemsForConversationList = [
+                    ALKNavigationItem(
+                        identifier: 123456,
+                        icon: UIImage(named: "close", in: Bundle.applozic, compatibleWith: nil)!
+                )]
                 conversationVC = ALKConversationListViewController(configuration: configuration)
                 conversationVC.dbService = ALMessageDBServiceMock()
                 conversationVC.conversationViewModelType = ALKConversationViewModelMock.self
                 conversationVC.beginAppearanceTransition(true, animated: false)
                 conversationVC.endAppearanceTransition()
+
                 navigationController = ALKBaseNavigationViewController(rootViewController: conversationVC)
+                navigationController.navigationBar.isTranslucent = false
+                navigationController.navigationBar.tintColor = UIColor(red:0.10, green:0.65, blue:0.89, alpha:1.0)
+                if #available(iOS 13.0, *) {
+                    let appearance = UINavigationBarAppearance()
+                    appearance.backgroundColor =  UIColor(red:0.93, green:0.94, blue:0.95, alpha:1.0)
+                    navigationController.navigationBar.standardAppearance = appearance
+                }else{
+                    navigationController.navigationBar.barTintColor = UIColor(red:0.93, green:0.94, blue:0.95, alpha:1.0)
+                }
+
             }
 
             it("change icon image") {

@@ -8,7 +8,6 @@
 import UIKit
 
 public class ALKLoadingIndicator: UIStackView, Localizable {
-
     // MARK: - Properties
 
     var activityIndicator = UIActivityIndicatorView(style: .gray)
@@ -21,14 +20,14 @@ public class ALKLoadingIndicator: UIStackView, Localizable {
 
     // MARK: - Initializer
 
-    public init(frame: CGRect, color: UIColor) {
+    public init(frame: CGRect, color: UIColor = .black) {
         super.init(frame: frame)
-        setupStyle(color)
+        set(color)
         setupView()
-        self.isHidden = true
+        isHidden = true
     }
 
-    required init(coder: NSCoder) {
+    required init(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -36,28 +35,28 @@ public class ALKLoadingIndicator: UIStackView, Localizable {
 
     public func startLoading(localizationFileName: String) {
         loadingLabel.text = localizedString(forKey: "LoadingIndicatorText", withDefaultValue: SystemMessage.Information.LoadingIndicatorText, fileName: localizationFileName)
-        self.isHidden = false
+        isHidden = false
         activityIndicator.startAnimating()
     }
 
     public func stopLoading() {
-        self.isHidden = true
+        isHidden = true
         activityIndicator.stopAnimating()
     }
 
-    // MARK: - Private helper methods
-
-    private func setupStyle(_ color: UIColor) {
+    public func set(_ color: UIColor) {
         activityIndicator.color = color
         loadingLabel.textColor = color
     }
 
+    // MARK: - Private helper methods
+
     private func setupView() {
-        self.axis = .horizontal
-        self.alignment = .center
-        self.distribution = .fill
-        self.spacing = 10
-        self.addArrangedSubview(activityIndicator)
-        self.addArrangedSubview(loadingLabel)
+        axis = .horizontal
+        alignment = .center
+        distribution = .fill
+        spacing = 10
+        addArrangedSubview(activityIndicator)
+        addArrangedSubview(loadingLabel)
     }
 }

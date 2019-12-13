@@ -8,7 +8,6 @@
 
 import Foundation
 public enum ALKMessageStyle {
-
     public static var displayName = Style(
         font: UIFont.font(.normal(size: 14)),
         text: .text(.gray9B)
@@ -36,6 +35,20 @@ public enum ALKMessageStyle {
         text: .text(.black00)
     )
 
+    /// Style for mentions in sent message text
+    public static var sentMention = Style(
+        font: UIFont.systemFont(ofSize: 14),
+        text: UIColor.blue,
+        background: UIColor.blue.withAlphaComponent(0.1)
+    )
+
+    /// Style for mentions in received message text
+    public static var receivedMention = Style(
+        font: UIFont.systemFont(ofSize: 14),
+        text: UIColor.blue,
+        background: UIColor.blue.withAlphaComponent(0.1)
+    )
+
     @available(*, deprecated, message: "Use `receivedMessage` and `sentMessage`")
     public static var message = Style(
         font: UIFont.font(.normal(size: 14)),
@@ -53,15 +66,23 @@ public enum ALKMessageStyle {
     }
 
     public struct Bubble {
+        public struct Border {
+            public var color: UIColor = UIColor.clear
+            public var width: CGFloat = 0
+        }
 
         /// Message bubble's background color.
         public var color: UIColor
 
         /// Message bubble corner Radius
-        public var cornerRadius:CGFloat
+        public var cornerRadius: CGFloat
 
         /// BubbleStyle of the message bubble.
         public var style: BubbleStyle
+
+        /// For setting border to bubble.
+        /// Note: Only works when `BubbleStyle` is `round`
+        public var border: Border = Border()
 
         /// Width padding which will be used for message view's
         /// right and left padding.
@@ -70,8 +91,8 @@ public enum ALKMessageStyle {
         public init(color: UIColor, style: BubbleStyle) {
             self.color = color
             self.style = style
-            self.widthPadding = 10.0
-            self.cornerRadius = 12
+            widthPadding = 10.0
+            cornerRadius = 12
         }
     }
 

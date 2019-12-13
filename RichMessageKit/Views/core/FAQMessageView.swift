@@ -10,7 +10,6 @@ import UIKit
 /// Its a view that displays a title with description on a bubble
 /// alongwith optional buttons at the bottom.
 public class FAQMessageView: UIView {
-
     // MARK: - Public properties
 
     /// Use this to adjust the spacing between title-description and description-buttons.
@@ -50,7 +49,7 @@ public class FAQMessageView: UIView {
         return label
     }()
 
-    fileprivate lazy var buttons = SuggestedReplyView(config: SuggestedReplyView.SuggestedReplyConfig(), delegate: self)
+    fileprivate lazy var buttons = SuggestedReplyView()
 
     fileprivate let style: FAQMessageStyle
     fileprivate let alignLeft: Bool
@@ -72,11 +71,12 @@ public class FAQMessageView: UIView {
         style = faqStyle
         self.alignLeft = alignLeft
         super.init(frame: frame)
+        buttons.delegate = self
         setupStyle()
         setupConstraints()
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -95,7 +95,7 @@ public class FAQMessageView: UIView {
         descriptionHeight.constant = model.description?.heightWithConstrainedWidth(width, font: style.description.font) ?? 0
         buttonLabel.text = model.buttonLabel
         buttonLabelHeight.constant = model.buttonLabel?.heightWithConstrainedWidth(maxWidth, font: style.buttonLabel.font) ?? 0
-        buttons.update(model: SuggestedReplyMessage(title: model.buttons, reply: model.buttons, message: model.message))
+        buttons.update(model: SuggestedReplyMessage(suggestion: model.getSuggestion(), message: model.message), maxWidth: width)
     }
 
     /// It's used to get exact height for `FAQMessageView`
@@ -108,7 +108,7 @@ public class FAQMessageView: UIView {
     public class func rowHeight(model: FAQMessage, maxWidth: CGFloat, style: FAQMessageStyle) -> CGFloat {
         let padding = style.bubble.padding
         let width = maxWidth - (padding.left + padding.right)
-        let buttonModel = SuggestedReplyMessage(title: model.buttons, reply: model.buttons, message: model.message)
+        let buttonModel = SuggestedReplyMessage(suggestion: model.getSuggestion(), message: model.message)
         let buttonHeight = SuggestedReplyView.rowHeight(model: buttonModel, maxWidth: maxWidth) + 2 * verticalSpacing
         let titleHeight = (model.title?.heightWithConstrainedWidth(width, font: style.title.font) ?? 0) + style.bubble.padding.top + verticalSpacing
         let descriptionHeight = (model.description?.heightWithConstrainedWidth(width, font: style.description.font) ?? 0) + style.bubble.padding.bottom + verticalSpacing
@@ -128,13 +128,13 @@ public class FAQMessageView: UIView {
 
     private func setupConstraints() {
         bubbleView.addViewsForAutolayout(views: [titleLabel, descriptionLabel])
-        self.addViewsForAutolayout(views: [bubbleView, buttonLabel, buttons])
+        addViewsForAutolayout(views: [bubbleView, buttonLabel, buttons])
         let padding = style.bubble.padding
 
         if alignLeft {
-            buttonLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+            buttonLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         } else {
-            buttonLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor).isActive = true
+            buttonLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor).isActive = true
         }
 
         NSLayoutConstraint.activate([
@@ -160,8 +160,8 @@ public class FAQMessageView: UIView {
             buttons.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             buttons.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             buttons.topAnchor.constraint(equalTo: buttonLabel.bottomAnchor, constant: FAQMessageView.verticalSpacing),
-            buttons.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -FAQMessageView.verticalSpacing)
-            ])
+            buttons.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -FAQMessageView.verticalSpacing),
+        ])
     }
 }
 

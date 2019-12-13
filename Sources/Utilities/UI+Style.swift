@@ -10,45 +10,40 @@ import Foundation
 import UIKit
 
 extension UIView {
-
     func setBackgroundColor(_ color: UIColor) {
-        self.backgroundColor = color
+        backgroundColor = color
     }
 
     func setTintColor(_ color: UIColor) {
-        self.tintColor = color
+        tintColor = color
     }
 }
 
 extension UINavigationBar {
-
     func setBarTinColor(_ color: UIColor) {
-        self.barTintColor = color
+        barTintColor = color
     }
 }
 
 extension UITableView {
-
     func setSeparatorColor(_ color: UIColor) {
-        self.separatorColor = color
+        separatorColor = color
     }
 }
 
 extension CALayer {
-
     func setBorderColor(_ color: UIColor) {
-        self.borderColor = color.cgColor
+        borderColor = color.cgColor
     }
 
     func setBackgroundColor(_ color: UIColor) {
-        self.backgroundColor = color.cgColor
+        backgroundColor = color.cgColor
     }
 }
 
 extension UILabel {
-
     func setTextColor(_ color: UIColor) {
-        self.textColor = color
+        textColor = color
     }
 
     func setFont(_ font: UIFont) {
@@ -57,7 +52,6 @@ extension UILabel {
 }
 
 extension UITextView {
-
     func setStyle(_ style: Style) {
         setFont(style.font)
         setTextColor(style.text)
@@ -65,16 +59,26 @@ extension UITextView {
     }
 
     func setTextColor(_ color: UIColor) {
-        self.textColor = color
+        textColor = color
     }
 
     func setFont(_ font: UIFont) {
         self.font = font
     }
+
+    func changeTextDirection() {
+        var lang = textInputMode?.primaryLanguage
+        if lang == nil {
+            lang = UIApplication.shared.textInputMode?.primaryLanguage
+        }
+        /// Still no language is detected then simply return
+        guard let language = lang else { return }
+        let isRTL = NSLocale.characterDirection(forLanguage: language) == .rightToLeft
+        textAlignment = isRTL ? .right : .left
+    }
 }
 
 extension UITextField {
-
     func setStyle(_ style: Style) {
         setFont(style.font)
         setTextColor(style.text)
@@ -82,7 +86,7 @@ extension UITextField {
     }
 
     func setTextColor(_ color: UIColor) {
-        self.textColor = color
+        textColor = color
     }
 
     func setFont(_ font: UIFont) {
@@ -91,7 +95,6 @@ extension UITextField {
 }
 
 extension UIButton {
-
     func setStyle(style: Style, forState state: UIControl.State) {
         setFont(font: style.font)
         setTextColor(color: style.text, forState: state)
@@ -105,5 +108,4 @@ extension UIButton {
     func setFont(font: UIFont) {
         titleLabel?.font = font
     }
-
 }

@@ -1,34 +1,35 @@
 //
 //  ALKNewChatViewController.swift
-//  
+//
 //
 //  Created by Mukesh Thawani on 04/05/17.
 //  Copyright © 2017 Applozic. All rights reserved.
 //
 
-import UIKit
 import Applozic
+import UIKit
 
-final public class ALKNewChatViewController: ALKBaseViewController, Localizable {
-
+public final class ALKNewChatViewController: ALKBaseViewController, Localizable {
     fileprivate var viewModel: ALKNewChatViewModel!
 
-    fileprivate let tableView : UITableView = {
+    fileprivate let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.estimatedRowHeight   = 53
-        tableView.rowHeight            = 53
-        tableView.separatorStyle       = .none
-        tableView.backgroundColor      = UIColor.white
-        tableView.keyboardDismissMode  = .onDrag
+        tableView.estimatedRowHeight = 53
+        tableView.rowHeight = 53
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor.white
+        tableView.keyboardDismissMode = .onDrag
         return tableView
     }()
 
     fileprivate lazy var searchBar: UISearchBar = {
-        return UISearchBar.createAXSearchBar(
+        UISearchBar.createAXSearchBar(
             placeholder: localizedString(
                 forKey: "SearchPlaceholder",
                 withDefaultValue: SystemMessage.LabelName.SearchPlaceholder,
-                fileName: configuration.localizedStringFileName))
+                fileName: configuration.localizedStringFileName
+            )
+        )
     }()
 
     fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
@@ -41,11 +42,11 @@ final public class ALKNewChatViewController: ALKBaseViewController, Localizable 
         setupView()
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    required public init(configuration: ALKConfiguration) {
+    public required init(configuration: ALKConfiguration) {
         super.init(configuration: configuration)
     }
 
@@ -61,11 +62,11 @@ final public class ALKNewChatViewController: ALKBaseViewController, Localizable 
 
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.edgesForExtendedLayout = []
-        activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
+        edgesForExtendedLayout = []
+        activityIndicator.center = CGPoint(x: view.bounds.size.width / 2, y: view.bounds.size.height / 2)
         activityIndicator.color = UIColor.gray
         view.addSubview(activityIndicator)
-        self.view.bringSubviewToFront(activityIndicator)
+        view.bringSubviewToFront(activityIndicator)
         activityIndicator.startAnimating()
         viewModel.getContacts(completion: {
             self.searchBar.text = nil
@@ -77,7 +78,6 @@ final public class ALKNewChatViewController: ALKBaseViewController, Localizable 
     // MARK: - Private
 
     private func setupView() {
-
         title = localizedString(forKey: "NewChatTitle", withDefaultValue: SystemMessage.LabelName.NewChatTitle, fileName: configuration.localizedStringFileName)
 
         view.addViewsForAutolayout(views: [tableView])
@@ -85,12 +85,12 @@ final public class ALKNewChatViewController: ALKBaseViewController, Localizable 
         setupTableViewConstraint()
 
         // Setup table view datasource/delegate
-        tableView.delegate              = self
-        tableView.dataSource            = self
-        tableView.contentInset          = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         tableView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 
-        self.automaticallyAdjustsScrollViewInsets = false
+        automaticallyAdjustsScrollViewInsets = false
 
         registerCell()
     }
@@ -106,16 +106,23 @@ final public class ALKNewChatViewController: ALKBaseViewController, Localizable 
     private func registerCell() {
         tableView.register(ALKFriendNewChatCell.self)
     }
+
+    private func launch(_ conversationVC: ALKConversationViewController) {
+        // Remove current VC from the stack
+        var navControllers = navigationController?.viewControllers.dropLast() ?? []
+        navControllers.append(conversationVC)
+        navigationController?.setViewControllers(navControllers, animated: true)
+    }
 }
 
 // MARK: - UITableViewDelegate, UITableViewDataSource
-extension ALKNewChatViewController: UITableViewDelegate, UITableViewDataSource {
 
-    public func numberOfSections(in tableView: UITableView) -> Int {
+extension ALKNewChatViewController: UITableViewDelegate, UITableViewDataSource {
+    public func numberOfSections(in _: UITableView) -> Int {
         return viewModel.numberOfSection()
     }
 
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         return (section == 0) ? 1 : viewModel.numberOfRowsInSection(section: section)
     }
 
@@ -127,9 +134,7 @@ extension ALKNewChatViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         if indexPath.section == 0 {
-
             tableView.deselectRow(at: indexPath, animated: true)
 
             let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.createGroupChat, bundle: Bundle.applozic)
@@ -144,8 +149,6 @@ extension ALKNewChatViewController: UITableViewDelegate, UITableViewDataSource {
 
         let friendViewModel = self.viewModel.friendForRow(indexPath: indexPath)
 
-        tableView.deselectRow(at: indexPath, animated: true)
-
         tableView.isUserInteractionEnabled = false
 
         let viewModel = ALKConversationViewModel(contactId: friendViewModel.friendUUID, channelKey: nil, localizedStringFileName: configuration.localizedStringFileName)
@@ -153,20 +156,18 @@ extension ALKNewChatViewController: UITableViewDelegate, UITableViewDataSource {
         let conversationVC = ALKConversationViewController(configuration: configuration)
         conversationVC.viewModel = viewModel
 
+        launch(conversationVC)
         self.tableView.deselectRow(at: indexPath, animated: true)
-        self.navigationController?.pushViewController(conversationVC, animated: true)
         self.tableView.isUserInteractionEnabled = true
-
     }
 
-    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    public func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return (section == 0) ? searchBar : nil
     }
 
-    public func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    public func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return (section == 0) ? 44 : 0
     }
-
 }
 
 extension ALKNewChatViewController: UIScrollViewDelegate {
@@ -174,8 +175,8 @@ extension ALKNewChatViewController: UIScrollViewDelegate {
         // Update only when the search is not active
         guard (searchBar.text?.isEmpty)! else { return }
 
-        if(!ALApplozicSettings.isContactsGroupEnabled()) {
-            let  height = scrollView.frame.size.height
+        if !ALApplozicSettings.isContactsGroupEnabled() {
+            let height = scrollView.frame.size.height
             let contentYoffset = scrollView.contentOffset.y
             let reloadDistance: CGFloat = 40.0 // Added this so that loading starts 40 points before the end
             let distanceFromBottom = scrollView.contentSize.height - contentYoffset - reloadDistance
@@ -193,22 +194,21 @@ extension ALKNewChatViewController: UIScrollViewDelegate {
 }
 
 // MARK: - UISearchBarDelegate
-extension ALKNewChatViewController: UISearchBarDelegate {
 
-    public func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+extension ALKNewChatViewController: UISearchBarDelegate {
+    public func searchBar(_: UISearchBar, textDidChange searchText: String) {
         viewModel.filter(keyword: searchText)
         tableView.reloadData()
     }
 }
 
 // MARK: - CreateGroupChatAddFriendProtocol
+
 extension ALKNewChatViewController: ALKCreateGroupChatAddFriendProtocol {
-
-    func createGroupGetFriendInGroupList(friendsSelected: [ALKFriendViewModel], groupName: String, groupImgUrl: String, friendsAdded: [ALKFriendViewModel]) {
-
+    func createGroupGetFriendInGroupList(friendsSelected: [ALKFriendViewModel], groupName: String, groupImgUrl: String, friendsAdded _: [ALKFriendViewModel]) {
         guard ALDataNetworkConnection.checkDataNetworkAvailable() else { return }
 
-        //Server call
+        // Server call
 
         let newChannel = ALChannelService()
         let membersList = NSMutableArray()
@@ -229,9 +229,9 @@ extension ALKNewChatViewController: ALKCreateGroupChatAddFriendProtocol {
             let viewModel = ALKConversationViewModel(contactId: nil, channelKey: alChannel.key, localizedStringFileName: self.configuration.localizedStringFileName)
             let conversationVC = ALKConversationViewController(configuration: self.configuration)
             conversationVC.viewModel = viewModel
-            self.navigationController?.pushViewController(conversationVC, animated: true)
+            _ = self.navigationController?.popToViewController(self, animated: true)
+            self.launch(conversationVC)
             self.tableView.isUserInteractionEnabled = true
         })
     }
-
 }

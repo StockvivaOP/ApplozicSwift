@@ -5,13 +5,12 @@
 //  Created by Shivam Pokhriyal on 12/06/19.
 //
 
-import UIKit
-import Kingfisher
 import Applozic
+import Kingfisher
+import UIKit
 
-//TODO: Handle padding for reply name and reply message when preview image isn't visible.
+// TODO: Handle padding for reply name and reply message when preview image isn't visible.
 open class ALKFriendMessageCell: ALKMessageCell {
-
     private var avatarImageView: UIImageView = {
         let imv = UIImageView()
         imv.contentMode = .scaleAspectFill
@@ -109,120 +108,162 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTappedAction))
         avatarImageView.addGestureRecognizer(tapGesture)
 
-        contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel])
+        contentView.addViewsForAutolayout(views: [avatarImageView, nameLabel])
         contentView.bringSubviewToFront(messageView)
 
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(
                 equalTo: contentView.topAnchor,
-                constant: Padding.NameLabel.top),
+                constant: Padding.NameLabel.top
+            ),
             nameLabel.leadingAnchor.constraint(
                 equalTo: contentView.leadingAnchor,
-                constant: Padding.NameLabel.left),
+                constant: Padding.NameLabel.left
+            ),
             nameLabel.trailingAnchor.constraint(
                 equalTo: contentView.trailingAnchor,
-                constant: -Padding.NameLabel.right),
+                constant: -Padding.NameLabel.right
+            ),
             nameLabel.heightAnchor.constraint(equalToConstant: Padding.NameLabel.height),
 
             avatarImageView.topAnchor.constraint(
                 equalTo: contentView.topAnchor,
-                constant: Padding.AvatarImage.top),
+                constant: Padding.AvatarImage.top
+            ),
             avatarImageView.leadingAnchor.constraint(
                 equalTo: contentView.leadingAnchor,
-                constant: Padding.AvatarImage.left),
+                constant: Padding.AvatarImage.left
+            ),
             avatarImageView.heightAnchor.constraint(equalToConstant: Padding.AvatarImage.height),
             avatarImageView.widthAnchor.constraint(equalToConstant: Padding.AvatarImage.width),
 
+            emailBottomView.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor
+            ),
+            emailBottomViewHeight,
+            emailBottomView.trailingAnchor.constraint(
+                lessThanOrEqualTo: contentView.trailingAnchor
+            ),
+            emailBottomView.leadingAnchor.constraint(
+                equalTo: bubbleView.leadingAnchor,
+                constant: ALKFriendMessageCell.bubbleViewLeftPadding
+            ),
 
             bubbleView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor),
             bubbleView.bottomAnchor.constraint(
-                equalTo: contentView.bottomAnchor,
-                constant: -Padding.BubbleView.bottom),
+                equalTo: emailBottomView.topAnchor,
+                constant: -Padding.BubbleView.bottom
+            ),
             bubbleView.leadingAnchor.constraint(
                 equalTo: avatarImageView.trailingAnchor,
-                constant: Padding.BubbleView.left),
+                constant: Padding.BubbleView.left
+            ),
             bubbleView.trailingAnchor.constraint(
                 lessThanOrEqualTo: contentView.trailingAnchor,
-                constant: -Padding.BubbleView.right),
+                constant: -Padding.BubbleView.right
+            ),
 
             replyView.topAnchor.constraint(
                 equalTo: bubbleView.topAnchor,
-                constant: Padding.ReplyView.top),
+                constant: Padding.ReplyView.top
+            ),
             replyView.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
-                identifier: ConstraintIdentifier.replyViewHeight),
+                identifier: ConstraintIdentifier.replyViewHeight
+            ),
             replyView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
-                constant: Padding.ReplyView.left),
+                constant: Padding.ReplyView.left
+            ),
             replyView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
-                constant: -Padding.ReplyView.right),
+                constant: -Padding.ReplyView.right
+            ),
 
             previewImageView.topAnchor.constraint(
                 equalTo: replyView.topAnchor,
-                constant: Padding.PreviewImageView.top),
+                constant: Padding.PreviewImageView.top
+            ),
             previewImageView.trailingAnchor.constraint(
                 lessThanOrEqualTo: replyView.trailingAnchor,
-                constant: -Padding.PreviewImageView.right),
+                constant: -Padding.PreviewImageView.right
+            ),
             previewImageView.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
-                identifier: ConstraintIdentifier.replyMessageHeight),
+                identifier: ConstraintIdentifier.replyMessageHeight
+            ),
             previewImageView.widthAnchor.constraintEqualToAnchor(
                 constant: 0,
-                identifier: ConstraintIdentifier.replyPreviewImageWidth),
+                identifier: ConstraintIdentifier.replyPreviewImageWidth
+            ),
 
             replyNameLabel.leadingAnchor.constraint(equalTo: replyView.leadingAnchor),
             replyNameLabel.topAnchor.constraint(equalTo: replyView.topAnchor),
             replyNameLabel.trailingAnchor.constraint(
                 lessThanOrEqualTo: previewImageView.leadingAnchor,
-                constant: -Padding.ReplyNameLabel.right),
+                constant: -Padding.ReplyNameLabel.right
+            ),
             replyNameLabel.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
-                identifier: ConstraintIdentifier.replyNameHeight),
+                identifier: ConstraintIdentifier.replyNameHeight
+            ),
 
             replyMessageLabel.leadingAnchor.constraint(equalTo: replyView.leadingAnchor),
             replyMessageLabel.topAnchor.constraint(
                 equalTo: replyNameLabel.bottomAnchor,
-                constant: Padding.ReplyMessageLabel.top),
+                constant: Padding.ReplyMessageLabel.top
+            ),
             replyMessageLabel.trailingAnchor.constraint(
                 lessThanOrEqualTo: previewImageView.leadingAnchor,
-                constant: -Padding.ReplyMessageLabel.right),
+                constant: -Padding.ReplyMessageLabel.right
+            ),
             replyMessageLabel.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
-                identifier: ConstraintIdentifier.replyMessageHeight),
+                identifier: ConstraintIdentifier.replyMessageHeight
+            ),
 
             emailTopView.topAnchor.constraint(
                 equalTo: replyView.bottomAnchor,
-                constant: Padding.MessageView.top),
+                constant: Padding.MessageView.top
+            ),
             emailTopView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
-                constant: -ALKMessageStyle.receivedBubble.widthPadding),
+                constant: -ALKMessageStyle.receivedBubble.widthPadding
+            ),
             emailTopView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
-                constant: ALKFriendMessageCell.bubbleViewLeftPadding),
+                constant: ALKFriendMessageCell.bubbleViewLeftPadding
+            ),
             emailTopHeight,
 
             messageView.topAnchor.constraint(
-                equalTo: emailTopView.bottomAnchor),
+                equalTo: emailTopView.bottomAnchor
+            ),
             messageView.bottomAnchor.constraint(
                 equalTo: bubbleView.bottomAnchor,
-                constant: -Padding.MessageView.bottom),
+                constant: -Padding.MessageView.bottom
+            ),
             messageView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
-                constant: -ALKMessageStyle.receivedBubble.widthPadding),
+                constant: -ALKMessageStyle.receivedBubble.widthPadding
+            ),
             messageView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
-                constant: ALKFriendMessageCell.bubbleViewLeftPadding),
+                constant: ALKFriendMessageCell.bubbleViewLeftPadding
+            ),
 
             timeLabel.leadingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
-                constant: Padding.TimeLabel.left),
+                constant: Padding.TimeLabel.left
+            ),
             timeLabel.bottomAnchor.constraint(
                 equalTo: bubbleView.bottomAnchor,
-                constant: Padding.TimeLabel.bottom)
-            ])
+                constant: Padding.TimeLabel.bottom
+            ),
+        ])
 
-        messageView.addGestureRecognizer(tapGesture)
+        let linktapGesture = UITapGestureRecognizer(target: self, action: #selector(viewEmailTappedAction))
+        emailBottomView.emailLinkLabel.addGestureRecognizer(linktapGesture)
     }
 
     override func setupStyle() {
@@ -230,25 +271,22 @@ open class ALKFriendMessageCell: ALKMessageCell {
 
         nameLabel.setStyle(ALKMessageStyle.displayName)
         messageView.setStyle(ALKMessageStyle.receivedMessage)
-        if ALKMessageStyle.receivedBubble.style == .edge {
-            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.image = bubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
-        } else {
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
-        }
+        bubbleView.setStyle(ALKMessageStyle.receivedBubble, isReceiverSide: true)
     }
 
     override func update(viewModel: ALKMessageViewModel) {
-        super.update(viewModel: viewModel, style: ALKMessageStyle.receivedMessage)
+        super.update(
+            viewModel: viewModel,
+            messageStyle: ALKMessageStyle.receivedMessage,
+            mentionStyle: ALKMessageStyle.receivedMention
+        )
 
         if viewModel.isReplyMessage {
             guard
                 let metadata = viewModel.metadata,
                 let replyId = metadata[AL_MESSAGE_REPLY_KEY] as? String,
                 let actualMessage = getMessageFor(key: replyId)
-                else { return }
+            else { return }
             showReplyView(true)
             if actualMessage.messageType == .text || actualMessage.messageType == .html {
                 previewImageView.constraint(withIdentifier: ConstraintIdentifier.replyPreviewImageWidth)?.constant = 0
@@ -262,34 +300,41 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
         if let url = viewModel.avatarURL {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
-            self.avatarImageView.kf.setImage(with: resource, placeholder: placeHolder)
+            avatarImageView.kf.setImage(with: resource, placeholder: placeHolder)
         } else {
-            self.avatarImageView.image = placeHolder
+            avatarImageView.image = placeHolder
         }
 
         nameLabel.text = viewModel.displayName
     }
 
-    override class func rowHeigh(viewModel: ALKMessageViewModel,
-                                 width: CGFloat) -> CGFloat {
+    class func rowHeigh(
+        viewModel: ALKMessageViewModel,
+        width: CGFloat,
+        displayNames: ((Set<String>) -> ([String: String]?))?
+    ) -> CGFloat {
         let minimumHeight = Padding.AvatarImage.top + Padding.AvatarImage.height + 5
-
         /// Calculating available width for messageView
         let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left + bubbleViewLeftPadding
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.receivedBubble.widthPadding
         let messageWidth = width - (leftSpacing + rightSpacing)
 
         /// Calculating messageHeight
-        let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+        let messageHeight = super
+            .messageHeight(
+                viewModel: viewModel,
+                width: messageWidth,
+                font: ALKMessageStyle.receivedMessage.font,
+                mentionStyle: ALKMessageStyle.receivedMention,
+                displayNames: displayNames
+            )
         let heightPadding = Padding.NameLabel.top + Padding.NameLabel.height + Padding.ReplyView.top + Padding.MessageView.top + Padding.MessageView.bottom + Padding.BubbleView.bottom
 
-        let totalHeight = max((messageHeight + heightPadding), minimumHeight)
+        let totalHeight = max(messageHeight + heightPadding, minimumHeight)
 
-        guard
-            let metadata = viewModel.metadata,
-            let _ = metadata[AL_MESSAGE_REPLY_KEY] as? String
-            else {
-                return totalHeight
+        guard let metadata = viewModel.metadata,
+            metadata[AL_MESSAGE_REPLY_KEY] as? String != nil else {
+            return totalHeight
         }
         return totalHeight + Padding.ReplyView.height
     }
@@ -298,18 +343,35 @@ open class ALKFriendMessageCell: ALKMessageCell {
         avatarTapped?()
     }
 
+    @objc private func viewEmailTappedAction() {
+        let text = localizedString(forKey: "EmailWebViewTitle", withDefaultValue: SystemMessage.NavbarTitle.emailWebViewTitle, fileName: localizedStringFileName)
+
+        let emailWebViewController = ALKWebViewController(htmlString: viewModel?.message ?? "", url: nil, title: text)
+        let pushAssist = ALPushAssist()
+        pushAssist.topViewController.navigationController?.pushViewController(emailWebViewController, animated: false)
+    }
+
     // MARK: - ChatMenuCell
+
     override func menuWillShow(_ sender: Any) {
         super.menuWillShow(sender)
-        if(ALKMessageStyle.receivedBubble.style == .edge){
-            self.bubbleView.image = bubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: true)
+        if ALKMessageStyle.receivedBubble.style == .edge {
+            bubbleView.image = bubbleView.imageBubble(
+                for: ALKMessageStyle.receivedBubble.style,
+                isReceiverSide: true,
+                showHangOverImage: true
+            )
         }
     }
 
     override func menuWillHide(_ sender: Any) {
         super.menuWillHide(sender)
-        if(ALKMessageStyle.receivedBubble.style == .edge){
-            self.bubbleView.image =  bubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: false)
+        if ALKMessageStyle.receivedBubble.style == .edge {
+            bubbleView.image = bubbleView.imageBubble(
+                for: ALKMessageStyle.receivedBubble.style,
+                isReceiverSide: true,
+                showHangOverImage: false
+            )
         }
     }
 

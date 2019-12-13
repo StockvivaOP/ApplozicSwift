@@ -1,20 +1,20 @@
 //
 //  ALKPhotoCell.swift
-//  
+//
 //
 //  Created by Mukesh Thawani on 04/05/17.
 //  Copyright © 2017 Applozic. All rights reserved.
 //
 
-import Foundation
-import UIKit
-import Kingfisher
 import Applozic
+import Foundation
+import Kingfisher
+import UIKit
 
 // MARK: - ALKPhotoCell
-class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol {
 
+class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
+    ALKReplyMenuItemProtocol, ALKReportMessageMenuItemProtocol {
     var photoView: UIImageView = {
         let mv = UIImageView()
         mv.backgroundColor = .clear
@@ -70,6 +70,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         label.numberOfLines = 0
         return label
     }()
+
     static var maxWidth = UIScreen.main.bounds.width
 
     // To be changed from the class that is subclassing `ALKPhotoCell`
@@ -99,10 +100,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         case downloaded(filePath: String)
     }
 
-    var uploadTapped:((Bool) ->Void)?
-    var uploadCompleted: ((_ responseDict: Any?) ->Void)?
+    var uploadTapped: ((Bool) -> Void)?
+    var uploadCompleted: ((_ responseDict: Any?) -> Void)?
 
-    var downloadTapped:((Bool) ->Void)?
+    var downloadTapped: ((Bool) -> Void)?
 
     class func topPadding() -> CGFloat {
         return 12
@@ -114,22 +115,22 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     override class func rowHeigh(
         viewModel: ALKMessageViewModel,
-        width: CGFloat) -> CGFloat {
-
+        width: CGFloat
+    ) -> CGFloat {
         var height: CGFloat
 
-        height = ceil(width*heightPercentage)
+        height = ceil(width * heightPercentage)
         if let message = viewModel.message, !message.isEmpty {
             height += message.rectWithConstrainedWidth(
-                width*widthPercentage,
-                font: messageTextFont).height.rounded(.up) + Padding.CaptionLabel.bottom
+                width * widthPercentage,
+                font: messageTextFont
+            ).height.rounded(.up) + Padding.CaptionLabel.bottom
         }
 
-        return topPadding()+height+bottomPadding()
+        return topPadding() + height + bottomPadding()
     }
 
     override func update(viewModel: ALKMessageViewModel) {
-
         self.viewModel = viewModel
         activityIndicator.color = .black
         print("Update ViewModel filePath:: %@", viewModel.filePath ?? "")
@@ -152,9 +153,8 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                 updateView(for: State.download)
             }
         }
-        timeLabel.text   = viewModel.time
+        timeLabel.text = viewModel.time
         captionLabel.text = viewModel.message
-
     }
 
     @objc func actionTapped(button: UIButton) {
@@ -166,10 +166,11 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         guard let messages = dbService.getAllMessagesWithAttachment(
             forContact: viewModel?.contactId,
             andChannelKey: viewModel?.channelKey,
-            onlyDownloadedAttachments: true) as? [ALMessage] else { return }
+            onlyDownloadedAttachments: true
+        ) as? [ALMessage] else { return }
 
         let messageModels = messages.map { $0.messageModel }
-        NSLog("Messages with attachment: ", messages )
+        NSLog("Messages with attachment: ", messages)
 
         guard let viewModel = viewModel as? ALKMessageModel,
             let currentIndex = messageModels.index(of: viewModel) else { return }
@@ -177,7 +178,6 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         UIViewController.topViewController()?.present(nav!, animated: true, completion: {
             button.isEnabled = true
         })
-
     }
 
     override func setupStyle() {
@@ -258,7 +258,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         }
     }
 
-    @objc private func downloadButtonAction(_ selector: UIButton) {
+    @objc private func downloadButtonAction(_: UIButton) {
         downloadTapped?(true)
     }
 
@@ -270,7 +270,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     private func updateView(state: State) {
         switch state {
-        case .upload(let filePath):
+        case let .upload(filePath):
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
@@ -308,7 +308,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             }
             downloadButton.isHidden = true
             frontView.isUserInteractionEnabled = false
-        case .downloaded(let filePath):
+        case let .downloaded(filePath):
             activityIndicator.isHidden = false
             if !activityIndicator.isAnimating {
                 activityIndicator.startAnimating()
@@ -316,7 +316,6 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             if activityIndicator.isAnimating {
                 activityIndicator.stopAnimating()
             }
-            viewModel?.filePath = filePath
             let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let path = docDirPath.appendingPathComponent(filePath)
             setPhotoViewImageFromFileURL(path)
@@ -331,15 +330,15 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         guard let message = viewModel, let metadata = message.fileMetaInfo else {
             return
         }
-        guard (ALApplozicSettings.isS3StorageServiceEnabled() || ALApplozicSettings.isGoogleCloudServiceEnabled()) else {
-            self.photoView.kf.setImage(with: message.thumbnailURL)
+        guard ALApplozicSettings.isS3StorageServiceEnabled() || ALApplozicSettings.isGoogleCloudServiceEnabled() else {
+            photoView.kf.setImage(with: message.thumbnailURL)
             return
         }
         guard let thumbnailPath = metadata.thumbnailFilePath else {
-            ALMessageClientService().downloadImageThumbnailUrl(metadata.thumbnailUrl, blobKey: metadata.thumbnailBlobKey) { (url, error) in
+            ALMessageClientService().downloadImageThumbnailUrl(metadata.thumbnailUrl, blobKey: metadata.thumbnailBlobKey) { url, error in
                 guard error == nil,
                     let url = url
-                    else {
+                else {
                     print("Error downloading thumbnail url")
                     return
                 }
@@ -371,25 +370,13 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         }
     }
 
-    @objc private func uploadButtonAction(_ selector: UIButton) {
+    @objc private func uploadButtonAction(_: UIButton) {
         uploadTapped?(true)
-    }
-
-    fileprivate func updateDbMessageWith(key: String, value: String, filePath: String) {
-        let messageService = ALMessageDBService()
-        let alHandler = ALDBHandler.sharedInstance()
-        let dbMessage: DB_Message = messageService.getMessageByKey(key, value: value) as! DB_Message
-        dbMessage.filePath = filePath
-        do {
-            try alHandler?.managedObjectContext.save()
-        } catch {
-            NSLog("Not saved due to error")
-        }
     }
 
     fileprivate func updateThumbnailPath(_ key: String, filePath: String) {
         let messageKey = ThumbnailIdentifier.removePrefix(from: key)
-        let dbMessage = ALMessageDBService().getMessageByKey("key", value: messageKey) as! DB_Message
+        guard let dbMessage = ALMessageDBService().getMessageByKey("key", value: messageKey) as? DB_Message else { return }
         dbMessage.fileMetaInfo.thumbnailFilePath = filePath
 
         let alHandler = ALDBHandler.sharedInstance()
@@ -406,13 +393,17 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         setPhotoViewImageFromFileURL(path)
     }
 
-    func menuReply(_ sender: Any) {
+    func menuReply(_: Any) {
         menuAction?(.reply)
     }
 
     func setPhotoViewImageFromFileURL(_ fileURL: URL) {
         let provider = LocalFileImageDataProvider(fileURL: fileURL)
         photoView.kf.setImage(with: provider)
+    }
+
+    func menuReport(_: Any) {
+        menuAction?(.reportMessage)
     }
 }
 
@@ -427,7 +418,7 @@ extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
 
     func dataUploadingFinished(task: ALKUploadTask) {
         NSLog("VIDEO CELL DATA UPLOADED FOR PATH: %@", viewModel?.filePath ?? "")
-        if task.uploadError == nil && task.completed == true && task.filePath != nil {
+        if task.uploadError == nil, task.completed == true, task.filePath != nil {
             DispatchQueue.main.async {
                 self.updateView(for: State.uploaded)
             }
@@ -445,7 +436,7 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
         guard
             let identifier = task.identifier,
             !ThumbnailIdentifier.hasPrefix(in: identifier)
-            else {
+        else {
             return
         }
         DispatchQueue.main.async {
@@ -454,17 +445,17 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
     }
 
     func dataDownloadingFinished(task: ALKDownloadTask) {
-        guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
+        guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, viewModel != nil else {
             return
         }
         guard !ThumbnailIdentifier.hasPrefix(in: identifier) else {
             DispatchQueue.main.async {
                 self.setThumbnail(filePath)
             }
-            self.updateThumbnailPath(identifier, filePath: filePath)
+            updateThumbnailPath(identifier, filePath: filePath)
             return
         }
-        self.updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))
         }

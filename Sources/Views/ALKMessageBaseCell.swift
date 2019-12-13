@@ -5,24 +5,22 @@
 //  Created by Shivam Pokhriyal on 12/06/19.
 //
 
-import UIKit
-import Kingfisher
 import Applozic
-
+import Kingfisher
+import UIKit
 
 class ALKImageView: UIImageView {
-
     // To highlight when long pressed
-    override open var canBecomeFirstResponder: Bool {
+    open override var canBecomeFirstResponder: Bool {
         return true
     }
 }
 
-open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol {
-
+// swiftlint:disable:next type_body_length
+open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel> {
     /// Dummy view required to calculate height for normal text.
     fileprivate static var dummyMessageView: ALKTextView = {
-        let textView = ALKTextView.init(frame: .zero)
+        let textView = ALKTextView(frame: .zero)
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
         textView.isEditable = false
@@ -42,7 +40,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     /// once attributed string is used.
     /// See this question https://stackoverflow.com/q/21731207/6671572
     fileprivate static var dummyAttributedMessageView: ALKTextView = {
-        let textView = ALKTextView.init(frame: .zero)
+        let textView = ALKTextView(frame: .zero)
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
         textView.isEditable = false
@@ -60,7 +58,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     fileprivate static var attributedStringCache = NSCache<NSString, NSAttributedString>()
 
     let messageView: ALKTextView = {
-        let textView = ALKTextView.init(frame: .zero)
+        let textView = ALKTextView(frame: .zero)
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
         textView.isEditable = false
@@ -115,11 +113,13 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     }()
 
     let emailTopView = ALKEmailTopView(frame: .zero)
+    let emailBottomView = ALKEmailBottomView(frame: .zero)
 
     lazy var emailTopHeight = emailTopView.heightAnchor.constraint(equalToConstant: 0)
+    lazy var emailBottomViewHeight = emailBottomView.heightAnchor.constraint(equalToConstant: 0)
 
     fileprivate static let paragraphStyle: NSMutableParagraphStyle = {
-        let style = NSMutableParagraphStyle.init()
+        let style = NSMutableParagraphStyle()
         style.lineBreakMode = .byWordWrapping
         style.headIndent = 0
         style.tailIndent = 0
@@ -134,9 +134,14 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         return text
     }()
 
-    var replyViewAction: (()->())? = nil
+    var replyViewAction: (() -> Void)?
+    var displayNames: ((Set<String>) -> ([String: String]?))?
 
-    func update(viewModel: ALKMessageViewModel, style: Style) {
+    func update(
+        viewModel: ALKMessageViewModel,
+        messageStyle: Style,
+        mentionStyle: Style
+    ) {
         self.viewModel = viewModel
 
         if viewModel.isReplyMessage {
@@ -144,11 +149,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
                 let metadata = viewModel.metadata,
                 let replyId = metadata[AL_MESSAGE_REPLY_KEY] as? String,
                 let actualMessage = getMessageFor(key: replyId)
-                else { return }
+            else { return }
             replyNameLabel.text = actualMessage.isMyMessage ?
                 selfNameText : actualMessage.displayName
-            replyMessageLabel.text =
-                getMessageTextFrom(viewModel: actualMessage)
+            setReplyMessageText(viewModel: actualMessage, mentionStyle: mentionStyle)
+
             if let imageURL = getURLForPreviewImage(message: actualMessage) {
                 setImageFrom(url: imageURL, to: previewImageView)
             } else {
@@ -158,23 +163,29 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyNameLabel.text = ""
             replyMessageLabel.text = ""
             previewImageView.image = nil
+            replyMessageLabel.attributedText = nil
         }
 
-        self.timeLabel.text   = viewModel.time
-        resetTextView(style)
+        timeLabel.text = viewModel.time
+        resetTextView(messageStyle)
         guard let message = viewModel.message else { return }
 
         switch viewModel.messageType {
         case .text:
             emailTopHeight.constant = 0
-            messageView.text = message
+            emailBottomViewHeight.constant = 0
+            setMessageText(viewModel: viewModel, mentionStyle: mentionStyle)
             return
         case .html:
             emailTopHeight.constant = 0
+            emailBottomViewHeight.constant = 0
             emailTopView.show(false)
+            emailBottomView.show(false)
         case .email:
             emailTopHeight.constant = ALKEmailTopView.height
+            emailBottomViewHeight.constant = ALKEmailBottomView.Padding.View.height
             emailTopView.show(true)
+            emailBottomView.show(true)
         default:
             print("😱😱😱Shouldn't come here.😱😱😱")
             return
@@ -194,6 +205,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             [messageView,
              bubbleView,
              emailTopView,
+             emailBottomView,
              replyView,
              replyNameLabel,
              replyMessageLabel,
@@ -201,6 +213,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
              timeLabel])
         contentView.bringSubviewToFront(messageView)
         contentView.bringSubviewToFront(emailTopView)
+        contentView.bringSubviewToFront(emailBottomView)
 
         bubbleView.addGestureRecognizer(longPressGesture)
         let replyTapGesture = UITapGestureRecognizer(target: self, action: #selector(replyViewTapped))
@@ -214,7 +227,9 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     class func messageHeight(viewModel: ALKMessageViewModel,
                              width: CGFloat,
-                             font: UIFont) -> CGFloat {
+                             font: UIFont,
+                             mentionStyle: Style,
+                             displayNames: ((Set<String>) -> ([String: String]?))?) -> CGFloat {
         dummyMessageView.font = font
 
         /// Check if message is nil
@@ -224,6 +239,14 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
         switch viewModel.messageType {
         case .text:
+            if let attributedText = viewModel
+                .attributedTextWithMentions(
+                    defaultAttributes: dummyMessageView.typingAttributes,
+                    mentionAttributes: mentionStyle.toAttributes,
+                    displayNames: displayNames
+                ) {
+                return TextViewSizeCalculator.height(dummyMessageView, attributedText: attributedText, maxWidth: width)
+            }
             return TextViewSizeCalculator.height(dummyMessageView, text: message, maxWidth: width)
         case .html:
             guard let attributedText = attributedStringFrom(message, for: viewModel.identifier) else {
@@ -233,31 +256,25 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             let height = TextViewSizeCalculator.height(
                 dummyAttributedMessageView,
                 attributedText: attributedText,
-                maxWidth: width)
+                maxWidth: width
+            )
             return height
         case .email:
-                guard let attributedText = attributedStringFrom(message, for: viewModel.identifier) else {
-                    return ALKEmailTopView.height
-                }
-                dummyAttributedMessageView.font = font
-                let height = ALKEmailTopView.height +
-                    TextViewSizeCalculator.height(
-                        dummyAttributedMessageView,
-                        attributedText: attributedText,
-                        maxWidth: width)
-                return height
+            guard let attributedText = attributedStringFrom(message, for: viewModel.identifier) else {
+                return ALKEmailTopView.height
+            }
+            dummyAttributedMessageView.font = font
+            let height = ALKEmailTopView.height + ALKEmailBottomView.Padding.View.height +
+                TextViewSizeCalculator.height(
+                    dummyAttributedMessageView,
+                    attributedText: attributedText,
+                    maxWidth: width
+                )
+            return height
         default:
             print("😱😱😱Shouldn't come here.😱😱😱")
             return 0
         }
-    }
-
-    func menuCopy(_ sender: Any) {
-        UIPasteboard.general.string = self.viewModel?.message ?? ""
-    }
-
-    func menuReply(_ sender: Any) {
-        menuAction?(.reply)
     }
 
     func getMessageFor(key: String) -> ALKMessageViewModel? {
@@ -267,24 +284,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     @objc func replyViewTapped() {
         replyViewAction?()
-    }
-
-    func bubbleViewImage(for style: ALKMessageStyle.BubbleStyle, isReceiverSide: Bool = false,showHangOverImage:Bool) -> UIImage? {
-
-        var imageTitle = showHangOverImage ? "chat_bubble_red_hover":"chat_bubble_red"
-        // We can rotate the above image but loading the required
-        // image would be faster and we already have both the images.
-        if isReceiverSide {imageTitle = showHangOverImage ? "chat_bubble_grey_hover":"chat_bubble_grey"}
-
-        guard let bubbleImage = UIImage.init(named: imageTitle, in: Bundle.applozic, compatibleWith: nil)
-            else {return nil}
-
-        // This API is from the Kingfisher so instead of directly using
-        // imageFlippedForRightToLeftLayoutDirection() we are using this as it handles
-        // platform availability and future updates for us.
-        let modifier = FlipsForRightToLeftLayoutDirectionImageModifier()
-        return modifier.modify(bubbleImage)
-
     }
 
     // MARK: - Private helper methods
@@ -302,9 +301,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
                 data: htmlText,
                 options: [
                     .documentType: NSAttributedString.DocumentType.html,
-                    .characterEncoding: String.Encoding.utf8.rawValue],
-                documentAttributes: nil)
-            self.attributedStringCache.setObject(attributedString, forKey: id as NSString)
+                    .characterEncoding: String.Encoding.utf8.rawValue,
+                ],
+                documentAttributes: nil
+            )
+            attributedStringCache.setObject(attributedString, forKey: id as NSString)
             return attributedString
         } catch {
             print("😢😢😢 Error \(error) while creating attributed string")
@@ -326,9 +327,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             for ges in gestures {
                 if ges.isKind(of: UILongPressGestureRecognizer.self) {
                     ges.isEnabled = false
-
-                }
-                else if ges.isKind(of: UITapGestureRecognizer.self) {
+                } else if ges.isKind(of: UITapGestureRecognizer.self) {
                     (ges as? UITapGestureRecognizer)?.numberOfTapsRequired = 1
                 }
             }
@@ -353,7 +352,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     }
 
     private func getImageURL(for message: ALKMessageViewModel) -> URL? {
-        guard message.messageType == .photo else {return nil}
+        guard message.messageType == .photo else { return nil }
         if let filePath = message.filePath {
             let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let path = docDirPath.appendingPathComponent(filePath)
@@ -364,18 +363,17 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         return nil
     }
 
-    private func getMapImageURL(for message: ALKMessageViewModel) -> URL?  {
-        guard message.messageType == .location else {return nil}
+    private func getMapImageURL(for message: ALKMessageViewModel) -> URL? {
+        guard message.messageType == .location else { return nil }
         guard let lat = message.geocode?.location.latitude,
             let lon = message.geocode?.location.longitude
-            else { return nil }
+        else { return nil }
 
         let latLonArgument = String(format: "%f,%f", lat, lon)
         guard let apiKey = ALUserDefaultsHandler.getGoogleMapAPIKey()
-            else { return nil }
+        else { return nil }
         let urlString = "https://maps.googleapis.com/maps/api/staticmap?center=\(latLonArgument)&zoom=17&size=375x295&maptype=roadmap&format=png&visual_refresh=true&markers=\(latLonArgument)&key=\(apiKey)"
         return URL(string: urlString)
-
     }
 
     private func placeholderForPreviewImage(message: ALKMessageViewModel) -> UIImage? {
@@ -384,7 +382,8 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             if let filepath = message.filePath {
                 let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                 let path = docDirPath.appendingPathComponent(filepath)
-                return getThumbnail(filePath: path)
+                let fileUtills = ALKFileUtils()
+                return fileUtills.getThumbnail(filePath: path)
             }
             return UIImage(named: "VIDEO", in: Bundle.applozic, compatibleWith: nil)
         case .location:
@@ -394,21 +393,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         }
     }
 
-    private func getThumbnail(filePath: URL) -> UIImage? {
-        do {
-            let asset = AVURLAsset(url: filePath , options: nil)
-            let imgGenerator = AVAssetImageGenerator(asset: asset)
-            imgGenerator.appliesPreferredTrackTransform = true
-            let cgImage = try imgGenerator.copyCGImage(at: CMTimeMake(value: 0, timescale: 1), actualTime: nil)
-            return UIImage(cgImage: cgImage)
-
-        } catch let error {
-            print("*** Error generating thumbnail: \(error.localizedDescription)")
-            return nil
-        }
-    }
-
-
     /// This hack is required cuz textView won't clear its attributes.
     /// See this: https://stackoverflow.com/q/21731207/6671572
     private func resetTextView(_ style: Style) {
@@ -416,5 +400,39 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         messageView.text = nil
         messageView.typingAttributes = [:]
         messageView.setStyle(style)
+    }
+
+    private func setReplyMessageText(
+        viewModel: ALKMessageViewModel,
+        mentionStyle: Style
+    ) {
+        if viewModel.messageType == .text,
+            let attributedText = viewModel
+            .attributedTextWithMentions(
+                defaultAttributes: [:],
+                mentionAttributes: mentionStyle.toAttributes,
+                displayNames: displayNames
+            ) {
+            replyMessageLabel.attributedText = attributedText
+        } else {
+            replyMessageLabel.text =
+                getMessageTextFrom(viewModel: viewModel)
+        }
+    }
+
+    private func setMessageText(
+        viewModel: ALKMessageViewModel,
+        mentionStyle: Style
+    ) {
+        if let attributedText = viewModel
+            .attributedTextWithMentions(
+                defaultAttributes: messageView.typingAttributes,
+                mentionAttributes: mentionStyle.toAttributes,
+                displayNames: displayNames
+            ) {
+            messageView.attributedText = attributedText
+        } else {
+            messageView.text = viewModel.message
+        }
     }
 }

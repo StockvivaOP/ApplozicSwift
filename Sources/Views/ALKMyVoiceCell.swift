@@ -8,13 +8,11 @@
 
 import Foundation
 
-import UIKit
-import Foundation
-import Kingfisher
 import AVFoundation
+import Kingfisher
+import UIKit
 
 class ALKMyVoiceCell: ALKVoiceCell {
-
     fileprivate var stateView: UIImageView = {
         let sv = UIImageView()
         sv.isUserInteractionEnabled = false
@@ -32,7 +30,7 @@ class ALKMyVoiceCell: ALKVoiceCell {
         soundPlayerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6).isActive = true
         soundPlayerView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.leadingAnchor, constant: 48).isActive = true
         soundPlayerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14).isActive = true
-        soundPlayerView.widthAnchor.constraint(equalToConstant: width*0.48).isActive = true
+        soundPlayerView.widthAnchor.constraint(equalToConstant: width * 0.48).isActive = true
         soundPlayerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6).isActive = true
 
         bubbleView.backgroundColor = UIColor.hex8(Color.Background.grayF2.rawValue).withAlphaComponent(0.26)
@@ -70,16 +68,12 @@ class ALKMyVoiceCell: ALKVoiceCell {
 
     override func setupStyle() {
         super.setupStyle()
-        if(ALKMessageStyle.sentBubble.style == .edge) {
+        if ALKMessageStyle.sentBubble.style == .edge {
             bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
             bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
         } else {
-            soundPlayerView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.tintColor = ALKMessageStyle.sentBubble.color
-            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
-            soundPlayerView.backgroundColor = ALKMessageStyle.sentBubble.color
+            bubbleView.setBubbleStyle(ALKMessageStyle.sentBubble)
+            soundPlayerView.setBubbleStyle(ALKMessageStyle.sentBubble)
         }
     }
-
 }

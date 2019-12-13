@@ -7,17 +7,13 @@
 
 import Foundation
 
- class  ALKEmptyView : UIView {
+class ALKEmptyView: UITableViewHeaderFooterView {
+    static let reuseIdentifier = "EmptyChatCell"
 
-    @IBOutlet weak var startNewConversationButtonIcon: UIButton!
-    @IBOutlet weak var conversationLabel: UILabel!
-
-    // MARK: - Lifecycle
-    class func instanceFromNib() -> ALKEmptyView {
-        guard let view = UINib(nibName: "EmptyChatCell", bundle: Bundle.applozic).instantiate(withOwner: nil, options: nil).first as? ALKEmptyView else {
-            fatalError("\("EmptyChatCell") don't existing")
-        }
-        return view
+    static var nib: UINib {
+        return UINib(nibName: "EmptyChatCell", bundle: Bundle.applozic)
     }
 
+    @IBOutlet var startNewConversationButtonIcon: UIButton!
+    @IBOutlet var conversationLabel: UILabel!
 }

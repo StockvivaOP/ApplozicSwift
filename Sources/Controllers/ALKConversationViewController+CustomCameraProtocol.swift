@@ -5,17 +5,16 @@
 //  Created by Mukesh Thawani on 03/07/18.
 //
 
-import Foundation
 import Applozic
+import Foundation
 
 extension ALKConversationViewController: ALKCustomCameraProtocol {
-
     func customCameraDidTakePicture(cropedImage: UIImage) {
         print("Image call done")
         isJustSent = true
 
-        let (message, indexPath) =  viewModel.send(photo: cropedImage,metadata : configuration.messageMetadata)
-        guard let _ = message, let newIndexPath = indexPath else { return }
+        let (message, indexPath) = viewModel.send(photo: cropedImage, metadata: configuration.messageMetadata)
+        guard message != nil, let newIndexPath = indexPath else { return }
         tableView.beginUpdates()
         tableView.insertSections(IndexSet(integer: newIndexPath.section), with: .automatic)
         tableView.endUpdates()

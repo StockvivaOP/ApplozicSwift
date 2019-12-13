@@ -14,7 +14,6 @@ import UIKit
 /// Pass custom `SuggestedReplyConfig` to modify font and color of view.
 /// - NOTE: It uses an array of dictionary where each dictionary should have `title` key which will be used as button text.
 public class SuggestedReplyView: UIView {
-
     // MARK: Public properties
 
     /// Configuration for SuggestedReplyView.
@@ -22,7 +21,7 @@ public class SuggestedReplyView: UIView {
     public struct SuggestedReplyConfig {
         public var font = UIFont.systemFont(ofSize: 14)
         public var color = UIColor(red: 85, green: 83, blue: 183)
-        public init() { }
+        public init() {}
     }
 
     // MARK: Internal properties
@@ -30,10 +29,9 @@ public class SuggestedReplyView: UIView {
     // This is used to align the view to left or right. Gets value from message.isMyMessage
     var alignLeft: Bool = true
 
-    let maxWidth: CGFloat
     let font: UIFont
     let color: UIColor
-    let delegate: Tappable?
+    weak var delegate: Tappable?
 
     var model: SuggestedReplyMessage?
 
@@ -52,20 +50,15 @@ public class SuggestedReplyView: UIView {
     ///
     /// - Parameters:
     ///   - maxWidth: Max Width to constrain view.
-    ///   - delegate: It is used to inform the delegate when suggested reply is selected.
     /// Gives information about the title and index of quick reply selected. Indexing starts from 1.
-    public init(maxWidth: CGFloat = UIScreen.main.bounds.width,
-                config: SuggestedReplyConfig = SuggestedReplyConfig(),
-                delegate: Tappable) {
-        self.maxWidth = maxWidth
-        self.font = config.font
-        self.color = config.color
-        self.delegate = delegate
+    public init(config: SuggestedReplyConfig = SuggestedReplyConfig()) {
+        font = config.font
+        color = config.color
         super.init(frame: .zero)
         setupConstraints()
     }
 
-    required init?(coder aDecoder: NSCoder) {
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -74,17 +67,17 @@ public class SuggestedReplyView: UIView {
     /// Creates Suggested reply buttons using dictionary.
     ///
     /// - Parameter - model: Object that conforms to `SuggestedReplyMessage`.
-    public func update(model: SuggestedReplyMessage) {
+    public func update(model: SuggestedReplyMessage, maxWidth: CGFloat) {
         self.model = model
         /// Set frame size.
         let width = maxWidth
         let height = SuggestedReplyView.rowHeight(model: model, maxWidth: width, font: font)
         let size = CGSize(width: width, height: height)
-        self.frame.size = size
+        frame.size = size
 
         alignLeft = !model.message.isMyMessage
 
-        setupSuggestedReplyButtons(model)
+        setupSuggestedReplyButtons(model, maxWidth: maxWidth)
     }
 
     /// It calculates height of `SuggestedReplyView` based on the dictionary passed.
@@ -96,36 +89,43 @@ public class SuggestedReplyView: UIView {
     ///   - font: Font for suggested replies. Pass the custom SuggestedReplyConfig font used while initialization.
     /// - Returns: Returns height of view based on passed parameters.
     public static func rowHeight(model: SuggestedReplyMessage,
-                                maxWidth: CGFloat = UIScreen.main.bounds.width,
-                                font: UIFont = SuggestedReplyConfig().font) -> CGFloat {
+                                 maxWidth: CGFloat,
+                                 font: UIFont = SuggestedReplyConfig().font) -> CGFloat {
         return SuggestedReplyViewSizeCalculator().rowHeight(model: model, maxWidth: maxWidth, font: font)
     }
 
     // MARK: Private methods
 
     private func setupConstraints() {
-        self.addViewsForAutolayout(views: [mainStackView])
+        addViewsForAutolayout(views: [mainStackView])
         NSLayoutConstraint.activate([
-            mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-            ])
+            mainStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            mainStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            mainStackView.topAnchor.constraint(equalTo: topAnchor),
+            mainStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
     }
 
-    private func setupSuggestedReplyButtons(_ model: SuggestedReplyMessage) {
+    private func setupSuggestedReplyButtons(_ suggestedMessage: SuggestedReplyMessage, maxWidth: CGFloat) {
         mainStackView.arrangedSubviews.forEach {
             $0.removeFromSuperview()
         }
         var width: CGFloat = 0
         var subviews = [UIView]()
-        for index in 0 ..< model.title.count {
-            let title = model.title[index]
-            let button = curvedButton(title: title, index: index)
+        for index in 0 ..< suggestedMessage.suggestion.count {
+            let title = suggestedMessage.suggestion[index].title
+            let type = suggestedMessage.suggestion[index].type
+            var button: CurvedImageButton!
+            if type == .link {
+                let image = UIImage(named: "link", in: Bundle.richMessageKit, compatibleWith: nil)
+                button = curvedButton(title: title, image: image, index: index, maxWidth: maxWidth)
+            } else {
+                button = curvedButton(title: title, image: nil, index: index, maxWidth: maxWidth)
+            }
             width += button.buttonWidth()
 
             if width >= maxWidth {
-                guard subviews.count > 0 else {
+                guard !subviews.isEmpty else {
                     let stackView = horizontalStackView(subviews: [button])
                     mainStackView.addArrangedSubview(stackView)
                     width = 0
@@ -158,9 +158,9 @@ public class SuggestedReplyView: UIView {
         return stackView
     }
 
-    private func hiddenViewUsing(currWidth: CGFloat, maxWidth: CGFloat, subViews: [UIView]) -> UIView {
+    private func hiddenViewUsing(currWidth: CGFloat, maxWidth: CGFloat, subViews _: [UIView]) -> UIView {
         let unusedWidth = maxWidth - currWidth - 20
-        let height = (subviews[0] as? CurvedButton)?.buttonHeight() ?? 0
+        let height = (subviews[0] as? CurvedImageButton)?.buttonHeight() ?? 0
         let size = CGSize(width: unusedWidth, height: height)
 
         let view = UIView()
@@ -169,8 +169,9 @@ public class SuggestedReplyView: UIView {
         return view
     }
 
-    private func curvedButton(title: String, index: Int) -> CurvedButton {
-        let button = CurvedButton(title: title, delegate: self, font: font, color: color, maxWidth: maxWidth)
+    private func curvedButton(title: String, image: UIImage?, index: Int, maxWidth: CGFloat) -> CurvedImageButton {
+        let button = CurvedImageButton(title: title, image: image, maxWidth: maxWidth)
+        button.delegate = self
         button.index = index
         return button
     }
@@ -178,8 +179,8 @@ public class SuggestedReplyView: UIView {
 
 extension SuggestedReplyView: Tappable {
     public func didTap(index: Int?, title: String) {
-        guard let model = model, let index = index else { return }
-        let replyToBeSend = model.reply[index] ?? title
+        guard let index = index, let suggestion = model?.suggestion[index] else { return }
+        let replyToBeSend = suggestion.reply ?? title
         delegate?.didTap(index: index, title: replyToBeSend)
     }
 }
