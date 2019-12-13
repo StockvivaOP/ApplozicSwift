@@ -167,6 +167,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
     override open func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        alMqttConversationService.mqttConversationDelegate = self
         activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
         activityIndicator.color = UIColor.gray
         view.addSubview(activityIndicator)
