@@ -496,7 +496,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     /// Received from notification and from network
     open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false) {
         guard let messages = messageList as? [ALMessage] else { return }
-        
+        let _loginUserId = ALUserDefaultsHandler.getUserId()
         let contactService = ALContactService()
         let messageDbService = ALMessageDBService()
         
@@ -505,8 +505,17 @@ open class ALKConversationViewModel: NSObject, Localizable {
         var contactsNotPresent = [String]()
         for index in 0..<messages.count {
             let message = messages[index]
+            //find if not exist
+            let _foundMessageIndex = self.messageModels.contains(where: { (curMessage) -> Bool in
+                if let _curKey = curMessage.rawModel?.key ,
+                    _curKey == message.key {
+                    return true
+                }
+                return false
+            })
+            if _foundMessageIndex { return }
             //if this added message is logined account
-            if let _selfID = self.contactId, message.contactIds == _selfID && message.type != myMessage {
+            if let _selfID = _loginUserId, message.contactIds == _selfID && message.type != myMessage {
                 message.type = myMessage
             }
             let _isDeletedMsg = message.getDeletedMessageInfo().isDeleteMessage
@@ -517,7 +526,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             
             if _isDeletedMsg {
                 message.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
-                    ?? message.message
+                    ?? "Message deleted"
             }
             
             //mark message to true if not my message
@@ -1505,7 +1514,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 
                 if _isDeletedMsg {
                     message.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
-                        ?? message.message
+                        ?? "Message deleted"
                 }
                 
                 message.status = NSNumber(integerLiteral: Int(SENT.rawValue))
@@ -2149,11 +2158,37 @@ extension ALKConversationViewModel {
         }
         
         if let _tempIndex = _foundMessageIndex {
-            self.alMessages[_tempIndex] = updatedMessage
-            self.messageModels[_tempIndex] = updatedMessage.messageModel
-            HeightCache.shared.removeHeight(for: updatedMessage.key)
-            delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: _tempIndex), needReloadTable: false)
+            self.updateMessageContent(index: _tempIndex, updatedMessage: updatedMessage)
         }
+    }
+    
+    private func updateMessageContent(index:Int, updatedMessage: ALMessage){
+        guard index >= 0 && index < self.alMessages.count && self.alMessages[index].key == updatedMessage.key else {
+            return
+        }
+        
+        let _loginUserId = ALUserDefaultsHandler.getUserId()
+        //if this added message is logined account
+        if let _selfID = _loginUserId, updatedMessage.contactIds == _selfID && updatedMessage.type != myMessage {
+            updatedMessage.type = myMessage
+        }
+        let _isDeletedMsg = updatedMessage.getDeletedMessageInfo().isDeleteMessage
+        let _isViolateMsg = updatedMessage.isMyMessage == false && updatedMessage.isViolateMessage()
+        if updatedMessage.getActionType().isSkipMessage() || updatedMessage.isHiddenMessage() || _isViolateMsg {
+            return
+        }
+        
+        if _isDeletedMsg {
+            updatedMessage.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
+                ?? "Message deleted"
+        }
+        
+        let alMsgObj = updatedMessage.messageModel
+        self.alMessages[index] = updatedMessage
+        self.messageModels[index] = alMsgObj
+        self.alMessageWrapper.messageArray[index] = alMsgObj
+        HeightCache.shared.removeHeight(for: updatedMessage.key)
+        delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
     }
 }
 
@@ -2173,13 +2208,7 @@ extension ALKConversationViewModel {
                     _objIndexPath.section >= 0 && _objIndexPath.section < self.messageModels.count &&
                         _objIndexPath.section >= 0 && _objIndexPath.section < self.alMessageWrapper.messageArray.count {
                     _rawHolder.setDeletedMessage(true)
-                    _rawHolder.message = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_message_deleted")
-                        ?? "Message deleted"
-                    let alMsgObj = _rawHolder.messageModel
-                    self.messageModels[_objIndexPath.section] = alMsgObj
-                    self.alMessageWrapper.messageArray[_objIndexPath.section] = _rawHolder
-                    HeightCache.shared.removeHeight(for: viewModel.identifier)
-                    self.delegate?.updateMessageAt(indexPath: _objIndexPath, needReloadTable: false)
+                    self.updateMessageContent(index: _objIndexPath.section, updatedMessage: _rawHolder)
                 }
             }
             
