@@ -2553,10 +2553,6 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
         self.delegateConversationChatContentAction?.showAlert(type:type)
     }
-    
-    public func getSelfUserHashId() -> String? {
-        return self.delegateConversationChatContentAction?.getLoginUserHashId()
-    }
 }
 
 //MARK: - stockviva unread message

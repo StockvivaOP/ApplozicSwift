@@ -186,13 +186,7 @@ open class ALKReplyMessageView: UIView, Localizable {
         indicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
         
         //set color
-        var _contactID:String? = nil
-        if message.isMyMessage {
-            _contactID = self.delegateCellRequestInfo?.getSelfUserHashId()
-        }else{
-            _contactID = message.contactId
-        }
-        
+        let _contactID:String? = message.getMessageSenderHashId()
         if let _messageUserId = _contactID,
             let _userColor = self.configuration.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _userColor

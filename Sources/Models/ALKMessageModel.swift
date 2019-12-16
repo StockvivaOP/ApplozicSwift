@@ -155,6 +155,22 @@ extension ALKMessageViewModel {
 
 //MARK: tag stockviva
 extension ALKMessageViewModel {
+    func getMessageSenderHashId() -> String? {
+        var _userHashId = self.contactId
+        if self.isMyMessage {
+            _userHashId = ALUserDefaultsHandler.getUserId()
+        }
+        return _userHashId
+    }
+    
+    func getMessageReceiverHashId() -> String? {
+        var _userHashId = self.receiverId
+        if self.isMyMessage {
+            _userHashId = ALUserDefaultsHandler.getUserId()
+        }
+        return _userHashId
+    }
+    
     func getActionType() -> ALKMessageActionType {
         return self.rawModel?.getActionType() ?? ALKMessageActionType.normalMessage
     }
