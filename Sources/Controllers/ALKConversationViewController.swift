@@ -2431,7 +2431,7 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     }
     
     func closeButtonClicked(pinMsgUuid:String?, viewModel: ALKMessageViewModel) {
-        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked(pinMsgUuid:pinMsgUuid)
+        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked(pinMsgUuid:pinMsgUuid, viewModel:viewModel)
     }
 }
 
