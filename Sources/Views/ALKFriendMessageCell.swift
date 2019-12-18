@@ -231,7 +231,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
             
             replyViewInnerImgTopConst!,
             previewImageView.trailingAnchor.constraint(
-                lessThanOrEqualTo: replyView.trailingAnchor,
+                equalTo: replyView.trailingAnchor,
                 constant: -Padding.PreviewImageView.right),
             replyViewInnerImgBottomConst!,
             previewImageView.heightAnchor.constraintEqualToAnchor(
@@ -246,7 +246,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 constant: Padding.ReplyNameLabel.left),
             replyViewInnerTopConst!,
             replyNameLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: previewImageView.leadingAnchor,
+                equalTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyNameLabel.right),
             replyNameLabel.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
@@ -266,7 +266,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 equalTo: replyNameLabel.bottomAnchor,
                 constant: Padding.ReplyMessageLabel.top),
             replyMessageLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: previewImageView.leadingAnchor,
+                equalTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyMessageLabel.right),
             replyMessageLabel.heightAnchor.constraintLessThanOrEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.replyMessageHeight),
             replyMsgViewBottomConst!,
