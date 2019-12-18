@@ -11,6 +11,7 @@ import AVFoundation
 import Applozic
 
 protocol ALKMediaViewerViewModelDelegate: class {
+    func isHiddenLoadingView(_ isHidden:Bool)
     func reloadView()
 }
 
@@ -156,6 +157,43 @@ final class ALKMediaViewerViewModel: NSObject, Localizable {
             }else{
                 completed(nil)
             }
+        }
+    }
+}
+
+extension ALKMediaViewerViewModel : ALKHTTPManagerDownloadDelegate{
+    
+    func downloadImage(message: ALKMessageViewModel){
+        self.delegate?.isHiddenLoadingView(false)
+        ALMessageClientService().downloadImageUrl(message.fileMetaInfo?.blobKey) { (fileUrl, error) in
+            guard error == nil, let fileUrl = fileUrl else {
+                print("Error downloading attachment :: \(String(describing: error))")
+                return
+            }
+            let httpManager = ALKHTTPManager()
+            httpManager.downloadDelegate = self
+            let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: message.fileMetaInfo?.name)
+            task.identifier = message.identifier
+            task.totalBytesExpectedToDownload = message.size
+            httpManager.downloadAttachment(task: task)
+        }
+    }
+    
+    func dataDownloaded(task: ALKDownloadTask) {
+        //none
+    }
+    
+    func dataDownloadingFinished(task: ALKDownloadTask) {
+        self.delegate?.isHiddenLoadingView(true)
+        guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier else {
+            return
+        }
+        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        if self.currentIndex >= 0  && self.currentIndex < self.messages.count {
+            self.messages[self.currentIndex].filePath = filePath
+        }
+        DispatchQueue.main.async {
+            self.delegate?.reloadView()
         }
     }
 }
