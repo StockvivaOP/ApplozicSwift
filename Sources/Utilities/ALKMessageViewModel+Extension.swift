@@ -102,6 +102,31 @@ extension ALKMessageViewModel {
         }
         return (path, data)
     }
+    
+    func downloadPathURL() -> String? {
+        let url = FileManager.default.urls(for: .documentDirectory,
+                                           in: .userDomainMask)[0]
+        /// Check if message is present in db.
+        if let filePath = self.filePath {
+            return filePath
+        }
+        guard
+            let name = fileMetaInfo?.name,
+            let fileExtension = name.components(separatedBy: ".").last
+            else {
+                return nil
+        }
+        var path:String? = String(format: "%@_local.%@", identifier, fileExtension)
+        if let _tPath = path,
+            FileManager.default.fileExists(atPath: url.appendingPathComponent(_tPath).path) == false {
+            path = nil
+            if let _fileDisplayName = self.fileMetaInfo?.name,
+                FileManager.default.fileExists(atPath: url.appendingPathComponent(_fileDisplayName).path) {
+                path = _fileDisplayName
+            }
+        }
+        return path
+    }
 
     func attachmentState() -> AttachmentState? {
         guard let file = downloadPath() else {

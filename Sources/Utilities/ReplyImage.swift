@@ -68,7 +68,7 @@ public struct ReplyMessageImage {
         var url: URL? = nil
         switch message.messageType {
         case .photo:
-            if let filePath = message.filePath {
+            if let filePath = message.downloadPathURL() {
                 let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                 url = docDirPath.appendingPathComponent(filePath)
                 completed(url, imagePlaceholder)
