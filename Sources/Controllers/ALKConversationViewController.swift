@@ -2554,6 +2554,12 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
         self.delegateConversationChatContentAction?.showAlert(type:type)
     }
+    
+    public func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) {
+        if let _rawModel = messageModel?.rawModel {
+            self.viewModel.updateMessageContent(updatedMessage: _rawModel, isUpdateView: isUpdateView)
+        }
+    }
 }
 
 //MARK: - stockviva unread message

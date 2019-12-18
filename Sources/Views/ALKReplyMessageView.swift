@@ -152,12 +152,15 @@ open class ALKReplyMessageView: UIView, Localizable {
             selfNameText:message.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         messageLabel.text = getMessageText()
-
-        let (url, image) = ReplyMessageImage().previewFor(message: message)
-        if let url = url {
-            setImageFrom(url: url, to: previewImageView)
-        } else {
-            previewImageView.image = image
+        
+        ReplyMessageImage().loadPreviewFor(message: message) { (url, image) in
+            self.message?.saveImageThumbnailURLInMetaData(url: url?.absoluteString)
+            self.delegateCellRequestInfo?.updateMessageModelData(messageModel: self.message, isUpdateView: false)
+            if let url = url {
+                self.setImageFrom(url: url, to: self.previewImageView)
+            } else {
+                self.previewImageView.image = image
+            }
         }
         //update reply icon
         if message.messageType == ALKMessageType.voice  {

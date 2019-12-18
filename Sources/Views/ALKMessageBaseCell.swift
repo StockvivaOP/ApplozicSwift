@@ -209,11 +209,16 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             }else{
                 replyMessageTypeImageView.image = nil
             }
-            let (url, image) = ReplyMessageImage().previewFor(message: replyMessage)
-            if let url = url {
-                setImageFrom(url: url, to: previewImageView)
-            } else {
-                previewImageView.image = image
+            
+            ReplyMessageImage().loadPreviewFor(message: replyMessage) { (url, image) in
+                var _tempModel = replyMessage
+                _tempModel.saveImageThumbnailURLInMetaData(url: url?.absoluteString)
+                self.delegateCellRequestInfo?.updateMessageModelData(messageModel: _tempModel, isUpdateView: false)
+                if let url = url {
+                    self.setImageFrom(url: url, to: self.previewImageView)
+                } else {
+                    self.previewImageView.image = image
+                }
             }
         } else {
             replyNameLabel.text = ""

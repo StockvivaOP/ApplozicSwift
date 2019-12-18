@@ -560,4 +560,19 @@ extension ALMessage {
         }
         self.metadata.setValue((isForAll ? "true" : "false"), forKey: SVALKMessageMetaDataFieldName.alDeleteGroupMessageForAll.rawValue)
     }
+    
+    //save download thumbnail URL
+    func saveImageThumbnailURLInMetaData(url:String?){
+        if let _strURL = url {
+            if self.metadata == nil {
+                self.metadata = NSMutableDictionary.init()
+            }
+            self.metadata.setValue(_strURL, forKey: SVALKMessageMetaDataFieldName.imageThumbnailURL.rawValue)
+        }
+    }
+    
+    func getImageThumbnailURL() -> String? {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.imageThumbnailURL) as? String
+        return _result
+    }
 }

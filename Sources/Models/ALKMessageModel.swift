@@ -53,6 +53,7 @@ public enum SVALKMessageMetaDataFieldName : String {
     case userHashId = "userHashId"
     case alDeleteGroupMessageForAll = "AL_DELETE_GROUP_MESSAGE_FOR_ALL"
     //will not send to server
+    case imageThumbnailURL = "SV_IMAGE_THUMBNAIL_URL"
     case sendMessageErrorFind = "SV_SEND_MSG_ERROR_FIND"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
 }
@@ -84,7 +85,7 @@ public protocol ALKMessageViewModel {
     var isAllRead: Bool { get }
     var ratio: CGFloat { get }
     var size: Int64 { get }
-    var thumbnailURL: URL? { get }
+    var thumbnailURL: URL? { get set }
     var imageURL: URL? { get }
     var filePath: String? { get set }
     var geocode: Geocode? { get }
@@ -377,5 +378,17 @@ extension ALKMessageViewModel {
             _rawModel.setDeletedMessage(isForAll)
             self.metadata = _rawModel.metadata as? Dictionary<String, Any>
         }
+    }
+    
+    //save download thumbnail URL
+    mutating func saveImageThumbnailURLInMetaData(url:String?){
+        if let _rawModel = self.rawModel {
+            _rawModel.saveImageThumbnailURLInMetaData(url:url)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    func getImageThumbnailURL() -> String? {
+        return self.rawModel?.getImageThumbnailURL()
     }
 }

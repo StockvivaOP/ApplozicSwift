@@ -2148,7 +2148,7 @@ extension ALKConversationViewModel {
 
 //MARK: - stockviva update message content
 extension ALKConversationViewModel {
-    open func updateMessageContent(updatedMessage: ALMessage) {
+    open func updateMessageContent(updatedMessage: ALMessage, isUpdateView:Bool = true) {
         let _foundMessageIndex = self.messageModels.lastIndex { (curMessage) -> Bool in
             if let _curKey = curMessage.rawModel?.key ,
                 _curKey == updatedMessage.key {
@@ -2157,16 +2157,10 @@ extension ALKConversationViewModel {
             return false
         }
         
-        if let _tempIndex = _foundMessageIndex {
-            self.updateMessageContent(index: _tempIndex, updatedMessage: updatedMessage)
-        }
+        self.updateMessageContent(index: _foundMessageIndex ?? -1, updatedMessage: updatedMessage, isUpdateView:isUpdateView)
     }
     
-    private func updateMessageContent(index:Int, updatedMessage: ALMessage){
-        guard index >= 0 && index < self.alMessages.count && self.alMessages[index].key == updatedMessage.key else {
-            return
-        }
-        
+    private func updateMessageContent(index:Int, updatedMessage: ALMessage, isUpdateView:Bool = true) {
         let _loginUserId = ALUserDefaultsHandler.getUserId()
         //if this added message is logined account
         if let _selfID = _loginUserId, updatedMessage.contactIds == _selfID && updatedMessage.type != myMessage {
@@ -2183,12 +2177,21 @@ extension ALKConversationViewModel {
                 ?? "Message deleted"
         }
         
+        //if cannot get from list
+        guard index >= 0 && index < self.alMessages.count && self.alMessages[index].key == updatedMessage.key else {
+            let _dbService = ALMessageDBService()
+            _dbService.deleteMessage(byKey: updatedMessage.identifier)
+            _dbService.add(updatedMessage)
+            return
+        }
         let alMsgObj = updatedMessage.messageModel
         self.alMessages[index] = updatedMessage
         self.messageModels[index] = alMsgObj
         self.alMessageWrapper.messageArray[index] = alMsgObj
-        HeightCache.shared.removeHeight(for: updatedMessage.key)
-        delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
+        if isUpdateView {
+            HeightCache.shared.removeHeight(for: updatedMessage.key)
+            delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
+        }
     }
 }
 

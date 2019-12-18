@@ -331,6 +331,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func isEnablePinMsgMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
+    func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) //response
 }
 
 public protocol ConversationRequestInfoDelegate: class{
