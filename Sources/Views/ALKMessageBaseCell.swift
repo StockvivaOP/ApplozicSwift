@@ -209,14 +209,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             }else{
                 replyMessageTypeImageView.image = nil
             }
-            
-            ReplyMessageImage().loadPreviewFor(message: replyMessage) { (url, image) in
-                if let url = url {
-                    self.viewModel?.thumbnailURL = url
-                    self.setImageFrom(url: url, to: self.previewImageView)
-                } else {
-                    self.previewImageView.image = image
-                }
+            let (url, image) = ReplyMessageImage().previewFor(message: replyMessage)
+            if let url = url {
+                setImageFrom(url: url, to: previewImageView)
+            } else {
+                previewImageView.image = image
             }
         } else {
             replyNameLabel.text = ""

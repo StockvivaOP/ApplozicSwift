@@ -153,15 +153,12 @@ open class ALKReplyMessageView: UIView, Localizable {
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         messageLabel.text = getMessageText()
 
-        ReplyMessageImage().loadPreviewFor(message: message) { (url, image) in
-            if let url = url {
-                self.message?.thumbnailURL = url
-                self.setImageFrom(url: url, to: self.previewImageView)
-            } else {
-                self.previewImageView.image = image
-            }
+        let (url, image) = ReplyMessageImage().previewFor(message: message)
+        if let url = url {
+            setImageFrom(url: url, to: previewImageView)
+        } else {
+            previewImageView.image = image
         }
-        
         //update reply icon
         if message.messageType == ALKMessageType.voice  {
             messageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
