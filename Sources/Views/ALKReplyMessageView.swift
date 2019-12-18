@@ -155,6 +155,7 @@ open class ALKReplyMessageView: UIView, Localizable {
 
         ReplyMessageImage().loadPreviewFor(message: message) { (url, image) in
             if let url = url {
+                self.message?.thumbnailURL = url
                 self.setImageFrom(url: url, to: self.previewImageView)
             } else {
                 self.previewImageView.image = image

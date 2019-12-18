@@ -84,7 +84,7 @@ public protocol ALKMessageViewModel {
     var isAllRead: Bool { get }
     var ratio: CGFloat { get }
     var size: Int64 { get }
-    var thumbnailURL: URL? { get }
+    var thumbnailURL: URL? { get set}
     var imageURL: URL? { get }
     var filePath: String? { get set }
     var geocode: Geocode? { get }

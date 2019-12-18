@@ -212,6 +212,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             
             ReplyMessageImage().loadPreviewFor(message: replyMessage) { (url, image) in
                 if let url = url {
+                    self.viewModel?.thumbnailURL = url
                     self.setImageFrom(url: url, to: self.previewImageView)
                 } else {
                     self.previewImageView.image = image

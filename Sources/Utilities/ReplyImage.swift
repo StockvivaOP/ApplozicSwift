@@ -73,7 +73,8 @@ public struct ReplyMessageImage {
                 url = docDirPath.appendingPathComponent(filePath)
                 completed(url, imagePlaceholder)
             } else {
-                if let _thumbnailURL = message.fileMetaInfo?.thumbnailUrl, let _thumbnailBlobKey = message.fileMetaInfo?.thumbnailBlobKey {
+                if let _thumbnailURL = message.fileMetaInfo?.thumbnailUrl, let _thumbnailBlobKey = message.fileMetaInfo?.thumbnailBlobKey,
+                    message.thumbnailURL?.absoluteString == _thumbnailURL {
                     ALMessageClientService().downloadImageThumbnailUrl(_thumbnailURL, blobKey: _thumbnailBlobKey) { (url, error) in
                         guard error == nil,
                             let url = url,
