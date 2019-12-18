@@ -505,15 +505,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
         var contactsNotPresent = [String]()
         for index in 0..<messages.count {
             let message = messages[index]
-            //find if not exist
-            let _foundMessageIndex = self.messageModels.contains(where: { (curMessage) -> Bool in
-                if let _curKey = curMessage.rawModel?.key ,
-                    _curKey == message.key {
-                    return true
-                }
-                return false
-            })
-            if _foundMessageIndex { return }
             //if this added message is logined account
             if let _selfID = _loginUserId, message.contactIds == _selfID && message.type != myMessage {
                 message.type = myMessage
@@ -563,6 +554,28 @@ open class ALKConversationViewModel: NSObject, Localizable {
         self.fetchReplyMessage(replyMessageKeys: replyMessageKeys) { (tempContactsNotPresent) in
             contactsNotPresent.append(contentsOf: tempContactsNotPresent)
             self.processContacts(contactsNotPresent, completion: {
+                //check duplicte
+                var _tempFilteredArray = filteredArray
+                for index in 0..<filteredArray.count {
+                    let message = filteredArray[index]
+                    //find if not exist
+                    let _foundMessageIndex = self.messageModels.contains(where: { (curMessage) -> Bool in
+                        if let _curKey = curMessage.rawModel?.key ,
+                            _curKey == message.key {
+                            return true
+                        }
+                        return false
+                    })
+                    if _foundMessageIndex {
+                        _tempFilteredArray.remove(at: index)
+                    }
+                }
+                //if empty list
+                if _tempFilteredArray.count == 0 {
+                    return
+                }
+                filteredArray = _tempFilteredArray
+                
                 var sortedArray = filteredArray.filter {
                     return !self.alMessageWrapper.contains(message: $0)
                 }
