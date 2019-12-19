@@ -186,19 +186,8 @@ final class ALKMediaViewerViewController: UIViewController {
                     break
                 }
             }
-        }else if let fileUrlPath = message.imageURL {
-            imageView.kf.indicatorType = .custom(indicator: self.loadingIndicator)
-            imageView.kf.setImage(with: fileUrlPath) { (result) in
-                switch result {
-                case .success(let value):
-                    //cal zoom size
-                    self.resetScrollImageStatus(imgSize: value.image.size)
-                    break
-                case .failure(_):
-                    //none action
-                    break
-                }
-            }
+        }else if let _ = message.fileMetaInfo?.blobKey {
+            viewModel?.downloadImage(message: message)
         }else {
             self.loadingIndicator.startAnimating()
             viewModel?.fetchMessageWithId(messageId: message.identifier, completed: { (msgList) in
@@ -301,6 +290,14 @@ extension ALKMediaViewerViewController: ALKMediaViewerViewModelDelegate {
     func reloadView() {
         guard let message = viewModel?.getMessageForCurrentIndex() else { return }
         updateView(message: message)
+    }
+    
+    func isHiddenLoadingView(_ isHidden:Bool) {
+        if isHidden {
+            self.loadingIndicator.stopAnimating()
+        }else{
+            self.loadingIndicator.startAnimating()
+        }
     }
 }
 

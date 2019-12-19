@@ -152,12 +152,15 @@ open class ALKReplyMessageView: UIView, Localizable {
             selfNameText:message.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         messageLabel.text = getMessageText()
-
-        let (url, image) = ReplyMessageImage().previewFor(message: message)
-        if let url = url {
-            setImageFrom(url: url, to: previewImageView)
-        } else {
-            previewImageView.image = image
+        
+        ReplyMessageImage().loadPreviewFor(message: message) { (url, image) in
+            self.message?.saveImageThumbnailURLInMetaData(url: url?.absoluteString)
+            self.delegateCellRequestInfo?.updateMessageModelData(messageModel: self.message, isUpdateView: false)
+            if let url = url {
+                self.setImageFrom(url: url, to: self.previewImageView)
+            } else {
+                self.previewImageView.image = image
+            }
         }
         //update reply icon
         if message.messageType == ALKMessageType.voice  {
@@ -186,13 +189,7 @@ open class ALKReplyMessageView: UIView, Localizable {
         indicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
         
         //set color
-        var _contactID:String? = nil
-        if message.isMyMessage {
-            _contactID = self.delegateCellRequestInfo?.getSelfUserHashId()
-        }else{
-            _contactID = message.contactId
-        }
-        
+        let _contactID:String? = message.getMessageSenderHashId()
         if let _messageUserId = _contactID,
             let _userColor = self.configuration.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _userColor

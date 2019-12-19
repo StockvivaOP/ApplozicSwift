@@ -25,7 +25,7 @@ public enum ALKVoiceCellState {
 }
 
 class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
 
     var soundPlayerView: UIView = {
         let mv = UIView()
@@ -115,6 +115,14 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
     
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
+    }
+    
+    override func isDeletedMessage() -> Bool {
+        return self.viewModel?.getDeletedMessageInfo().isDeleteMessage ?? false
+    }
+    
+    override func canDeleteMessage() -> Bool {
+        return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
     }
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
@@ -304,6 +312,11 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
                 return false
             }
             return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return self.canDeleteMessage()
         default:
             return super.canPerformAction(action, withSender: sender)
         }
@@ -315,13 +328,18 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
     }
     
     func menuAppeal(_ sender: Any) {
-        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), messageID: self.viewModel?.identifier, message: self.viewModel?.message))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click appeal:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
     
     func menuPinMsg(_ sender: Any) {
-        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click pin msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+    }
+    
+    func menuDeleteMsg(_ sender: Any){
+        menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click delete msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 }
 

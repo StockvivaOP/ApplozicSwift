@@ -201,7 +201,9 @@ extension ALMessage {
         }
         
         var _conType = Int32(contentType)
-        if self.fileMeta != nil {
+        if self.getDeletedMessageInfo().isDeleteMessage {
+            return .text
+        }else if self.fileMeta != nil {
             _conType = ALMESSAGE_CONTENT_ATTACHMENT
         }
         switch _conType {
@@ -539,5 +541,38 @@ extension ALMessage {
         }else {
             return SVALKMessageStatus.processing
         }
+    }
+    
+    //delete message
+    func getDeletedMessageInfo() -> (isDeleteMessage:Bool , isDeleteMessageForAll:Bool) {
+        var _isDeleteMessage = false
+        var _isDeleteMessageForAll = false
+        if let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.alDeleteGroupMessageForAll) as? String {
+            _isDeleteMessage = true
+            _isDeleteMessageForAll = _result == "true"
+        }
+        return (isDeleteMessage:_isDeleteMessage , isDeleteMessageForAll:_isDeleteMessageForAll)
+    }
+    
+    func setDeletedMessage(_ isForAll:Bool) {
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue((isForAll ? "true" : "false"), forKey: SVALKMessageMetaDataFieldName.alDeleteGroupMessageForAll.rawValue)
+    }
+    
+    //save download thumbnail URL
+    func saveImageThumbnailURLInMetaData(url:String?){
+        if let _strURL = url {
+            if self.metadata == nil {
+                self.metadata = NSMutableDictionary.init()
+            }
+            self.metadata.setValue(_strURL, forKey: SVALKMessageMetaDataFieldName.imageThumbnailURL.rawValue)
+        }
+    }
+    
+    func getImageThumbnailURL() -> String? {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.imageThumbnailURL) as? String
+        return _result
     }
 }

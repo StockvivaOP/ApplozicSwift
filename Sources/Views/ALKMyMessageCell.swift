@@ -208,7 +208,7 @@ open class ALKMyMessageCell: ALKMessageCell {
             
             replyViewInnerImgTopConst!,
             previewImageView.trailingAnchor.constraint(
-                lessThanOrEqualTo: replyView.trailingAnchor,
+                equalTo: replyView.trailingAnchor,
                 constant: -Padding.PreviewImageView.right),
             replyViewInnerImgBottomConst!,
             previewImageView.heightAnchor.constraintEqualToAnchor(
@@ -223,7 +223,7 @@ open class ALKMyMessageCell: ALKMessageCell {
                 constant: Padding.ReplyNameLabel.left),
             replyViewInnerTopConst!,
             replyNameLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: previewImageView.leadingAnchor,
+                equalTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyNameLabel.right),
             replyNameLabel.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
@@ -243,7 +243,7 @@ open class ALKMyMessageCell: ALKMessageCell {
                 equalTo: replyNameLabel.bottomAnchor,
                 constant: Padding.ReplyMessageLabel.top),
             replyMessageLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: previewImageView.leadingAnchor,
+                equalTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyMessageLabel.right),
             replyMessageLabel.heightAnchor.constraintLessThanOrEqualToAnchor(constant: 0,
                                                                              identifier: ConstraintIdentifier.ReplyMessageLabel.height),
@@ -305,7 +305,6 @@ open class ALKMyMessageCell: ALKMessageCell {
 
     open func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.sentMessage, replyMessage: replyMessage)
-        handleReplyView(replyMessage: replyMessage)
 //        if viewModel.isAllRead {
 //            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
 //            stateView.tintColor = UIColor(netHex: 0x0578FF)
@@ -319,6 +318,13 @@ open class ALKMyMessageCell: ALKMessageCell {
 //            stateView.image = UIImage(named: "seen_state_0", in: Bundle.applozic, compatibleWith: nil)
 //            stateView.tintColor = UIColor.ALKSVMainColorPurple()
 //        }
+        
+        //reply view
+        if viewModel.getDeletedMessageInfo().isDeleteMessage {
+            handleReplyView(replyMessage: nil)
+        }else{
+            handleReplyView(replyMessage: replyMessage)
+        }
         
         self.stateErrorRemarkView.isHidden = true
         self.stateErrorRemarkView.setImage(nil, for: .normal)
@@ -351,18 +357,28 @@ open class ALKMyMessageCell: ALKMessageCell {
     class func rowHeigh(viewModel: ALKMessageViewModel,
                         width: CGFloat,
                         replyMessage: ALKMessageViewModel?) -> CGFloat {
-        /// Calculating messageHeight
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.leftPadding
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.sentBubble.widthPadding /*+ bubbleViewRightPadding*/
-        let messageWidth = width - (leftSpacing + rightSpacing)
-        let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.sentMessage.font)
+        
         var heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + Padding.MessageView.bottom + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
-        if viewModel.isReplyMessage {
-            heightPadding += Padding.MessageView.top
+        
+        /// Calculating messageHeight
+        let messageWidth = width - (leftSpacing + rightSpacing)
+        var messageHeight:CGFloat = 0.0
+        if _isDeletedMsg {
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.deletedMessage.font)
+        }else{
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+            
+            if viewModel.isReplyMessage {
+                heightPadding += Padding.MessageView.top
+            }
         }
         
         let totalHeight = messageHeight + heightPadding
-        guard replyMessage != nil else { return totalHeight }
+        guard replyMessage != nil && _isDeletedMsg == false else { return totalHeight }
         //add reply view height
         //get width
         let _haveMsgIcon = [ALKMessageType.voice, ALKMessageType.video, ALKMessageType.photo, ALKMessageType.document].contains(replyMessage!.messageType)

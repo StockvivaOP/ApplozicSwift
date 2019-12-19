@@ -231,7 +231,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
             
             replyViewInnerImgTopConst!,
             previewImageView.trailingAnchor.constraint(
-                lessThanOrEqualTo: replyView.trailingAnchor,
+                equalTo: replyView.trailingAnchor,
                 constant: -Padding.PreviewImageView.right),
             replyViewInnerImgBottomConst!,
             previewImageView.heightAnchor.constraintEqualToAnchor(
@@ -246,7 +246,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 constant: Padding.ReplyNameLabel.left),
             replyViewInnerTopConst!,
             replyNameLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: previewImageView.leadingAnchor,
+                equalTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyNameLabel.right),
             replyNameLabel.heightAnchor.constraintEqualToAnchor(
                 constant: 0,
@@ -266,7 +266,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 equalTo: replyNameLabel.bottomAnchor,
                 constant: Padding.ReplyMessageLabel.top),
             replyMessageLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: previewImageView.leadingAnchor,
+                equalTo: previewImageView.leadingAnchor,
                 constant: -Padding.ReplyMessageLabel.right),
             replyMessageLabel.heightAnchor.constraintLessThanOrEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.replyMessageHeight),
             replyMsgViewBottomConst!,
@@ -326,7 +326,6 @@ open class ALKFriendMessageCell: ALKMessageCell {
 
     func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.receivedMessage, replyMessage: replyMessage)
-        handleReplyView(replyMessage: replyMessage)
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
         if let url = viewModel.avatarURL {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
@@ -342,36 +341,49 @@ open class ALKFriendMessageCell: ALKMessageCell {
             let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             nameLabel.textColor = _nameLabelColor
         }
-        //join group button status
-        self.showJoinOurGroupButton( ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) ?? false)
+        //reply view and join group button status
+        if viewModel.getDeletedMessageInfo().isDeleteMessage {
+            handleReplyView(replyMessage: nil)
+            self.showJoinOurGroupButton(false)
+        }else{
+            handleReplyView(replyMessage: replyMessage)
+            self.showJoinOurGroupButton( ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) ?? false)
+        }
     }
 
     class func rowHeigh(viewModel: ALKMessageViewModel,
                         width: CGFloat,
                         replyMessage: ALKMessageViewModel?) -> CGFloat {
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
         let minimumHeight = Padding.AvatarImage.top + Padding.AvatarImage.height + 5
         
         /// Calculating available width for messageView
         let leftSpacing = Padding.AvatarImage.left + Padding.AvatarImage.width + Padding.BubbleView.left + Padding.MessageView.left /*+ bubbleViewLeftPadding*/
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.receivedBubble.widthPadding
-        let messageWidth = width - (leftSpacing + rightSpacing)
         
-        /// Calculating messageHeight
-        let messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
         var heightPadding = Padding.AvatarImage.top + Padding.NameLabel.top + Padding.NameLabel.height + Padding.JoinOurGroupButton.bottom + Padding.TimeLabel.top + Padding.TimeLabel.height + Padding.TimeLabel.bottom
         
-        if ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) == true {
-            let _joinOurGroupHeight = Padding.JoinOurGroupButton.top + Padding.JoinOurGroupButton.height
-            heightPadding += _joinOurGroupHeight
-        }
-        
-        if viewModel.isReplyMessage {
-            heightPadding += Padding.MessageView.top + Padding.ReplyView.top
+        let messageWidth = width - (leftSpacing + rightSpacing)
+        /// Calculating messageHeight
+        var messageHeight:CGFloat = 0.0
+        if _isDeletedMsg {
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.deletedMessage.font)
+        }else{
+            messageHeight = super.messageHeight(viewModel: viewModel, width: messageWidth, font: ALKMessageStyle.receivedMessage.font)
+            
+            if ALKConfiguration.delegateConversationRequestInfo?.isShowJoinOurGroupButton(viewModel: viewModel) == true {
+                let _joinOurGroupHeight = Padding.JoinOurGroupButton.top + Padding.JoinOurGroupButton.height
+                heightPadding += _joinOurGroupHeight
+            }
+            
+            if viewModel.isReplyMessage {
+                heightPadding += Padding.MessageView.top + Padding.ReplyView.top
+            }
         }
         
         let totalHeight = max((messageHeight + heightPadding), minimumHeight)
         
-        guard replyMessage != nil else { return totalHeight }
+        guard replyMessage != nil && _isDeletedMsg == false else { return totalHeight }
         //add reply view height
         //get width
         let _haveMsgIcon = [ALKMessageType.voice, ALKMessageType.video, ALKMessageType.photo, ALKMessageType.document].contains(replyMessage!.messageType)
@@ -489,6 +501,11 @@ open class ALKFriendMessageCell: ALKMessageCell {
     
     private func showJoinOurGroupButton(_ show: Bool){
         self.btnJoinOurGroup.isHidden = !show
+        if self.btnJoinOurGroup.isHidden {
+            self.btnJoinOurGroup.setTitle("", for: .normal)
+        }else{
+            self.btnJoinOurGroup.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_group_message_group_button_entry") ?? "", for: .normal)
+        }
         joinOurGroupButtonHeightConst?.constant = show ? Padding.JoinOurGroupButton.height : 0
         joinOurGroupButtonWidthConst?.constant = show ? Padding.JoinOurGroupButton.width : 0
         joinOurGroupButtonTopConst?.constant = show ? Padding.JoinOurGroupButton.top : 0

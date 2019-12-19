@@ -26,7 +26,7 @@ PODS:
   - SDWebImage (5.0.6):
     - SDWebImage/Core (= 5.0.6)
   - SDWebImage/Core (5.0.6)
-  - SwiftLint (0.37.0)
+  - SwiftLint (0.38.0)
 
 DEPENDENCIES:
   - Applozic (from `https://github.com/AppLozic/Applozic-Chat-iOS-Framework.git`, branch `reply-api`)
@@ -69,7 +69,7 @@ SPEC CHECKSUMS:
   Nimble-Snapshots: 8ec63f41ce6c7229a17be9a64edbc123b181f75b
   Quick: 7fb19e13be07b5dfb3b90d4f9824c855a11af40e
   SDWebImage: 920f1a2ff1ca8296ad34f6e0510a1ef1d70ac965
-  SwiftLint: c078a14d7d7ade75e5507795d185e3da41d844d2
+  SwiftLint: 4105f061f9812b214568b736dab580ab2c73a582
 
 PODFILE CHECKSUM: 398ed69edd00003200ddb6dd9ce45492a2fb8872
 

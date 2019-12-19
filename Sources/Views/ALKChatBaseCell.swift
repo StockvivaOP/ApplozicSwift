@@ -37,6 +37,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case reply
         case appeal(chatGroupHashID:String?, userHashID:String?, messageID:String?, message:String?)
         case pinMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+        case deleteMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     }
 
     /// It will be invoked when one of the actions
@@ -48,6 +49,14 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     }
     
     func isMyMessage() -> Bool {
+        return false
+    }
+    
+    func isDeletedMessage() -> Bool {
+        return false
+    }
+    
+    func canDeleteMessage() -> Bool {
         return false
     }
     
@@ -64,6 +73,9 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
     }
 
     @objc func showMenuController(withLongPress sender: UILongPressGestureRecognizer) {
+        if self.isDeletedMessage() {
+            return
+        }
         if sender.state == .began {
             NotificationCenter.default.addObserver(self, selector: #selector(menuWillShow(_:)), name: UIMenuController.willShowMenuNotification, object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(menuWillHide(_:)), name: UIMenuController.willHideMenuNotification, object: nil)
@@ -95,14 +107,18 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
                 menus.append(replyMenu)
             }
             
+            if let pinMsgMenu = getPinMsgMenuItem(pinMsgItem: self) {
+                menus.append(pinMsgMenu)
+            }
+            
+            if let deleteMsgMenu = getDeleteMsgMenuItem(deleteMsgItem: self) {
+                menus.append(deleteMsgMenu)
+            }
+
             if let appealMenu = getAppealMenuItem(appealItem: self) {
                 menus.append(appealMenu)
             }
             
-            if let pinMsgMenu = getPinMsgMenuItem(pinMsgItem: self) {
-                menus.append(pinMsgMenu)
-            }
-
             menuController.menuItems = menus
             menuController.setTargetRect(gestureView.frame, in: superView)
             menuController.setMenuVisible(true, animated: true)
@@ -123,6 +139,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             return true
         case let menuItem as ALKPinMsgMenuItemProtocol where action == menuItem.selector:
             return self.delegateCellRequestInfo?.isEnablePinMsgMenuItem() ?? false
+        case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
+            return true
         default:
             return false
         }
@@ -162,6 +180,15 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         let title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin") ?? localizedString(forKey: "PinMsg", withDefaultValue: SystemMessage.LabelName.PinMsg, fileName: localizedStringFileName)
         let pinMsgMenu = UIMenuItem(title: title, action: pinMsgMenuItem.selector)
         return pinMsgMenu
+    }
+
+    private func getDeleteMsgMenuItem(deleteMsgItem: Any) -> UIMenuItem? {
+        guard let deleteMsgMenuItem = deleteMsgItem as? ALKDeleteMsgMenuItemProtocol else {
+            return nil
+        }
+        let title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_delete") ?? localizedString(forKey: "DeleteMsg", withDefaultValue: SystemMessage.LabelName.DeleteMsg, fileName: localizedStringFileName)
+        let deleteMsgMenu = UIMenuItem(title: title, action: deleteMsgMenuItem.selector)
+        return deleteMsgMenu
     }
 }
 
@@ -206,6 +233,17 @@ extension ALKReplyMenuItemProtocol {
 extension ALKPinMsgMenuItemProtocol {
     var selector: Selector {
         return #selector(menuPinMsg(_:))
+    }
+}
+
+// MARK: - ALKDeleteMsgMenuItemProtocol
+@objc protocol ALKDeleteMsgMenuItemProtocol {
+    func menuDeleteMsg(_ sender: Any)
+}
+
+extension ALKDeleteMsgMenuItemProtocol {
+    var selector: Selector {
+        return #selector(menuDeleteMsg(_:))
     }
 }
 

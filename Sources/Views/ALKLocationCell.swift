@@ -15,7 +15,7 @@ protocol ALKLocationCellDelegate: class {
 }
 
 class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
-                        ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol{
+                        ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol{
 
     weak var delegate:ALKLocationCellDelegate?
 
@@ -183,13 +183,18 @@ class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
 
     func menuAppeal(_ sender: Any) {
-        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), messageID: self.viewModel?.identifier, message: self.viewModel?.message))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click appeal:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
     
     func menuPinMsg(_ sender: Any) {
-        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click pin msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+    }
+    
+    func menuDeleteMsg(_ sender: Any){
+        menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click delete msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 }
 

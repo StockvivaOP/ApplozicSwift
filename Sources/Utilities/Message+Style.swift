@@ -35,6 +35,12 @@ public enum ALKMessageStyle {
         font: UIFont.systemFont(ofSize: 16),
         text: UIColor.ALKSVPrimaryDarkGrey()
     )
+    
+    // Deleted message text style
+    public static var deletedMessage = Style(
+        font: UIFont.systemFont(ofSize: 14, weight: .medium),
+        text: UIColor.ALKSVGreyColor153()
+    )
 
     @available(*, deprecated, message: "Use `receivedMessage` and `sentMessage`")
     public static var message = Style(

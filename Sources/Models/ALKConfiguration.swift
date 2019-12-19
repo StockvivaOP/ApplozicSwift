@@ -216,6 +216,7 @@ public struct ALKConfiguration {
         case attachmentUploadFailure
         case funcNeedPaid
         case funcNeedPaidForPinMsg
+        case networkProblem
     }
     
     /// delegate for get / set system info
@@ -267,6 +268,9 @@ public struct ALKConfiguration {
     public var isShowVideoFile : Bool = true
     public var isAllowsMultipleSelection : Bool = false
     
+    /// allow user to delete message within target second
+    public var expireSecondForDeleteMessage : Double = 120.0
+    
     //tag: stockviva - end
     
     public init() { }
@@ -286,14 +290,15 @@ public protocol ConversationChatContentActionDelegate: class{
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser() -> Bool
-    func getLoginUserHashId() -> String?
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
     //pin message
-    func didPinMessageCloseButtonClicked(pinMsgUuid:String?)
+    func didPinMessageCloseButtonClicked(pinMsgUuid:String?, viewModel:ALKMessageViewModel)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageClicked()
     //join our group
     func joinOurGroupButtonClicked(viewModel:ALKMessageViewModel?)
+    func isHiddenFullScreenLoading(_ isHidden:Bool)
+    func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
@@ -318,6 +323,7 @@ public protocol ChatBarRequestActionDelegate: class{
 public protocol ConversationMessageBoxActionDelegate: class{
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
     func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+    func didMenuDeleteMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
 }
 
 public protocol ConversationCellRequestInfoDelegate: class{
@@ -325,7 +331,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func isEnablePinMsgMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
-    func getSelfUserHashId() -> String?
+    func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) //response
 }
 
 public protocol ConversationRequestInfoDelegate: class{
@@ -342,6 +348,7 @@ public protocol SystemInfoRequestDelegate: class{
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
     func logging(isDebug:Bool, message:String)
+    func getLoginUserHashId() -> String?
 }
 
 extension ALKConfiguration {

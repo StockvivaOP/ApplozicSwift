@@ -51,7 +51,9 @@ public enum SVALKMessageMetaDataFieldName : String {
     case msgViolate = "SV_VIOLATE"
     case mentions = "SV_MENTIONS"
     case userHashId = "userHashId"
+    case alDeleteGroupMessageForAll = "AL_DELETE_GROUP_MESSAGE_FOR_ALL"
     //will not send to server
+    case imageThumbnailURL = "SV_IMAGE_THUMBNAIL_URL"
     case sendMessageErrorFind = "SV_SEND_MSG_ERROR_FIND"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
 }
@@ -83,7 +85,7 @@ public protocol ALKMessageViewModel {
     var isAllRead: Bool { get }
     var ratio: CGFloat { get }
     var size: Int64 { get }
-    var thumbnailURL: URL? { get }
+    var thumbnailURL: URL? { get set }
     var imageURL: URL? { get }
     var filePath: String? { get set }
     var geocode: Geocode? { get }
@@ -154,6 +156,22 @@ extension ALKMessageViewModel {
 
 //MARK: tag stockviva
 extension ALKMessageViewModel {
+    func getMessageSenderHashId() -> String? {
+        var _userHashId = self.contactId
+        if self.isMyMessage {
+            _userHashId = ALUserDefaultsHandler.getUserId()
+        }
+        return _userHashId
+    }
+    
+    func getMessageReceiverHashId() -> String? {
+        var _userHashId = self.receiverId
+        if self.isMyMessage {
+            _userHashId = ALUserDefaultsHandler.getUserId()
+        }
+        return _userHashId
+    }
+    
     func getActionType() -> ALKMessageActionType {
         return self.rawModel?.getActionType() ?? ALKMessageActionType.normalMessage
     }
@@ -335,5 +353,42 @@ extension ALKMessageViewModel {
     //stockviva message status
     func getSVMessageStatus() -> SVALKMessageStatus {
         return self.rawModel?.getSVMessageStatus() ?? SVALKMessageStatus.processing
+    }
+    
+    //delete message
+    func isAllowToDeleteMessage(_ availableDeleteSecond:Double?) -> Bool {
+        guard let _availableDeleteSecond = availableDeleteSecond else {
+            return self.isMyMessage && true
+        }
+        var _isOverMin = true
+        if let _createMsgTime = self.createdAtTime?.doubleValue {
+            let _createMsgDate  = Date(timeIntervalSince1970: (_createMsgTime / 1000) )
+            let _diffTimeOfSecond = Date().timeIntervalSince(_createMsgDate)
+            _isOverMin = _diffTimeOfSecond <= _availableDeleteSecond
+        }
+        return self.isMyMessage && _isOverMin
+    }
+    
+    func getDeletedMessageInfo() -> (isDeleteMessage:Bool , isDeleteMessageForAll:Bool) {
+        return self.rawModel?.getDeletedMessageInfo() ?? (isDeleteMessage:false , isDeleteMessageForAll:false)
+    }
+    
+    mutating func setDeletedMessage(_ isForAll:Bool) {
+        if let _rawModel = self.rawModel {
+            _rawModel.setDeletedMessage(isForAll)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    //save download thumbnail URL
+    mutating func saveImageThumbnailURLInMetaData(url:String?){
+        if let _rawModel = self.rawModel {
+            _rawModel.saveImageThumbnailURLInMetaData(url:url)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    func getImageThumbnailURL() -> String? {
+        return self.rawModel?.getImageThumbnailURL()
     }
 }

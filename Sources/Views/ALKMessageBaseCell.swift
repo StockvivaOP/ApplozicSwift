@@ -18,7 +18,7 @@ class ALKImageView: UIImageView {
     }
 }
 
-open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
+open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItemProtocol, ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
 
     /// Dummy view required to calculate height for normal text.
     fileprivate static var dummyMessageView: ALKTextView = {
@@ -150,6 +150,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         _view.backgroundColor = .white
         _view.setFont(font: UIFont.systemFont(ofSize: 16.0, weight: .semibold) )
         _view.setTitleColor(UIColor.ALKSVMainColorPurple(), for: .normal)
+        _view.setTitle("", for: .normal)
         _view.setImage(UIImage(named: "sv_icon_chatpurple", in: Bundle.applozic, compatibleWith: nil), for: .normal)
         _view.imageView?.contentMode = UIView.ContentMode.scaleAspectFit
         _view.imageEdgeInsets = UIEdgeInsets(top: 5 , left: 5, bottom: 5, right: 5)
@@ -186,8 +187,8 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
     func update(viewModel: ALKMessageViewModel, style: Style, replyMessage: ALKMessageViewModel?) {
         self.viewModel = viewModel
-
-        if let replyMessage = replyMessage {
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        if let replyMessage = replyMessage, _isDeletedMsg == false {
             replyNameLabel.text = replyMessage.isMyMessage ?
                 selfNameText : replyMessage.displayName
             replyMessageLabel.text =
@@ -208,11 +209,16 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             }else{
                 replyMessageTypeImageView.image = nil
             }
-            let (url, image) = ReplyMessageImage().previewFor(message: replyMessage)
-            if let url = url {
-                setImageFrom(url: url, to: previewImageView)
-            } else {
-                previewImageView.image = image
+            
+            ReplyMessageImage().loadPreviewFor(message: replyMessage) { (url, image) in
+                var _tempModel = replyMessage
+                _tempModel.saveImageThumbnailURLInMetaData(url: url?.absoluteString)
+                self.delegateCellRequestInfo?.updateMessageModelData(messageModel: _tempModel, isUpdateView: false)
+                if let url = url {
+                    self.setImageFrom(url: url, to: self.previewImageView)
+                } else {
+                    self.previewImageView.image = image
+                }
             }
         } else {
             replyNameLabel.text = ""
@@ -242,13 +248,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.image = nil
         }
         //set color
-        var _contactID:String? = nil
-        if replyMessage?.isMyMessage == true {
-            _contactID = self.delegateCellRequestInfo?.getSelfUserHashId()
-        }else{
-            _contactID = replyMessage?.receiverId
-        }
-        
+        let _contactID:String? = replyMessage?.getMessageReceiverHashId()
         if let _messageUserId = _contactID,
             let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
             replyNameLabel.textColor = _userColor
@@ -256,13 +256,15 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             replyIndicatorView.tintColor = _userColor
         }
         
-        //join group button logic
-        self.btnJoinOurGroup.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_group_message_group_button_entry") ?? "", for: .normal)
-        
         self.timeLabel.text   = viewModel.date.toConversationViewDateFormat() //viewModel.time
-        resetTextView(style)
+        //update style
+        if _isDeletedMsg {
+            resetTextView(ALKMessageStyle.deletedMessage)
+        }else{
+            resetTextView(style)
+        }
         guard let message = viewModel.message else { return }
-
+        
         switch viewModel.messageType {
         case .text:
             emailTopHeight.constant = 0
@@ -322,6 +324,14 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         return self.viewModel?.isMyMessage ?? false
     }
     
+    override func isDeletedMessage() -> Bool {
+        return self.viewModel?.getDeletedMessageInfo().isDeleteMessage ?? false
+    }
+    
+    override func canDeleteMessage() -> Bool {
+        return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
+    }
+    
     class func messageHeight(viewModel: ALKMessageViewModel,
                              width: CGFloat,
                              font: UIFont) -> CGFloat {
@@ -379,6 +389,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
                 return false
             }
             return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return self.canDeleteMessage()
         default:
             return super.canPerformAction(action, withSender: sender)
         }
@@ -390,12 +405,12 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     }
     
     func menuAppeal(_ sender: Any) {
-        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), messageID: self.viewModel?.identifier, message: self.viewModel?.message))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click appeal:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
     
     func menuPinMsg(_ sender: Any) {
-        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click pin msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 
@@ -404,6 +419,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click reply:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 
+    func menuDeleteMsg(_ sender: Any){
+        menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click delete msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+    }
+    
     @objc func replyViewTapped() {
         replyViewAction?()
     }

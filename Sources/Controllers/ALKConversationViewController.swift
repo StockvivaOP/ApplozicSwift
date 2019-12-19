@@ -29,9 +29,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    /// Make this false if you want to use custom list view controller
-    public var individualLaunch = true
-
     public lazy var chatBar = ALKChatBar(frame: CGRect.zero, configuration: self.configuration)
 
     public let autocompletionView: UITableView = {
@@ -309,7 +306,18 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
 //            weakSelf.handlePushNotification = false
         })
-
+        
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "messageMetaDataUpdateNotification"), object: nil, queue: nil, using: {
+            notification in
+            guard self.viewModel != nil && self.isLeaveView == false else { return }
+            if let _msgObj = notification.object as? ALMessage {
+                print("message meta data update notification received: ", _msgObj.message, _msgObj.metadata)
+                self.viewModel.updateMessageContent(updatedMessage: _msgObj)
+            }else{
+                print("message meta data update notification received: nil content")
+            }
+        })
+        
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "notificationIndividualChat"), object: nil, queue: nil, using: {[weak self]
             _ in
             print("notification individual chat received")
@@ -406,19 +414,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     override func removeObserver() {
-
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "newMessageNotification"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "notificationIndividualChat"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "report_DELIVERED"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "report_DELIVERED_READ"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "report_CONVERSATION_DELIVERED_READ"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "UPDATE_MESSAGE_SEND_STATUS"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "USER_DETAILS_UPDATE_CALL"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "UPDATE_CHANNEL_NAME"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND_CV"), object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
 
     override open func viewWillAppear(_ animated: Bool) {
@@ -435,14 +431,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         activityIndicator.color = UIColor.lightGray
         tableView.addSubview(activityIndicator)
         addRefreshButton()
-        if let listVC = self.navigationController?.viewControllers.first as? ALKConversationListViewController, listVC.isViewLoaded, individualLaunch {
-            individualLaunch = false
-        }
         alMqttConversationService = ALMQTTConversationService.sharedInstance()
-        if individualLaunch {
-            alMqttConversationService.mqttConversationDelegate = self
-            alMqttConversationService.subscribeToConversation()
-        }
+        alMqttConversationService.mqttConversationDelegate = self
+        alMqttConversationService.subscribeToConversation()
         viewModel.delegate = self
 
         if self.viewModel.isGroup == true {
@@ -518,10 +509,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.saveLastReadMessageIfNeeded()
         stopAudioPlayer()
         chatBar.stopRecording()
-        if individualLaunch {
-            if let _ = alMqttConversationService {
-                alMqttConversationService.unsubscribeToConversation()
-            }
+        if let _ = alMqttConversationService {
+            alMqttConversationService.unsubscribeToConversation()
         }
         unsubscribingChannel()
         if self.isMovingFromParent {
@@ -1213,6 +1202,23 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
             }
             break;
+        case .deleteMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
+            print("DeleteMsg selected")
+             if let _chatGroupID = chatGroupHashID,
+                let _model = viewModel {
+                self.delegateConversationMessageBoxAction?.didMenuDeleteMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
+                self.viewModel.deleteMessagForAll(viewModel: _model, indexPath: indexPath, startProcess: {
+                    self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(false)
+                }) { (result, error) in
+                    self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(true)
+                    if error == nil && result?.count ?? 0 > 0 {
+                        self.delegateConversationChatContentAction?.messageHadDeleted(viewModel: _model, indexPath: indexPath)
+                    }else{
+                        self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.networkProblem)
+                    }
+                }
+            }
+            break;
         }
     }
 
@@ -1678,7 +1684,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             }
             if needReloadTable == false {
                 self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
+                self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .fade)
                 self.tableView.endUpdates()
             }else{
                 self.tableView.reloadData()
@@ -2047,9 +2053,7 @@ extension ALKConversationViewController: ALKAudioPlayerProtocol, ALKVoiceCellPro
 extension ALKConversationViewController: ALMQTTConversationDelegate {
 
     public func mqttDidConnected() {
-        if individualLaunch {
-            subscribeChannelToMqtt()
-        }
+        subscribeChannelToMqtt()
         //auto refresh after
         if self.isAutoRefreshMessage {
             self.isAutoRefreshMessage = false
@@ -2255,7 +2259,8 @@ extension ALKConversationViewController: AttachmentDelegate {
         let vc = nav.viewControllers.first as? ALKMediaViewerViewController
 
         let messageModels = viewModel.messageModels.filter {
-            ($0.messageType == .photo || $0.messageType == .video) && ($0.downloadPath() != nil) && ($0.downloadPath()!.1 != nil)
+            $0.messageType == .photo && $0.fileMetaInfo != nil
+            //($0.messageType == .photo || $0.messageType == .video) && ($0.downloadPath() != nil) && ($0.downloadPath()!.1 != nil)
         }
 
         guard let msg = message as? ALKMessageModel,
@@ -2427,7 +2432,7 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     }
     
     func closeButtonClicked(pinMsgUuid:String?, viewModel: ALKMessageViewModel) {
-        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked(pinMsgUuid:pinMsgUuid)
+        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked(pinMsgUuid:pinMsgUuid, viewModel:viewModel)
     }
 }
 
@@ -2550,8 +2555,10 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
         self.delegateConversationChatContentAction?.showAlert(type:type)
     }
     
-    public func getSelfUserHashId() -> String? {
-        return self.delegateConversationChatContentAction?.getLoginUserHashId()
+    public func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) {
+        if let _rawModel = messageModel?.rawModel {
+            self.viewModel.updateMessageContent(updatedMessage: _rawModel, isUpdateView: isUpdateView)
+        }
     }
 }
 

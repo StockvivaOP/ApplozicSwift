@@ -17,7 +17,7 @@ protocol AttachmentDelegate {
 
 // MARK: - ALKPhotoCell
 class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
 
     var delegate: AttachmentDelegate?
 
@@ -67,10 +67,22 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         return button
     }()
 
+    fileprivate var downloadButtonClickArea: UIButton = {
+        let button = UIButton(type: .custom)
+        button.backgroundColor = UIColor.clear
+        return button
+    }()
+    
     var uploadButton: UIButton = {
         let button = UIButton(type: .custom)
         let image = UIImage(named: "UploadiOS2", in: Bundle.applozic, compatibleWith: nil)
         button.setImage(image, for: .normal)
+        button.backgroundColor = UIColor.clear
+        return button
+    }()
+    
+    var uploadButtonClickArea: UIButton = {
+        let button = UIButton(type: .custom)
         button.backgroundColor = UIColor.clear
         return button
     }()
@@ -184,12 +196,13 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         super.setupViews()
         frontView.addGestureRecognizer(longPressGesture)
         uploadButton.isHidden = true
-        uploadButton.addTarget(self, action: #selector(ALKPhotoCell.uploadButtonAction(_:)), for: .touchUpInside)
+        uploadButtonClickArea.isHidden = uploadButton.isHidden
+        uploadButtonClickArea.addTarget(self, action: #selector(ALKPhotoCell.uploadButtonAction(_:)), for: .touchUpInside)
         let singleTap = UITapGestureRecognizer(target: self, action: #selector(actionTapped))
         singleTap.numberOfTapsRequired = 1
         frontView.addGestureRecognizer(singleTap)
 
-        downloadButton.addTarget(self, action: #selector(ALKPhotoCell.downloadButtonAction(_:)), for: .touchUpInside)
+        downloadButtonClickArea.addTarget(self, action: #selector(ALKPhotoCell.downloadButtonAction(_:)), for: .touchUpInside)
         contentView.addViewsForAutolayout(views:
             [frontView,
              photoView,
@@ -198,12 +211,16 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
              fileSizeLabel,
              captionLabel,
              uploadButton,
+             uploadButtonClickArea,
              downloadButton,
+             downloadButtonClickArea,
              activityIndicator])
         contentView.bringSubviewToFront(photoView)
         contentView.bringSubviewToFront(frontView)
         contentView.bringSubviewToFront(downloadButton)
+        contentView.bringSubviewToFront(downloadButtonClickArea)
         contentView.bringSubviewToFront(uploadButton)
+        contentView.bringSubviewToFront(uploadButtonClickArea)
         contentView.bringSubviewToFront(activityIndicator)
 
         frontView.topAnchor.constraint(equalTo: bubbleView.topAnchor).isActive = true
@@ -217,6 +234,16 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         activityIndicator.centerXAnchor.constraint(equalTo: photoView.centerXAnchor).isActive = true
         activityIndicator.centerYAnchor.constraint(equalTo: photoView.centerYAnchor).isActive = true
 
+        uploadButtonClickArea.topAnchor.constraint(equalTo: photoView.topAnchor).isActive = true
+        uploadButtonClickArea.bottomAnchor.constraint(equalTo: photoView.bottomAnchor).isActive = true
+        uploadButtonClickArea.leadingAnchor.constraint(equalTo: photoView.leadingAnchor).isActive = true
+        uploadButtonClickArea.trailingAnchor.constraint(equalTo: photoView.trailingAnchor).isActive = true
+        
+        downloadButtonClickArea.topAnchor.constraint(equalTo: photoView.topAnchor).isActive = true
+        downloadButtonClickArea.bottomAnchor.constraint(equalTo: photoView.bottomAnchor).isActive = true
+        downloadButtonClickArea.leadingAnchor.constraint(equalTo: photoView.leadingAnchor).isActive = true
+        downloadButtonClickArea.trailingAnchor.constraint(equalTo: photoView.trailingAnchor).isActive = true
+        
         uploadButton.centerXAnchor.constraint(equalTo: photoView.centerXAnchor).isActive = true
         uploadButton.centerYAnchor.constraint(equalTo: photoView.centerYAnchor).isActive = true
         uploadButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -273,6 +300,14 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
     }
+    
+    override func isDeletedMessage() -> Bool {
+        return self.viewModel?.getDeletedMessageInfo().isDeleteMessage ?? false
+    }
+    
+    override func canDeleteMessage() -> Bool {
+        return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
+    }
 
     private func updateView(state: AttachmentState) {
         switch state {
@@ -280,40 +315,50 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
+            downloadButtonClickArea.isHidden = downloadButton.isHidden
             let docDirPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             guard let filePath = viewModel?.filePath else { return }
             let path = docDirPath.appendingPathComponent(filePath)
             setPhotoViewImageFromFileURL(path)
             uploadButton.isHidden = false
+            uploadButtonClickArea.isHidden = uploadButton.isHidden
         case .uploaded(_):
             if activityIndicator.isAnimating {
                 activityIndicator.stopAnimating()
             }
             frontView.isUserInteractionEnabled = true
             uploadButton.isHidden = true
+            uploadButtonClickArea.isHidden = uploadButton.isHidden
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
+            downloadButtonClickArea.isHidden = downloadButton.isHidden
         case .uploading(_, _):
             uploadButton.isHidden = true
+            uploadButtonClickArea.isHidden = uploadButton.isHidden
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = false
             if !activityIndicator.isAnimating {
                 activityIndicator.startAnimating()
             }
             downloadButton.isHidden = true
+            downloadButtonClickArea.isHidden = downloadButton.isHidden
         case .download:
             downloadButton.isHidden = false
+            downloadButtonClickArea.isHidden = downloadButton.isHidden
             frontView.isUserInteractionEnabled = false
             activityIndicator.isHidden = true
             uploadButton.isHidden = true
+            uploadButtonClickArea.isHidden = uploadButton.isHidden
             loadThumbnail()
         case .downloading:
             uploadButton.isHidden = true
+            uploadButtonClickArea.isHidden = uploadButton.isHidden
             activityIndicator.isHidden = false
             if !activityIndicator.isAnimating {
                 activityIndicator.startAnimating()
             }
             downloadButton.isHidden = true
+            downloadButtonClickArea.isHidden = downloadButton.isHidden
             frontView.isUserInteractionEnabled = false
         case .downloaded(let filePath):
             activityIndicator.isHidden = false
@@ -329,8 +374,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             setPhotoViewImageFromFileURL(path)
             frontView.isUserInteractionEnabled = true
             uploadButton.isHidden = true
+            uploadButtonClickArea.isHidden = uploadButton.isHidden
             activityIndicator.isHidden = true
             downloadButton.isHidden = true
+            downloadButtonClickArea.isHidden = downloadButton.isHidden
         }
     }
 
@@ -420,6 +467,11 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                 return false
             }
             return super.canPerformAction(action, withSender: sender)
+        case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return self.canDeleteMessage()
         default:
             return super.canPerformAction(action, withSender: sender)
         }
@@ -431,13 +483,18 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
     
     func menuAppeal(_ sender: Any) {
-        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, messageID: self.viewModel?.identifier, message: self.viewModel?.message))
+        menuAction?(.appeal(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), messageID: self.viewModel?.identifier, message: self.viewModel?.message))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click appeal:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 
     func menuPinMsg(_ sender: Any) {
-        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.contactId, viewModel: self.viewModel, indexPath:self.indexPath))
+        menuAction?(.pinMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click pin msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+    }
+    
+    func menuDeleteMsg(_ sender: Any){
+        menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click delete msg:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
     
     func setPhotoViewImageFromFileURL(_ fileURL: URL) {
