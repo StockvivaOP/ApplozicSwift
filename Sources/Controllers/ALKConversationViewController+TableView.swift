@@ -28,8 +28,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             return UITableViewCell()
         }
         print("Cell updated at row: ", indexPath.row, "and type is: ", message.messageType)
-
-        if let replyMessage = viewModel.replyMessageFor(message: message) {
+            
+        if let replyMessage = viewModel.replyMessageFor(message: message),
+            [ALKMessageType.text, ALKMessageType.html, ALKMessageType.email].contains(message.messageType) {
             // Get reply cell and return
             if message.isMyMessage {
                 let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
