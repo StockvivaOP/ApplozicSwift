@@ -2199,8 +2199,8 @@ extension ALKConversationViewModel {
         }
         let alMsgObj = updatedMessage.messageModel
         self.alMessages[index] = updatedMessage
+        self.alMessageWrapper.messageArray[index] = updatedMessage
         self.messageModels[index] = alMsgObj
-        self.alMessageWrapper.messageArray[index] = alMsgObj
         if isUpdateView {
             HeightCache.shared.removeHeight(for: updatedMessage.key)
             delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
