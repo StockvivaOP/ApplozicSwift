@@ -29,7 +29,7 @@ PODS:
   - SwiftLint (0.38.0)
 
 DEPENDENCIES:
-  - Applozic (from `https://github.com/AppLozic/Applozic-Chat-iOS-Framework.git`, branch `reply-api`)
+  - Applozic (from `https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git`, branch `feature/SVApplozicObjcSDK`)
   - ApplozicSwift (from `../ApplozicSwift.podspec`)
   - Nimble
   - Nimble-Snapshots
@@ -49,15 +49,15 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Applozic:
-    :branch: reply-api
-    :git: https://github.com/AppLozic/Applozic-Chat-iOS-Framework.git
+    :branch: feature/SVApplozicObjcSDK
+    :git: https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git
   ApplozicSwift:
     :path: "../ApplozicSwift.podspec"
 
 CHECKOUT OPTIONS:
   Applozic:
-    :commit: 2c2a76cdc10e3cd9ec39782dcef772aae0560d99
-    :git: https://github.com/AppLozic/Applozic-Chat-iOS-Framework.git
+    :commit: 82dff628e8c83e6921f4c3ee1c29acc710a2967f
+    :git: https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git
 
 SPEC CHECKSUMS:
   Applozic: 2b43fbc14a3fbd3cd5664c1040d1b1d86e21d3d1
@@ -71,6 +71,6 @@ SPEC CHECKSUMS:
   SDWebImage: 920f1a2ff1ca8296ad34f6e0510a1ef1d70ac965
   SwiftLint: 4105f061f9812b214568b736dab580ab2c73a582
 
-PODFILE CHECKSUM: 398ed69edd00003200ddb6dd9ce45492a2fb8872
+PODFILE CHECKSUM: f7ab047be1d4dcf6654dfa77c8de20dbd90635d9
 
 COCOAPODS: 1.8.1
