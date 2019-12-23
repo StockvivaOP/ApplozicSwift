@@ -1941,8 +1941,11 @@ extension ALKConversationViewModel {
                 _completedBlock(resultsOfBefore, nil, firstItemCreateTime, lastItemCreateTime)
             }
         }else{
-            let _halfPageSize = defaultValue_requestMessageHalfPageSize
+            var _halfPageSize = defaultValue_requestMessageHalfPageSize
             self.getSearchTimeAfterOpenGroupMessage(time: _lastReadMsgTimeNumber,  pageSize:_halfPageSize) { (resultsOfAfter, firstItemCreateTimeAfter, lastItemCreateTimeAfter) in
+                if resultsOfAfter?.count ?? 0 == 0 {
+                    _halfPageSize = _defaultPageSize
+                }
                 //call before record
                 self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber, pageSize:_halfPageSize, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
                     _completedBlock(resultsOfBefore, resultsOfAfter, firstItemCreateTimeBefore ?? firstItemCreateTimeAfter , lastItemCreateTimeAfter)
@@ -1969,7 +1972,7 @@ extension ALKConversationViewModel {
                 //if no any record, system will try to get next 50 item, untill no any message get or any message get
                 if firstItemCreateTime != nil {
                     loopingStart?()
-                    self.getSearchTimeBeforeOpenGroupMessage(time: firstItemCreateTime, downloadedMessageList:downloadedMessageList, lastLoopGotRecord:lastLoopGotRecord, completed:completed)
+                    self.getSearchTimeBeforeOpenGroupMessage(time: firstItemCreateTime, pageSize:pageSize, downloadedMessageList:downloadedMessageList, lastLoopGotRecord:lastLoopGotRecord, completed:completed)
                 }else{
                     completed(downloadedMessageList, downloadedMessageList?.first?.createdAtTime, downloadedMessageList?.last?.createdAtTime)
                 }
@@ -1979,9 +1982,9 @@ extension ALKConversationViewModel {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - getSearchTimeBeforeOpenGroupMessage - successful list count  \(newMessages.count) ")
             var _totalMsgList:[ALMessage] = downloadedMessageList ?? []
             _totalMsgList.append(contentsOf: newMessages)
-            if _totalMsgList.count < self.defaultValue_requestMessagePageSize && firstItemCreateTime != nil {
+            if _totalMsgList.count < _defaultPageSize && firstItemCreateTime != nil {
                 loopingStart?()
-                self.getSearchTimeBeforeOpenGroupMessage(time: firstItemCreateTime, downloadedMessageList:_totalMsgList, lastLoopGotRecord: _totalMsgList.count, completed:completed)
+                self.getSearchTimeBeforeOpenGroupMessage(time: firstItemCreateTime, pageSize:pageSize, downloadedMessageList:_totalMsgList, lastLoopGotRecord: _totalMsgList.count, completed:completed)
                 return
             }
             
@@ -2014,7 +2017,7 @@ extension ALKConversationViewModel {
                 //if no any record, system will try to get next 50 item, untill no any message get or any message get
                 if lastItemCreateTime != nil {
                     loopingStart?()
-                    self.getSearchTimeAfterOpenGroupMessage(time: lastItemCreateTime, downloadedMessageList:downloadedMessageList, lastLoopGotRecord:lastLoopGotRecord, completed:completed)
+                    self.getSearchTimeAfterOpenGroupMessage(time: lastItemCreateTime, pageSize:pageSize, downloadedMessageList:downloadedMessageList, lastLoopGotRecord:lastLoopGotRecord, completed:completed)
                 }else{
                     completed(downloadedMessageList, downloadedMessageList?.first?.createdAtTime, downloadedMessageList?.last?.createdAtTime)
                 }
@@ -2026,7 +2029,7 @@ extension ALKConversationViewModel {
             _totalMsgList.append(contentsOf: newMessages)
             if _totalMsgList.count < _defaultPageSize && lastItemCreateTime != nil {
                 loopingStart?()
-                self.getSearchTimeAfterOpenGroupMessage(time: lastItemCreateTime, downloadedMessageList:_totalMsgList, lastLoopGotRecord: _totalMsgList.count, completed:completed)
+                self.getSearchTimeAfterOpenGroupMessage(time: lastItemCreateTime, pageSize:pageSize, downloadedMessageList:_totalMsgList, lastLoopGotRecord: _totalMsgList.count, completed:completed)
                 return
             }
             
@@ -2044,7 +2047,8 @@ extension ALKConversationViewModel {
         NSLog("Last time: \(String(describing: time))")
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - time: \(String(describing: time))")
         
-        self.getSearchTimeBeforeOpenGroupMessage(time: time, loopingStart: {
+        let _defaultPageSize = self.defaultValue_requestMessagePageSize
+        self.getSearchTimeBeforeOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in //complete
             guard let newMessages = messageList, newMessages.count > 0  else {
