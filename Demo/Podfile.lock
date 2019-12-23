@@ -56,7 +56,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   Applozic:
-    :commit: 82dff628e8c83e6921f4c3ee1c29acc710a2967f
+    :commit: 9fb49427fd682be0ba507293dab94bc5026c9e71
     :git: https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git
 
 SPEC CHECKSUMS:
