@@ -969,6 +969,18 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     /// Call this method after proper viewModel initialization
     public func refreshViewController(isClearUnReadMessage:Bool = true, isClearDisplayMessageWithinUser:Bool = true) {
         viewModel.clearViewModel(isClearUnReadMessage:isClearUnReadMessage, isClearDisplayMessageWithinUser:isClearDisplayMessageWithinUser)
+        if isClearDisplayMessageWithinUser {
+            self.setShowAdminMessageButtonStatus(false)
+            self.viewModel.setDisplayMessageWithinUser(nil)
+        }
+        if isClearUnReadMessage {
+            self.scrollingState = .idle
+            self.lastScrollingPoint = CGPoint.zero
+            self.viewModel.clearUnReadMessageData()
+            ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
+        }
+        unreadScrollButton.isHidden = true
+        self.unReadMessageRemindIndicatorView.isHidden = true
         tableView.reloadData()
         configureView()
         viewModel.prepareController()
@@ -1133,11 +1145,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
         if self.viewModel.isUnreadMessageMode {//just cancel if user want to read latest message of now
-            self.viewModel.clearUnReadMessageData()
-            self.scrollingState = .idle
-            self.lastScrollingPoint = CGPoint.zero
-            ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
-            self.refreshViewController()
+            self.refreshViewController(isClearDisplayMessageWithinUser:false)
         }
         tableView.scrollToBottom(animated: true)
         unreadScrollButton.isHidden = true
@@ -2681,14 +2689,9 @@ extension ALKConversationViewController {
     }
     
     public func reloadMessageWithTargetUser(adminUserIdList:[String]?){
-        self.scrollingState = .idle
-        self.lastScrollingPoint = CGPoint.zero
-        ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
         self.viewModel.setDisplayMessageWithinUser(adminUserIdList)
         self.refreshViewController(isClearDisplayMessageWithinUser: false)
         tableView.scrollToBottom(animated: true)
-        unreadScrollButton.isHidden = true
-        self.unReadMessageRemindIndicatorView.isHidden = true
     }
 }
 
