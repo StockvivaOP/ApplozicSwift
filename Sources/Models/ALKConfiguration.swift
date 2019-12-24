@@ -291,6 +291,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
     func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
+    func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser() -> Bool

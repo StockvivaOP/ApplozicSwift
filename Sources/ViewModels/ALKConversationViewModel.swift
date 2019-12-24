@@ -22,6 +22,7 @@ public protocol ALKConversationViewModelDelegate: class {
     func willSendMessage()
     func updateTyingStatus(status: Bool, userId: String)
     func isPassMessageContentChecking() -> Bool
+    func displayMessageWithinUserListModeChanged(result:Bool)
 }
 
 // swiftlint:disable:next type_body_length
@@ -2185,12 +2186,17 @@ extension ALKConversationViewModel {
 //MARK: - stockviva show display user only (admin user only)
 extension ALKConversationViewModel {
     func setDisplayMessageWithinUser(_ userIdList:[String]?){
+        let _oldStatus = self.isDisplayMessageWithinUserListMode
         if let _userIdList = userIdList,  _userIdList.count > 0 {
             self.messageDisplayWithinUserList = _userIdList
             self.isDisplayMessageWithinUserListMode = true
         }else{
             self.messageDisplayWithinUserList = nil
             self.isDisplayMessageWithinUserListMode = false
+        }
+        
+        if _oldStatus != self.isDisplayMessageWithinUserListMode {
+            self.delegate?.displayMessageWithinUserListModeChanged(result: self.isDisplayMessageWithinUserListMode)
         }
     }
 }

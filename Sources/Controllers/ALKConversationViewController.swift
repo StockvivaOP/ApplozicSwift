@@ -1922,6 +1922,10 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     public func isPassMessageContentChecking() -> Bool {
        return self.delegateConversationChatContentAction?.isAdminUser() ?? false
     }
+    
+    public func displayMessageWithinUserListModeChanged(result:Bool) {
+        self.delegateConversationChatContentAction?.didShowAdminMessageOnlyStatusChanged(result: result)
+    }
 }
 
 extension ALKConversationViewController: ALKCreateGroupChatAddFriendProtocol {
