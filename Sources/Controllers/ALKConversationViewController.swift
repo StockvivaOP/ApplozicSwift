@@ -68,7 +68,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     fileprivate let moreBar: ALKMoreBar = ALKMoreBar(frame: .zero)
     fileprivate lazy var typingNoticeView = TypingNotice(localizedStringFileName : configuration.localizedStringFileName)
     fileprivate var alMqttConversationService: ALMQTTConversationService!
-    fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
+    fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
 
     fileprivate lazy var navigationBar = ALKConversationNavBar(configuration: self.configuration, delegate: self)
 
@@ -427,9 +427,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         //refresh nav bar content
         self.navigationBar.updateContent()
         //self.edgesForExtendedLayout = []
-        activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
-        activityIndicator.color = UIColor.lightGray
-        tableView.addSubview(activityIndicator)
         updateShowAdminMessageButtonTitle()
         alMqttConversationService = ALMQTTConversationService.sharedInstance()
         alMqttConversationService.mqttConversationDelegate = self
@@ -479,6 +476,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
+        //add loading
+        activityIndicator.color = UIColor.white
+        activityIndicator.backgroundColor = UIColor.lightGray
+        activityIndicator.layer.cornerRadius = 10.0
+        self.view.addSubview(self.activityIndicator)
         //update color
         tableView.backgroundColor = self.configuration.conversationViewBackgroundColor
         setRichMessageKitTheme()
@@ -616,13 +618,18 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     private func setupConstraints() {
-
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView]
+        
+        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
         view.addViewsForAutolayout(views: allViews)
 
+        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50.0).isActive = true
+        activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        activityIndicator.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
+        activityIndicator.heightAnchor.constraint(equalToConstant: 70.0).isActive = true
+        
         backgroundView.topAnchor.constraint(equalTo: contextTitleView.bottomAnchor).isActive = true
         backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -1608,8 +1615,8 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func loadingStarted() {
         activityIndicator.startAnimating()
-        if let _supView = activityIndicator.superview, _supView == self.tableView {
-            self.tableView.bringSubviewToFront(activityIndicator)
+        if let _supView = activityIndicator.superview, _supView == self.view {
+            view.bringSubviewToFront(activityIndicator)
         }
     }
 
@@ -2450,7 +2457,6 @@ extension ALKConversationViewController {
                 self.scrollingState = .idle
                 self.lastScrollingPoint = CGPoint.zero
                 self.loadingStarted()
-                self.refreshTableView()
             }) {//completed
                 if self.activityIndicator.isAnimating == true {
                     self.activityIndicator.stopAnimating()
