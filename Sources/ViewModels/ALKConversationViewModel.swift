@@ -1851,11 +1851,12 @@ extension ALKConversationViewModel {
             completed()
             return
         }
-        startProcess()
         //clear all
         self.clearViewModel()
         //clear unread model time
         ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
+        //start process
+        startProcess()
         //reload
         //call before record
         self.getSearchTimeBeforeOpenGroupMessage { (results, fistItemCreateTime, lastItemCreateTime) in

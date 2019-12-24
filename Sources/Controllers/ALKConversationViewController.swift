@@ -2450,6 +2450,7 @@ extension ALKConversationViewController {
                 self.scrollingState = .idle
                 self.lastScrollingPoint = CGPoint.zero
                 self.loadingStarted()
+                self.refreshTableView()
             }) {//completed
                 if self.activityIndicator.isAnimating == true {
                     self.activityIndicator.stopAnimating()
