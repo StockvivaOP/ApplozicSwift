@@ -1206,9 +1206,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             break;
         case .deleteMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
             print("DeleteMsg selected")
-             if /*let _chatGroupID = chatGroupHashID,*/
+             if let _chatGroupID = chatGroupHashID,
                 let _model = viewModel {
-                //self.delegateConversationMessageBoxAction?.didMenuDeleteMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
+                self.delegateConversationMessageBoxAction?.didMenuDeleteMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
                 self.viewModel.deleteMessagForAll(viewModel: _model, indexPath: indexPath, startProcess: {
                     self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(false)
                 }) { (result, error) in
