@@ -1859,7 +1859,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             _showAdminbutton.setTitleColor(.white, for: .normal)
             _showAdminbutton.setTitleColor(.ALKSVMainColorPurple(), for: .selected)
             _showAdminbutton.setFont(font: UIFont.systemFont(ofSize: 12.0))
-            let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? ""
+            let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chatgroup_conversation_right_menu_view_admin_only") ?? ""
             _showAdminbutton.setTitle(_title, for: .normal)
             _showAdminbutton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5.0, bottom: 0, right: 5.0)
             _showAdminbutton.addTarget(self, action:notificationShowAdminMsgSelector, for: UIControl.Event.touchUpInside)
@@ -2673,7 +2673,7 @@ extension ALKConversationViewController {
     private func updateShowAdminMessageButtonTitle(){
         if let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView,
             let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == 1 } ) as? UIButton {
-                let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? ""
+                let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chatgroup_conversation_right_menu_view_admin_only") ?? ""
                 _showAdminBtn.setTitle(_title, for: .normal)
                 
             }
