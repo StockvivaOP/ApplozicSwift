@@ -1847,7 +1847,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             button.addTarget(self, action: selector, for: UIControl.Event.touchUpInside)
         }
         
-        if configuration.isShowAdminMessageOnlyOptionInNavBar || true {
+        if configuration.isShowAdminMessageOnlyOptionInNavBar {
             let _btnShowAdminMsgOnlySize = CGSize(width: 60.0, height: 25.0)
             let notificationShowAdminMsgSelector = #selector(ALKConversationViewController.sendShowAdminMessageOnlyNavBarButtonSelectionNotification(_:))
             let _showAdminbutton: UIButton = UIButton(type: UIButton.ButtonType.custom)
