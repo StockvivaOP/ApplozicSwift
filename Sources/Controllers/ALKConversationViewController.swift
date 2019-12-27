@@ -930,6 +930,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 let _types:[String] = ["com.adobe.pdf", "public.image"]
                 let _vc = ALKCVDocumentPickerViewController(documentTypes: _types, in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
+                _vc.modalPresentationStyle = .overFullScreen
+                _vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
             case .showImagePicker:
@@ -937,6 +939,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     else {
                         return
                 }
+                vc.modalPresentationStyle = .overFullScreen
+                vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(vc, animated: false, completion: nil)
             case .showLocation:
                 let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mapView, bundle: Bundle.applozic)
@@ -952,6 +956,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     button.isUserInteractionEnabled = true
                     return
                 }
+                vc.modalPresentationStyle = .overFullScreen
+                vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(vc, animated: false, completion: nil)
                 button.isUserInteractionEnabled = true
 
@@ -2310,7 +2316,6 @@ extension ALKConversationViewController: AttachmentDelegate {
             bundle: Bundle.applozic)
         guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
         let vc = nav.viewControllers.first as? ALKMediaViewerViewController
-
         let messageModels = viewModel.messageModels.filter {
             $0.messageType == .photo && $0.fileMetaInfo != nil
             //($0.messageType == .photo || $0.messageType == .video) && ($0.downloadPath() != nil) && ($0.downloadPath()!.1 != nil)
@@ -2322,6 +2327,8 @@ extension ALKConversationViewController: AttachmentDelegate {
             messages: messageModels,
             currentIndex: currentIndex,
             localizedStringFileName: localizedStringFileName)
+        nav.modalPresentationStyle = .overFullScreen
+        nav.modalTransitionStyle = .crossDissolve
         self.present(nav, animated: true, completion: nil)
     }
 }
@@ -2437,10 +2444,13 @@ extension ALKConversationViewController {
         }
     }
     
-    func didReplyClickedInCell(replyMessage: ALKMessageViewModel){
+    func didReplyClickedInCell(replyMessage: ALKMessageViewModel?){
+        guard let _replyMessage = replyMessage else {
+            return
+        }
         var _userDisplayName:String? = nil
         var _userIconUrl:String? = nil
-        if replyMessage.isMyMessage {
+        if _replyMessage.isMyMessage {
             _userDisplayName = ALUserDefaultsHandler.getDisplayName()
             _userIconUrl = ALUserDefaultsHandler.getProfileImageLinkFromServer()
             if _userDisplayName == nil {
@@ -2450,7 +2460,7 @@ extension ALKConversationViewController {
                 _userIconUrl = ""
             }
         }
-        self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: replyMessage)
+        self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: _replyMessage)
     }
     
     func sendMessageWithClearAllModel(completedBlock:@escaping ()->Void){

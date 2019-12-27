@@ -101,6 +101,8 @@ extension ALKSVImageMessageDetailViewController {
             messages: [_messageModel],
             currentIndex: 0,
             localizedStringFileName: self.configuration.localizedStringFileName)
+        nav.modalPresentationStyle = .overFullScreen
+        nav.modalTransitionStyle = .crossDissolve
         self.present(nav, animated: true, completion: nil)
     }
     

@@ -269,9 +269,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
         if let height = HeightCache.shared.getHeight(for: messageModel.identifier) {
             return height
         }
+        
+        let replyMessage = replyMessageFor(message: messageModel)
         switch messageModel.messageType {
         case .text, .html, .email:
-            let replyMessage = replyMessageFor(message: messageModel)
             if messageModel.isMyMessage {
                 let height = ALKMyMessageCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                 return height.cached(with: messageModel.identifier)
@@ -282,18 +283,18 @@ open class ALKConversationViewModel: NSObject, Localizable {
         case .photo:
             if messageModel.isMyMessage {
                 if messageModel.ratio < 1 {
-                    let heigh = ALKMyPhotoPortalCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                    let heigh = ALKMyPhotoPortalCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                     return heigh.cached(with: messageModel.identifier)
                 } else {
-                    let heigh = ALKMyPhotoLandscapeCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                    let heigh = ALKMyPhotoLandscapeCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                     return heigh.cached(with: messageModel.identifier)
                 }
             } else {
                 if messageModel.ratio < 1 {
-                    let heigh = ALKFriendPhotoPortalCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                    let heigh = ALKFriendPhotoPortalCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                     return heigh.cached(with: messageModel.identifier)
                 } else {
-                    let heigh = ALKFriendPhotoLandscapeCell.rowHeigh(viewModel: messageModel, width: maxWidth)
+                    let heigh = ALKFriendPhotoLandscapeCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                     return heigh.cached(with: messageModel.identifier)
                 }
             }
@@ -377,12 +378,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
             if messageModel.isMyMessage {
                 return
                     ALKMyDocumentCell
-                        .rowHeigh(viewModel: messageModel, width: maxWidth)
+                        .rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                         .cached(with: messageModel.identifier)
             } else {
                 return
                     ALKFriendDocumentCell
-                        .rowHeigh(viewModel: messageModel, width: maxWidth)
+                        .rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
                         .cached(with: messageModel.identifier)
             }
         case .contact:
@@ -1649,7 +1650,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private func getMessageToPost(isTextMessage: Bool = false) -> ALMessage {
         var alMessage = ALMessage()
         // If it's a text message then set the reply id
-        if isTextMessage { alMessage = setReplyId(message: alMessage) }
+        //if isTextMessage { alMessage = setReplyId(message: alMessage) }
+        alMessage = setReplyId(message: alMessage)
 
         delegate?.willSendMessage()
         alMessage.to = contactId

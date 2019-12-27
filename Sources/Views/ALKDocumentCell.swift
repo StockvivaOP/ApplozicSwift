@@ -142,7 +142,68 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         view.backgroundColor = .clear
         return view
     }()
+    
+    //tag: stockviva start
+    var replyView: ALKImageView = {
+        let view = ALKImageView()
+        view.backgroundColor = UIColor.clear
+        view.tintColor = UIColor.ALKSVGreyColor250()
+        view.isUserInteractionEnabled = true
+        return view
+    }()
 
+    var replyIndicatorView: ALKImageView = {
+        let view = ALKImageView()
+        view.clipsToBounds = true
+        view.isOpaque = true
+        view.backgroundColor = UIColor.ALKSVOrangeColor()
+        view.tintColor = UIColor.ALKSVOrangeColor()
+        view.contentMode = .scaleToFill
+        return view
+    }()
+    
+    var replyNameLabel: UILabel = {
+        let label = UILabel(frame: CGRect.zero)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVOrangeColor()
+        label.numberOfLines = 1
+        return label
+    }()
+    
+    let replyMessageTypeImageView: UIImageView = {
+        let imageView = UIImageView(frame: CGRect.zero)
+        imageView.backgroundColor = .clear
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+
+    var replyMessageLabel: UILabel = {
+        let label = UILabel(frame: CGRect.zero)
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.ALKSVGreyColor102()
+        label.numberOfLines = 3
+        label.lineBreakMode = .byTruncatingTail
+        return label
+    }()
+
+    let previewImageView: UIImageView = {
+        let imageView = UIImageView(frame: CGRect.zero)
+        imageView.backgroundColor = .clear
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    lazy var selfNameText: String = {
+        let text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_you") ?? localizedString(forKey: "You", withDefaultValue: SystemMessage.LabelName.You, fileName: localizedStringFileName)
+        return text
+    }()
+    
+    var replyViewAction: (()->())? = nil
+    
+    var replyMessageTypeImagewidthConst:NSLayoutConstraint?
+    var replyMessageLabelConst:NSLayoutConstraint?
+    //tag: stockviva end
+    
     //MARK: stockviva tag start
     var fileNameTrailing :NSLayoutConstraint?
     
@@ -170,18 +231,52 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         super.setupStyle()
         timeLabel.setStyle(ALKMessageStyle.time)
     }
-
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.previewImageView.image = nil
+        self.previewImageView.kf.cancelDownloadTask()
+    }
+    
     override func setupViews() {
         super.setupViews()
 
-        contentView.addViewsForAutolayout(views: [bubbleView, frameUIView, attachBgView, downloadButton, uploadButton, fileNameLabel,docImageView,sizeAndFileType,frontView,progressView])
-
+        contentView.addViewsForAutolayout(views: [
+        bubbleView,
+        frameUIView,
+        replyView,
+        replyIndicatorView,
+        replyNameLabel,
+        replyMessageTypeImageView,
+        replyMessageLabel,
+        previewImageView,
+        attachBgView,
+        downloadButton,
+        uploadButton,
+        fileNameLabel,
+        docImageView,
+        sizeAndFileType,
+        frontView,
+        progressView])
+        
+        contentView.bringSubviewToFront(uploadButton)
         contentView.bringSubviewToFront(downloadButton)
         contentView.bringSubviewToFront(progressView)
+        contentView.bringSubviewToFront(replyView)
+        contentView.bringSubviewToFront(replyIndicatorView)
+        contentView.bringSubviewToFront(replyNameLabel)
+        contentView.bringSubviewToFront(replyMessageTypeImageView)
+        contentView.bringSubviewToFront(replyMessageLabel)
+        contentView.bringSubviewToFront(previewImageView)
         frontView.addGestureRecognizer(longPressGesture)
 
         let topToOpen = UITapGestureRecognizer(target: self, action: #selector(self.openWKWebView(gesture:)))
-
+        
+        //tag: stockviva start
+        let replyTapGesture = UITapGestureRecognizer(target: self, action: #selector(replyViewTapped))
+        replyView.addGestureRecognizer(replyTapGesture)
+        //tag: stockviva end
+        
         frontView.isUserInteractionEnabled = true
         frontView.addGestureRecognizer(topToOpen)
 
@@ -244,7 +339,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         return self.viewModel?.isAllowToDeleteMessage(self.systemConfig?.expireSecondForDeleteMessage) ?? false
     }
 
-    override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat) -> CGFloat {
+    class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat, replyMessage: ALKMessageViewModel?) -> CGFloat {
         return super.rowHeigh(viewModel: viewModel, width: width)
     }
 
@@ -273,7 +368,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
     }
 
     class func commonHeightPadding() -> CGFloat {
-        return CommonPadding.FileNameLabel.top + CommonPadding.FileNameLabel.height + CommonPadding.FileNameLabel.bottom + CommonPadding.FileTypeView.height + CommonPadding.FileTypeView.bottom
+        return CommonPadding.AttachBgUIView.top + CommonPadding.AttachBgUIView.bottom + CommonPadding.DownloadButton.top + CommonPadding.DownloadButton.height + CommonPadding.FileTypeView.height + CommonPadding.FileTypeView.bottom
     }
 
     override func update(viewModel: ALKMessageViewModel) {
@@ -299,6 +394,81 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
 
         guard let state = viewModel.attachmentState() else { return }
         updateView(for: state)
+    }
+    
+    func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
+        self.update(viewModel: viewModel)
+        
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        if let replyMessage = replyMessage, _isDeletedMsg == false {
+            replyNameLabel.text = replyMessage.isMyMessage ?
+                selfNameText : replyMessage.displayName
+            replyMessageLabel.text =
+                getMessageTextFrom(viewModel: replyMessage)
+            //update reply icon
+            if replyMessage.messageType == ALKMessageType.voice  {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_audio") ?? replyMessageLabel.text
+            }else if replyMessage.messageType == ALKMessageType.video {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_video_grey", in: Bundle.applozic, compatibleWith: nil)
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_video") ?? replyMessageLabel.text
+            }else if replyMessage.messageType == ALKMessageType.photo {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_photo_grey", in: Bundle.applozic, compatibleWith: nil)
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_photo") ?? replyMessageLabel.text
+            }else if replyMessage.messageType == ALKMessageType.document {
+                replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_file_grey", in: Bundle.applozic, compatibleWith: nil)
+                replyMessageLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_document") ?? replyMessageLabel.text
+            }else{
+                replyMessageTypeImageView.image = nil
+            }
+            
+            ReplyMessageImage().loadPreviewFor(message: replyMessage) { (url, image) in
+                var _tempModel = replyMessage
+                _tempModel.saveImageThumbnailURLInMetaData(url: url?.absoluteString)
+                self.delegateCellRequestInfo?.updateMessageModelData(messageModel: _tempModel, isUpdateView: false)
+                if let url = url {
+                    self.setImageFrom(url: url, to: self.previewImageView)
+                } else {
+                    self.previewImageView.image = image
+                }
+            }
+        } else {
+            replyNameLabel.text = ""
+            replyMessageLabel.text = ""
+            replyMessageTypeImageView.image = nil
+            previewImageView.image = nil
+        }
+        
+        if replyMessageTypeImageView.image == nil {
+            replyMessageTypeImagewidthConst?.constant = 0
+            replyMessageLabelConst?.constant = 0
+        }else{
+            replyMessageTypeImagewidthConst?.constant = 20
+            replyMessageLabelConst?.constant = 5
+        }
+        if viewModel.isMyMessage {
+            replyNameLabel.textColor = UIColor.ALKSVOrangeColor()
+            replyView.image = setReplyViewImage(isReceiverSide: false)
+            replyIndicatorView.image = UIImage.init(named: "sv_button_chatroom_reply_orange", in: Bundle.applozic, compatibleWith: nil)
+            replyIndicatorView.backgroundColor = UIColor.clear
+            replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
+        }else{
+            replyNameLabel.textColor = UIColor.ALKSVOrangeColor()
+            replyView.image = setReplyViewImage(isReceiverSide: true)
+            replyIndicatorView.backgroundColor = UIColor.ALKSVOrangeColor()
+            replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
+            replyIndicatorView.image = nil
+        }
+        //set color
+        let _contactID:String? = replyMessage?.getMessageReceiverHashId()
+        if let _messageUserId = _contactID,
+            let _userColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+            replyNameLabel.textColor = _userColor
+            replyIndicatorView.backgroundColor = _userColor
+            replyIndicatorView.tintColor = _userColor
+        }
+        
+        
     }
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
@@ -403,6 +573,48 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
             return super.canPerformAction(action, withSender: sender)
         }
     }
+    
+    //tag: stockviva start
+    private func getMessageTextFrom(viewModel: ALKMessageViewModel) -> String? {
+        switch viewModel.messageType {
+        case .text, .html:
+            return viewModel.message
+        default:
+            return viewModel.messageType.rawValue
+        }
+    }
+    
+    private func setImageFrom(url: URL?, to imageView: UIImageView) {
+        guard let url = url else { return }
+        let provider = LocalFileImageDataProvider(fileURL: url)
+        imageView.kf.setImage(with: provider)
+    }
+    
+    @objc func replyViewTapped() {
+        replyViewAction?()
+    }
+    
+    static func getReplyViewHeight(_ defaultReplyViewHeight:CGFloat = 0, defaultMsgHeight:CGFloat = 0, maxMsgHeight:CGFloat, maxMsgWidth:CGFloat, replyMessageContent:String?) -> (replyViewHeight:CGFloat, replyMsgViewHeight:CGFloat, offsetOfMsgIncreaseHeight:CGFloat){
+        
+        let _tempLabel:UILabel = UILabel(frame: CGRect.zero)
+        _tempLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        _tempLabel.textColor = UIColor.ALKSVGreyColor102()
+        _tempLabel.numberOfLines = 3
+        _tempLabel.lineBreakMode = .byTruncatingTail
+        _tempLabel.text = replyMessageContent
+        
+        var _resultMsgHeight:CGFloat = _tempLabel.sizeThatFits(CGSize(width: maxMsgWidth, height: maxMsgHeight) ).height
+        if _resultMsgHeight < defaultMsgHeight {
+            _resultMsgHeight = defaultMsgHeight
+        }
+        let _offsetOfMsgIncreaseHeight = (_resultMsgHeight - defaultMsgHeight)
+        var _replyViewViewHeight = defaultReplyViewHeight + _offsetOfMsgIncreaseHeight
+        if _replyViewViewHeight < defaultReplyViewHeight {
+            _replyViewViewHeight = defaultReplyViewHeight
+        }
+        return (replyViewHeight:_replyViewViewHeight, replyMsgViewHeight:_resultMsgHeight, offsetOfMsgIncreaseHeight:_offsetOfMsgIncreaseHeight)
+    }
+    //tag: stockviva end
 }
 
 extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {

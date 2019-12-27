@@ -28,69 +28,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             return UITableViewCell()
         }
         print("Cell updated at row: ", indexPath.row, "and type is: ", message.messageType)
-            
-        if let replyMessage = viewModel.replyMessageFor(message: message),
-            [ALKMessageType.text, ALKMessageType.html, ALKMessageType.email].contains(message.messageType) {
-            // Get reply cell and return
-            if message.isMyMessage {
-                let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
-                cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
-                cell.systemConfig = self.configuration
-                cell.delegateCellRequestInfo = self
-                cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
-                cell.setLocalizedStringFileName(configuration.localizedStringFileName)
-                cell.indexPath = indexPath
-                cell.update(viewModel: message, replyMessage: replyMessage)
-                cell.update(chatBar: self.chatBar)
-                cell.messageViewLinkClicked = { (url) in
-                    if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
-                    }
-                }
-                cell.menuAction = {[weak self] action in
-                    self?.menuItemSelected(action: action, message: message) }
-                cell.replyViewAction = {[weak self] in
-                    if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.didReplyClickedInCell(replyMessage: replyMessage)
-                    }
-                }
-                return cell
-            } else {
-                let cell: ALKFriendMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
-                cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
-                cell.systemConfig = self.configuration
-                cell.delegateCellRequestInfo = self
-                cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
-                cell.setLocalizedStringFileName(configuration.localizedStringFileName)
-                cell.indexPath = indexPath
-                cell.update(viewModel: message, replyMessage: replyMessage)
-                cell.update(chatBar: self.chatBar)
-                cell.avatarTapped = {[weak self] in
-                    guard let currentModel = cell.viewModel else {return}
-                    self?.messageAvatarViewDidTap(messageVM: currentModel, indexPath: indexPath)
-                }
-                cell.messageViewLinkClicked = { (url) in
-                    if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: self, isPushFromSourceView:false)
-                    }
-                }
-                cell.menuAction = {[weak self] action in
-                    self?.menuItemSelected(action: action, message: message) }
-                cell.replyViewAction = {[weak self] in
-                    if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.didReplyClickedInCell(replyMessage: replyMessage)
-                    }
-                }
-                cell.joinOurGroupButtonClicked = { (model) in
-                    self.delegateConversationChatContentAction?.joinOurGroupButtonClicked(viewModel: model)
-                }
-                return cell
-            }
-        }
+        
+        let replyMessage = viewModel.replyMessageFor(message: message)
         switch message.messageType {
         case .text, .html, .email:
             if message.isMyMessage {
-
                 let cell: ALKMyMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
                 cell.systemConfig = self.configuration
@@ -98,7 +40,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.indexPath = indexPath
-                cell.update(viewModel: message, replyMessage: nil)
+                cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.messageViewLinkClicked = { (url) in
                     if self.configuration.enableOpenLinkInApp {
@@ -107,8 +49,12 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
+                cell.replyViewAction = {[weak self] in
+                    if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                    }
+                }
                 return cell
-
             } else {
                 let cell: ALKFriendMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
@@ -117,7 +63,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.indexPath = indexPath
-                cell.update(viewModel: message, replyMessage: nil)
+                cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.avatarTapped = {[weak self] in
                     guard let currentModel = cell.viewModel else {return}
@@ -130,6 +76,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
+                cell.replyViewAction = {[weak self] in
+                    if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                    }
+                }
                 cell.joinOurGroupButtonClicked = { (model) in
                     self.delegateConversationChatContentAction?.joinOurGroupButtonClicked(viewModel: model)
                 }
@@ -149,7 +100,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.indexPath = indexPath
                     cell.photoView.image = nil
-                    cell.update(viewModel: message)
+                    cell.update(viewModel: message, replyMessage: replyMessage)
                     cell.uploadTapped = {[weak self]
                         value in
                         // upload
@@ -162,6 +113,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.downloadTapped = {[weak self]
                         value in
                         self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
+                    }
+                    cell.replyViewAction = {[weak self] in
+                        if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        }
                     }
                     cell.menuAction = {[weak self] action in
                         self?.menuItemSelected(action: action, message: message) }
@@ -176,10 +132,15 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.indexPath = indexPath
-                    cell.update(viewModel: message)
+                    cell.update(viewModel: message, replyMessage: replyMessage)
                     cell.uploadCompleted = {[weak self]
                         responseDict in
                         self?.attachmentUploadDidCompleteWith(response: responseDict, indexPath: indexPath)
+                    }
+                    cell.replyViewAction = {[weak self] in
+                        if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        }
                     }
                     cell.delegate = self
                     return cell
@@ -195,7 +156,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.indexPath = indexPath
-                    cell.update(viewModel: message)
+                    cell.update(viewModel: message, replyMessage: replyMessage)
                     cell.downloadTapped = {[weak self]
                         value in
                         self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
@@ -203,6 +164,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.avatarTapped = {[weak self] in
                         guard let currentModel = cell.viewModel else {return}
                         self?.messageAvatarViewDidTap(messageVM: currentModel, indexPath: indexPath)
+                    }
+                    cell.replyViewAction = {[weak self] in
+                        if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        }
                     }
                     cell.menuAction = {[weak self] action in
                         self?.menuItemSelected(action: action, message: message) }
@@ -217,7 +183,12 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                     cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                     cell.indexPath = indexPath
-                    cell.update(viewModel: message)
+                    cell.update(viewModel: message, replyMessage: replyMessage)
+                    cell.replyViewAction = {[weak self] in
+                        if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        }
+                    }
                     cell.delegate = self
                     return cell
                 }
@@ -505,7 +476,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.indexPath = indexPath
 
-                cell.update(viewModel: message)
+                cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
@@ -522,7 +493,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     value in
                     self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
                 }
-                
+                cell.replyViewAction = {[weak self] in
+                    if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                    }
+                }
                 return cell
             } else {
                 let cell: ALKFriendDocumentCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
@@ -532,7 +507,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.indexPath = indexPath
-                cell.update(viewModel: message)
+                cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.menuAction = {[weak self] action in
                     self?.menuItemSelected(action: action, message: message) }
@@ -548,6 +523,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.downloadTapped = {[weak self]
                     value in
                     self?.attachmentViewDidTapDownload(view: cell, indexPath: indexPath)
+                }
+                cell.replyViewAction = {[weak self] in
+                    if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
+                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                    }
                 }
                 return cell
             }
