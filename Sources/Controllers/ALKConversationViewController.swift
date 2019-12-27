@@ -930,8 +930,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 let _types:[String] = ["com.adobe.pdf", "public.image"]
                 let _vc = ALKCVDocumentPickerViewController(documentTypes: _types, in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
-                _vc.modalPresentationStyle = .overFullScreen
-                _vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
             case .showImagePicker:
