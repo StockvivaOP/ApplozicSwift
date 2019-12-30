@@ -583,7 +583,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                         return false
                     })
                     if _foundMessageIndex {
-                        _tempFilteredArray.remove(at: index)
+                        _tempFilteredArray.remove(object: message)
                     }
                 }
                 //if empty list
