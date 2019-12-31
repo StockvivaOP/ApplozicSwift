@@ -16,7 +16,7 @@ PODS:
     - iOSSnapshotTestCase/Core
   - Kingfisher (5.6.0)
   - MGSwipeTableCell (1.5.6)
-  - Nimble (8.0.4)
+  - Nimble (8.0.5)
   - Nimble-Snapshots (8.0.0):
     - Nimble-Snapshots/Core (= 8.0.0)
   - Nimble-Snapshots/Core (8.0.0):
@@ -29,7 +29,7 @@ PODS:
   - SwiftLint (0.38.0)
 
 DEPENDENCIES:
-  - Applozic (from `https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git`, branch `feature/SVApplozicObjcSDK`)
+  - Applozic (from `https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git`, branch `feature/SV_Sprint_26`)
   - ApplozicSwift (from `../ApplozicSwift.podspec`)
   - Nimble
   - Nimble-Snapshots
@@ -49,14 +49,14 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Applozic:
-    :branch: feature/SVApplozicObjcSDK
+    :branch: feature/SV_Sprint_26
     :git: https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git
   ApplozicSwift:
     :path: "../ApplozicSwift.podspec"
 
 CHECKOUT OPTIONS:
   Applozic:
-    :commit: 9fb49427fd682be0ba507293dab94bc5026c9e71
+    :commit: 56ac294e40107b546459e182792d9035e1f675aa
     :git: https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git
 
 SPEC CHECKSUMS:
@@ -65,12 +65,12 @@ SPEC CHECKSUMS:
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Kingfisher: 1a50df6880a60bae26f3e21a0df3d17b892f5e0b
   MGSwipeTableCell: 616700eb0ffd1c611ba909066cb7fd739790a0a7
-  Nimble: 18d5360282923225d62b09d781f63abc1a0111fc
+  Nimble: 4ab1aeb9b45553c75b9687196b0fa0713170a332
   Nimble-Snapshots: 8ec63f41ce6c7229a17be9a64edbc123b181f75b
   Quick: 7fb19e13be07b5dfb3b90d4f9824c855a11af40e
   SDWebImage: 920f1a2ff1ca8296ad34f6e0510a1ef1d70ac965
   SwiftLint: 4105f061f9812b214568b736dab580ab2c73a582
 
-PODFILE CHECKSUM: f7ab047be1d4dcf6654dfa77c8de20dbd90635d9
+PODFILE CHECKSUM: f44caec0f7f408920fcf33d2485171cf3d5092c3
 
 COCOAPODS: 1.8.1
