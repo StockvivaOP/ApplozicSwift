@@ -11,7 +11,7 @@ import Applozic
 extension ALKConversationViewController: ALKCustomCameraProtocol {
 
     func customCameraDidTakePicture(cropedImage: UIImage) {
-        self.sendMessageWithHandleUnreadModel(completedBlock: {
+        self.sendMessageWithClearAllModel(completedBlock: {
             print("Image call done")
             self.isJustSent = true
             

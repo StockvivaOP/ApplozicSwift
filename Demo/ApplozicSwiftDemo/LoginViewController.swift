@@ -21,13 +21,13 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        userName.text = "az37"
-//        password.text = "18552|1572927096|86907fca6786f782b086f64478abaeff"
-//        emailId.text = "oldpig.chu@moleculez.co"
-        
-        userName.text = "QW3A"
-        password.text = "18555|1574646949|575d361c194408c7270bbdfe6a1dff5b"
+        userName.text = "az37"
+        password.text = "18552|1577431065|0b76860807ec825eeb340da70013cbe5"
         emailId.text = "oldpig.chu@moleculez.co"
+        
+//        userName.text = "QW3A"
+//        password.text = "18555|1577157175|676da9422201d2e07f1b13e0ed6a4b8e"
+//        emailId.text = "oldpig.chu@moleculez.co"
         
         // Do any additional setup after loading the view.
         ALUserDefaultsHandler.setUserAuthenticationTypeId(1) // APPLOZIC
@@ -75,7 +75,8 @@ class LoginViewController: UIViewController {
             if error == nil {
                 NSLog("[REGISTRATION] Applozic user registration was successful: %@ \(String(describing: response?.isRegisteredSuccessfully()))")
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewController")
-
+                vc?.modalPresentationStyle = .overFullScreen
+                vc?.modalTransitionStyle = .crossDissolve
                 self.present(vc!, animated: false, completion: nil)
             } else {
                 NSLog("[REGISTRATION] Applozic user registration error: %@", error.debugDescription)

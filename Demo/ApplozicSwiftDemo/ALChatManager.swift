@@ -135,6 +135,8 @@ class ALChatManager: NSObject {
     func launch(viewController: UIViewController, from vc: UIViewController, isPresentViewMode:Bool = false) {
         let navVC = ALKBaseNavigationViewController(rootViewController: viewController)
         if vc.navigationController == nil || isPresentViewMode {
+            navVC.modalPresentationStyle = .overFullScreen
+            navVC.modalTransitionStyle = .crossDissolve
             vc.present(navVC, animated: true, completion: nil)
             return
         }

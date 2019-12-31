@@ -68,7 +68,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     fileprivate let moreBar: ALKMoreBar = ALKMoreBar(frame: .zero)
     fileprivate lazy var typingNoticeView = TypingNotice(localizedStringFileName : configuration.localizedStringFileName)
     fileprivate var alMqttConversationService: ALMQTTConversationService!
-    fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
+    fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
 
     fileprivate lazy var navigationBar = ALKConversationNavBar(configuration: self.configuration, delegate: self)
 
@@ -427,10 +427,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         //refresh nav bar content
         self.navigationBar.updateContent()
         //self.edgesForExtendedLayout = []
-        activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
-        activityIndicator.color = UIColor.lightGray
-        tableView.addSubview(activityIndicator)
-        addRefreshButton()
+        updateShowAdminMessageButtonTitle()
         alMqttConversationService = ALMQTTConversationService.sharedInstance()
         alMqttConversationService.mqttConversationDelegate = self
         alMqttConversationService.subscribeToConversation()
@@ -479,9 +476,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
+        //add loading
+        activityIndicator.color = UIColor.white
+        activityIndicator.backgroundColor = UIColor.lightGray
+        activityIndicator.layer.cornerRadius = 10.0
+        self.view.addSubview(self.activityIndicator)
         //update color
         tableView.backgroundColor = self.configuration.conversationViewBackgroundColor
         setRichMessageKitTheme()
+        addRefreshButton()
 
         guard !configuration.restrictedWordsFileName.isEmpty else {
             return
@@ -615,13 +618,18 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     private func setupConstraints() {
-
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView]
+        
+        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
         view.addViewsForAutolayout(views: allViews)
 
+        activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50.0).isActive = true
+        activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        activityIndicator.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
+        activityIndicator.heightAnchor.constraint(equalToConstant: 70.0).isActive = true
+        
         backgroundView.topAnchor.constraint(equalTo: contextTitleView.bottomAnchor).isActive = true
         backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -704,6 +712,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: navigationBar)
         viewModel.currentConversationProfile { (profile) in
             guard let profile = profile else { return }
+            self.navigationItem.titleView = nil
             self.loadingIndicator.stopLoading()
             self.navigationBar.updateView(profile: profile)
         }
@@ -867,7 +876,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     _tempMsg = _tempMsg + _additionalMsg
                 }
                 
-                self?.sendMessageWithHandleUnreadModel(completedBlock: {
+                self?.sendMessageWithClearAllModel(completedBlock: {
                     weakSelf.viewModel.send(message: _tempMsg, mentionUserList:mentionUserList, isOpenGroup: weakSelf.viewModel.isOpenGroup, metadata:self?.configuration.messageMetadata)
                     button.isUserInteractionEnabled = true
                 })
@@ -888,7 +897,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     }
                 })
             case .sendVoice(let voice):
-                self?.sendMessageWithHandleUnreadModel(completedBlock: {
+                self?.sendMessageWithClearAllModel(completedBlock: {
                     weakSelf.viewModel.send(voiceMessage: voice as Data, metadata:self?.configuration.messageMetadata)
                 })
             case .startVideoRecord:
@@ -928,6 +937,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     else {
                         return
                 }
+                vc.modalPresentationStyle = .overFullScreen
+                vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(vc, animated: false, completion: nil)
             case .showLocation:
                 let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mapView, bundle: Bundle.applozic)
@@ -943,6 +954,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     button.isUserInteractionEnabled = true
                     return
                 }
+                vc.modalPresentationStyle = .overFullScreen
+                vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(vc, animated: false, completion: nil)
                 button.isUserInteractionEnabled = true
 
@@ -965,8 +978,20 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     /// Call this method after proper viewModel initialization
-    public func refreshViewController() {
-        viewModel.clearViewModel()
+    public func refreshViewController(isClearUnReadMessage:Bool = true, isClearDisplayMessageWithinUser:Bool = true) {
+        viewModel.clearViewModel(isClearUnReadMessage:isClearUnReadMessage, isClearDisplayMessageWithinUser:isClearDisplayMessageWithinUser)
+        if isClearDisplayMessageWithinUser {
+            self.setShowAdminMessageButtonStatus(false)
+            self.viewModel.setDisplayMessageWithinUser(nil)
+        }
+        if isClearUnReadMessage {
+            self.scrollingState = .idle
+            self.lastScrollingPoint = CGPoint.zero
+            self.viewModel.clearUnReadMessageData()
+            ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
+        }
+        unreadScrollButton.isHidden = true
+        self.unReadMessageRemindIndicatorView.isHidden = true
         tableView.reloadData()
         configureView()
         viewModel.prepareController()
@@ -1131,11 +1156,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
         if self.viewModel.isUnreadMessageMode {//just cancel if user want to read latest message of now
-            self.viewModel.clearUnReadMessageData()
-            self.scrollingState = .idle
-            self.lastScrollingPoint = CGPoint.zero
-            ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
-            self.refreshViewController()
+            self.refreshViewController(isClearDisplayMessageWithinUser:false)
         }
         tableView.scrollToBottom(animated: true)
         unreadScrollButton.isHidden = true
@@ -1598,8 +1619,8 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func loadingStarted() {
         activityIndicator.startAnimating()
-        if let _supView = activityIndicator.superview, _supView == self.tableView {
-            self.tableView.bringSubviewToFront(activityIndicator)
+        if let _supView = activityIndicator.superview, _supView == self.view {
+            view.bringSubviewToFront(activityIndicator)
         }
     }
 
@@ -1809,50 +1830,82 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         navigationBar.updateView(profile: profile)
     }
 
-    func rightNavbarButton() -> UIBarButtonItem? {
+    func rightNavbarButton() -> UIView? {
         guard !configuration.hideRightNavBarButtonForConversationView else {
             return nil
         }
-        var button: UIBarButtonItem
+        
+        let _svRightNavBtnBar: UIStackView = {
+            let stackView = UIStackView()
+            stackView.axis = .horizontal
+            stackView.alignment = .fill
+            stackView.distribution = .fill
+            stackView.spacing = 8
+            return stackView
+        }()
+        
+        let button: UIButton = UIButton(type: UIButton.ButtonType.custom)
+        button.tag = 2 //for menu or refresh button
+        button.setTitleColor(.white, for: .normal)
 
         let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
         let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
 
         if let imageCustom = configuration.conversationViewCustomRightNavBarView {
-            button = UIBarButtonItem(
-                image: imageCustom,
-                style: UIBarButtonItem.Style.plain,
-                target: self,
-                action: notificationCustomSelector)
+            button.setImage(imageCustom, for: .normal)
+            button.addTarget(self, action: notificationCustomSelector, for: UIControl.Event.touchUpInside)
         }else if let image = configuration.rightNavBarImageForConversationView {
-            button = UIBarButtonItem(
-                image: image,
-                style: UIBarButtonItem.Style.plain,
-                target: self,
-                action: notificationSelector)
+            button.setImage(image, for: .normal)
+            button.addTarget(self, action: notificationSelector, for: UIControl.Event.touchUpInside)
         } else {
             var selector = notificationSelector
             if configuration.rightNavBarSystemIconForConversationView == .refresh {
                 selector = #selector(ALKConversationViewController.refreshButtonAction(_:))
             }
-
-            button = UIBarButtonItem(
-                barButtonSystemItem: configuration.rightNavBarSystemIconForConversationView,
-                target: self,
-                action: selector)
+            button.setTitle("R", for: .normal)
+            button.addTarget(self, action: selector, for: UIControl.Event.touchUpInside)
         }
-        return button
+        
+        if configuration.isShowAdminMessageOnlyOptionInNavBar {
+            let _btnShowAdminMsgOnlySize = CGSize(width: 60.0, height: 25.0)
+            let notificationShowAdminMsgSelector = #selector(ALKConversationViewController.sendShowAdminMessageOnlyNavBarButtonSelectionNotification(_:))
+            let _showAdminbutton: UIButton = UIButton(type: UIButton.ButtonType.custom)
+            _showAdminbutton.tag = 1 //for show admin only message
+            _showAdminbutton.layer.borderColor = UIColor.white.cgColor
+            _showAdminbutton.layer.borderWidth = 1.0
+            _showAdminbutton.layer.cornerRadius = _btnShowAdminMsgOnlySize.height / 2.0
+            _showAdminbutton.setBackgroundColor(.ALKSVMainColorPurple())
+            _showAdminbutton.setTitleColor(.white, for: .normal)
+            _showAdminbutton.setTitleColor(.ALKSVMainColorPurple(), for: .selected)
+            _showAdminbutton.setFont(font: UIFont.systemFont(ofSize: 12.0))
+            let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chatgroup_conversation_right_menu_view_admin_only") ?? ""
+            _showAdminbutton.setTitle(_title, for: .normal)
+            _showAdminbutton.titleEdgeInsets = UIEdgeInsets(top: 0, left: 5.0, bottom: 0, right: 5.0)
+            _showAdminbutton.addTarget(self, action:notificationShowAdminMsgSelector, for: UIControl.Event.touchUpInside)
+            _showAdminbutton.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                _showAdminbutton.heightAnchor.constraint(equalToConstant: _btnShowAdminMsgOnlySize.height),
+                _showAdminbutton.widthAnchor.constraint(equalToConstant: _btnShowAdminMsgOnlySize.width)
+                ])
+            _svRightNavBtnBar.addArrangedSubview(_showAdminbutton)
+        }
+        
+        _svRightNavBtnBar.addArrangedSubview(button)
+        
+        return _svRightNavBtnBar
     }
 
     func addRefreshButton() {
-        self.navigationItem.rightBarButtonItem = rightNavbarButton()
+        if let _rightNavBarButton = self.rightNavbarButton() {
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: _rightNavBarButton)
+        }
     }
 
-    @objc func refreshButtonAction(_ selector: UIBarButtonItem) {
+    @objc func refreshButtonAction(_ selector: UIButton) {
         viewModel.refresh()
     }
 
-    @objc func sendRightNavBarButtonSelectionNotification(_ selector: UIBarButtonItem) {
+    @objc func sendRightNavBarButtonSelectionNotification(_ selector: UIButton) {
         let channelId = (viewModel.channelKey != nil) ? String(describing: viewModel.channelKey!) : ""
         let contactId = viewModel.contactId ?? ""
         let info: [String: Any] = ["ChannelId": channelId, "ContactId": contactId, "ConversationVC": self]
@@ -1872,6 +1925,10 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func isPassMessageContentChecking() -> Bool {
        return self.delegateConversationChatContentAction?.isAdminUser() ?? false
+    }
+    
+    public func displayMessageWithinUserListModeChanged(result:Bool) {
+        self.delegateConversationChatContentAction?.didShowAdminMessageOnlyStatusChanged(result: result)
     }
 }
 
@@ -2151,7 +2208,7 @@ extension ALKConversationViewController: UIImagePickerControllerDelegate, UINavi
 
 extension ALKConversationViewController: ALKCustomPickerDelegate {
     func filesSelected(images: [UIImage], videos: [String]) {
-        self.sendMessageWithHandleUnreadModel {
+        self.sendMessageWithClearAllModel {
             let fileCount = images.count + videos.count
             for index in 0..<fileCount {
                 if index < images.count {
@@ -2257,7 +2314,6 @@ extension ALKConversationViewController: AttachmentDelegate {
             bundle: Bundle.applozic)
         guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
         let vc = nav.viewControllers.first as? ALKMediaViewerViewController
-
         let messageModels = viewModel.messageModels.filter {
             $0.messageType == .photo && $0.fileMetaInfo != nil
             //($0.messageType == .photo || $0.messageType == .video) && ($0.downloadPath() != nil) && ($0.downloadPath()!.1 != nil)
@@ -2269,6 +2325,8 @@ extension ALKConversationViewController: AttachmentDelegate {
             messages: messageModels,
             currentIndex: currentIndex,
             localizedStringFileName: localizedStringFileName)
+        nav.modalPresentationStyle = .overFullScreen
+        nav.modalTransitionStyle = .crossDissolve
         self.present(nav, animated: true, completion: nil)
     }
 }
@@ -2277,7 +2335,7 @@ extension ALKConversationViewController: AttachmentDelegate {
 extension ALKConversationViewController {
     
     //menu button clicked
-    @objc func sendRightNavBarButtonCustomSelectionNotification(_ selector: UIBarButtonItem) {
+    @objc func sendRightNavBarButtonCustomSelectionNotification(_ selector: UIButton) {
         hideMoreBar()
         view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
@@ -2384,10 +2442,13 @@ extension ALKConversationViewController {
         }
     }
     
-    func didReplyClickedInCell(replyMessage: ALKMessageViewModel){
+    func didReplyClickedInCell(replyMessage: ALKMessageViewModel?){
+        guard let _replyMessage = replyMessage else {
+            return
+        }
         var _userDisplayName:String? = nil
         var _userIconUrl:String? = nil
-        if replyMessage.isMyMessage {
+        if _replyMessage.isMyMessage {
             _userDisplayName = ALUserDefaultsHandler.getDisplayName()
             _userIconUrl = ALUserDefaultsHandler.getProfileImageLinkFromServer()
             if _userDisplayName == nil {
@@ -2397,13 +2458,14 @@ extension ALKConversationViewController {
                 _userIconUrl = ""
             }
         }
-        self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: replyMessage)
+        self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: _replyMessage)
     }
     
-    func sendMessageWithHandleUnreadModel(completedBlock:@escaping ()->Void){
+    func sendMessageWithClearAllModel(completedBlock:@escaping ()->Void){
         //check model
-        if self.viewModel.isUnreadMessageMode {
-            self.viewModel.messageSendUnderUnreadModel(startProcess: {
+        if self.viewModel.isUnreadMessageMode || self.viewModel.isDisplayMessageWithinUserListMode {
+            self.setShowAdminMessageButtonStatus(false)
+            self.viewModel.messageSendUnderClearAllModel(startProcess: {
                 self.scrollingState = .idle
                 self.lastScrollingPoint = CGPoint.zero
                 self.loadingStarted()
@@ -2478,7 +2540,7 @@ extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUpload
     }
     
     public func didStartUploadFiles(urls:[URL]){
-        self.sendMessageWithHandleUnreadModel {
+        self.sendMessageWithClearAllModel {
             //loop to upload file
             for  url in urls {
                 let (message, indexPath) = self.viewModel.send(fileURL: url, metadata: self.configuration.messageMetadata)
@@ -2611,6 +2673,44 @@ extension ALKConversationViewController {
         }else{
             self.unReadMessageRemindIndicatorView.isHidden = self.viewModel.lastUnreadMessageKey == nil || self.unreadScrollButton.isHidden
         }
+    }
+}
+
+//MARK: - stockviva (display admin message)
+extension ALKConversationViewController {
+    
+    @objc func sendShowAdminMessageOnlyNavBarButtonSelectionNotification(_ selector: UIButton) {
+        hideMoreBar()
+        view.endEditing(true)
+        self.chatBar.resignAllResponderFromTextView()
+        self.delegateConversationChatContentAction?.showAdminMessageOnlyButtonClicked(chatView: self, button: selector)
+    }
+    
+    public func setShowAdminMessageButtonStatus(_ isSelected:Bool){
+        if let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView,
+            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == 1 } ) as? UIButton {
+                _showAdminBtn.isSelected = isSelected
+                if isSelected {
+                    _showAdminBtn.setBackgroundColor(.white)
+                }else{
+                    _showAdminBtn.setBackgroundColor(.ALKSVMainColorPurple())
+                }
+        }
+    }
+    
+    private func updateShowAdminMessageButtonTitle(){
+        if let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView,
+            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == 1 } ) as? UIButton {
+                let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chatgroup_conversation_right_menu_view_admin_only") ?? ""
+                _showAdminBtn.setTitle(_title, for: .normal)
+                
+            }
+    }
+    
+    public func reloadMessageWithTargetUser(adminUserIdList:[String]?){
+        self.viewModel.setDisplayMessageWithinUser(adminUserIdList)
+        self.refreshViewController(isClearDisplayMessageWithinUser: false)
+        tableView.scrollToBottom(animated: true)
     }
 }
 
