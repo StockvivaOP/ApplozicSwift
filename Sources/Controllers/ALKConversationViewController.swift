@@ -449,8 +449,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         if self.isFirstTime {
             setupView()
             self.refreshViewController()
+        }else{
+            configureView()
         }
-        configureView()
         contentOffsetDictionary = Dictionary<NSObject,AnyObject>()
         self.isViewFirstLoad = false
         print("id: ", viewModel.messageModels.first?.contactId as Any)
