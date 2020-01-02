@@ -2628,7 +2628,7 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
 extension ALKConversationViewController {
     
     func saveLastReadMessageIfNeeded(){
-        if self.isViewDisappear {
+        if self.isViewDisappear || self.viewModel.isDisplayMessageWithinUserListMode {
             return
         }
         let _maxYForVisableContent = self.tableView.contentOffset.y + self.tableView.bounds.size.height
@@ -2650,7 +2650,7 @@ extension ALKConversationViewController {
     }
     
     func saveLastReadMessageAsLastMessge(){
-        if self.isViewDisappear {
+        if self.isViewDisappear || self.viewModel.isDisplayMessageWithinUserListMode {
             return
         }
         if let _cellItem =  self.viewModel.messageModels.last,
