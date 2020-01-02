@@ -1874,7 +1874,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             _showAdminbutton.layer.borderColor = UIColor.white.cgColor
             _showAdminbutton.layer.borderWidth = 1.0
             _showAdminbutton.layer.cornerRadius = _btnShowAdminMsgOnlySize.height / 2.0
-            _showAdminbutton.setBackgroundColor(.ALKSVMainColorPurple())
+            _showAdminbutton.setBackgroundColor(.clear)
             _showAdminbutton.setTitleColor(.white, for: .normal)
             _showAdminbutton.setTitleColor(.ALKSVMainColorPurple(), for: .selected)
             _showAdminbutton.setFont(font: UIFont.systemFont(ofSize: 12.0))
@@ -2693,7 +2693,7 @@ extension ALKConversationViewController {
                 if isSelected {
                     _showAdminBtn.setBackgroundColor(.white)
                 }else{
-                    _showAdminBtn.setBackgroundColor(.ALKSVMainColorPurple())
+                    _showAdminBtn.setBackgroundColor(.clear)
                 }
         }
     }
