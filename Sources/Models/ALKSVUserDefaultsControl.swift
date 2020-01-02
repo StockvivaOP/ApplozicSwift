@@ -14,7 +14,7 @@ public class ALKSVUserDefaultsControl {
     
     //user default
     private func getUserDefaultsControl() -> UserDefaults?{
-        return UserDefaults.init(suiteName: "group.com.applozic.share")
+        return UserDefaults.init(suiteName: "group.com.svapplozic.share")
     }
     
     func clearUserDefaultsWhenLogout(){
@@ -23,25 +23,25 @@ public class ALKSVUserDefaultsControl {
     
     //unread message
     func saveLastReadMessageTime(chatGroupId:String, time:Int) {
-        var _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.applozic.userdefault.Stockviva_lastReadMessageTime") ?? [String:Any]()
+        var _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime") ?? [String:Any]()
         //if the value is smaller than saved
         if let _value = _valueDict[chatGroupId] as? Int, _value >= time {
             return
         }
         _valueDict[chatGroupId] = time
-        getUserDefaultsControl()?.setValue(_valueDict, forKey: "com.applozic.userdefault.Stockviva_lastReadMessageTime")
+        getUserDefaultsControl()?.setValue(_valueDict, forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime")
         getUserDefaultsControl()?.synchronize()
     }
     
     func getLastReadMessageTime(chatGroupId:String) -> Int? {
-        if let _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.applozic.userdefault.Stockviva_lastReadMessageTime") {
+        if let _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime") {
             return _valueDict[chatGroupId] as? Int
         }
         return nil
     }
     
     func removeLastReadMessageTime(){
-        getUserDefaultsControl()?.removeObject(forKey: "com.applozic.userdefault.Stockviva_lastReadMessageTime")
+        getUserDefaultsControl()?.removeObject(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime")
     }
 
 }
