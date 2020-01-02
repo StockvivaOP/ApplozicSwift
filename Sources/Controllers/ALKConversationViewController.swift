@@ -978,7 +978,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     /// Call this method after proper viewModel initialization
-    public func refreshViewController(isClearUnReadMessage:Bool = true, isClearDisplayMessageWithinUser:Bool = true) {
+    public func refreshViewController(isClearUnReadMessage:Bool = false, isClearDisplayMessageWithinUser:Bool = true) {
         viewModel.clearViewModel(isClearUnReadMessage:isClearUnReadMessage, isClearDisplayMessageWithinUser:isClearDisplayMessageWithinUser)
         if isClearDisplayMessageWithinUser {
             self.setShowAdminMessageButtonStatus(false)
@@ -1156,7 +1156,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
         if self.viewModel.isUnreadMessageMode {//just cancel if user want to read latest message of now
-            self.refreshViewController(isClearDisplayMessageWithinUser:false)
+            self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser:false)
         }
         tableView.scrollToBottom(animated: true)
         unreadScrollButton.isHidden = true
@@ -2709,7 +2709,7 @@ extension ALKConversationViewController {
     
     public func reloadMessageWithTargetUser(adminUserIdList:[String]?){
         self.viewModel.setDisplayMessageWithinUser(adminUserIdList)
-        self.refreshViewController(isClearDisplayMessageWithinUser: false)
+        self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser: false)
         tableView.scrollToBottom(animated: true)
     }
 }
