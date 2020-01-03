@@ -1515,11 +1515,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - have error \(_error.localizedDescription) ")
             }
             
-            let contactDbService = ALContactDBService()
-            contactDbService.addUserDetails(userDetailsList)
-            
             var _resultMessages = [ALMessage]()
-            guard var alMessages = messages as? [ALMessage], alMessages.count > 0 else {
+            guard let alMessages = messages as? [ALMessage], alMessages.count > 0 else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no message list")
                 completion(nil, nil, nil)
                 return
@@ -1551,7 +1548,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 
                 if _isDeletedMsg == false {
                     let contactId = message.to ?? ""
-                    if !contactService.isContactExist(contactId) {
+                    if !contactService.isContactExist(contactId) && !contactsNotPresent.contains(contactId) {
                         contactsNotPresent.append(contactId)
                     }
                     if let metadata = message.metadata,
@@ -1570,21 +1567,17 @@ open class ALKConversationViewModel: NSObject, Localizable {
             }
             
             if !replyMessageKeys.isEmpty {
-                ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
-                    if let replyMessages = replyMessages as? [ALMessage] {
-                        for message in replyMessages {
-                            let contactId = message.to ?? ""
-                            if !contactService.isContactExist(contactId) {
-                                contactsNotPresent.append(contactId)
-                            }
+                self.fetchReplyMessage(replyMessageKeys: replyMessageKeys) { (tempContactsNotPresent) in
+                    for _contactId in tempContactsNotPresent {
+                        if !contactsNotPresent.contains(_contactId) {
+                            contactsNotPresent.append(_contactId)
                         }
-                    }else{
-                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no reply message with key \(replyMessageKeys)")
                     }
+                    
                     self.processContacts(contactsNotPresent, completion: {
                         completion(_resultMessages, _firstItemTime, _lastItemTime)
                     })
-                })
+                }
             } else {
                 self.processContacts(contactsNotPresent, completion: {
                     completion(_resultMessages, _firstItemTime, _lastItemTime)
@@ -1604,7 +1597,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
                 for message in replyMessages {
                     let contactId = message.to ?? ""
-                    if !contactService.isContactExist(contactId) {
+                    if !contactService.isContactExist(contactId) && !contactsNotPresent.contains(contactId){
                         contactsNotPresent.append(contactId)
                     }
                 }
@@ -1950,12 +1943,17 @@ extension ALKConversationViewModel {
         //fetch message
         var _lastReadMsgTimeNumber:NSNumber? = nil
         if let _lastReadMsgTime = ALKSVUserDefaultsControl.shared.getLastReadMessageTime(chatGroupId: _chatGroupId) {
-            _lastReadMsgTimeNumber = NSNumber(value: (_lastReadMsgTime + 1))
+            _lastReadMsgTimeNumber = NSNumber(value: _lastReadMsgTime)
         }
         
         if _lastReadMsgTimeNumber == nil {
+            var _dateComponent = DateComponents()
+            _dateComponent.year = 1
+            if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
+                _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
+            }
             //call record
-            self.getSearchTimeBeforeOpenGroupMessage { (resultsOfBefore, firstItemCreateTime, lastItemCreateTime) in
+            self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber) { (resultsOfBefore, firstItemCreateTime, lastItemCreateTime) in
                 _completedBlock(resultsOfBefore, nil, firstItemCreateTime, lastItemCreateTime)
             }
         }else{
@@ -1968,7 +1966,10 @@ extension ALKConversationViewModel {
                 }else{
                     _halfPageSize = _defaultPageSize
                 }
-                    
+                
+                if let _tLastReadMsgTimeNumber = _lastReadMsgTimeNumber {
+                    _lastReadMsgTimeNumber = NSNumber(value: (_tLastReadMsgTimeNumber.intValue + 1))
+                }
                 //call before record
                 self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber, pageSize:_halfPageSize, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
                     _completedBlock(resultsOfBefore, resultsOfAfter, firstItemCreateTimeBefore ?? firstItemCreateTimeAfter , lastItemCreateTimeAfter)
