@@ -17,7 +17,7 @@ public class ALKSVUserDefaultsControl {
         return UserDefaults.init(suiteName: "group.com.svapplozic.share")
     }
     
-    private func clearUserDefaultsWhenLogout(){
+    public func clearUserDefaultsWhenLogout(){
         self.removeLastReadMessageTime()
     }
     
