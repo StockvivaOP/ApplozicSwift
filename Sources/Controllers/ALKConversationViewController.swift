@@ -1925,7 +1925,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func isPassMessageContentChecking() -> Bool {
-       return self.delegateConversationChatContentAction?.isAdminUser() ?? false
+       return self.delegateConversationChatContentAction?.isAdminUser(nil) ?? false
     }
     
     public func displayMessageWithinUserListModeChanged(result:Bool) {
@@ -2611,7 +2611,7 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     }
     
     public func isEnablePinMsgMenuItem() -> Bool {
-        return self.delegateConversationChatContentAction?.isAdminUser() ?? false
+        return self.delegateConversationChatContentAction?.isAdminUser(nil) ?? false
     }
     
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
@@ -2622,6 +2622,9 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
         if let _rawModel = messageModel?.rawModel {
             self.viewModel.updateMessageContent(updatedMessage: _rawModel, isUpdateView: isUpdateView)
         }
+    }
+    public func isAdminUserMessage(userHashId:String?) -> Bool {
+        return self.delegateConversationChatContentAction?.isAdminUser(userHashId) ?? false
     }
 }
 

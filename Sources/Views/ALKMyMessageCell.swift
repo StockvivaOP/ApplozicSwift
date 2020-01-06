@@ -293,18 +293,19 @@ open class ALKMyMessageCell: ALKMessageCell {
     open  override func setupStyle() {
         super.setupStyle()
         //messageView.setStyle(ALKMessageStyle.sentMessage)
-        if ALKMessageStyle.sentBubble.style == .edge {
-            bubbleView.tintColor = ALKMessageStyle.sentBubble.color
-            bubbleView.image = bubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
-        }else{
-            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.tintColor = ALKMessageStyle.sentBubble.color
-            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
-        }
+//        if ALKMessageStyle.sentBubble.style == .edge {
+//            bubbleView.tintColor = ALKMessageStyle.sentBubble.color
+//            bubbleView.image = bubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
+//        }else{
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//            bubbleView.tintColor = ALKMessageStyle.sentBubble.color
+//            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
+//        }
     }
 
     open func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.sentMessage, replyMessage: replyMessage)
+        self.updateBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
 //        if viewModel.isAllRead {
 //            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
 //            stateView.tintColor = UIColor(netHex: 0x0578FF)

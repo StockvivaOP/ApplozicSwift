@@ -52,6 +52,10 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         return false
     }
     
+    func isAdminMessage() -> Bool {
+        return false
+    }
+    
     func isDeletedMessage() -> Bool {
         return false
     }

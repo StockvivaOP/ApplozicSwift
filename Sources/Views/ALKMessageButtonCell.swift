@@ -20,6 +20,10 @@ open class ALKMyMessageButtonCell: ALKChatBaseCell<ALKMessageViewModel> {
         return self.viewModel?.isMyMessage ?? false
     }
     
+    override func isAdminMessage() -> Bool {
+        return self.delegateCellRequestInfo?.isAdminUserMessage(userHashId: self.viewModel?.contactId) ?? false
+    }
+    
     open func update(viewModel: ALKMessageViewModel, maxWidth: CGFloat) {
         self.viewModel = viewModel
         let messageWidth = maxWidth -

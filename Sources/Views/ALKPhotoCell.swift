@@ -170,7 +170,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     struct Padding {
         struct CaptionLabel {
-            static var top: CGFloat = 7.0
+            static var top: CGFloat = 5.0
             static var bottom: CGFloat = 7.0
             static var left: CGFloat = 7.0
             static var right: CGFloat = 7.0
@@ -222,11 +222,11 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         captionLabel.text = viewModel.message
 
         if captionLabel.text?.count ?? 0 > 0 {
-            captionLabelTopConst?.constant = Padding.CaptionLabel.top
+            //captionLabelTopConst?.constant = Padding.CaptionLabel.top
             captionLabelHeightConst?.constant = Padding.CaptionLabel.height
             captionLabelBottomConst?.constant = -Padding.CaptionLabel.bottom
         }else{
-            captionLabelTopConst?.constant = 0
+            //captionLabelTopConst?.constant = 0
             captionLabelHeightConst?.constant = 0
             captionLabelBottomConst?.constant = 0
         }
@@ -455,6 +455,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
+    }
+    
+    override func isAdminMessage() -> Bool {
+        return self.delegateCellRequestInfo?.isAdminUserMessage(userHashId: self.viewModel?.contactId) ?? false
     }
     
     override func isDeletedMessage() -> Bool {
@@ -701,6 +705,21 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             _replyViewViewHeight = defaultReplyViewHeight
         }
         return (replyViewHeight:_replyViewViewHeight, replyMsgViewHeight:_resultMsgHeight, offsetOfMsgIncreaseHeight:_offsetOfMsgIncreaseHeight)
+    }
+    
+    func updateBubbleViewImage(for style: ALKMessageStyle.BubbleStyle, isReceiverSide: Bool = false, showHangOverImage:Bool) {
+        bubbleView.image = setBubbleViewImage(for: style, isReceiverSide: isReceiverSide, showHangOverImage: showHangOverImage)
+        
+        if self.isMyMessage() {
+            bubbleView.tintColor = UIColor.messageBox.my()
+            replyView.tintColor = UIColor.messageBox.myReply()
+        }else if self.isAdminMessage() {
+            bubbleView.tintColor = UIColor.messageBox.admin()
+            replyView.tintColor = UIColor.messageBox.adminReply()
+        }else {
+            bubbleView.tintColor = UIColor.messageBox.normal()
+            replyView.tintColor = UIColor.messageBox.normalReply()
+        }
     }
     //tag: stockviva end
 }

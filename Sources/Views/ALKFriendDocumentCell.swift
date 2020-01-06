@@ -216,9 +216,10 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         replyMsgViewBottomConst!.isActive = true
         //tag: stockviva end
     }
-
+    
     override func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, replyMessage: replyMessage)
+        self.updateBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
 
         if let url = viewModel.avatarURL {
@@ -244,7 +245,6 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         super.setupStyle()
         //timeLabel.setStyle(ALKMessageStyle.time)
         //nameLabel.setStyle(ALKMessageStyle.displayName)
-        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
     }
 
     override class func rowHeigh(viewModel: ALKMessageViewModel,width: CGFloat,replyMessage: ALKMessageViewModel?) -> CGFloat {
@@ -286,7 +286,18 @@ class ALKFriendDocumentCell: ALKDocumentCell {
     @objc private func avatarTappedAction() {
         avatarTapped?()
     }
-
+    
+    // MARK: - ChatMenuCell
+    override func menuWillShow(_ sender: Any) {
+        super.menuWillShow(sender)
+        self.updateBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: true)
+    }
+    
+    override func menuWillHide(_ sender: Any) {
+        super.menuWillHide(sender)
+        self.updateBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
+    }
+    
     //tag: stockviva start
     private func handleReplyView(replyMessage: ALKMessageViewModel?) {
         guard let replyMessage = replyMessage else {

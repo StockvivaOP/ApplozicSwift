@@ -238,9 +238,10 @@ class ALKMyDocumentCell: ALKDocumentCell {
         frameUIView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor).isActive = true
         frameUIView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor).isActive = true
     }
-
+    
     override func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, replyMessage: replyMessage)
+        self.updateBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
 
 //        if viewModel.isAllRead {
 //            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
@@ -292,7 +293,6 @@ class ALKMyDocumentCell: ALKDocumentCell {
     override func setupStyle() {
         super.setupStyle()
         //timeLabel.setStyle(ALKMessageStyle.time)
-        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
     }
 
     class func heightPadding() -> CGFloat {
@@ -341,6 +341,17 @@ class ALKMyDocumentCell: ALKDocumentCell {
             _isViolate = _svMsgStatus == .block
         }
         ALKConfiguration.delegateConversationRequestInfo?.messageStateRemarkButtonClicked(isError: _isError, isViolate: _isViolate)
+    }
+    
+    // MARK: - ChatMenuCell
+    override func menuWillShow(_ sender: Any) {
+        super.menuWillShow(sender)
+        self.updateBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: true)
+    }
+    
+    override func menuWillHide(_ sender: Any) {
+        super.menuWillHide(sender)
+        self.updateBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
     }
     
     //tag: stockviva start

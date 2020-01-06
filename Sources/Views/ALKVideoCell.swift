@@ -129,6 +129,10 @@ class ALKVideoCell: ALKChatBaseCell<ALKMessageViewModel>,
         return self.viewModel?.isMyMessage ?? false
     }
     
+    override func isAdminMessage() -> Bool {
+        return self.delegateCellRequestInfo?.isAdminUserMessage(userHashId: self.viewModel?.contactId) ?? false
+    }
+    
     override func isDeletedMessage() -> Bool {
         return self.viewModel?.getDeletedMessageInfo().isDeleteMessage ?? false
     }

@@ -153,4 +153,8 @@ public class ALKListTemplateCell: ALKChatBaseCell<ALKMessageViewModel> {
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
     }
+    
+    override func isAdminMessage() -> Bool {
+        return self.delegateCellRequestInfo?.isAdminUserMessage(userHashId: self.viewModel?.contactId) ?? false
+    }
 }

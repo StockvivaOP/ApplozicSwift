@@ -294,7 +294,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
-    func isAdminUser() -> Bool
+    func isAdminUser(_ userHashId:String?) -> Bool
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
     //pin message
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?, viewModel:ALKMessageViewModel)
@@ -337,6 +337,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
     func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) //response
+    func isAdminUserMessage(userHashId:String?) -> Bool
 }
 
 public protocol ConversationRequestInfoDelegate: class{
