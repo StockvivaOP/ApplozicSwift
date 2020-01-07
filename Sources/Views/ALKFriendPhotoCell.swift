@@ -139,6 +139,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
 
     override func setupStyle() {
         super.setupStyle()
+        photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
         //nameLabel.setStyle(ALKMessageStyle.displayName)
         //captionLabel.font = ALKMessageStyle.receivedMessage.font
         //captionLabel.textColor = ALKMessageStyle.receivedMessage.text
