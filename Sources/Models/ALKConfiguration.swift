@@ -252,6 +252,9 @@ public struct ALKConfiguration {
     /// chat view Right Nav Bar Button - show admin message only
     public var isShowAdminMessageOnlyOptionInNavBar:Bool = false
     
+    /// chat view Right Nav Bar Button - show share group
+    public var isShowShareGroupOptionInNavBar:Bool = false
+    
     /// chat box cell background color
     public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
     /// chat box cell user name color
@@ -291,6 +294,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
     func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
+    func showShareGroupButtonClicked(chatView:UIViewController, button:UIButton)
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)

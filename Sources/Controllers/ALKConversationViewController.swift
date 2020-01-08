@@ -1846,7 +1846,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         }()
         
         let button: UIButton = UIButton(type: UIButton.ButtonType.custom)
-        button.tag = 2 //for menu or refresh button
+        button.tag = 3 //for menu or refresh button
         button.setTitleColor(.white, for: .normal)
 
         let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
@@ -1889,6 +1889,22 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 _showAdminbutton.widthAnchor.constraint(equalToConstant: _btnShowAdminMsgOnlySize.width)
                 ])
             _svRightNavBtnBar.addArrangedSubview(_showAdminbutton)
+        }
+        
+        if configuration.isShowShareGroupOptionInNavBar {
+            let _btnShowShareGroupSize = CGSize(width: 24.0, height: 24.0)
+            let notificationShowAdminMsgSelector = #selector(ALKConversationViewController.sendShowShareGroupNavBarButtonSelectionNotification(_:))
+            let _showShareGroupButton: UIButton = UIButton(type: UIButton.ButtonType.custom)
+            _showShareGroupButton.tag = 2 //for show share group
+            _showShareGroupButton.setBackgroundColor(.clear)
+            _showShareGroupButton.setImage(UIImage(named: "sv_button_share_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+            _showShareGroupButton.addTarget(self, action:notificationShowAdminMsgSelector, for: UIControl.Event.touchUpInside)
+            _showShareGroupButton.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                _showShareGroupButton.heightAnchor.constraint(equalToConstant: _btnShowShareGroupSize.height),
+                _showShareGroupButton.widthAnchor.constraint(equalToConstant: _btnShowShareGroupSize.width)
+                ])
+            _svRightNavBtnBar.addArrangedSubview(_showShareGroupButton)
         }
         
         _svRightNavBtnBar.addArrangedSubview(button)
@@ -2688,6 +2704,11 @@ extension ALKConversationViewController {
         view.endEditing(true)
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatContentAction?.showAdminMessageOnlyButtonClicked(chatView: self, button: selector)
+    }
+    
+    @objc func sendShowShareGroupNavBarButtonSelectionNotification(_ selector: UIButton) {
+        self.chatBar.resignAllResponderFromTextView()
+        self.delegateConversationChatContentAction?.showShareGroupButtonClicked(chatView: self, button: selector)
     }
     
     public func setShowAdminMessageButtonStatus(_ isSelected:Bool){
