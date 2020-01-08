@@ -225,6 +225,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         _view.isHidden = true
         return _view
     }()
+    
+    private var floatingShareButton: UIButton = {
+        let view = UIButton(type: UIButton.ButtonType.custom)
+        view.backgroundColor = .clear
+        view.isHidden = true
+        view.addTarget(self, action: #selector(ALKConversationViewController.didFloatingShareButtonTouchUpInside(_:)), for: .touchUpInside)
+        return view
+    }()
     //tag: stockviva end
     
     deinit {
@@ -462,6 +470,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }else{
             configureView()
         }
+        self.prepareAllCustomView()
+        
         contentOffsetDictionary = Dictionary<NSObject,AnyObject>()
         self.isViewFirstLoad = false
         print("id: ", viewModel.messageModels.first?.contactId as Any)
@@ -630,7 +640,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
         
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -666,6 +676,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: (templateView != nil) ? templateView!.topAnchor:discrimationView.topAnchor).isActive = true
 
+        floatingShareButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
+        floatingShareButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
+        floatingShareButton.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
+        floatingShareButton.heightAnchor.constraint(equalToConstant: 70.0).isActive = true
+        
         //tag: stockviva
         discrimationView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         discrimationView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -2414,6 +2429,11 @@ extension ALKConversationViewController {
         }
     }
     
+    private func prepareAllCustomView() {
+        self.floatingShareButton.isHidden = !self.configuration.isShowFloatingShareGroupButton
+        self.floatingShareButton.setImage(UIImage(named: "sv_img_msg_status_error", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+    }
+    
     private func prepareDiscrimationView() {
         self.discrimationView.addTarget(self, action: #selector(discrimationToucUpInside(_:)), for: .touchUpInside)
         if let _discInfo = self.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
@@ -2718,7 +2738,12 @@ extension ALKConversationViewController {
     
     @objc func sendShowShareGroupNavBarButtonSelectionNotification(_ selector: UIButton) {
         self.chatBar.resignAllResponderFromTextView()
-        self.delegateConversationChatContentAction?.showShareGroupButtonClicked(chatView: self, button: selector)
+        self.delegateConversationChatContentAction?.shareGroupButtonClicked(chatView: self, button: selector)
+    }
+    
+    @objc func didFloatingShareButtonTouchUpInside(_ selector: UIButton) {
+        self.chatBar.resignAllResponderFromTextView()
+        self.delegateConversationChatContentAction?.didFloatingShareButtonClicked(chatView: self, button: selector)
     }
     
     public func setShowAdminMessageButtonStatus(_ isSelected:Bool){
