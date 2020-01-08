@@ -521,7 +521,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             }
             let _isDeletedMsg = message.getDeletedMessageInfo().isDeleteMessage
             let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
-            if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
+            if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg || message.isHiddenSVMessage() {
                 continue
             }
             
@@ -1535,7 +1535,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 
                 let _isDeletedMsg = message.getDeletedMessageInfo().isDeleteMessage
                 let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
-                if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
+                if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg || message.isHiddenSVMessage() {
                     continue
                 }
                 
@@ -2226,7 +2226,7 @@ extension ALKConversationViewModel {
         }
         let _isDeletedMsg = updatedMessage.getDeletedMessageInfo().isDeleteMessage
         let _isViolateMsg = updatedMessage.isMyMessage == false && updatedMessage.isViolateMessage()
-        if updatedMessage.getActionType().isSkipMessage() || updatedMessage.isHiddenMessage() || _isViolateMsg {
+        if updatedMessage.getActionType().isSkipMessage() || updatedMessage.isHiddenMessage() || _isViolateMsg || updatedMessage.isHiddenSVMessage() {
             return
         }
         
