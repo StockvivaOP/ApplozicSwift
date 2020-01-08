@@ -184,6 +184,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             }
         }
     }
+    
+    public enum ALKSVNavigationBarItem: Int {
+        case defaultButton = 1
+        case shareGroup = 2
+        case showAdminMsgOnly = 3
+        
+        func getTagId() -> Int{
+            return self.rawValue
+        }
+    }
     public var enableShowJoinGroupMode: Bool = false
     public var enableShowBlockChatMode: Bool = false
     public var conversationType: ALKConversationType = .free
@@ -1846,7 +1856,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         }()
         
         let button: UIButton = UIButton(type: UIButton.ButtonType.custom)
-        button.tag = 3 //for menu or refresh button
+        button.tag = ALKSVNavigationBarItem.defaultButton.getTagId() //for menu or refresh button
         button.setTitleColor(.white, for: .normal)
 
         let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
@@ -1871,7 +1881,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             let _btnShowAdminMsgOnlySize = CGSize(width: 60.0, height: 25.0)
             let notificationShowAdminMsgSelector = #selector(ALKConversationViewController.sendShowAdminMessageOnlyNavBarButtonSelectionNotification(_:))
             let _showAdminbutton: UIButton = UIButton(type: UIButton.ButtonType.custom)
-            _showAdminbutton.tag = 1 //for show admin only message
+            _showAdminbutton.tag = ALKSVNavigationBarItem.showAdminMsgOnly.getTagId() //for show admin only message
             _showAdminbutton.layer.borderColor = UIColor.white.cgColor
             _showAdminbutton.layer.borderWidth = 1.0
             _showAdminbutton.layer.cornerRadius = _btnShowAdminMsgOnlySize.height / 2.0
@@ -1895,7 +1905,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             let _btnShowShareGroupSize = CGSize(width: 24.0, height: 24.0)
             let notificationShowAdminMsgSelector = #selector(ALKConversationViewController.sendShowShareGroupNavBarButtonSelectionNotification(_:))
             let _showShareGroupButton: UIButton = UIButton(type: UIButton.ButtonType.custom)
-            _showShareGroupButton.tag = 2 //for show share group
+            _showShareGroupButton.tag = ALKSVNavigationBarItem.shareGroup.getTagId() //for show share group
             _showShareGroupButton.setBackgroundColor(.clear)
             _showShareGroupButton.setImage(UIImage(named: "sv_button_share_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
             _showShareGroupButton.addTarget(self, action:notificationShowAdminMsgSelector, for: UIControl.Event.touchUpInside)
@@ -2713,7 +2723,7 @@ extension ALKConversationViewController {
     
     public func setShowAdminMessageButtonStatus(_ isSelected:Bool){
         if let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView,
-            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == 1 } ) as? UIButton {
+            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == ALKSVNavigationBarItem.showAdminMsgOnly.getTagId() } ) as? UIButton {
                 _showAdminBtn.isSelected = isSelected
                 if isSelected {
                     _showAdminBtn.setBackgroundColor(.white)
@@ -2723,9 +2733,15 @@ extension ALKConversationViewController {
         }
     }
     
+    public func getRightNavigationBarItemButton(item:ALKSVNavigationBarItem) -> UIButton? {
+        let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView
+        let _showAdminBtn = _rightNavBtnGroup?.arrangedSubviews.first(where: { $0.tag == item.getTagId() } ) as? UIButton
+        return _showAdminBtn
+    }
+    
     private func updateShowAdminMessageButtonTitle(){
         if let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView,
-            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == 1 } ) as? UIButton {
+            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == ALKSVNavigationBarItem.showAdminMsgOnly.getTagId() } ) as? UIButton {
                 let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chatgroup_conversation_right_menu_view_admin_only") ?? ""
                 _showAdminBtn.setTitle(_title, for: .normal)
                 
