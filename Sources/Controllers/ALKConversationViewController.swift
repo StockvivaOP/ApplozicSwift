@@ -2431,7 +2431,12 @@ extension ALKConversationViewController {
     
     private func prepareAllCustomView() {
         self.floatingShareButton.isHidden = !self.configuration.isShowFloatingShareGroupButton
-        self.floatingShareButton.setImage(UIImage(named: "sv_img_msg_status_error", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        if let _image = self.delegateConversationChatContentAction?.loadingFloatingShareButton(),
+            self.floatingShareButton.isHidden == false {
+            self.floatingShareButton.setImage(_image, for: .normal)
+        }else{
+            self.floatingShareButton.isHidden = true
+        }
     }
     
     private func prepareDiscrimationView() {
@@ -2744,6 +2749,8 @@ extension ALKConversationViewController {
     @objc func didFloatingShareButtonTouchUpInside(_ selector: UIButton) {
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatContentAction?.didFloatingShareButtonClicked(chatView: self, button: selector)
+        self.floatingShareButton.isHidden = true
+        self.configuration.isShowFloatingShareGroupButton = false
     }
     
     public func setShowAdminMessageButtonStatus(_ isSelected:Bool){

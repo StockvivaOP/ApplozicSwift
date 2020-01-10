@@ -298,6 +298,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func rightMenuClicked(chatView:UIViewController)
     func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
     func shareGroupButtonClicked(chatView:UIViewController, button:UIButton)
+    func loadingFloatingShareButton() -> UIImage?
     func didFloatingShareButtonClicked(chatView:UIViewController, button:UIButton)
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?
