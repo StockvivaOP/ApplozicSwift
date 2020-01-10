@@ -233,6 +233,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.addTarget(self, action: #selector(ALKConversationViewController.didFloatingShareButtonTouchUpInside(_:)), for: .touchUpInside)
         return view
     }()
+    
+    private var floatingShareTipButton: UIButton = {
+        let view = UIButton(type: UIButton.ButtonType.custom)
+        view.backgroundColor = .clear
+        view.setTitleColor(.white, for: .normal)
+        view.setFont(font: UIFont.systemFont(ofSize: 13.0, weight: .semibold))
+        view.isHidden = true
+        return view
+    }()
     //tag: stockviva end
     
     deinit {
@@ -640,7 +649,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
         
-        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, floatingShareTipButton, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -2426,6 +2435,38 @@ extension ALKConversationViewController {
             self.pinMessageView.isHidden = true
             let height: CGFloat = 0
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
+        }
+    }
+    
+    public func isHiddenFloatingShareTip(_ isHidden:Bool) {
+        if isHidden {
+            self.floatingShareTipButton.isHidden = true
+            return
+        }
+        if let _btnShare = self.getRightNavigationBarItemButton(item: .shareGroup),
+            let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
+            let _inViewPoint = self.navigationController?.navigationBar.convert(_btnShare.frame.origin, to: self.view) {
+            self.floatingShareTipButton.setTitle(_floatingShareTipInfo.title, for: .normal)
+            self.floatingShareTipButton.setImage(_floatingShareTipInfo.image, for: .normal)
+            self.floatingShareTipButton.titleEdgeInsets = _floatingShareTipInfo.titleEdgeInsets ?? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            self.floatingShareTipButton.frame.origin = CGPoint(x: (_inViewPoint.x - _btnShare.frame.size.width / 2.0), y: _btnShare.frame.size.height)
+            self.floatingShareTipButton.frame.size = _floatingShareTipInfo.size
+            self.floatingShareTipButton.alpha = 0.0
+            self.floatingShareTipButton.isHidden = false
+            //animation
+            UIView.animate(withDuration: 0.2, animations: {
+                self.floatingShareTipButton.alpha = 1.0
+            }) { (isSuccessful) in
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(_floatingShareTipInfo.dismissSecond) ) {
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.floatingShareTipButton.alpha = 0.0
+                    }) { (isSuccessful) in
+                        self.floatingShareTipButton.isHidden = true
+                    }
+                }
+            }
+        }else{
+            self.floatingShareTipButton.isHidden = true
         }
     }
     
