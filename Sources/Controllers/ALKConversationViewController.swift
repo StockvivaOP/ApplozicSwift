@@ -234,6 +234,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         return view
     }()
     
+    private var floatingShareTipButtonArrowImg: UIImageView = {
+        let _img = UIImage(named: "sv_temp_style_bubble_arrow", in: Bundle.applozic, compatibleWith: nil)
+        let view = UIImageView(image: _img)
+        view.backgroundColor = .clear
+        view.isHidden = true
+        return view
+    }()
+    
     private var floatingShareTipButton: UIButton = {
         let view = UIButton(type: UIButton.ButtonType.custom)
         view.backgroundColor = .clear
@@ -2444,40 +2452,63 @@ extension ALKConversationViewController {
             let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
             let _inViewPoint = self.navigationItem.rightBarButtonItem?.customView?.convert(_btnShare.frame.origin, to: self.view),
             isHidden == false {
-            self.floatingShareTipButton.setTitle(_floatingShareTipInfo.title, for: .normal)
-            self.floatingShareTipButton.setBackgroundImage(_floatingShareTipInfo.image, for: .normal)
-            self.floatingShareTipButton.titleEdgeInsets = _floatingShareTipInfo.titleEdgeInsets ?? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            let _centerXWithTargetArrow = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) )
+            let _centerYWithTargetArrow = (self.navigationController?.navigationBar.frame.minY ?? 0) + abs(_inViewPoint.y)
+            let _sizeOfArrow = CGSize(width: 14.0, height: 6.5)
             
             var _centerXWithTargetButton = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_floatingShareTipInfo.size.width / 2.0)
             _centerXWithTargetButton = min(_centerXWithTargetButton, (self.view.frame.size.width - _floatingShareTipInfo.size.width) )
-            let _centerYWithTargetButton = (self.navigationController?.navigationBar.frame.minY ?? 0) + abs(_inViewPoint.y)
+            let _centerYWithTargetButton = _centerYWithTargetArrow + _sizeOfArrow.height
+            
+            self.floatingShareTipButtonArrowImg.tintColor = _floatingShareTipInfo.bgColor
+            self.floatingShareTipButtonArrowImg.frame.origin = CGPoint(x: _centerXWithTargetArrow, y: _centerYWithTargetArrow)
+            self.floatingShareTipButtonArrowImg.frame.size = _sizeOfArrow
+            self.floatingShareTipButtonArrowImg.alpha = 0.0
+            self.floatingShareTipButtonArrowImg.isHidden = false
+            
+            self.floatingShareTipButton.setTitle(_floatingShareTipInfo.title, for: .normal)
+            self.floatingShareTipButton.setBackgroundColor(_floatingShareTipInfo.bgColor)
+            self.floatingShareTipButton.titleEdgeInsets = _floatingShareTipInfo.titleEdgeInsets ?? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
             self.floatingShareTipButton.frame.origin = CGPoint(x: _centerXWithTargetButton, y: _centerYWithTargetButton)
             self.floatingShareTipButton.frame.size = _floatingShareTipInfo.size
+            self.floatingShareTipButton.layer.cornerRadius = _floatingShareTipInfo.size.height / 2.0
             self.floatingShareTipButton.alpha = 0.0
             self.floatingShareTipButton.isHidden = false
             
             let _currentWindow: UIWindow? = UIApplication.shared.keyWindow
+            _currentWindow?.addSubview(self.floatingShareTipButtonArrowImg)
             _currentWindow?.addSubview(self.floatingShareTipButton)
+            _currentWindow?.bringSubviewToFront(self.floatingShareTipButtonArrowImg)
             _currentWindow?.bringSubviewToFront(self.floatingShareTipButton)
             //animation
-            UIView.animate(withDuration: 0.2, animations: {
+            UIView.animate(withDuration: 0.4, animations: {
+                self.floatingShareTipButtonArrowImg.alpha = 1.0
                 self.floatingShareTipButton.alpha = 1.0
             }) { (isSuccessful) in
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(_floatingShareTipInfo.dismissSecond) ) {
-                    UIView.animate(withDuration: 0.2, animations: {
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.floatingShareTipButtonArrowImg.alpha = 0.0
                         self.floatingShareTipButton.alpha = 0.0
                     }) { (isSuccessful) in
                         self.floatingShareTipButton.isHidden = true
+                        self.floatingShareTipButtonArrowImg.isHidden = true
                         if self.floatingShareTipButton.superview != nil {
                             self.floatingShareTipButton.removeFromSuperview()
+                        }
+                        if self.floatingShareTipButtonArrowImg.superview != nil {
+                            self.floatingShareTipButtonArrowImg.removeFromSuperview()
                         }
                     }
                 }
             }
         }else{
             self.floatingShareTipButton.isHidden = true
+            self.floatingShareTipButtonArrowImg.isHidden = true
             if self.floatingShareTipButton.superview != nil {
                 self.floatingShareTipButton.removeFromSuperview()
+            }
+            if self.floatingShareTipButtonArrowImg.superview != nil {
+                self.floatingShareTipButtonArrowImg.removeFromSuperview()
             }
         }
     }
