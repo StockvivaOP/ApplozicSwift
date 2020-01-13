@@ -299,7 +299,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
     func shareGroupButtonClicked(chatView:UIViewController, button:UIButton)
     func loadingFloatingShareButton() -> UIImage?
-    func loadingFloatingShareTip() -> (title:String, image:UIImage?, size:CGSize, titleEdgeInsets:UIEdgeInsets?, dismissSecond:Int)
+    func loadingFloatingShareTip() -> (title:String, image:UIImage?, bgColor:UIColor, size:CGSize, titleEdgeInsets:UIEdgeInsets?, dismissSecond:Int)
     func didFloatingShareButtonClicked(chatView:UIViewController, button:UIButton)
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?

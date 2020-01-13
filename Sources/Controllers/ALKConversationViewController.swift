@@ -537,9 +537,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.isViewDisappear = true
         //save for unread message
         self.saveLastReadMessageIfNeeded()
+        //do after above line
+        self.isViewDisappear = true
         stopAudioPlayer()
         chatBar.stopRecording()
         if let _ = alMqttConversationService {
@@ -649,7 +650,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
         
-        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, floatingShareTipButton, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -2439,20 +2440,25 @@ extension ALKConversationViewController {
     }
     
     public func isHiddenFloatingShareTip(_ isHidden:Bool) {
-        if isHidden {
-            self.floatingShareTipButton.isHidden = true
-            return
-        }
         if let _btnShare = self.getRightNavigationBarItemButton(item: .shareGroup),
             let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
-            let _inViewPoint = self.navigationController?.navigationBar.convert(_btnShare.frame.origin, to: self.view) {
+            let _inViewPoint = self.navigationItem.rightBarButtonItem?.customView?.convert(_btnShare.frame.origin, to: self.view),
+            isHidden == false {
             self.floatingShareTipButton.setTitle(_floatingShareTipInfo.title, for: .normal)
-            self.floatingShareTipButton.setImage(_floatingShareTipInfo.image, for: .normal)
+            self.floatingShareTipButton.setBackgroundImage(_floatingShareTipInfo.image, for: .normal)
             self.floatingShareTipButton.titleEdgeInsets = _floatingShareTipInfo.titleEdgeInsets ?? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-            self.floatingShareTipButton.frame.origin = CGPoint(x: (_inViewPoint.x - _btnShare.frame.size.width / 2.0), y: _btnShare.frame.size.height)
+            
+            var _centerXWithTargetButton = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_floatingShareTipInfo.size.width / 2.0)
+            _centerXWithTargetButton = min(_centerXWithTargetButton, (self.view.frame.size.width - _floatingShareTipInfo.size.width) )
+            let _centerYWithTargetButton = (self.navigationController?.navigationBar.frame.minY ?? 0) + abs(_inViewPoint.y)
+            self.floatingShareTipButton.frame.origin = CGPoint(x: _centerXWithTargetButton, y: _centerYWithTargetButton)
             self.floatingShareTipButton.frame.size = _floatingShareTipInfo.size
             self.floatingShareTipButton.alpha = 0.0
             self.floatingShareTipButton.isHidden = false
+            
+            let _currentWindow: UIWindow? = UIApplication.shared.keyWindow
+            _currentWindow?.addSubview(self.floatingShareTipButton)
+            _currentWindow?.bringSubviewToFront(self.floatingShareTipButton)
             //animation
             UIView.animate(withDuration: 0.2, animations: {
                 self.floatingShareTipButton.alpha = 1.0
@@ -2462,11 +2468,17 @@ extension ALKConversationViewController {
                         self.floatingShareTipButton.alpha = 0.0
                     }) { (isSuccessful) in
                         self.floatingShareTipButton.isHidden = true
+                        if self.floatingShareTipButton.superview != nil {
+                            self.floatingShareTipButton.removeFromSuperview()
+                        }
                     }
                 }
             }
         }else{
             self.floatingShareTipButton.isHidden = true
+            if self.floatingShareTipButton.superview != nil {
+                self.floatingShareTipButton.removeFromSuperview()
+            }
         }
     }
     
