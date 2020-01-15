@@ -11,6 +11,7 @@ import Applozic
 
 public protocol ALKConversationViewModelDelegate: class {
     func loadingStarted()
+    func loadingStop()
     func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool)
     func messageUpdated()
     func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool)

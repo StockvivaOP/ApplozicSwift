@@ -1591,7 +1591,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             group.leave()
         }
         group.notify(queue: .main) {
-            self.activityIndicator.stopAnimating()
+            self.loadingStop()
             guard let data = responseData, let url = responseUrl else {
                 return
             }
@@ -1667,9 +1667,13 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             view.bringSubviewToFront(activityIndicator)
         }
     }
+    
+    public func loadingStop() {
+        activityIndicator.stopAnimating()
+    }
 
     public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool) {
-        activityIndicator.stopAnimating()
+        self.loadingStop()
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
         if isLoadNextPage == false {
@@ -1726,9 +1730,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func messageUpdated() {
-        if activityIndicator.isAnimating {
-            activityIndicator.stopAnimating()
-        }
+        self.loadingStop()
         tableView.reloadData()
         
         if tableView.isCellVisible(section: self.viewModel.messageModels.count-1, row: 0) {
@@ -1744,9 +1746,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool) {
         DispatchQueue.main.async {
-            if self.activityIndicator.isAnimating {
-                self.activityIndicator.stopAnimating()
-            }
+            self.loadingStop()
             if needReloadTable == false {
                 self.tableView.beginUpdates()
                 self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .fade)
@@ -1760,9 +1760,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func removeMessagesAt(indexPath: IndexPath, closureBlock: () -> Void) {
-        if activityIndicator.isAnimating {
-            activityIndicator.stopAnimating()
-        }
+        self.loadingStop()
         closureBlock()
         self.tableView.reloadData()
     }
@@ -2606,9 +2604,7 @@ extension ALKConversationViewController {
                 self.lastScrollingPoint = CGPoint.zero
                 self.loadingStarted()
             }) {//completed
-                if self.activityIndicator.isAnimating == true {
-                    self.activityIndicator.stopAnimating()
-                }
+                self.loadingStop()
                 completedBlock()
             }
         }else{
