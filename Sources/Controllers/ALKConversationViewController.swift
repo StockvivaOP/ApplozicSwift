@@ -2452,7 +2452,7 @@ extension ALKConversationViewController {
             let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
             let _inViewPoint = self.navigationItem.rightBarButtonItem?.customView?.convert(_btnShare.frame.origin, to: self.view),
             isHidden == false {
-            let _sizeOfArrow = CGSize(width: 14.0, height: 6.5)
+            let _sizeOfArrow = CGSize(width: 19.0, height: 8.0)
             let _centerXWithTargetArrow = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_sizeOfArrow.width / 2.0)
             let _centerYWithTargetArrow = (self.navigationController?.navigationBar.frame.minY ?? 0) + abs(_inViewPoint.y)
             
