@@ -1960,7 +1960,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     @objc func refreshButtonAction(_ selector: UIButton) {
-        viewModel.refresh()
+        self.refreshViewController()
     }
 
     @objc func sendRightNavBarButtonSelectionNotification(_ selector: UIButton) {
