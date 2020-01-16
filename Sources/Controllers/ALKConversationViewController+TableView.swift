@@ -672,13 +672,11 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         if (decelerate) {return}
-        configurePaginationWindow()
         //save for unread message
         self.saveLastReadMessageIfNeeded()
     }
 
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        configurePaginationWindow()
         //save for unread message
         self.saveLastReadMessageIfNeeded()
     }
@@ -694,8 +692,8 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
 
     func configurePaginationWindow() {
         if (self.tableView.frame.equalTo(CGRect.zero)) {return}
-        if (self.tableView.isDragging) {return}
-        if (self.tableView.isDecelerating) {return}
+//        if (self.tableView.isDragging) {return}
+//        if (self.tableView.isDecelerating) {return}
         let topOffset = -self.tableView.contentInset.top
         let distanceFromTop = self.tableView.contentOffset.y - topOffset
         let distanceFromBottom = self.tableView.contentOffset.y + self.tableView.bounds.size.height
@@ -744,6 +742,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             let collectionView = scrollView as! UICollectionView
             contentOffsetDictionary[collectionView.tag] = horizontalOffset as AnyObject
         }
+        self.configurePaginationWindow()
     }
 
 }
