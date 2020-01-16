@@ -2101,6 +2101,7 @@ extension ALKConversationViewModel {
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - time: \(String(describing: time))")
         
         let _defaultPageSize = self.defaultValue_requestMessagePageSize
+        self.delegate?.loadingStarted()
         self.getSearchTimeBeforeOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in //complete
@@ -2145,6 +2146,7 @@ extension ALKConversationViewModel {
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - time: \(String(describing: time))")
         
         let _defaultPageSize = self.defaultValue_requestMessagePageSize
+        self.delegate?.loadingStarted()
         self.getSearchTimeAfterOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in//completed
