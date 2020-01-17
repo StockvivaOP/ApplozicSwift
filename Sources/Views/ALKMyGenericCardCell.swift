@@ -90,6 +90,10 @@ open class ALKGenericCardBaseCell: ALKChatBaseCell<ALKMessageViewModel> {
         return self.viewModel?.isMyMessage ?? false
     }
     
+    override func isAdminMessage() -> Bool {
+        return self.delegateCellRequestInfo?.isAdminUserMessage(userHashId: self.viewModel?.contactId) ?? false
+    }
+    
     public class func cardHeightFor(message: ALKMessageViewModel, width: CGFloat) -> CGFloat {
         let cardHeight = ALKGenericCardCollectionView.rowHeightFor(message:message, width:width)
         return cardHeight + cardTopPadding

@@ -123,7 +123,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
     
     var attachBgView: UIImageView = {
         let uiView = UIImageView()
-        uiView.image = UIImage.init(named: "temp_chat_attachment_bg", in: Bundle.applozic, compatibleWith: nil)
+        //uiView.image = UIImage.init(named: "temp_chat_attachment_bg_right", in: Bundle.applozic, compatibleWith: nil)
         uiView.backgroundColor = UIColor.clear
         uiView.tintColor = UIColor.ALKSVGreyColor250()
         return uiView
@@ -329,6 +329,10 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
     
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
+    }
+    
+    override func isAdminMessage() -> Bool {
+        return self.delegateCellRequestInfo?.isAdminUserMessage(userHashId: self.viewModel?.contactId) ?? false
     }
     
     override func isDeletedMessage() -> Bool {
@@ -613,6 +617,30 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
             _replyViewViewHeight = defaultReplyViewHeight
         }
         return (replyViewHeight:_replyViewViewHeight, replyMsgViewHeight:_resultMsgHeight, offsetOfMsgIncreaseHeight:_offsetOfMsgIncreaseHeight)
+    }
+    
+    func updateBubbleViewImage(for style: ALKMessageStyle.BubbleStyle, isReceiverSide: Bool = false, showHangOverImage:Bool) {
+        bubbleView.image = setBubbleViewImage(for: style, isReceiverSide: isReceiverSide, showHangOverImage: showHangOverImage)
+        
+        if self.isMyMessage() {
+            bubbleView.tintColor = UIColor.messageBox.my()
+            replyView.tintColor = UIColor.messageBox.myReply()
+            attachBgView.tintColor = UIColor.messageBox.myInner()
+        }else if self.isAdminMessage() {
+            bubbleView.tintColor = UIColor.messageBox.admin()
+            replyView.tintColor = UIColor.messageBox.adminReply()
+            attachBgView.tintColor = UIColor.messageBox.adminInner()
+        }else {
+            bubbleView.tintColor = UIColor.messageBox.normal()
+            replyView.tintColor = UIColor.messageBox.normalReply()
+            attachBgView.tintColor = UIColor.messageBox.normalInner()
+        }
+        
+        if isReceiverSide {
+            attachBgView.image = UIImage.init(named: "temp_chat_attachment_bg_left", in: Bundle.applozic, compatibleWith: nil)
+        }else{
+            attachBgView.image = UIImage.init(named: "temp_chat_attachment_bg_right", in: Bundle.applozic, compatibleWith: nil)
+        }
     }
     //tag: stockviva end
 }

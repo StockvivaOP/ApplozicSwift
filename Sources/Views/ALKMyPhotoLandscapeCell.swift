@@ -37,8 +37,9 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
         }
         
         struct PhotoView {
-            static let right: CGFloat = 14
-            static let top: CGFloat = 6
+            static let top: CGFloat = 5
+            static let left: CGFloat = 5
+            static let right: CGFloat = 5
         }
         //tag: stockviva start
         struct ReplyView {
@@ -236,8 +237,8 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
         //tag: stockviva end
         
         photoViewTopConst!.isActive = true
-        photoView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 0).isActive = true
-        photoView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 0).isActive = true
+        photoView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.PhotoView.left).isActive = true
+        photoView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.PhotoView.right).isActive = true
         
         fileSizeLabel.rightAnchor.constraint(equalTo: bubbleView.rightAnchor, constant: -Padding.FileSizeLabel.right).isActive = true
         
@@ -262,15 +263,19 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
     override func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, replyMessage: replyMessage)
         
-        if replyMessage != nil {
-            bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
-            bubbleView.layer.cornerRadius = 0
-            bubbleView.backgroundColor = .clear
-        }else{
-            bubbleView.image = nil
-            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
-        }
+//        if replyMessage != nil {
+//            bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
+//            bubbleView.layer.cornerRadius = 0
+//            bubbleView.backgroundColor = .clear
+//        }else{
+//            bubbleView.image = nil
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
+//        }
+        
+        //update bubble style
+        self.updateBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
+        
 //        if viewModel.isAllRead {
 //            stateView.image = UIImage(named: "read_state_3", in: Bundle.applozic, compatibleWith: nil)
 //            stateView.tintColor = UIColor(netHex: 0x0578FF)
@@ -326,14 +331,15 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
         super.setupStyle()
         captionLabel.font = ALKMessageStyle.sentMessage.font
         captionLabel.textColor = ALKMessageStyle.sentMessage.text
-        if(ALKMessageStyle.sentBubble.style == .edge) {
-            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
-            photoView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-        } else {
-            photoView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
-        }
+        photoView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//        if(ALKMessageStyle.sentBubble.style == .edge) {
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//            bubbleView.backgroundColor = ALKMessageStyle.sentBubble.color
+//            photoView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//        } else {
+//            photoView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.sentBubble.cornerRadius
+//        }
     }
     
     override class func rowHeigh(
@@ -351,8 +357,8 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
                 font: messageTextFont).height.rounded(.up) + Padding.CaptionLabel.bottom
         }
         
-        //10(top padding) + height(photo content) + 34(captionLabel) + 25(statusLabel)
-        let totalHeight = 10+height+34+25
+        //10(top padding) + height(photo content) + 32(captionLabel) + 25(statusLabel)
+        let totalHeight = 10+height+32+25
         
         guard replyMessage != nil else { return totalHeight }
         //add reply view height
@@ -392,10 +398,21 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
         ALKConfiguration.delegateConversationRequestInfo?.messageStateRemarkButtonClicked(isError: _isError, isViolate: _isViolate)
     }
     
+    // MARK: - ChatMenuCell
+    override func menuWillShow(_ sender: Any) {
+        super.menuWillShow(sender)
+        self.updateBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: true)
+    }
+    
+    override func menuWillHide(_ sender: Any) {
+        super.menuWillHide(sender)
+        self.updateBubbleViewImage(for: ALKMessageStyle.sentBubble.style, isReceiverSide: false,showHangOverImage: false)
+    }
+    
     //tag: stockviva start
     private func handleReplyView(replyMessage: ALKMessageViewModel?) {
         guard let replyMessage = replyMessage else {
-            self.photoViewTopConst?.constant = 0
+            self.photoViewTopConst?.constant = Padding.PhotoView.top
             showReplyView(false, haveImageType: false, haveImage: false)
             return
         }

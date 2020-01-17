@@ -11,6 +11,43 @@ import Foundation
 import UIKit
 
 public extension UIColor {
+    struct messageBox {
+        static func normal() -> UIColor {
+            return UIColor.white
+        }
+        
+        static func my() -> UIColor {
+            return UIColor.makeColotRGBA(red:255, green: 230, blue: 164)
+        }
+        static func admin() -> UIColor {
+            return UIColor.makeColotRGBA(red:217, green: 219, blue: 255)
+        }
+        
+        static func normalInner() -> UIColor {
+            return UIColor.ALKSVGreyColor250()
+        }
+        
+        static func myInner() -> UIColor {
+            return UIColor.makeColotRGBA(red:252, green: 208, blue: 93)
+        }
+        
+        static func adminInner() -> UIColor {
+            return UIColor.makeColotRGBA(red:198, green: 201, blue: 255)
+        }
+        
+        static func normalReply() -> UIColor {
+            return UIColor.messageBox.normalInner()
+        }
+        
+        static func myReply() -> UIColor {
+            return UIColor.makeColotRGBA(red:252, green: 208, blue: 93, alpha: 0.4)
+        }
+        
+        static func adminReply() -> UIColor {
+            return UIColor.makeColotRGBA(red:170, green: 175, blue: 255, alpha: 0.3)
+        }
+    }
+    
     //tag: stockviva
     static func makeColotRGBA(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1.0) -> UIColor {
         return UIColor(red: red/255.0, green: green/255.0, blue: blue/255.0, alpha: alpha)

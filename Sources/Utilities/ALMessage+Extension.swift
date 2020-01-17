@@ -486,6 +486,19 @@ extension ALMessage {
         return nil
     }
     
+    //hidden message
+    func isHiddenSVMessage() -> Bool {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.hiddenMessage) as? String ?? "false" == "true"
+        return _result
+    }
+    
+    func setHiddenSVMessage(value:Bool) {
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue((value ? "true" : "false"), forKey: SVALKMessageMetaDataFieldName.hiddenMessage.rawValue)
+    }
+    
     //validate message
     func isViolateMessage() -> Bool {
         let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.msgViolate) as? String ?? "false" == "true"

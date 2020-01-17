@@ -11,6 +11,7 @@ import Applozic
 
 public protocol ALKConversationViewModelDelegate: class {
     func loadingStarted()
+    func loadingStop()
     func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool)
     func messageUpdated()
     func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool)
@@ -96,8 +97,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private var typingTimerTask = Timer()
     
     //tag: stockviva
+    private let defaultValue_minMessageRequired:Int = 10
     private let defaultValue_requestMessagePageSize:Int = 50
     private let defaultValue_requestMessageHalfPageSize:Int = 25
+    private var isLoadingAllMessage = false
+    private var isLoadingEarlierMessage = false
     private var isLoadingLatestMessage = false
     private var unreadMessageSeparator:ALMessage = ALMessage()
     public var isUnreadMessageMode = false
@@ -154,6 +158,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
         if isClearDisplayMessageWithinUser {
             self.setDisplayMessageWithinUser(nil)
         }
+        self.isLoadingAllMessage = false
+        self.isLoadingEarlierMessage = false
+        self.isLoadingLatestMessage = false
         self.messageModels.removeAll()
         self.alMessages.removeAll()
         self.richMessages.removeAll()
@@ -417,7 +424,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     open func nextPage(isNextPage:Bool) {
         guard !isOpenGroup else {
             if isNextPage {
-                self.loadLateOpenGroupMessage()
+                self.loadLatestOpenGroupMessage()
             }else{
                 self.loadEarlierOpenGroupMessage()
             }
@@ -521,7 +528,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
             }
             let _isDeletedMsg = message.getDeletedMessageInfo().isDeleteMessage
             let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
-            if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
+            if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg || message.isHiddenSVMessage() {
                 continue
             }
             
@@ -1515,11 +1522,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - have error \(_error.localizedDescription) ")
             }
             
-            let contactDbService = ALContactDBService()
-            contactDbService.addUserDetails(userDetailsList)
-            
             var _resultMessages = [ALMessage]()
-            guard var alMessages = messages as? [ALMessage], alMessages.count > 0 else {
+            guard let alMessages = messages as? [ALMessage], alMessages.count > 0 else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no message list")
                 completion(nil, nil, nil)
                 return
@@ -1538,7 +1542,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 
                 let _isDeletedMsg = message.getDeletedMessageInfo().isDeleteMessage
                 let _isViolateMsg = message.isMyMessage == false && message.isViolateMessage()
-                if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg {
+                if message.getActionType().isSkipMessage() || message.isHiddenMessage() || _isViolateMsg || message.isHiddenSVMessage() {
                     continue
                 }
                 
@@ -1551,7 +1555,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 
                 if _isDeletedMsg == false {
                     let contactId = message.to ?? ""
-                    if !contactService.isContactExist(contactId) {
+                    if !contactService.isContactExist(contactId) && !contactsNotPresent.contains(contactId) {
                         contactsNotPresent.append(contactId)
                     }
                     if let metadata = message.metadata,
@@ -1570,21 +1574,17 @@ open class ALKConversationViewModel: NSObject, Localizable {
             }
             
             if !replyMessageKeys.isEmpty {
-                ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
-                    if let replyMessages = replyMessages as? [ALMessage] {
-                        for message in replyMessages {
-                            let contactId = message.to ?? ""
-                            if !contactService.isContactExist(contactId) {
-                                contactsNotPresent.append(contactId)
-                            }
+                self.fetchReplyMessage(replyMessageKeys: replyMessageKeys) { (tempContactsNotPresent) in
+                    for _contactId in tempContactsNotPresent {
+                        if !contactsNotPresent.contains(_contactId) {
+                            contactsNotPresent.append(_contactId)
                         }
-                    }else{
-                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - no reply message with key \(replyMessageKeys)")
                     }
+                    
                     self.processContacts(contactsNotPresent, completion: {
                         completion(_resultMessages, _firstItemTime, _lastItemTime)
                     })
-                })
+                }
             } else {
                 self.processContacts(contactsNotPresent, completion: {
                     completion(_resultMessages, _firstItemTime, _lastItemTime)
@@ -1604,7 +1604,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
                 for message in replyMessages {
                     let contactId = message.to ?? ""
-                    if !contactService.isContactExist(contactId) {
+                    if !contactService.isContactExist(contactId) && !contactsNotPresent.contains(contactId){
                         contactsNotPresent.append(contactId)
                     }
                 }
@@ -1849,6 +1849,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
 extension ALKConversationViewModel {
     
     func messageSendUnderClearAllModel( startProcess:@escaping ()->Void, completed:@escaping ()->Void){
+        self.isLoadingAllMessage = false
+        self.isLoadingEarlierMessage = false
+        self.isLoadingLatestMessage = false
+        
         guard self.channelKey != nil else {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - messageSendUnderClearAllModel - no channel key or group id")
             completed()
@@ -1901,8 +1905,14 @@ extension ALKConversationViewModel {
 //MARK: - stockviva unread message
 extension ALKConversationViewModel {
     open func loadOpenGroupMessageWithUnreadModel(){
+        if self.isLoadingAllMessage {
+            return
+        }
+        self.isLoadingAllMessage = true
+        
         guard let _chKey = self.channelKey, let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey else {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessageWithUnreadModel - no channel key or group id")
+            self.isLoadingAllMessage = false
             return
         }
         
@@ -1927,6 +1937,7 @@ extension ALKConversationViewModel {
             if _resultSet.count == 0 {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessageWithUnreadModel - no message list")
                 self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false)
+                self.isLoadingAllMessage = false
                 return
             }
             let sortedArray = _resultSet.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
@@ -1945,17 +1956,23 @@ extension ALKConversationViewModel {
             } else {
                 self.delegate?.messageUpdated()
             }
+            self.isLoadingAllMessage = false
         }
         
         //fetch message
         var _lastReadMsgTimeNumber:NSNumber? = nil
         if let _lastReadMsgTime = ALKSVUserDefaultsControl.shared.getLastReadMessageTime(chatGroupId: _chatGroupId) {
-            _lastReadMsgTimeNumber = NSNumber(value: (_lastReadMsgTime + 1))
+            _lastReadMsgTimeNumber = NSNumber(value: _lastReadMsgTime)
         }
         
         if _lastReadMsgTimeNumber == nil {
+            var _dateComponent = DateComponents()
+            _dateComponent.year = 1
+            if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
+                _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
+            }
             //call record
-            self.getSearchTimeBeforeOpenGroupMessage { (resultsOfBefore, firstItemCreateTime, lastItemCreateTime) in
+            self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber) { (resultsOfBefore, firstItemCreateTime, lastItemCreateTime) in
                 _completedBlock(resultsOfBefore, nil, firstItemCreateTime, lastItemCreateTime)
             }
         }else{
@@ -1968,7 +1985,10 @@ extension ALKConversationViewModel {
                 }else{
                     _halfPageSize = _defaultPageSize
                 }
-                    
+                
+                if let _tLastReadMsgTimeNumber = _lastReadMsgTimeNumber {
+                    _lastReadMsgTimeNumber = NSNumber(value: (_tLastReadMsgTimeNumber.intValue + 1))
+                }
                 //call before record
                 self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber, pageSize:_halfPageSize, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
                     _completedBlock(resultsOfBefore, resultsOfAfter, firstItemCreateTimeBefore ?? firstItemCreateTimeAfter , lastItemCreateTimeAfter)
@@ -1978,6 +1998,7 @@ extension ALKConversationViewModel {
     }
     
     private func getSearchTimeBeforeOpenGroupMessage(time:NSNumber? = nil, pageSize:Int? = nil,
+                                                    minMessageRequired:Int? = nil,
                                                     downloadedMessageList:[ALMessage]? = nil,
                                                     lastLoopGotRecord:Int = 0,
                                                     loopingStart:(()->())? = nil,
@@ -1989,6 +2010,7 @@ extension ALKConversationViewModel {
         }
         //call before record
         let _defaultPageSize = pageSize ?? self.defaultValue_requestMessagePageSize
+        let _defaultMinMessageRequired = minMessageRequired ?? self.defaultValue_minMessageRequired
         self.fetchOpenGroupMessages(time: time, contactId: self.contactId, channelKey: _chKey, maxRecord:"\(_defaultPageSize)") { (messageList, firstItemCreateTime, lastItemCreateTime) in
             guard let newMessages = messageList, newMessages.count > 0 else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - getSearchTimeBeforeOpenGroupMessage - no message list")
@@ -2005,7 +2027,7 @@ extension ALKConversationViewModel {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - getSearchTimeBeforeOpenGroupMessage - successful list count  \(newMessages.count) ")
             var _totalMsgList:[ALMessage] = downloadedMessageList ?? []
             _totalMsgList.append(contentsOf: newMessages)
-            if _totalMsgList.count < _defaultPageSize && firstItemCreateTime != nil {
+            if _totalMsgList.count < _defaultMinMessageRequired && firstItemCreateTime != nil {
                 loopingStart?()
                 self.getSearchTimeBeforeOpenGroupMessage(time: firstItemCreateTime, pageSize:pageSize, downloadedMessageList:_totalMsgList, lastLoopGotRecord: _totalMsgList.count, completed:completed)
                 return
@@ -2018,6 +2040,7 @@ extension ALKConversationViewModel {
     }
     
     private func getSearchTimeAfterOpenGroupMessage(time:NSNumber? = nil, pageSize:Int? = nil,
+                                                    minMessageRequired:Int? = nil,
                                                     downloadedMessageList:[ALMessage]? = nil,
                                                     lastLoopGotRecord:Int = 0,
                                                     loopingStart:(()->())? = nil,
@@ -2033,6 +2056,7 @@ extension ALKConversationViewModel {
         }
         
         let _defaultPageSize = pageSize ?? self.defaultValue_requestMessagePageSize
+        let _defaultMinMessageRequired = minMessageRequired ?? self.defaultValue_minMessageRequired
         //call before record
         self.fetchOpenGroupMessages(startFromTime: searchTime, time: nil, contactId: self.contactId, channelKey: _chKey, maxRecord:"\(_defaultPageSize)", isOrderByAsc:true) { (messageList, firstItemCreateTime, lastItemCreateTime) in
             guard let newMessages = messageList, newMessages.count > 0 else {
@@ -2050,7 +2074,7 @@ extension ALKConversationViewModel {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - getSearchTimeAfterOpenGroupMessage - successful list count  \(newMessages.count) ")
             var _totalMsgList:[ALMessage] = downloadedMessageList ?? []
             _totalMsgList.append(contentsOf: newMessages)
-            if _totalMsgList.count < _defaultPageSize && lastItemCreateTime != nil {
+            if _totalMsgList.count < _defaultMinMessageRequired && lastItemCreateTime != nil {
                 loopingStart?()
                 self.getSearchTimeAfterOpenGroupMessage(time: lastItemCreateTime, pageSize:pageSize, downloadedMessageList:_totalMsgList, lastLoopGotRecord: _totalMsgList.count, completed:completed)
                 return
@@ -2063,6 +2087,12 @@ extension ALKConversationViewModel {
     }
     
     open func loadEarlierOpenGroupMessage() {
+        if self.isLoadingEarlierMessage {
+            return
+        }
+        self.isLoadingEarlierMessage = true
+        NSLog("call loadEarlierOpenGroupMessage")
+        
         var time: NSNumber?
         if let messageList = alMessageWrapper.getUpdatedMessageArray(), messageList.count > 1 {
             time = (messageList.firstObject as! ALMessage).createdAtTime
@@ -2071,12 +2101,14 @@ extension ALKConversationViewModel {
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - time: \(String(describing: time))")
         
         let _defaultPageSize = self.defaultValue_requestMessagePageSize
+        self.delegate?.loadingStarted()
         self.getSearchTimeBeforeOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in //complete
             guard let newMessages = messageList, newMessages.count > 0  else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - no message list")
                 self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
+                self.isLoadingEarlierMessage = false
                 return
             }
             for mesg in newMessages {
@@ -2095,10 +2127,16 @@ extension ALKConversationViewModel {
             
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - successful list count  \(self.messageModels.count) ")
             self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
+            self.isLoadingEarlierMessage = false
         }
     }
     
-    open func loadLateOpenGroupMessage(){
+    open func loadLatestOpenGroupMessage(){
+        if self.isLoadingLatestMessage {
+            return
+        }
+        self.isLoadingLatestMessage = true
+        
         var time: NSNumber? = nil
         if let _lastMsgTime = self.alMessages.last?.createdAtTime {
             time = NSNumber(value: (_lastMsgTime.intValue) )
@@ -2108,6 +2146,7 @@ extension ALKConversationViewModel {
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - time: \(String(describing: time))")
         
         let _defaultPageSize = self.defaultValue_requestMessagePageSize
+        self.delegate?.loadingStarted()
         self.getSearchTimeAfterOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in//completed
@@ -2115,6 +2154,7 @@ extension ALKConversationViewModel {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - no message list")
                 self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
                 self.clearUnReadMessageData()
+                self.isLoadingLatestMessage = false
                 return
             }
             
@@ -2142,6 +2182,7 @@ extension ALKConversationViewModel {
             self.messageModels.sort { $0.createdAtTime?.intValue ?? 0 < $1.createdAtTime?.intValue ?? 0 }
             
             self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:true)
+            self.isLoadingLatestMessage = false
         }
     }
     
@@ -2225,7 +2266,7 @@ extension ALKConversationViewModel {
         }
         let _isDeletedMsg = updatedMessage.getDeletedMessageInfo().isDeleteMessage
         let _isViolateMsg = updatedMessage.isMyMessage == false && updatedMessage.isViolateMessage()
-        if updatedMessage.getActionType().isSkipMessage() || updatedMessage.isHiddenMessage() || _isViolateMsg {
+        if updatedMessage.getActionType().isSkipMessage() || updatedMessage.isHiddenMessage() || _isViolateMsg || updatedMessage.isHiddenSVMessage() {
             return
         }
         

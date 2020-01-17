@@ -252,6 +252,12 @@ public struct ALKConfiguration {
     /// chat view Right Nav Bar Button - show admin message only
     public var isShowAdminMessageOnlyOptionInNavBar:Bool = false
     
+    /// chat view Right Nav Bar Button - show share group
+    public var isShowShareGroupOptionInNavBar:Bool = false
+    
+    /// chat view Right Nav Bar Button - show share group
+    public var isShowFloatingShareGroupButton:Bool = false
+    
     /// chat box cell background color
     public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
     /// chat box cell user name color
@@ -291,10 +297,14 @@ public protocol ConversationChatContentActionDelegate: class{
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
     func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
+    func shareGroupButtonClicked(chatView:UIViewController, button:UIButton)
+    func loadingFloatingShareButton() -> UIImage?
+    func loadingFloatingShareTip() -> (title:String, bgColor:UIColor, size:CGSize, titleEdgeInsets:UIEdgeInsets?, dismissSecond:Int)
+    func didFloatingShareButtonClicked(chatView:UIViewController, button:UIButton)
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?
     func showAlert(type:ALKConfiguration.ConversationErrorType)
-    func isAdminUser() -> Bool
+    func isAdminUser(_ userHashId:String?) -> Bool
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
     //pin message
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?, viewModel:ALKMessageViewModel)
@@ -337,6 +347,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func isEnablePaidFeature() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
     func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) //response
+    func isAdminUserMessage(userHashId:String?) -> Bool
 }
 
 public protocol ConversationRequestInfoDelegate: class{

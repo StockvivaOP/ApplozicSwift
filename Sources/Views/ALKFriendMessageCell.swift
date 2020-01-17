@@ -314,18 +314,20 @@ open class ALKFriendMessageCell: ALKMessageCell {
         
         //nameLabel.setStyle(ALKMessageStyle.displayName)
         messageView.setStyle(ALKMessageStyle.receivedMessage)
-        if ALKMessageStyle.receivedBubble.style == .edge {
-            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.image = bubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
-        } else {
-            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
-            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
-        }
+//        if ALKMessageStyle.receivedBubble.style == .edge {
+//            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
+//            bubbleView.image = bubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
+//        } else {
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+//            bubbleView.tintColor = ALKMessageStyle.receivedBubble.color
+//            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
+//        }
     }
 
     func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, style: ALKMessageStyle.receivedMessage, replyMessage: replyMessage)
+        self.updateBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
+        
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
         if let url = viewModel.avatarURL {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)

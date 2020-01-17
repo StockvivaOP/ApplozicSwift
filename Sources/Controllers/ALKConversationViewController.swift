@@ -184,6 +184,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             }
         }
     }
+    
+    public enum ALKSVNavigationBarItem: Int {
+        case defaultButton = 1
+        case shareGroup = 2
+        case showAdminMsgOnly = 3
+        
+        func getTagId() -> Int{
+            return self.rawValue
+        }
+    }
     public var enableShowJoinGroupMode: Bool = false
     public var enableShowBlockChatMode: Bool = false
     public var conversationType: ALKConversationType = .free
@@ -214,6 +224,31 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         _view.layer.cornerRadius = 7.5
         _view.isHidden = true
         return _view
+    }()
+    
+    private var floatingShareButton: UIButton = {
+        let view = UIButton(type: UIButton.ButtonType.custom)
+        view.backgroundColor = .clear
+        view.isHidden = true
+        view.addTarget(self, action: #selector(ALKConversationViewController.didFloatingShareButtonTouchUpInside(_:)), for: .touchUpInside)
+        return view
+    }()
+    
+    private var floatingShareTipButtonArrowImg: UIImageView = {
+        let _img = UIImage(named: "sv_temp_style_bubble_arrow", in: Bundle.applozic, compatibleWith: nil)
+        let view = UIImageView(image: _img)
+        view.backgroundColor = .clear
+        view.isHidden = true
+        return view
+    }()
+    
+    private var floatingShareTipButton: UIButton = {
+        let view = UIButton(type: UIButton.ButtonType.custom)
+        view.backgroundColor = .clear
+        view.setTitleColor(.white, for: .normal)
+        view.setFont(font: UIFont.systemFont(ofSize: 13.0, weight: .semibold))
+        view.isHidden = true
+        return view
     }()
     //tag: stockviva end
     
@@ -449,8 +484,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         if self.isFirstTime {
             setupView()
             self.refreshViewController()
+        }else{
+            configureView()
         }
-        configureView()
+        self.prepareAllCustomView()
+        
         contentOffsetDictionary = Dictionary<NSObject,AnyObject>()
         self.isViewFirstLoad = false
         print("id: ", viewModel.messageModels.first?.contactId as Any)
@@ -507,9 +545,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     override open func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        self.isViewDisappear = true
         //save for unread message
         self.saveLastReadMessageIfNeeded()
+        //do after above line
+        self.isViewDisappear = true
         stopAudioPlayer()
         chatBar.stopRecording()
         if let _ = alMqttConversationService {
@@ -619,7 +658,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
         
-        var allViews = [backgroundView, contextTitleView, tableView, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -655,6 +694,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: (templateView != nil) ? templateView!.topAnchor:discrimationView.topAnchor).isActive = true
 
+        floatingShareButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
+        floatingShareButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
+        floatingShareButton.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
+        floatingShareButton.heightAnchor.constraint(equalToConstant: 70.0).isActive = true
+        
         //tag: stockviva
         discrimationView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         discrimationView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -1547,7 +1591,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             group.leave()
         }
         group.notify(queue: .main) {
-            self.activityIndicator.stopAnimating()
+            self.loadingStop()
             guard let data = responseData, let url = responseUrl else {
                 return
             }
@@ -1623,9 +1667,13 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             view.bringSubviewToFront(activityIndicator)
         }
     }
+    
+    public func loadingStop() {
+        activityIndicator.stopAnimating()
+    }
 
     public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool) {
-        activityIndicator.stopAnimating()
+        self.loadingStop()
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
         if isLoadNextPage == false {
@@ -1682,9 +1730,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func messageUpdated() {
-        if activityIndicator.isAnimating {
-            activityIndicator.stopAnimating()
-        }
+        self.loadingStop()
         tableView.reloadData()
         
         if tableView.isCellVisible(section: self.viewModel.messageModels.count-1, row: 0) {
@@ -1700,9 +1746,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool) {
         DispatchQueue.main.async {
-            if self.activityIndicator.isAnimating {
-                self.activityIndicator.stopAnimating()
-            }
+            self.loadingStop()
             if needReloadTable == false {
                 self.tableView.beginUpdates()
                 self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .fade)
@@ -1716,9 +1760,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func removeMessagesAt(indexPath: IndexPath, closureBlock: () -> Void) {
-        if activityIndicator.isAnimating {
-            activityIndicator.stopAnimating()
-        }
+        self.loadingStop()
         closureBlock()
         self.tableView.reloadData()
     }
@@ -1845,7 +1887,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         }()
         
         let button: UIButton = UIButton(type: UIButton.ButtonType.custom)
-        button.tag = 2 //for menu or refresh button
+        button.tag = ALKSVNavigationBarItem.defaultButton.getTagId() //for menu or refresh button
         button.setTitleColor(.white, for: .normal)
 
         let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
@@ -1870,7 +1912,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             let _btnShowAdminMsgOnlySize = CGSize(width: 60.0, height: 25.0)
             let notificationShowAdminMsgSelector = #selector(ALKConversationViewController.sendShowAdminMessageOnlyNavBarButtonSelectionNotification(_:))
             let _showAdminbutton: UIButton = UIButton(type: UIButton.ButtonType.custom)
-            _showAdminbutton.tag = 1 //for show admin only message
+            _showAdminbutton.tag = ALKSVNavigationBarItem.showAdminMsgOnly.getTagId() //for show admin only message
             _showAdminbutton.layer.borderColor = UIColor.white.cgColor
             _showAdminbutton.layer.borderWidth = 1.0
             _showAdminbutton.layer.cornerRadius = _btnShowAdminMsgOnlySize.height / 2.0
@@ -1890,6 +1932,22 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             _svRightNavBtnBar.addArrangedSubview(_showAdminbutton)
         }
         
+        if configuration.isShowShareGroupOptionInNavBar {
+            let _btnShowShareGroupSize = CGSize(width: 24.0, height: 24.0)
+            let notificationShowAdminMsgSelector = #selector(ALKConversationViewController.sendShowShareGroupNavBarButtonSelectionNotification(_:))
+            let _showShareGroupButton: UIButton = UIButton(type: UIButton.ButtonType.custom)
+            _showShareGroupButton.tag = ALKSVNavigationBarItem.shareGroup.getTagId() //for show share group
+            _showShareGroupButton.setBackgroundColor(.clear)
+            _showShareGroupButton.setImage(UIImage(named: "sv_button_share_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+            _showShareGroupButton.addTarget(self, action:notificationShowAdminMsgSelector, for: UIControl.Event.touchUpInside)
+            _showShareGroupButton.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                _showShareGroupButton.heightAnchor.constraint(equalToConstant: _btnShowShareGroupSize.height),
+                _showShareGroupButton.widthAnchor.constraint(equalToConstant: _btnShowShareGroupSize.width)
+                ])
+            _svRightNavBtnBar.addArrangedSubview(_showShareGroupButton)
+        }
+        
         _svRightNavBtnBar.addArrangedSubview(button)
         
         return _svRightNavBtnBar
@@ -1902,7 +1960,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     @objc func refreshButtonAction(_ selector: UIButton) {
-        viewModel.refresh()
+        self.refreshViewController()
     }
 
     @objc func sendRightNavBarButtonSelectionNotification(_ selector: UIButton) {
@@ -1924,7 +1982,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func isPassMessageContentChecking() -> Bool {
-       return self.delegateConversationChatContentAction?.isAdminUser() ?? false
+       return self.delegateConversationChatContentAction?.isAdminUser(nil) ?? false
     }
     
     public func displayMessageWithinUserListModeChanged(result:Bool) {
@@ -2387,6 +2445,82 @@ extension ALKConversationViewController {
         }
     }
     
+    public func isHiddenFloatingShareTip(_ isHidden:Bool) {
+        if let _btnShare = self.getRightNavigationBarItemButton(item: .shareGroup),
+            let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
+            let _inViewPoint = self.navigationItem.rightBarButtonItem?.customView?.convert(_btnShare.frame.origin, to: self.view),
+            isHidden == false {
+            let _sizeOfArrow = CGSize(width: 19.0, height: 8.0)
+            let _centerXWithTargetArrow = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_sizeOfArrow.width / 2.0)
+            let _centerYWithTargetArrow = (self.navigationController?.navigationBar.frame.minY ?? 0) + abs(_inViewPoint.y)
+            
+            var _centerXWithTargetButton = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_floatingShareTipInfo.size.width / 2.0)
+            _centerXWithTargetButton = min(_centerXWithTargetButton, (self.view.frame.size.width - _floatingShareTipInfo.size.width) )
+            let _centerYWithTargetButton = _centerYWithTargetArrow + _sizeOfArrow.height
+            
+            self.floatingShareTipButtonArrowImg.tintColor = _floatingShareTipInfo.bgColor
+            self.floatingShareTipButtonArrowImg.frame.origin = CGPoint(x: _centerXWithTargetArrow, y: _centerYWithTargetArrow)
+            self.floatingShareTipButtonArrowImg.frame.size = _sizeOfArrow
+            self.floatingShareTipButtonArrowImg.alpha = 0.0
+            self.floatingShareTipButtonArrowImg.isHidden = false
+            
+            self.floatingShareTipButton.setTitle(_floatingShareTipInfo.title, for: .normal)
+            self.floatingShareTipButton.setBackgroundColor(_floatingShareTipInfo.bgColor)
+            self.floatingShareTipButton.titleEdgeInsets = _floatingShareTipInfo.titleEdgeInsets ?? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            self.floatingShareTipButton.frame.origin = CGPoint(x: _centerXWithTargetButton, y: _centerYWithTargetButton)
+            self.floatingShareTipButton.frame.size = _floatingShareTipInfo.size
+            self.floatingShareTipButton.layer.cornerRadius = _floatingShareTipInfo.size.height / 2.0
+            self.floatingShareTipButton.alpha = 0.0
+            self.floatingShareTipButton.isHidden = false
+            
+            let _currentWindow: UIWindow? = UIApplication.shared.keyWindow
+            _currentWindow?.addSubview(self.floatingShareTipButtonArrowImg)
+            _currentWindow?.addSubview(self.floatingShareTipButton)
+            _currentWindow?.bringSubviewToFront(self.floatingShareTipButtonArrowImg)
+            _currentWindow?.bringSubviewToFront(self.floatingShareTipButton)
+            //animation
+            UIView.animate(withDuration: 0.4, animations: {
+                self.floatingShareTipButtonArrowImg.alpha = 1.0
+                self.floatingShareTipButton.alpha = 1.0
+            }) { (isSuccessful) in
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(_floatingShareTipInfo.dismissSecond) ) {
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.floatingShareTipButtonArrowImg.alpha = 0.0
+                        self.floatingShareTipButton.alpha = 0.0
+                    }) { (isSuccessful) in
+                        self.floatingShareTipButton.isHidden = true
+                        self.floatingShareTipButtonArrowImg.isHidden = true
+                        if self.floatingShareTipButton.superview != nil {
+                            self.floatingShareTipButton.removeFromSuperview()
+                        }
+                        if self.floatingShareTipButtonArrowImg.superview != nil {
+                            self.floatingShareTipButtonArrowImg.removeFromSuperview()
+                        }
+                    }
+                }
+            }
+        }else{
+            self.floatingShareTipButton.isHidden = true
+            self.floatingShareTipButtonArrowImg.isHidden = true
+            if self.floatingShareTipButton.superview != nil {
+                self.floatingShareTipButton.removeFromSuperview()
+            }
+            if self.floatingShareTipButtonArrowImg.superview != nil {
+                self.floatingShareTipButtonArrowImg.removeFromSuperview()
+            }
+        }
+    }
+    
+    private func prepareAllCustomView() {
+        self.floatingShareButton.isHidden = !self.configuration.isShowFloatingShareGroupButton
+        if let _image = self.delegateConversationChatContentAction?.loadingFloatingShareButton(),
+            self.floatingShareButton.isHidden == false {
+            self.floatingShareButton.setImage(_image, for: .normal)
+        }else{
+            self.floatingShareButton.isHidden = true
+        }
+    }
+    
     private func prepareDiscrimationView() {
         self.discrimationView.addTarget(self, action: #selector(discrimationToucUpInside(_:)), for: .touchUpInside)
         if let _discInfo = self.delegateConversationChatContentAction?.isShowDiscrimation(chatView: self), _discInfo.isShow {
@@ -2470,9 +2604,7 @@ extension ALKConversationViewController {
                 self.lastScrollingPoint = CGPoint.zero
                 self.loadingStarted()
             }) {//completed
-                if self.activityIndicator.isAnimating == true {
-                    self.activityIndicator.stopAnimating()
-                }
+                self.loadingStop()
                 completedBlock()
             }
         }else{
@@ -2610,7 +2742,7 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     }
     
     public func isEnablePinMsgMenuItem() -> Bool {
-        return self.delegateConversationChatContentAction?.isAdminUser() ?? false
+        return self.delegateConversationChatContentAction?.isAdminUser(nil) ?? false
     }
     
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
@@ -2621,6 +2753,9 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
         if let _rawModel = messageModel?.rawModel {
             self.viewModel.updateMessageContent(updatedMessage: _rawModel, isUpdateView: isUpdateView)
         }
+    }
+    public func isAdminUserMessage(userHashId:String?) -> Bool {
+        return self.delegateConversationChatContentAction?.isAdminUser(userHashId) ?? false
     }
 }
 
@@ -2686,9 +2821,21 @@ extension ALKConversationViewController {
         self.delegateConversationChatContentAction?.showAdminMessageOnlyButtonClicked(chatView: self, button: selector)
     }
     
+    @objc func sendShowShareGroupNavBarButtonSelectionNotification(_ selector: UIButton) {
+        self.chatBar.resignAllResponderFromTextView()
+        self.delegateConversationChatContentAction?.shareGroupButtonClicked(chatView: self, button: selector)
+    }
+    
+    @objc func didFloatingShareButtonTouchUpInside(_ selector: UIButton) {
+        self.chatBar.resignAllResponderFromTextView()
+        self.delegateConversationChatContentAction?.didFloatingShareButtonClicked(chatView: self, button: selector)
+        self.floatingShareButton.isHidden = true
+        self.configuration.isShowFloatingShareGroupButton = false
+    }
+    
     public func setShowAdminMessageButtonStatus(_ isSelected:Bool){
         if let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView,
-            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == 1 } ) as? UIButton {
+            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == ALKSVNavigationBarItem.showAdminMsgOnly.getTagId() } ) as? UIButton {
                 _showAdminBtn.isSelected = isSelected
                 if isSelected {
                     _showAdminBtn.setBackgroundColor(.white)
@@ -2698,9 +2845,15 @@ extension ALKConversationViewController {
         }
     }
     
+    public func getRightNavigationBarItemButton(item:ALKSVNavigationBarItem) -> UIButton? {
+        let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView
+        let _showAdminBtn = _rightNavBtnGroup?.arrangedSubviews.first(where: { $0.tag == item.getTagId() } ) as? UIButton
+        return _showAdminBtn
+    }
+    
     private func updateShowAdminMessageButtonTitle(){
         if let _rightNavBtnGroup = self.navigationItem.rightBarButtonItem?.customView as? UIStackView,
-            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == 1 } ) as? UIButton {
+            let _showAdminBtn = _rightNavBtnGroup.arrangedSubviews.first(where: { $0.tag == ALKSVNavigationBarItem.showAdminMsgOnly.getTagId() } ) as? UIButton {
                 let _title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chatgroup_conversation_right_menu_view_admin_only") ?? ""
                 _showAdminBtn.setTitle(_title, for: .normal)
                 

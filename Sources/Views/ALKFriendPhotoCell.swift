@@ -53,8 +53,9 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         }
         
         struct PhotoView {
-            static let right: CGFloat = 0
-            static let top: CGFloat = 7.0
+            static let top: CGFloat = 5.0
+            static let left: CGFloat = 5.0
+            static let right: CGFloat = 5.0
         }
         //tag: stockviva start
         struct ReplyView {
@@ -138,18 +139,18 @@ class ALKFriendPhotoCell: ALKPhotoCell {
 
     override func setupStyle() {
         super.setupStyle()
+        photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
         //nameLabel.setStyle(ALKMessageStyle.displayName)
         //captionLabel.font = ALKMessageStyle.receivedMessage.font
         //captionLabel.textColor = ALKMessageStyle.receivedMessage.text
-        if(ALKMessageStyle.receivedBubble.style == .edge) {
-            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            //bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
-            photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-        } else {
-            photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-            //bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
-        }
-        bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
+//        if(ALKMessageStyle.receivedBubble.style == .edge) {
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+//            bubbleView.backgroundColor = ALKMessageStyle.receivedBubble.color
+//            photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+//        } else {
+//            photoView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+//            bubbleView.layer.cornerRadius = ALKMessageStyle.receivedBubble.cornerRadius
+//        }
     }
 
     override func setupViews() {
@@ -235,8 +236,8 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         //tag: stockviva end
         
         photoViewTopConst!.isActive = true
-        photoView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 0).isActive = true
-        photoView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: 0).isActive = true
+        photoView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.PhotoView.left).isActive = true
+        photoView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.PhotoView.right).isActive = true
         
         timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.TimeLabel.top).isActive = true
         timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.TimeLabel.left).isActive = true
@@ -248,6 +249,8 @@ class ALKFriendPhotoCell: ALKPhotoCell {
 
     override func update(viewModel: ALKMessageViewModel, replyMessage: ALKMessageViewModel?) {
         super.update(viewModel: viewModel, replyMessage: replyMessage)
+        //update bubble style
+        self.updateBubbleViewImage(for: ALKMessageStyle.receivedBubble.style, isReceiverSide: true,showHangOverImage: false)
 
         nameLabel.text = viewModel.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
@@ -286,8 +289,8 @@ class ALKFriendPhotoCell: ALKPhotoCell {
                 font: messageTextFont).height.rounded(.up) + Padding.CaptionLabel.bottom
         }
         
-        //10(top padding) + 34(user name label) + height(photo content) + 34(captionLabel) + 23(timeLabel)
-        let totalHeight = 10+34+height+34+23
+        //10(top padding) + 32(user name label) + height(photo content) + 32(captionLabel) + 23(timeLabel)
+        let totalHeight = 10+32+height+32+23
         
         guard replyMessage != nil else { return totalHeight }
         //add reply view height
@@ -324,12 +327,12 @@ class ALKFriendPhotoCell: ALKPhotoCell {
     // MARK: - ChatMenuCell
     override func menuWillShow(_ sender: Any) {
         super.menuWillShow(sender)
-        self.bubbleView.image = setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: true)
+        self.updateBubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: true)
     }
     
     override func menuWillHide(_ sender: Any) {
         super.menuWillHide(sender)
-        self.bubbleView.image =  setBubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: false)
+        self.updateBubbleViewImage(for: ALKMessageStyle.receivedBubble.style,isReceiverSide: true,showHangOverImage: false)
     }
     
     //tag: stockviva start

@@ -51,6 +51,7 @@ public enum SVALKMessageMetaDataFieldName : String {
     case msgViolate = "SV_VIOLATE"
     case mentions = "SV_MENTIONS"
     case userHashId = "userHashId"
+    case hiddenMessage = "SV_HIDDEN"//for sprint 27 or later (3.13.0)
     case alDeleteGroupMessageForAll = "AL_DELETE_GROUP_MESSAGE_FOR_ALL"
     //will not send to server
     case imageThumbnailURL = "SV_IMAGE_THUMBNAIL_URL"
@@ -312,6 +313,18 @@ extension ALKMessageViewModel {
     
     func getValueFromMetadata(_ key:SVALKMessageMetaDataFieldName) -> Any? {
         return self.rawModel?.getValueFromMetadata(key)
+    }
+    
+    //hidden message
+    func isHiddenSVMessage() -> Bool {
+        return self.rawModel?.isHiddenSVMessage() ?? false
+    }
+    
+    mutating func setHiddenSVMessage(value:Bool) {
+        if let _rawModel = self.rawModel {
+            _rawModel.setHiddenSVMessage(value: value)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
     }
     
     //validate message

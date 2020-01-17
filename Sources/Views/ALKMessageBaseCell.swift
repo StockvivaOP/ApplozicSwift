@@ -147,7 +147,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         _view.layer.cornerRadius = 16.5
         _view.layer.borderColor = UIColor.ALKSVMainColorPurple().cgColor
         _view.layer.borderWidth = 1.5
-        _view.backgroundColor = .white
+        _view.backgroundColor = .clear
         _view.setFont(font: UIFont.systemFont(ofSize: 16.0, weight: .semibold) )
         _view.setTitleColor(UIColor.ALKSVMainColorPurple(), for: .normal)
         _view.setTitle("", for: .normal)
@@ -322,6 +322,10 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     
     override func isMyMessage() -> Bool {
         return self.viewModel?.isMyMessage ?? false
+    }
+    
+    override func isAdminMessage() -> Bool {
+        return self.delegateCellRequestInfo?.isAdminUserMessage(userHashId: self.viewModel?.contactId) ?? false
     }
     
     override func isDeletedMessage() -> Bool {
@@ -532,6 +536,21 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             _replyViewViewHeight = defaultReplyViewHeight
         }
         return (replyViewHeight:_replyViewViewHeight, replyMsgViewHeight:_resultMsgHeight, offsetOfMsgIncreaseHeight:_offsetOfMsgIncreaseHeight)
+    }
+    
+    func updateBubbleViewImage(for style: ALKMessageStyle.BubbleStyle, isReceiverSide: Bool = false, showHangOverImage:Bool) {
+        bubbleView.image = setBubbleViewImage(for: style, isReceiverSide: isReceiverSide, showHangOverImage: showHangOverImage)
+        
+        if self.isMyMessage() {
+            bubbleView.tintColor = UIColor.messageBox.my()
+            replyView.tintColor = UIColor.messageBox.myReply()
+        }else if self.isAdminMessage() {
+            bubbleView.tintColor = UIColor.messageBox.admin()
+            replyView.tintColor = UIColor.messageBox.adminReply()
+        }else {
+            bubbleView.tintColor = UIColor.messageBox.normal()
+            replyView.tintColor = UIColor.messageBox.normalReply()
+        }
     }
 }
 
