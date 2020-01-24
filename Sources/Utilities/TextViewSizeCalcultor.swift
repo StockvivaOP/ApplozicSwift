@@ -26,5 +26,11 @@ struct TextViewSizeCalculator {
         let size = textView.sizeThatFits(CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude))
         return ceil(size.height)
     }
+    
+    static func height(_ textView: UITextView,
+                         maxWidth: CGFloat) -> CGFloat {
+        let size = textView.attributedText.boundingRect(with: CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).size
+        return ceil(size.height)
+    }
 
 }

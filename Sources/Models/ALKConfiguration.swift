@@ -219,6 +219,56 @@ public struct ALKConfiguration {
         case networkProblem
     }
     
+    public enum ConversationMessageLinkType : CaseIterable {
+        case stockCode
+        case unknown
+        
+        func getURLLink(value:String) -> URL? {
+            switch self{
+            case .stockCode:
+                return URL(string:"svchatgroup://stock/\(value)")
+            default:
+                return nil
+            }
+        }
+        
+        func getFormatedValue(value:String) -> String? {
+            switch self{
+            case .stockCode:
+                var _tempValue = value
+                if let _valueInt = Int(_tempValue) {
+                    //not support fist character is not zero and the length is larger than 5
+                    if _valueInt < 10000 {
+                        //if pass
+                        _tempValue = String(format: "%05d", _valueInt)
+                        _tempValue = "hk.\(_tempValue)".uppercased()
+                    }
+                }
+                return _tempValue.uppercased()
+            default:
+                return nil
+            }
+        }
+        
+        func getValueFromLink(urlStr:String) -> String? {
+            switch self{
+            case .stockCode:
+                return urlStr.replacingOccurrences(of: "svchatgroup://stock/", with: "")
+            default:
+                return nil
+            }
+        }
+        
+        func isURLMatched(urlStr:String) -> Bool {
+            switch self{
+            case .stockCode:
+                return urlStr.hasPrefix("svchatgroup://stock/")
+            default:
+                return false
+            }
+        }
+    }
+    
     /// delegate for get / set system info
     public static var delegateSystemInfoRequestDelegate:SystemInfoRequestDelegate?
     
@@ -279,6 +329,10 @@ public struct ALKConfiguration {
     
     /// allow user to delete message within target second
     public var expireSecondForDeleteMessage : Double = 120.0
+    
+    //for create special link
+    public static var specialLinkList:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)] = [
+                                        (match:"\\${1}(hk\\.|HK\\.)?(\\d+)\\${1}", type:ALKConfiguration.ConversationMessageLinkType.stockCode)]
     
     //tag: stockviva - end
     
