@@ -232,7 +232,7 @@ public struct ALKConfiguration {
             }
         }
         
-        func getFormatedValue(value:String) -> String? {
+        public func getFormatedValue(value:String) -> String? {
             switch self{
             case .stockCode:
                 var _tempValue = value
@@ -250,7 +250,7 @@ public struct ALKConfiguration {
             }
         }
         
-        func getValueFromLink(urlStr:String) -> String? {
+        public func getValueFromLink(urlStr:String) -> String? {
             switch self{
             case .stockCode:
                 return urlStr.replacingOccurrences(of: "svchatgroup://stock/", with: "")
@@ -259,7 +259,7 @@ public struct ALKConfiguration {
             }
         }
         
-        func isURLMatched(urlStr:String) -> Bool {
+        public func isURLMatched(urlStr:String) -> Bool {
             switch self{
             case .stockCode:
                 return urlStr.hasPrefix("svchatgroup://stock/")
