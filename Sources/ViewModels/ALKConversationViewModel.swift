@@ -92,10 +92,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
     /// Message on which reply was tapped.
     private var selectedMessageForReply: ALKMessageViewModel?
 
-    private var shouldSendTyping: Bool = true
-
-    private var typingTimerTask = Timer()
-    
     //tag: stockviva
     private let defaultValue_minMessageRequired:Int = 10
     private let defaultValue_requestMessagePageSize:Int = 50
@@ -1081,23 +1077,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
         message?.voiceData = data
         messageModels[indexPath.section] = message as! ALKMessageModel
         delegate?.updateMessageAt(indexPath: indexPath, needReloadTable: false)
-    }
-
-    @objc func sendTypingStatus() {
-        self.mqttObject?.sendTypingStatus(ALUserDefaultsHandler.getApplicationKey(), userID: self.contactId, andChannelKey: channelKey, typing: true)
-    }
-
-    open func sendKeyboardBeginTyping() {
-        guard shouldSendTyping else { return }
-        shouldSendTyping = false
-        sendTypingStatus()
-        typingTimerTask = Timer.scheduledTimer(timeInterval: 25.0, target: self, selector: #selector(sendTypingStatus), userInfo: nil, repeats: true)
-    }
-
-    open func sendKeyboardDoneTyping() {
-        shouldSendTyping = true
-        typingTimerTask.invalidate()
-        self.mqttObject?.sendTypingStatus(ALUserDefaultsHandler.getApplicationKey(), userID: self.contactId, andChannelKey: channelKey, typing: false)
     }
 
     func syncOpenGroup(message: ALMessage) {

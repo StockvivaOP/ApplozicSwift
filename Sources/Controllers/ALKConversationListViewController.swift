@@ -419,16 +419,6 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
     }
 
     open func updateTypingStatus(_ applicationKey: String!, userId: String!, status: Bool) {
-        print("Typing status is", status)
-
-        guard let viewController = conversationViewController ?? conversationVC(), let vm = viewController.viewModel else { return
-        }
-        guard (vm.contactId != nil && vm.contactId == userId) || vm.channelKey != nil else {
-            return
-        }
-        print("Contact id matched")
-        viewModel.updateTypingStatus(in: viewController, userId: userId, status: status)
-
     }
 
     open func reloadData(forUserBlockNotification userId: String!, andBlockFlag flag: Bool) {
