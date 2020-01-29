@@ -390,6 +390,7 @@ public protocol ChatBarRequestActionDelegate: class{
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{
+    func didMenuReplyClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
     func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     func didMenuDeleteMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)

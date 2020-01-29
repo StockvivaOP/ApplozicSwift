@@ -1155,11 +1155,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     func menuItemSelected(action: ALKChatBaseCell<ALKMessageViewModel>.MenuActionType,
                           message: ALKMessageViewModel) {
         switch action {
-        case .reply:
+        case .reply(let chatGroupHashID, let userHashID, let viewModelObj, let indexPath):
             print("Reply selected")
             viewModel.setSelectedMessageToReply(message)
             replyMessageView.update(message: message, configuration:self.configuration)
             showReplyMessageView()
+            if let _chatGroupID = chatGroupHashID,
+                let _model = viewModelObj {
+                self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
+            }
             break;
         case .appeal(let chatGroupHashID, let userHashID, let messageID, let message):
             print("Appeal selected")
