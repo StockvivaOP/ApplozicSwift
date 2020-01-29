@@ -1162,7 +1162,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             showReplyMessageView()
             if let _chatGroupID = chatGroupHashID,
                 let _model = viewModelObj {
-                self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
+                self.delegateConversationMessageBoxAction?.didMenuReplyClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
             }
             break;
         case .appeal(let chatGroupHashID, let userHashID, let messageID, let message):
