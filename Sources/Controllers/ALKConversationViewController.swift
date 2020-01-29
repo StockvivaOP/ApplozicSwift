@@ -2445,9 +2445,9 @@ extension ALKConversationViewController {
         let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
         if _msgType == .text {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
-                _vc.messageViewLinkClicked = { (url) in
+                _vc.messageViewLinkClicked = { (url, viewModel) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: _vc, isPushFromSourceView:true)
+                        self.delegateConversationChatContentAction?.openLink(url: url, viewModel:viewModel, sourceView: _vc, isPushFromSourceView:true)
                     }
                 }
                 _presentVC = _vc

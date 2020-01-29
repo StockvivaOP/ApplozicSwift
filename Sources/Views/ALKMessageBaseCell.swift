@@ -564,7 +564,7 @@ extension ALKMessageCell : UITextViewDelegate {
         }
         let _isOpenInApp = self.systemConfig?.enableOpenLinkInApp ?? false
         if _isOpenInApp {
-            self.messageViewLinkClicked?(URL)
+            self.messageViewLinkClicked?(URL, self.viewModel)
         }
         return !_isOpenInApp
     }
