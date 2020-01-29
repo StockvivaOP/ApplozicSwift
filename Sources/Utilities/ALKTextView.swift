@@ -48,7 +48,8 @@ extension UITextView {
                         }
                         //add link
                         if let _formatValue = matchItem.type.getFormatedValue(value: _searchedStr),
-                            let _url = matchItem.type.getURLLink(value: _formatValue ) {
+                            let _url = matchItem.type.getURLLink(value: _formatValue ),
+                            ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) ?? true {
                             _resultAttStr.setAttributes([.link: _url], range: searchedItem.range)
                         }
                     }
