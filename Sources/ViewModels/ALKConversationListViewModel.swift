@@ -137,12 +137,6 @@ final public class ALKConversationListViewModel: NSObject, ALKConversationListVi
     }
 
     func updateTypingStatus(in viewController: ALKConversationViewController, userId: String, status: Bool) {
-        let contactDbService = ALContactDBService()
-        let contact = contactDbService.loadContact(byKey: "userId", value: userId)
-        guard let alContact = contact else { return }
-        guard !alContact.block || !alContact.blockBy else { return }
-
-        viewController.showTypingLabel(status: status, userId: userId)
     }
 
     func updateMessageList(messages: [Any]) {

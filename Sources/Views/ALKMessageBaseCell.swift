@@ -268,7 +268,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         switch viewModel.messageType {
         case .text:
             emailTopHeight.constant = 0
-            messageView.text = message
+            messageView.addLink(message: message, matchInfo: ALKConfiguration.specialLinkList)
             return
         case .html:
             emailTopHeight.constant = 0
@@ -348,7 +348,10 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
         switch viewModel.messageType {
         case .text:
-            return TextViewSizeCalculator.height(dummyMessageView, text: message, maxWidth: width)
+            dummyAttributedMessageView.font = font
+            dummyAttributedMessageView.addLink(message: message, matchInfo: ALKConfiguration.specialLinkList)
+            return TextViewSizeCalculator.height(dummyAttributedMessageView, maxWidth: width)
+//            return TextViewSizeCalculator.height(dummyMessageView, text: message, maxWidth: width)
         case .html:
             guard let attributedText = attributedStringFrom(message, for: viewModel.identifier) else {
                 return 0
@@ -419,7 +422,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
     }
 
     func menuReply(_ sender: Any) {
-        menuAction?(.reply)
+        menuAction?(.reply(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - message menu click reply:\(self.viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
     }
 
@@ -556,9 +559,12 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
 
 extension ALKMessageCell : UITextViewDelegate {
     public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        if interaction != .invokeDefaultAction {
+            return false
+        }
         let _isOpenInApp = self.systemConfig?.enableOpenLinkInApp ?? false
         if _isOpenInApp {
-            self.messageViewLinkClicked?(URL)
+            self.messageViewLinkClicked?(URL, self.viewModel)
         }
         return !_isOpenInApp
     }

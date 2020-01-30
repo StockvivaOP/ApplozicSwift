@@ -13,9 +13,7 @@ import SafariServices
 
 // swiftlint:disable:next type_body_length
 open class ALKConversationViewController: ALKBaseViewController, Localizable {
-
-    var timerTask = Timer()
-
+    
     public var viewModel: ALKConversationViewModel! {
         willSet(updatedVM) {
             guard viewModel != nil else {return}
@@ -56,7 +54,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     var isFirstTime = true
     private var bottomConstraint: NSLayoutConstraint?
     private var leftMoreBarConstraint: NSLayoutConstraint?
-    private var typingNoticeViewHeighConstaint: NSLayoutConstraint?
     var isJustSent: Bool = false
 
     //MQTT connection retry
@@ -66,7 +63,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     fileprivate let audioPlayer = ALKAudioPlayer()
 
     fileprivate let moreBar: ALKMoreBar = ALKMoreBar(frame: .zero)
-    fileprivate lazy var typingNoticeView = TypingNotice(localizedStringFileName : configuration.localizedStringFileName)
     fileprivate var alMqttConversationService: ALMQTTConversationService!
     fileprivate let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
 
@@ -262,7 +258,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.contactService = ALContactService()
         configurePropertiesWith(configuration: configuration)
         self.chatBar.configuration = configuration
-        self.typingNoticeView = TypingNotice(localizedStringFileName: configuration.localizedStringFileName)
     }
 
     required public init?(coder aDecoder: NSCoder) {
@@ -327,7 +322,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     view?.layoutIfNeeded()
                 }, completion: { (_) in
                     guard let viewModel = weakSelf.viewModel else { return }
-                    viewModel.sendKeyboardDoneTyping()
                 })
         })
         
@@ -440,7 +434,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
-            weakSelf.viewModel.sendKeyboardDoneTyping()
             self?.isAutoRefreshMessage = false
             if self?.isViewFirstLoad == false {
                 self?.unsubscribingChannel()
@@ -467,13 +460,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         alMqttConversationService.mqttConversationDelegate = self
         alMqttConversationService.subscribeToConversation()
         viewModel.delegate = self
-
-        if self.viewModel.isGroup == true {
-            let dispName = localizedString(forKey: "Somebody", withDefaultValue: SystemMessage.Chat.somebody, fileName: localizedStringFileName)
-            self.setTypingNoticeDisplayName(displayName: dispName)
-        } else {
-            self.setTypingNoticeDisplayName(displayName: self.title ?? "")
-        }
 
         if let templates = viewModel.getMessageTemplates() {
             templateView = ALKTemplateMessagesView(frame: CGRect.zero, viewModel: ALKTemplateMessagesViewModel(messageTemplates: templates))
@@ -564,7 +550,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     override func backTapped() {
         print("back tapped")
         view.endEditing(true)
-        self.viewModel.sendKeyboardDoneTyping()
         self.delegateConversationChatContentAction?.backPageButtonClicked(chatView: self)
         let popVC = navigationController?.popViewController(animated: true)
         //let popVC = navigationController?.popToRootViewController(animated: true)
@@ -658,7 +643,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
         
-        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, typingNoticeView, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -707,16 +692,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.discrimationViewHeightConstraint?.isActive = true
         
         autocompletionView.bottomAnchor
-            .constraint(equalTo: typingNoticeView.topAnchor).isActive = true
+            .constraint(equalTo: replyMessageView.topAnchor).isActive = true
         autocompletionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         autocompletionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-
-        typingNoticeViewHeighConstaint = typingNoticeView.heightAnchor.constraint(equalToConstant: 0)
-        typingNoticeViewHeighConstaint?.isActive = true
-
-        typingNoticeView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8).isActive = true
-        typingNoticeView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -12).isActive = true
-        typingNoticeView.bottomAnchor.constraint(equalTo: replyMessageView.topAnchor).isActive = true
 
         chatBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         chatBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -883,7 +861,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 }
 
                 button.isUserInteractionEnabled = false
-                weakSelf.viewModel.sendKeyboardDoneTyping()
 
                 weakSelf.chatBar.clear()
 
@@ -925,8 +902,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     button.isUserInteractionEnabled = true
                 })
             case .chatBarTextChange:
-
-                weakSelf.viewModel.sendKeyboardBeginTyping()
 
                 UIView.animate(withDuration: 0.05, animations: { () in
                     weakSelf.view.layoutIfNeeded()
@@ -1010,12 +985,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             }
         }
     }
-
-    // MARK: public Control Typing notification
-    func setTypingNoticeDisplayName(displayName:String) {
-        typingNoticeView.setDisplayName(displayName: displayName)
-    }
-
+    
     @objc func tableTapped(gesture: UITapGestureRecognizer) {
         hideMoreBar()
         view.endEditing(true)
@@ -1061,11 +1031,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public func unsubscribingChannel() {
         guard viewModel != nil, alMqttConversationService != nil else { return }
         if !viewModel.isOpenGroup {
-            self.alMqttConversationService.sendTypingStatus(
-                ALUserDefaultsHandler.getApplicationKey(),
-                userID: viewModel.contactId,
-                andChannelKey: viewModel.channelKey,
-                typing: false)
             self.alMqttConversationService.unSubscribe(toChannelConversation: viewModel.channelKey)
         } else {
             self.alMqttConversationService.unSubscribe(toOpenChannel: viewModel.channelKey)
@@ -1078,44 +1043,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     // Called from the parent VC
-    public func showTypingLabel(status: Bool, userId: String) {
-        /// Don't show typing status when contact is blocked
-        guard
-            let contact = ALContactService().loadContact(byKey: "userId", value: userId),
-            !contact.block,
-            !contact.blockBy
-            else {
-            return
-        }
-
-        if(status) {
-            timerTask = Timer.scheduledTimer(timeInterval: 30.0, target: self, selector: #selector(self.invalidateTimerAndUpdateHeightConstraint(_:)), userInfo: nil, repeats: false)
-        } else {
-            timerTask.invalidate()
-        }
-
-        typingNoticeViewHeighConstaint?.constant = status ? 30:0
-        view.layoutIfNeeded()
-        if tableView.isAtBottom {
-            tableView.scrollToBottomByOfset(animated: false)
-        }
-
-        if configuration.showNameWhenUserTypesInGroup {
-            guard let name = nameForTypingStatusUsing(userId: userId) else {
-                return
-            }
-            setTypingNoticeDisplayName(displayName: name)
-        } else {
-            let name = defaultNameForTypingStatus()
-            setTypingNoticeDisplayName(displayName: name)
-        }
-    }
-
-    @objc public func invalidateTimerAndUpdateHeightConstraint(_ timer: Timer?) {
-        timerTask.invalidate()
-        typingNoticeViewHeighConstaint?.constant = 0
-    }
-
     public func sync(message: ALMessage) {
         /// Return if message is sent by loggedin user
         guard !message.isSentMessage() else { return }
@@ -1160,24 +1087,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             return
         }
         viewModel.updateStatusReportForConversation(contactId: id, status: status)
-    }
-
-    private func defaultNameForTypingStatus() -> String {
-        if self.viewModel.isGroup == true {
-            return "Somebody"
-        } else {
-            return self.title ?? ""
-        }
-    }
-
-    private func nameForTypingStatusUsing(userId: String) -> String? {
-        guard let contact = contactService.loadContact(byKey: "userId", value: userId) else {
-            return nil
-        }
-        if contact.block || contact.blockBy {
-            return nil
-        }
-        return contact.getDisplayName()
     }
 
     fileprivate func subscribeChannelToMqtt() {
@@ -1246,11 +1155,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     func menuItemSelected(action: ALKChatBaseCell<ALKMessageViewModel>.MenuActionType,
                           message: ALKMessageViewModel) {
         switch action {
-        case .reply:
+        case .reply(let chatGroupHashID, let userHashID, let viewModelObj, let indexPath):
             print("Reply selected")
             viewModel.setSelectedMessageToReply(message)
             replyMessageView.update(message: message, configuration:self.configuration)
             showReplyMessageView()
+            if let _chatGroupID = chatGroupHashID,
+                let _model = viewModelObj {
+                self.delegateConversationMessageBoxAction?.didMenuReplyClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
+            }
             break;
         case .appeal(let chatGroupHashID, let userHashID, let messageID, let message):
             print("Appeal selected")
@@ -1978,7 +1891,6 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
     }
 
     public func updateTyingStatus(status: Bool, userId: String) {
-        self.showTypingLabel(status: status, userId: userId)
     }
 
     public func isPassMessageContentChecking() -> Bool {
@@ -2191,13 +2103,6 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
     }
 
     public func updateTypingStatus(_ applicationKey: String!, userId: String!, status: Bool) {
-        print("Typing status is", status)
-        guard viewModel.contactId == userId || viewModel.channelKey != nil else {
-            return
-        }
-        print("Contact id matched")
-        showTypingLabel(status: status, userId: userId)
-
     }
 
     public func updateLastSeen(atStatus alUserDetail: ALUserDetail!) {
@@ -2540,9 +2445,9 @@ extension ALKConversationViewController {
         let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
         if _msgType == .text {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
-                _vc.messageViewLinkClicked = { (url) in
+                _vc.messageViewLinkClicked = { (url, viewModel) in
                     if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, sourceView: _vc, isPushFromSourceView:true)
+                        self.delegateConversationChatContentAction?.openLink(url: url, viewModel:viewModel, sourceView: _vc, isPushFromSourceView:true)
                     }
                 }
                 _presentVC = _vc

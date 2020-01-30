@@ -219,6 +219,52 @@ public struct ALKConfiguration {
         case networkProblem
     }
     
+    public enum ConversationMessageLinkType : CaseIterable {
+        case stockCode
+        case unknown
+        
+        func getURLLink(value:String) -> URL? {
+            switch self{
+            case .stockCode:
+                return URL(string:"svchatgroup://stock/\(value)")
+            default:
+                return nil
+            }
+        }
+        
+        public func getFormatedValue(value:String) -> String? {
+            switch self{
+            case .stockCode:
+                var _tempValue = value
+                if let _valueInt = Int(_tempValue) {
+                    _tempValue = String(format: "%05d", _valueInt)
+                    _tempValue = "hk.\(_tempValue)".uppercased()
+                }
+                return _tempValue.uppercased()
+            default:
+                return nil
+            }
+        }
+        
+        public func getValueFromLink(urlStr:String) -> String? {
+            switch self{
+            case .stockCode:
+                return urlStr.replacingOccurrences(of: "svchatgroup://stock/", with: "")
+            default:
+                return nil
+            }
+        }
+        
+        public func isURLMatched(urlStr:String) -> Bool {
+            switch self{
+            case .stockCode:
+                return urlStr.hasPrefix("svchatgroup://stock/")
+            default:
+                return false
+            }
+        }
+    }
+    
     /// delegate for get / set system info
     public static var delegateSystemInfoRequestDelegate:SystemInfoRequestDelegate?
     
@@ -280,6 +326,10 @@ public struct ALKConfiguration {
     /// allow user to delete message within target second
     public var expireSecondForDeleteMessage : Double = 120.0
     
+    //for create special link
+    public static var specialLinkList:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)] = [
+                                        (match:"\\${1}(hk\\.|HK\\.)?(\\d+)\\${1}", type:ALKConfiguration.ConversationMessageLinkType.stockCode)]
+    
     //tag: stockviva - end
     
     public init() { }
@@ -293,7 +343,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?, mentionUserList:[(hashID:String, name:String)]?)
-    func openLink(url:URL, sourceView:UIViewController, isPushFromSourceView:Bool)
+    func openLink(url:URL, viewModel:ALKMessageViewModel?, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
     func rightMenuClicked(chatView:UIViewController)
     func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
@@ -336,6 +386,7 @@ public protocol ChatBarRequestActionDelegate: class{
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{
+    func didMenuReplyClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
     func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     func didMenuDeleteMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
@@ -365,6 +416,7 @@ public protocol SystemInfoRequestDelegate: class{
     func getSystemTextLocalizable(key:String) -> String?
     func logging(isDebug:Bool, message:String)
     func getLoginUserHashId() -> String?
+    func verifyDetectedValueForSpecialLink(value:String?, type:ALKConfiguration.ConversationMessageLinkType) -> Bool
 }
 
 extension ALKConfiguration {

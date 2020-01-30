@@ -29,12 +29,12 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
 
     var avatarTapped:(() -> Void)?
     
-    var messageViewLinkClicked:((_ url:URL) -> Void)?
+    var messageViewLinkClicked:((_ url:URL, _ viewModel:T?) -> Void)?
 
     /// Actions available on menu where callbacks
     /// needs to be send are defined here.
     enum MenuActionType {
-        case reply
+        case reply(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
         case appeal(chatGroupHashID:String?, userHashID:String?, messageID:String?, message:String?)
         case pinMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
         case deleteMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
