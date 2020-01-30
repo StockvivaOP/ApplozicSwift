@@ -237,12 +237,8 @@ public struct ALKConfiguration {
             case .stockCode:
                 var _tempValue = value
                 if let _valueInt = Int(_tempValue) {
-                    //not support fist character is not zero and the length is larger than 5
-                    if _valueInt < 10000 {
-                        //if pass
-                        _tempValue = String(format: "%05d", _valueInt)
-                        _tempValue = "hk.\(_tempValue)".uppercased()
-                    }
+                    _tempValue = String(format: "%05d", _valueInt)
+                    _tempValue = "hk.\(_tempValue)".uppercased()
                 }
                 return _tempValue.uppercased()
             default:
