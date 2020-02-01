@@ -12,10 +12,16 @@ import Foundation
 class ALKTextView: UITextView{
 
     override open func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-        guard let pos = closestPosition(to: point) else { return false }
-        guard let range = tokenizer.rangeEnclosingPosition(pos, with: .character, inDirection: .layout(.left)) else { return false }
-        let startIndex = offset(from: beginningOfDocument, to: range.start)
+        guard let _char = self.characterRange(at: point) else {
+            return false
+        }
+        let startIndex = offset(from: beginningOfDocument, to: _char.start)
         return attributedText.attribute(.link, at: startIndex, effectiveRange: nil) != nil
+        
+//        guard let pos = closestPosition(to: point) { return false }
+//        guard let range = tokenizer.rangeEnclosingPosition(pos, with: .character, inDirection: .layout(.left)) else { return false }
+//        let startIndex = offset(from: beginningOfDocument, to: range.start)
+//        return attributedText.attribute(.link, at: startIndex, effectiveRange: nil) != nil
     }
 
     open override var canBecomeFirstResponder: Bool{
@@ -26,14 +32,24 @@ class ALKTextView: UITextView{
 
 //MARK: - stockviva tag
 extension UITextView {
-    open func addLink(message:String, matchInfo:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)]){
+    open func addLink(message:String, font:UIFont?, matchInfo:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)]){
         let _replacingStrArray = ["$": "", "hk.":"",
                                   "(" : "", ")" : "", "\u{FF08}" : "", "\u{FF09}" : "", ".hk": "",
                                   "\u{FF10}" : "0","\u{FF11}" : "1","\u{FF12}" : "2","\u{FF13}" : "3",
                                   "\u{FF14}" : "4","\u{FF15}" : "5","\u{FF16}" : "6","\u{FF17}" : "7",
                                   "\u{FF18}" : "8","\u{FF19}" : "9"]
+        var _defaultAtt:[NSAttributedString.Key : Any] = [:]
+        let _contentStyle = NSMutableParagraphStyle()
+        _contentStyle.lineSpacing = 2
+        _defaultAtt[.paragraphStyle] = _contentStyle
+        if let _fontStyle = font {
+            _defaultAtt[NSAttributedString.Key.font] = _fontStyle
+        }
         
-        let _resultAttStr = NSMutableAttributedString(string: message)
+        let _resultAttStr = NSMutableAttributedString(string: message, attributes: _defaultAtt)
+        self.linkTextAttributes = [.foregroundColor: UIColor.blue,
+                                       .underlineStyle: NSUnderlineStyle.single.rawValue]
+        
         if message.count > 0 {
             for matchItem in matchInfo {
                 do{
@@ -58,11 +74,7 @@ extension UITextView {
                 }
             }
         }
-        if let _fontStyle = self.font {
-            _resultAttStr.addAttribute(NSAttributedString.Key.font, value: _fontStyle, range: NSMakeRange(0, message.count) )
-        }
-        self.linkTextAttributes = [.foregroundColor: UIColor.blue,
-                                       .underlineStyle: NSUnderlineStyle.single.rawValue]
+        
         self.attributedText = _resultAttStr
     }
 }
