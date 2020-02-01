@@ -48,7 +48,7 @@ extension UITextView {
         
         let _resultAttStr = NSMutableAttributedString(string: message, attributes: _defaultAtt)
         self.linkTextAttributes = [.foregroundColor: UIColor.blue,
-                                       .underlineStyle: NSUnderlineStyle.single.rawValue]
+                                   .underlineStyle: NSUnderlineStyle.single.rawValue]
         
         if message.count > 0 {
             for matchItem in matchInfo {
@@ -64,9 +64,12 @@ extension UITextView {
                         }
                         //add link
                         if let _formatValue = matchItem.type.getFormatedValue(value: _searchedStr),
-                            let _url = matchItem.type.getURLLink(value: _formatValue ),
-                            ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) ?? true {
-                            _resultAttStr.setAttributes([.link: _url], range: searchedItem.range)
+                            let _url = matchItem.type.getURLLink(value: _formatValue ), ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) ?? true {
+                            _resultAttStr.addAttribute(.link, value: _url, range: searchedItem.range )
+                            //set font for link
+                            if let _fontStyle = font {
+                                _resultAttStr.addAttribute(NSAttributedString.Key.font, value: _fontStyle, range: searchedItem.range )
+                            }
                         }
                     }
                 }catch {
