@@ -26,7 +26,7 @@ class ALKSVMessageDetailViewController: ALKSVBaseMessageDetailViewController {
     func updateContent(){
         //self.tvMessageContent.text = self.viewModel?.message ?? ""
 //        self.tvMessageContent.contentSize = self.tvMessageContent.sizeThatFits(CGSize(width: self.tvMessageContent.bounds.size.width, height: CGFloat(MAXFLOAT) ))
-        self.tvMessageContent.addLink(message: self.viewModel?.message ?? "", matchInfo: ALKConfiguration.specialLinkList)
+        self.tvMessageContent.addLink(message: self.viewModel?.message ?? "", font: self.tvMessageContent.font, matchInfo: ALKConfiguration.specialLinkList)
         let _height = TextViewSizeCalculator.height(self.tvMessageContent, maxWidth: self.tvMessageContent.bounds.size.width)
         self.tvMessageContent.contentSize = CGSize(width: self.tvMessageContent.bounds.size.width, height:_height)
     }

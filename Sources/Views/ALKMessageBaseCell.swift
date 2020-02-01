@@ -268,7 +268,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         switch viewModel.messageType {
         case .text:
             emailTopHeight.constant = 0
-            messageView.addLink(message: message, matchInfo: ALKConfiguration.specialLinkList)
+            var _font = ALKMessageStyle.receivedMessage.font
+            if viewModel.isMyMessage {
+                _font = ALKMessageStyle.sentMessage.font
+            }
+            messageView.addLink(message: message, font: _font, matchInfo: ALKConfiguration.specialLinkList)
             return
         case .html:
             emailTopHeight.constant = 0
@@ -349,7 +353,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         switch viewModel.messageType {
         case .text:
             dummyAttributedMessageView.font = font
-            dummyAttributedMessageView.addLink(message: message, matchInfo: ALKConfiguration.specialLinkList)
+            dummyAttributedMessageView.addLink(message: message, font: font, matchInfo: ALKConfiguration.specialLinkList)
             return TextViewSizeCalculator.height(dummyAttributedMessageView, maxWidth: width)
 //            return TextViewSizeCalculator.height(dummyMessageView, text: message, maxWidth: width)
         case .html:

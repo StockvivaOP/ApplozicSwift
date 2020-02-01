@@ -1589,38 +1589,38 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         self.loadingStop()
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
-        if isLoadNextPage == false {
-            let newSectionCount = self.viewModel.numberOfSections()
-            if newSectionCount > oldSectionCount {
-                let offset = newSectionCount - oldSectionCount - 1
-                if offset >= 0 && offset < newSectionCount {
-                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to offset:\(offset), total section:\(newSectionCount)")
-                    tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .top, animated: false)
-                }
-            }
-        }
         print("loading finished")
-        DispatchQueue.main.async {
-            if self.viewModel.isFirstTime {
-                if targetFocusItemIndex != -1 {
-                    let _newSectionCount = self.viewModel.numberOfSections()
-                    if targetFocusItemIndex < _newSectionCount {
-                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to targetFocusItemIndex:\(targetFocusItemIndex), total section:\(_newSectionCount)")
-                        self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
-                    }else{
-                        let _sectionIndex = _newSectionCount - 1
-                        if _sectionIndex >= 0 {
-                            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to _sectionIndex:\(_sectionIndex), total section:\(_newSectionCount)")
-                            self.tableView.scrollToRow(at: IndexPath(row: 0, section: _sectionIndex) , at: .bottom, animated: false)
-                        }
-                    }
+        if self.viewModel.isFirstTime {
+            if targetFocusItemIndex != -1 {
+                let _newSectionCount = self.viewModel.numberOfSections()
+                if targetFocusItemIndex < _newSectionCount {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to targetFocusItemIndex:\(targetFocusItemIndex), total section:\(_newSectionCount)")
+                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
                 }else{
-                    self.tableView.scrollToBottom(animated: false)
+                    let _sectionIndex = _newSectionCount - 1
+                    if _sectionIndex >= 0 {
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to _sectionIndex:\(_sectionIndex), total section:\(_newSectionCount)")
+                        self.tableView.scrollToRow(at: IndexPath(row: 0, section: _sectionIndex) , at: .bottom, animated: false)
+                    }
                 }
-                self.saveLastReadMessageIfNeeded()
-                self.viewModel.isFirstTime = false
+            }else{
+                self.tableView.scrollToBottom(animated: false)
+            }
+            self.saveLastReadMessageIfNeeded()
+            self.viewModel.isFirstTime = false
+        }else{
+            if isLoadNextPage == false {
+                let newSectionCount = self.viewModel.numberOfSections()
+                if newSectionCount > oldSectionCount {
+                    let offset = newSectionCount - oldSectionCount - 1
+                    if offset >= 0 && offset < newSectionCount {
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to offset:\(offset), total section:\(newSectionCount)")
+                        tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .top, animated: false)
+                    }
+                }
             }
         }
+        
         //show / off scroll down button
         if self.viewModel.messageModels.count > 0 {
             let _lastItemIndex = self.viewModel.messageModels.count-1
