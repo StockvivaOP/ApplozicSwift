@@ -12,7 +12,7 @@ import Applozic
 public protocol ALKConversationViewModelDelegate: class {
     func loadingStarted()
     func loadingStop()
-    func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool)
+    func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool, isFocusTargetAndHighlight:Bool)
     func messageUpdated()
     func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool)
     func removeMessagesAt(indexPath: IndexPath, closureBlock:()->Void)
@@ -101,6 +101,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private var isLoadingLatestMessage = false
     private var unreadMessageSeparator:ALMessage = ALMessage()
     public var isUnreadMessageMode = false
+    public var isFocusReplyMessageMode = false
     public var lastUnreadMessageKey:String? = nil
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     public var isDisplayMessageWithinUserListMode = false
@@ -151,13 +152,18 @@ open class ALKConversationViewModel: NSObject, Localizable {
         self.messageModels.append(message.messageModel)
     }
 
-    func clearViewModel(isClearUnReadMessage:Bool = true, isClearDisplayMessageWithinUser:Bool = true) {
+    func clearViewModel(isClearUnReadMessage:Bool = true,
+                        isClearDisplayMessageWithinUser:Bool = true,
+                        isClearFocusReplyMessageMode:Bool = true) {
         self.isFirstTime = true
         if isClearUnReadMessage {
             self.clearUnReadMessageData()
         }
         if isClearDisplayMessageWithinUser {
             self.setDisplayMessageWithinUser(nil)
+        }
+        if isClearFocusReplyMessageMode {
+            self.clearFocusReplyMessageMode()
         }
         self.isLoadingAllMessage = false
         self.isLoadingEarlierMessage = false
@@ -618,7 +624,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                         })
                     }
                     //create new one
-                    self.unreadMessageSeparator = self.getMessageForUnreadMessageSeparator(NSNumber(value: (_unReadMsgCreateTime - 1) ))
+                    self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: (_unReadMsgCreateTime - 1) ))
                     sortedArray.insert(self.unreadMessageSeparator, at: 0)
                 }
                 
@@ -1079,14 +1085,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
         delegate?.updateMessageAt(indexPath: indexPath, needReloadTable: false)
     }
 
-    func syncOpenGroup(message: ALMessage) {
+    func syncOpenGroup(message: ALMessage, isNeedOnUnreadMessageModel:Bool) {
         guard let groupId = message.groupId,
             groupId == self.channelKey,
             !message.isMyMessage,
             message.deviceKey != ALUserDefaultsHandler.getDeviceKeyString() else {
             return
         }
-        addMessagesToList([message])
+        addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel )
     }
 
     open func refresh() {
@@ -1846,7 +1852,7 @@ extension ALKConversationViewModel {
         //clear all
         self.clearViewModel()
         //clear unread model time
-        ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
+        ALKSVUserDefaultsControl.shared.removeLastReadMessageInfo()
         //start process
         startProcess()
         //reload
@@ -1868,12 +1874,19 @@ extension ALKConversationViewModel {
             self.messageModels = models
             
             if self.isFirstTime {
-                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false, isFocusTargetAndHighlight: false)
             } else {
                 self.delegate?.messageUpdated()
             }
             completed()
         }
+    }
+    
+    func getMessageIndex(messageId: String) -> IndexPath? {
+        if let _sectionIndex = messageModels.firstIndex(where: { $0.identifier == messageId }) {
+            return IndexPath(row: 0, section: _sectionIndex)
+        }
+        return nil
     }
     
     func removeItemAt(index:Int, item:ALMessage){
@@ -1913,7 +1926,7 @@ extension ALKConversationViewModel {
                 self.isUnreadMessageMode = true
                 //update time
                 let _newCreateTime:Int = _sortedListAfterArray[0].createdAtTime.intValue - 1
-                self.unreadMessageSeparator = self.getMessageForUnreadMessageSeparator(NSNumber(value: _newCreateTime ))
+                self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: _newCreateTime ))
                 _resultSet.append(self.unreadMessageSeparator)
                 _indexOfUnreadMessageSeparator = _resultSet.count
                 _resultSet.append(contentsOf: _sortedListAfterArray)
@@ -1921,7 +1934,7 @@ extension ALKConversationViewModel {
             
             if _resultSet.count == 0 {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadOpenGroupMessageWithUnreadModel - no message list")
-                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false)
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false, isFocusTargetAndHighlight: false)
                 self.isLoadingAllMessage = false
                 return
             }
@@ -1937,7 +1950,7 @@ extension ALKConversationViewModel {
             }
             
             if self.isFirstTime {
-                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false)
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfUnreadMessageSeparator, isLoadNextPage:false, isFocusTargetAndHighlight: false)
             } else {
                 self.delegate?.messageUpdated()
             }
@@ -1946,8 +1959,8 @@ extension ALKConversationViewModel {
         
         //fetch message
         var _lastReadMsgTimeNumber:NSNumber? = nil
-        if let _lastReadMsgTime = ALKSVUserDefaultsControl.shared.getLastReadMessageTime(chatGroupId: _chatGroupId) {
-            _lastReadMsgTimeNumber = NSNumber(value: _lastReadMsgTime)
+        if  let _lsatReadMsgInfo = ALKSVUserDefaultsControl.shared.getLastReadMessageInfo(chatGroupId: _chatGroupId) {
+            _lastReadMsgTimeNumber = NSNumber(value: _lsatReadMsgInfo.createTime)
         }
         
         if _lastReadMsgTimeNumber == nil {
@@ -2092,7 +2105,7 @@ extension ALKConversationViewModel {
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in //complete
             guard let newMessages = messageList, newMessages.count > 0  else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - no message list")
-                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false, isFocusTargetAndHighlight: false)
                 self.isLoadingEarlierMessage = false
                 return
             }
@@ -2111,7 +2124,7 @@ extension ALKConversationViewModel {
             self.messageModels.sort { $0.createdAtTime?.intValue ?? 0 < $1.createdAtTime?.intValue ?? 0 }
             
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - successful list count  \(self.messageModels.count) ")
-            self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
+            self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false, isFocusTargetAndHighlight: false)
             self.isLoadingEarlierMessage = false
         }
     }
@@ -2137,13 +2150,32 @@ extension ALKConversationViewModel {
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in//completed
             guard let newMessages = messageList, newMessages.count > 0 else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - no message list")
-                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false)
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false, isFocusTargetAndHighlight: false)
                 self.clearUnReadMessageData()
+                self.clearFocusReplyMessageMode()
                 self.isLoadingLatestMessage = false
                 return
             }
             
-            let sortedArray = newMessages.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+            var sortedArray = newMessages.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+            //add un read message separator under reply message mode
+            if self.findIndexOfUnreadMessageSeparator() ?? -1 == -1 && self.isFocusReplyMessageMode == true {
+                if let _chKey = self.channelKey,
+                    let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
+                    let _lsatReadMsgInfo = ALKSVUserDefaultsControl.shared.getLastReadMessageInfo(chatGroupId: _chatGroupId),
+                    let _findLastReadMessageIdex = sortedArray.firstIndex(where: { $0.identifier == _lsatReadMsgInfo.messageId }) {
+                    //update time
+                    let _newCreateTime:Int = _lsatReadMsgInfo.createTime + 1
+                    self.isUnreadMessageMode = true
+                    self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: _newCreateTime ))
+                    if _findLastReadMessageIdex + 1 > 0 && _findLastReadMessageIdex + 1 < sortedArray.count {
+                        sortedArray.insert(self.unreadMessageSeparator, at: _findLastReadMessageIdex + 1)
+                    }else{
+                        sortedArray.append(self.unreadMessageSeparator)
+                    }
+                }
+            }
+            
             for mesg in sortedArray {
                 guard let msg = self.alMessages.last, let time = Double(msg.createdAtTime.stringValue) else { continue }
                 if let msgTime = Double(mesg.createdAtTime.stringValue), time >= msgTime {
@@ -2160,13 +2192,21 @@ extension ALKConversationViewModel {
                 self.lastUnreadMessageKey = self.messageModels.last?.identifier ?? nil
             }
             
-            self.isUnreadMessageMode = messageList?.count ?? 0 >= _defaultPageSize
+            if self.isFocusReplyMessageMode {
+                if messageList?.count ?? 0 < self.defaultValue_minMessageRequired {
+                    self.isFocusReplyMessageMode = false
+                    self.isUnreadMessageMode = false
+                }
+            }else{
+                self.isUnreadMessageMode = messageList?.count ?? 0 >= self.defaultValue_minMessageRequired
+            }
+            
             
             //resort for try to fix ording problem
             self.alMessages.sort { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
             self.messageModels.sort { $0.createdAtTime?.intValue ?? 0 < $1.createdAtTime?.intValue ?? 0 }
             
-            self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:true)
+            self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:true, isFocusTargetAndHighlight: false)
             self.isLoadingLatestMessage = false
         }
     }
@@ -2187,7 +2227,7 @@ extension ALKConversationViewModel {
         self.lastUnreadMessageKey = nil
     }
     
-    private func getMessageForUnreadMessageSeparator(_ createTime:NSNumber) -> ALMessage {
+    private func getUnreadMessageSeparatorMessageObject(_ createTime:NSNumber) -> ALMessage {
         let alMessage = ALMessage()
         alMessage.to = ""
         alMessage.contactIds = ""
@@ -2209,6 +2249,111 @@ extension ALKConversationViewModel {
         alMessage.createdAtTime = createTime
         return  alMessage
     }
+}
+
+//MARK: - stockviva reply message
+extension ALKConversationViewModel {
+    open func reloadOpenGroupFocusReplyMessage(targetMessageInfo:(id:String, createTime:Int)){
+            self.isLoadingAllMessage = false
+            self.isLoadingEarlierMessage = false
+            self.isLoadingLatestMessage = false
+
+            guard self.channelKey != nil else {
+               ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - reloadOpenGroupFocusReplyMessage - no channel key or group id")
+               return
+            }
+        
+            if self.isLoadingLatestMessage {
+                return
+            }
+            self.isLoadingLatestMessage = true
+            //clear all
+            self.clearViewModel(isClearUnReadMessage: false)
+            //start process
+            self.delegate?.loadingStarted()
+            
+            //reload
+            //fetch message
+            let _targetMsgId:String = targetMessageInfo.id
+            var _targetMsgTimeNumber:NSNumber = NSNumber(value: targetMessageInfo.createTime)
+            let _defaultPageSize = self.defaultValue_requestMessagePageSize
+            var _halfPageSize = self.defaultValue_requestMessageHalfPageSize
+        
+            let _completedBlock:( (_ resultsOfBefore:[ALMessage]?, _ resultsOfAfter:[ALMessage]?, _ fistItemCreateTime:NSNumber?, _ lastItemCreateTime:NSNumber?)->() ) = { resultsOfBefore , resultsOfAfter, fistItemCreateTime, lastItemCreateTime in
+                self.isFocusReplyMessageMode = true
+                var _indexOfReplyMessage:Int = -1
+                
+                var _resultSet:[ALMessage] = []
+                if let _listBefore = resultsOfBefore, _listBefore.count > 0 {
+                    _resultSet.append(contentsOf: _listBefore)
+                }
+                if let _listAfter = resultsOfAfter, _listAfter.count > 0 {
+                    _resultSet.append(contentsOf: _listAfter)
+                }
+                
+                if _resultSet.count == 0 {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - reloadOpenGroupFocusReplyMessage - no message list")
+                    self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfReplyMessage, isLoadNextPage:false, isFocusTargetAndHighlight: false)
+                    self.isLoadingAllMessage = false
+                    return
+                }
+                var sortedArray = _resultSet.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
+                if let _chKey = self.channelKey,
+                    let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
+                    let _lsatReadMsgInfo = ALKSVUserDefaultsControl.shared.getLastReadMessageInfo(chatGroupId: _chatGroupId),
+                    let _findLastReadMessageIdex = sortedArray.firstIndex(where: { $0.identifier == _lsatReadMsgInfo.messageId }) {
+                    //update time
+                    let _newCreateTime:Int = _lsatReadMsgInfo.createTime + 1
+                    self.isUnreadMessageMode = true
+                    self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: _newCreateTime ))
+                    if _findLastReadMessageIdex + 1 > 0 && _findLastReadMessageIdex + 1 < sortedArray.count {
+                        sortedArray.insert(self.unreadMessageSeparator, at: _findLastReadMessageIdex + 1)
+                    }else{
+                        sortedArray.append(self.unreadMessageSeparator)
+                    }
+                }
+                
+                self.alMessages = sortedArray
+                self.alMessageWrapper.addObject(toMessageArray: NSMutableArray(array: sortedArray))
+                let models = sortedArray.map { $0.messageModel }
+                self.messageModels = models
+
+                //get last unread message key
+                if self.isUnreadMessageMode {
+                    self.lastUnreadMessageKey = self.messageModels.last?.identifier ?? nil
+                }
+                
+                //find reply message index by message key
+                _indexOfReplyMessage = models.firstIndex(where: { $0.identifier == _targetMsgId }) ?? _indexOfReplyMessage
+                
+                self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: _indexOfReplyMessage, isLoadNextPage:false, isFocusTargetAndHighlight: true)
+                self.isLoadingAllMessage = false
+            }
+        
+            self.getSearchTimeAfterOpenGroupMessage(time: _targetMsgTimeNumber,  pageSize:_halfPageSize) { (resultsOfAfter, firstItemCreateTimeAfter, lastItemCreateTimeAfter) in
+                if let _resultCount = resultsOfAfter?.count, _resultCount > 0 {
+                    if _resultCount < self.defaultValue_requestMessageHalfPageSize {
+                        _halfPageSize = _defaultPageSize - _resultCount
+                    }
+                }else{
+                    _halfPageSize = _defaultPageSize
+                }
+                
+                _targetMsgTimeNumber = NSNumber(value: (_targetMsgTimeNumber.intValue + 1))
+                //call before record
+                self.getSearchTimeBeforeOpenGroupMessage(time: _targetMsgTimeNumber, pageSize:_halfPageSize, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
+                    _completedBlock(resultsOfBefore, resultsOfAfter, firstItemCreateTimeBefore ?? firstItemCreateTimeAfter , lastItemCreateTimeAfter)
+                })
+            }
+        
+    }
+    
+    func clearFocusReplyMessageMode(isCancelTheModel:Bool = true){
+        if isCancelTheModel {
+            self.isFocusReplyMessageMode = false
+        }
+    }
+    
 }
 
 //MARK: - stockviva show display user only (admin user only)

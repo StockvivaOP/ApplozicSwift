@@ -705,7 +705,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 self.viewModel.nextPage(isNextPage: false)
             }
         }else{
-            if nearBottom && self.scrollingState == .down && self.viewModel.isUnreadMessageMode {
+            if nearBottom && self.scrollingState == .down && (self.viewModel.isUnreadMessageMode || self.viewModel.isFocusReplyMessageMode) {
                 self.viewModel.nextPage(isNextPage: true)
             }
         }
