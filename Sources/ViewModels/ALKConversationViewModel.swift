@@ -2166,12 +2166,10 @@ extension ALKConversationViewModel {
                     let _findLastReadMessageIdex = sortedArray.firstIndex(where: { $0.identifier == _lsatReadMsgInfo.messageId }) {
                     //update time
                     let _newCreateTime:Int = _lsatReadMsgInfo.createTime + 1
-                    self.isUnreadMessageMode = true
-                    self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: _newCreateTime ))
                     if _findLastReadMessageIdex + 1 > 0 && _findLastReadMessageIdex + 1 < sortedArray.count {
+                        self.isUnreadMessageMode = true
+                        self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: _newCreateTime ))
                         sortedArray.insert(self.unreadMessageSeparator, at: _findLastReadMessageIdex + 1)
-                    }else{
-                        sortedArray.append(self.unreadMessageSeparator)
                     }
                 }
             }
@@ -2304,12 +2302,10 @@ extension ALKConversationViewModel {
                     let _findLastReadMessageIdex = sortedArray.firstIndex(where: { $0.identifier == _lsatReadMsgInfo.messageId }) {
                     //update time
                     let _newCreateTime:Int = _lsatReadMsgInfo.createTime + 1
-                    self.isUnreadMessageMode = true
-                    self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: _newCreateTime ))
                     if _findLastReadMessageIdex + 1 > 0 && _findLastReadMessageIdex + 1 < sortedArray.count {
+                        self.isUnreadMessageMode = true
+                        self.unreadMessageSeparator = self.getUnreadMessageSeparatorMessageObject(NSNumber(value: _newCreateTime ))
                         sortedArray.insert(self.unreadMessageSeparator, at: _findLastReadMessageIdex + 1)
-                    }else{
-                        sortedArray.append(self.unreadMessageSeparator)
                     }
                 }
                 
