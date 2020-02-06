@@ -58,7 +58,7 @@ extension ALKChatBar: UICollectionViewDelegate, UICollectionViewDataSource, UICo
         }else if collectionView == self.tagStockCodeList {
             let _cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ALKChatBarTagStockCodeListCollectionViewCell", for: indexPath) as! ALKChatBarTagStockCodeListCollectionViewCell
             let _item = self.tagStockCodeItems[indexPath.item]
-            _cell.labTitle.text = _item.name
+            _cell.labTitle.text = "\(_item.code) \(_item.name)"
             _cell.index = indexPath
             return _cell
         }
