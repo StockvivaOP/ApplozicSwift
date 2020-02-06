@@ -1059,10 +1059,10 @@ extension ALKChatBar {
     }
     
     //input text
-    private func startTimeForSearchStockCode(finalText:String, enteredText:String, startIndex:Int, lengthOfChange:Int){
+    private func startTimeForSearchStockCode(searchKey:String){
         self.searchStockCodeTimer?.invalidate()
         self.searchStockCodeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { (timer) in
-            self.searchStockCodeWhenInputText(finalText:finalText, enteredText:enteredText, startIndex:startIndex, lengthOfChange:lengthOfChange)
+            self.setTagStockCodeList(items: self.delegate?.chatBarRequestSearchStockCode(key: searchKey as String))
         }
     }
     
@@ -1076,47 +1076,57 @@ extension ALKChatBar {
             self.clearTagStockCodeList()
             return
         }
-        
-        //adjust index
-        var _textChangeStartIndex = startIndex
-        if startIndex >= finalText.count {
-            _textChangeStartIndex = finalText.count - 1
-        }else{
-            let _isDeleteAction = enteredText.count == 0 && lengthOfChange > 0
-            if _isDeleteAction {
-                _textChangeStartIndex = _textChangeStartIndex - 1
-            }
-        }
-        if _textChangeStartIndex < 0 {
-            _textChangeStartIndex = 0
+        let _isDeleteAction = enteredText.count == 0 && lengthOfChange > 0
+        let _isIntValue = Int(enteredText) != nil
+        var _lastUserEnteredForSearchStockCode:(startIndex:Int, length:Int)? = nil
+        if let _searchInfo = self.lastSearchStockCodeInfo {
+            _lastUserEnteredForSearchStockCode = (startIndex:_searchInfo.range.location, length:_searchInfo.range.length)
         }
         
-        //find string
-        var _finalStartIndex:Int = -1
-        var _finalEndIndex:Int = -1
-        //for start
-        for _sIndex in (0..._textChangeStartIndex).reversed() {
-            if Int(String(finalText[_sIndex])) != nil {
-                _finalStartIndex = _sIndex
-            }else{
-                break
+        if let _lastEnteredInfo = _lastUserEnteredForSearchStockCode {
+            let _maxOfSavedLength = _lastEnteredInfo.startIndex + _lastEnteredInfo.length
+            let _endIndexOfNewStr = (startIndex + lengthOfChange) - 1
+            let _maxOfSavedIndex = _maxOfSavedLength - 1
+            if startIndex >= _lastEnteredInfo.startIndex && startIndex <= (_maxOfSavedIndex + 1) {
+                if _isDeleteAction {//if delete
+                    let _newLength = _lastEnteredInfo.length - lengthOfChange
+                    if _newLength <= 0 {
+                         _lastUserEnteredForSearchStockCode = nil
+                    }else{
+                        _lastUserEnteredForSearchStockCode?.length = _newLength
+                    }
+                }else{
+                    if _isIntValue {
+                        let _newLength = _lastEnteredInfo.length + enteredText.count
+                        _lastUserEnteredForSearchStockCode?.length = _newLength
+                    }
+                }
+            }else {
+                if _isDeleteAction {
+                    if startIndex >= 0 && startIndex < _lastEnteredInfo.startIndex {
+                        if _endIndexOfNewStr < _maxOfSavedIndex {
+                            let _newLength = _maxOfSavedIndex - _endIndexOfNewStr
+                            _lastUserEnteredForSearchStockCode = (startIndex: startIndex, length:_newLength)
+                        }else{
+                            _lastUserEnteredForSearchStockCode = nil
+                        }
+                    }
+                }else if _isIntValue {
+                    _lastUserEnteredForSearchStockCode = (startIndex:startIndex, length:enteredText.count)
+                }
             }
-        }
-        //for end
-        for _eIndex in (_textChangeStartIndex..<finalText.count) {
-            if Int(String(finalText[_eIndex])) != nil {
-                _finalEndIndex = _eIndex
-            }else{
-                break
+        }else {
+            if _isIntValue && _isDeleteAction == false {
+                _lastUserEnteredForSearchStockCode = (startIndex:startIndex, length:enteredText.count)
             }
         }
         
-        if _finalStartIndex > -1 && _finalEndIndex > -1 {
-            let _range = NSMakeRange(_finalStartIndex, (_finalEndIndex - _finalStartIndex) + 1 )
+        if let _lastEnteredInfo = _lastUserEnteredForSearchStockCode {
+            let _range = NSMakeRange(_lastEnteredInfo.startIndex, _lastEnteredInfo.length )
             var _targetSearchStr = finalText as NSString
             _targetSearchStr = _targetSearchStr.substring(with: _range) as NSString
             self.lastSearchStockCodeInfo = (text:_targetSearchStr as String, range:_range)
-            self.setTagStockCodeList(items: self.delegate?.chatBarRequestSearchStockCode(key: _targetSearchStr as String))
+            self.startTimeForSearchStockCode(searchKey:_targetSearchStr as String)
         }else{
             self.clearTagStockCodeList()
         }
@@ -1162,7 +1172,7 @@ extension ALKChatBar: UITextViewDelegate {
             return true
         }
         text = text.replacingCharacters(in: range, with: string) as NSString
-        self.startTimeForSearchStockCode(finalText:text as String, enteredText:string, startIndex: range.location, lengthOfChange:range.length)
+        self.searchStockCodeWhenInputText(finalText:text as String, enteredText:string, startIndex: range.location, lengthOfChange:range.length)
         updateTextViewHeight(textView: textView, text: text as String)
         return true
     }
