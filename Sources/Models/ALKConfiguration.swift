@@ -441,7 +441,7 @@ public protocol SystemInfoRequestDelegate: class{
     func getSystemTextLocalizable(key:String) -> String?
     func logging(isDebug:Bool, message:String)
     func getLoginUserHashId() -> String?
-    func verifyDetectedValueForSpecialLink(value:String?, type:ALKConfiguration.ConversationMessageLinkType) -> Bool
+    func verifyDetectedValueForSpecialLink(value:String?, type:ALKConfiguration.ConversationMessageLinkType) -> Any?
 }
 
 extension ALKConfiguration {

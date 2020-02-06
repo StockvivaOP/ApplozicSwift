@@ -53,6 +53,7 @@ extension UITextView {
         if message.count > 0 {
             for matchItem in matchInfo {
                 do{
+                    var _offsetForReplaceStockCode = 0
                     let _regex = try NSRegularExpression(pattern:matchItem.match, options: NSRegularExpression.Options.caseInsensitive)
                     let _searchedTextList = _regex.matches(in: message, options: NSRegularExpression.MatchingOptions.reportCompletion, range: NSRange(location: 0, length: message.count))
                     for searchedItem in _searchedTextList {
@@ -64,11 +65,25 @@ extension UITextView {
                         }
                         //add link
                         if let _formatValue = matchItem.type.getFormatedValue(value: _searchedStr),
-                            let _url = matchItem.type.getURLLink(value: _formatValue ), ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) ?? true {
-                            _resultAttStr.addAttribute(.link, value: _url, range: searchedItem.range )
-                            //set font for link
-                            if let _fontStyle = font {
-                                _resultAttStr.addAttribute(NSAttributedString.Key.font, value: _fontStyle, range: searchedItem.range )
+                            let _url = matchItem.type.getURLLink(value: _formatValue ){
+                            switch matchItem.type {
+                            case .stockCode:
+                                if let _stockInfo = ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) as? (code:String, name:String) {
+                                    let _searchItemStartIndexAdjust = _offsetForReplaceStockCode + searchedItem.range.location
+                                    _resultAttStr.replaceCharacters(in: NSMakeRange(_searchItemStartIndexAdjust, searchedItem.range.length), with: _stockInfo.name)
+                                    _resultAttStr.addAttribute(.link, value: _url, range: NSMakeRange(_searchItemStartIndexAdjust, _stockInfo.name.count) )
+                                    //set font for link
+                                    if let _fontStyle = font {
+                                        _resultAttStr.addAttribute(NSAttributedString.Key.font, value: _fontStyle, range: NSMakeRange(_searchItemStartIndexAdjust, _stockInfo.name.count) )
+                                    }
+                                    _offsetForReplaceStockCode += _stockInfo.name.count - searchedItem.range.length
+                                }
+                            default:
+                                _resultAttStr.addAttribute(.link, value: _url, range: searchedItem.range )
+                                //set font for link
+                                if let _fontStyle = font {
+                                    _resultAttStr.addAttribute(NSAttributedString.Key.font, value: _fontStyle, range: searchedItem.range )
+                                }
                             }
                         }
                     }
