@@ -26,7 +26,7 @@ extension ALKChatBar: UICollectionViewDelegate, UICollectionViewDataSource, UICo
             return ALKChatBarTagUserListCollectionViewCell.calculateCellWidth(title: "@ \(_item.name)")
         }else if collectionView == self.tagStockCodeList {
             let _item = self.tagStockCodeItems[indexPath.item]
-            return ALKChatBarTagStockCodeListCollectionViewCell.calculateCellWidth(title:_item.name)
+            return ALKChatBarTagStockCodeListCollectionViewCell.calculateCellWidth(title:"\(_item.code) \(_item.name)")
         }
         return CGSize.zero
     }
