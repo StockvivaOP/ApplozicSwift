@@ -128,6 +128,8 @@
 		8BB533FB1F69463C0008C1CF /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB533861F69463B0008C1CF /* UIViewController+Extension.swift */; };
 		8BB533FF1F6946970008C1CF /* ApplozicSwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB533FD1F6946970008C1CF /* ApplozicSwiftTests.swift */; };
 		8BB534001F6946970008C1CF /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BB533FE1F6946970008C1CF /* Info.plist */; };
+		C417997F23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C417997D23EA785F00F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift */; };
+		C417998023EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C417997E23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib */; };
 		C41AAC2E235D49A600AFF4D9 /* ALKSVMessageListRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */; };
 		C43F9CF9238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */; };
 		C43F9CFF238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */; };
@@ -280,6 +282,8 @@
 		8BB533FD1F6946970008C1CF /* ApplozicSwiftTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplozicSwiftTests.swift; sourceTree = "<group>"; };
 		8BB533FE1F6946970008C1CF /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B67BC368C8C8A4DDE39D1822 /* Pods_ApplozicSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ApplozicSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C417997D23EA785F00F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKChatBarTagStockCodeListCollectionViewCell.swift; sourceTree = "<group>"; };
+		C417997E23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ALKChatBarTagStockCodeListCollectionViewCell.xib; sourceTree = "<group>"; };
 		C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageListRequest.swift; sourceTree = "<group>"; };
 		C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALKChatBar+UICollectionViewDelegate.swift"; sourceTree = "<group>"; };
 		C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKChatBarTagUserListCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -575,6 +579,8 @@
 			children = (
 				C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */,
 				C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */,
+				C417997D23EA785F00F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift */,
+				C417997E23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -698,6 +704,7 @@
 				8BB534001F6946970008C1CF /* Info.plist in Resources */,
 				8BB533D61F69463C0008C1CF /* CustomCamera.storyboard in Resources */,
 				8BB533D11F69463C0008C1CF /* Localizable.strings in Resources */,
+				C417998023EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib in Resources */,
 				8BB533E41F69463C0008C1CF /* PreviewImage.storyboard in Resources */,
 				8BB533E21F69463C0008C1CF /* MediaViewer.storyboard in Resources */,
 				8BB533EA1F69463C0008C1CF /* ShareLocation.storyboard in Resources */,
@@ -752,6 +759,7 @@
 				8BB533D21F69463C0008C1CF /* Bundle+Extension.swift in Sources */,
 				8BB533F91F69463C0008C1CF /* UITextField+Extension.swift in Sources */,
 				8BB533C11F69463C0008C1CF /* ALKPhotoCell.swift in Sources */,
+				C417997F23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift in Sources */,
 				C4CE0901234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift in Sources */,
 				8BB533E71F69463C0008C1CF /* ReusableView.swift in Sources */,
 				8BB533C71F69463C0008C1CF /* ALKPushNotificationHandler.swift in Sources */,

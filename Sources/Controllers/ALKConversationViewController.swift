@@ -2670,6 +2670,10 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
     public func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String) {
         self.delegateConversationChatBarAction?.didUserEnteredSpecialCharacterKey(key:key)
     }
+    
+    public func chatBarRequestSearchStockCode(key:String) -> [(code:String, name:String)]? {
+        return self.delegateConversationChatBarAction?.searchStockCodeInChatBar(key:key)
+    }
 }
 
 //MARK: - stockviva (ConversationCellRequestInfoDelegate)

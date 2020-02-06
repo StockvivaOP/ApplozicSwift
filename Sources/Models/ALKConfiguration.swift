@@ -263,6 +263,29 @@ public struct ALKConfiguration {
                 return false
             }
         }
+        
+        public func getInputDisplayFormat(value:String) -> String? {
+            switch self{
+            case .stockCode:
+                var _tempValue = value.lowercased().replacingOccurrences(of: "hk.", with: "")
+                if let _valueInt = Int(_tempValue) {
+                    _tempValue = String(format: "%05d", _valueInt)
+                    _tempValue = "hk.\(_tempValue)".uppercased()
+                }
+                return "$\(_tempValue.uppercased())$"
+            default:
+                return nil
+            }
+        }
+        
+        public func getKeyStr() -> String {
+            switch self{
+            case .stockCode:
+                return "$"
+            default:
+                return ""
+            }
+        }
     }
     
     /// delegate for get / set system info
@@ -328,7 +351,7 @@ public struct ALKConfiguration {
     
     //for create special link
     public static var specialLinkList:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)] = [
-                                        (match:"\\${1}(hk\\.|HK\\.)?(\\d+)\\${1}", type:ALKConfiguration.ConversationMessageLinkType.stockCode)]
+                                        (match:"\\${1}(hk\\.|HK\\.)?(\\d{5})\\${1}", type:ALKConfiguration.ConversationMessageLinkType.stockCode)]
     
     //tag: stockviva - end
     
@@ -374,6 +397,7 @@ public protocol ConversationChatBarActionDelegate: class{
     func blockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     //did user entered special character key
     func didUserEnteredSpecialCharacterKey(key:String)
+    func searchStockCodeInChatBar(key:String) -> [(code:String, name:String)]?
 }
 
 public protocol ChatBarRequestActionDelegate: class{
@@ -383,6 +407,7 @@ public protocol ChatBarRequestActionDelegate: class{
     func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     func chatBarRequestBlockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String)
+    func chatBarRequestSearchStockCode(key:String) -> [(code:String, name:String)]?
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{

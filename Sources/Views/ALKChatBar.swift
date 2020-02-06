@@ -264,6 +264,21 @@ open class ALKChatBar: UIView, Localizable {
         return view
     }()
     
+    public var searchStockCodeTimer:Timer?
+    public var lastSearchStockCodeInfo:(text:String, range:NSRange)?
+    open var tagStockCodeItems:[(code:String, name:String)] = []
+    open var tagStockCodeList:UICollectionView = {
+        let view = UICollectionView(frame: CGRect.zero, collectionViewLayout:ALKChatBarTagStockCodeCollectionViewFlowLayout())
+        view.showsHorizontalScrollIndicator = true
+        view.showsVerticalScrollIndicator = false
+        view.isHidden = true
+        view.backgroundColor = UIColor.ALKSVGreyColor207()
+        //register cell
+        let _cell = UINib(nibName: "ALKChatBarTagStockCodeListCollectionViewCell", bundle: Bundle.applozic)
+        view.register(_cell, forCellWithReuseIdentifier: "ALKChatBarTagStockCodeListCollectionViewCell")
+        return view
+    }()
+    
     /// Returns true if the textView is first responder.
     open var isTextViewFirstResponder: Bool {
         return textView.isFirstResponder
@@ -295,11 +310,14 @@ open class ALKChatBar: UIView, Localizable {
         case headerViewHeight = "headerViewHeight"
         case mediaStackViewHeight = "mediaStackViewHeight"
         case tagUserListHeight = "tagUserListHeight"
+        case tagStockCodeListHeight = "tagStockCodeListHeight"
     }
 
     @objc func tapped(button: UIButton) {
         switch button {
         case sendButton:
+            //clear
+            self.clearTagStockCodeList()
             let text = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
             if text.lengthOfBytes(using: .utf8) > 0 {
                 action?(.sendText(button,text, self.getMentionUserList()))
@@ -361,6 +379,8 @@ open class ALKChatBar: UIView, Localizable {
         textView.delegate = self
         mentionUserList.delegate = self
         mentionUserList.dataSource = self
+        tagStockCodeList.delegate = self
+        tagStockCodeList.dataSource = self
         backgroundColor = UIColor.ALKSVGreyColor245()
         translatesAutoresizingMaskIntoConstraints = false
 
@@ -381,6 +401,7 @@ open class ALKChatBar: UIView, Localizable {
         setupAttachment(buttonIcons: chatBarConfiguration.attachmentIcons)
         setupConstraints()
         self.hiddenMentionUserList(true)
+        self.hiddenTagStockCodeList(true)
 
         //off join button
         self.hiddenJoinGroupButton()
@@ -411,6 +432,7 @@ open class ALKChatBar: UIView, Localizable {
         toggleKeyboardType(textView: textView)
         hideAutoCompletionView()
         clearMentionUserList()
+        clearTagStockCodeList()
     }
 
     func hideMicButton() {
@@ -541,6 +563,7 @@ open class ALKChatBar: UIView, Localizable {
             soundRec,
             poweredByMessageLabel,
             mentionUserList,
+            tagStockCodeList,
             joinGroupView,
             blockChatButton])
         
@@ -563,6 +586,11 @@ open class ALKChatBar: UIView, Localizable {
         mentionUserList.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         mentionUserList.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         mentionUserList.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.tagUserListHeight.rawValue).isActive = true
+        
+        tagStockCodeList.topAnchor.constraint(equalTo: mentionUserList.bottomAnchor).isActive = true
+        tagStockCodeList.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        tagStockCodeList.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        tagStockCodeList.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.tagStockCodeListHeight.rawValue).isActive = true
         
         let buttonheightConstraints = attachmentButtonStackView.subviews
             .map { $0.widthAnchor.constraint(equalToConstant: buttonSize.width)}
@@ -614,7 +642,7 @@ open class ALKChatBar: UIView, Localizable {
         poweredByMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         poweredByMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         poweredByMessageLabel.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.poweredByMessageHeight.rawValue).isActive = true
-        poweredByMessageLabel.topAnchor.constraint(equalTo: mentionUserList.bottomAnchor).isActive = true
+        poweredByMessageLabel.topAnchor.constraint(equalTo: tagStockCodeList.bottomAnchor).isActive = true
 
         textView.trailingAnchor.constraint(equalTo: lineImageView.leadingAnchor).isActive = true
 
@@ -965,6 +993,163 @@ extension ALKChatBar {
     }
 }
 
+//MARK: - stockviva tag (tag stock code)
+extension ALKChatBar {
+    public func getTagStockCodeList() -> [(code:String, name:String)]? {
+        let _returnObj:[(code:String, name:String)] = Array(self.tagStockCodeItems)
+        return self.tagStockCodeItems.count > 0 ? _returnObj : nil
+    }
+    
+    public func setTagStockCodeList(items:[(code:String, name:String)]?){
+        guard let _list = items, _list.count > 0 else {
+            self.clearTagStockCodeList()
+            return
+        }
+        //clear and remove
+        self.tagStockCodeItems.removeAll()
+        self.tagStockCodeList.reloadData()
+        
+        //reset and add item one by one
+        self.tagStockCodeList.contentOffset = CGPoint.zero
+        self.hiddenTagStockCodeList(false, completed: {
+            //add one by one
+            for item in _list {
+                if self.tagStockCodeItems.contains(where: { $0.code == item.code }) == false {
+                    self.updateTagStockCodeCollectionView(isAdd: true, index: self.tagStockCodeItems.count) {
+                        self.tagStockCodeItems.append(item)
+                    }
+                }
+            }
+        })
+    }
+    
+    private func hiddenTagStockCodeList(_ isHidden:Bool, completed:(()->())? = nil){
+        guard self.tagStockCodeList.isHidden != isHidden else {
+            completed?()
+            return
+        }
+        self.tagStockCodeList.isHidden = isHidden
+        UIView.animate(withDuration: 0.2, animations: {
+            self.tagStockCodeList.constraint(withIdentifier: ConstraintIdentifier.tagStockCodeListHeight.rawValue)?.constant = isHidden ? 0 : CGFloat(60.0)
+        }) { (isSuccessful) in
+            completed?()
+        }
+    }
+    
+    private func clearTagStockCodeList(){
+        self.cancelTimeForSearchStockCode()
+        self.lastSearchStockCodeInfo = nil
+        self.tagStockCodeItems.removeAll()
+        self.tagStockCodeList.reloadData()
+        self.hiddenTagStockCodeList(true)
+    }
+    
+    private func updateTagStockCodeCollectionView(isAdd:Bool, index:Int, progressUpdate:@escaping (()->())){
+        //check need show the list
+        self.tagStockCodeList.performBatchUpdates({
+            progressUpdate()
+            if isAdd {
+                self.tagStockCodeList.insertItems(at: [IndexPath(item: index, section: 0)])
+            }else{
+                self.tagStockCodeList.deleteItems(at: [IndexPath(item: index, section: 0)])
+            }
+        }) { (isSuccessful) in
+            //none
+       }
+    }
+    
+    //input text
+    private func startTimeForSearchStockCode(finalText:String, enteredText:String, startIndex:Int, lengthOfChange:Int){
+        self.searchStockCodeTimer?.invalidate()
+        self.searchStockCodeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { (timer) in
+            self.searchStockCodeWhenInputText(finalText:finalText, enteredText:enteredText, startIndex:startIndex, lengthOfChange:lengthOfChange)
+        }
+    }
+    
+    private func cancelTimeForSearchStockCode(){
+        self.searchStockCodeTimer?.invalidate()
+        self.searchStockCodeTimer = nil
+    }
+    
+    private func searchStockCodeWhenInputText(finalText:String, enteredText:String, startIndex:Int, lengthOfChange:Int){
+        guard finalText.count > 0 else {//no text no search
+            self.clearTagStockCodeList()
+            return
+        }
+        
+        //adjust index
+        var _textChangeStartIndex = startIndex
+        if startIndex >= finalText.count {
+            _textChangeStartIndex = finalText.count - 1
+        }else{
+            let _isDeleteAction = enteredText.count == 0 && lengthOfChange > 0
+            if _isDeleteAction {
+                _textChangeStartIndex = _textChangeStartIndex - 1
+            }
+        }
+        if _textChangeStartIndex < 0 {
+            _textChangeStartIndex = 0
+        }
+        
+        //find string
+        var _finalStartIndex:Int = -1
+        var _finalEndIndex:Int = -1
+        //for start
+        for _sIndex in (0..._textChangeStartIndex).reversed() {
+            if Int(String(finalText[_sIndex])) != nil {
+                _finalStartIndex = _sIndex
+            }else{
+                break
+            }
+        }
+        //for end
+        for _eIndex in (_textChangeStartIndex..<finalText.count) {
+            if Int(String(finalText[_eIndex])) != nil {
+                _finalEndIndex = _eIndex
+            }else{
+                break
+            }
+        }
+        
+        if _finalStartIndex > -1 && _finalEndIndex > -1 {
+            let _range = NSMakeRange(_finalStartIndex, (_finalEndIndex - _finalStartIndex) + 1 )
+            var _targetSearchStr = finalText as NSString
+            _targetSearchStr = _targetSearchStr.substring(with: _range) as NSString
+            self.lastSearchStockCodeInfo = (text:_targetSearchStr as String, range:_range)
+            self.setTagStockCodeList(items: self.delegate?.chatBarRequestSearchStockCode(key: _targetSearchStr as String))
+        }else{
+            self.clearTagStockCodeList()
+        }
+    }
+    
+    public func didClickedSearchStockCodeResultInList(code:String, name:String, lastSearchStockCodeInfo:(text:String, range:NSRange)?){
+        guard let _searchedInfo = lastSearchStockCodeInfo,
+            let codeLinkFormatStr = ALKConfiguration.ConversationMessageLinkType.stockCode.getInputDisplayFormat(value: code) else {
+            return
+        }
+        let _displayText = self.textView.text as NSString
+        var _result:NSString = _displayText.replacingCharacters(in: _searchedInfo.range, with: codeLinkFormatStr) as NSString
+        
+        let _checkPerChar1 = _searchedInfo.range.location - 1
+        let _checkPerChar2 = _searchedInfo.range.location - 2
+        if _checkPerChar1 >= 0 && _checkPerChar1 < _result.length {
+            let _pChat1 = String(_result.substring(with: NSMakeRange(_checkPerChar1, 1)))
+            if _pChat1 == ALKConfiguration.ConversationMessageLinkType.stockCode.getKeyStr() {
+                if _checkPerChar2 >= 0 && _checkPerChar2 < _result.length {
+                    if Int(_result.substring(with: NSMakeRange(_checkPerChar2, 1))) == nil {
+                        _result = _result.replacingCharacters(in: NSMakeRange(_checkPerChar1, 1), with: "") as NSString
+                    }
+                }else{
+                    _result = _result.replacingCharacters(in: NSMakeRange(_checkPerChar1, 1), with: "") as NSString
+                }
+            }
+        }
+        
+        self.textView.text = _result as String
+        self.clearTagStockCodeList()
+    }
+}
+
 extension ALKChatBar: UITextViewDelegate {
 
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText string: String) -> Bool {
@@ -977,6 +1162,7 @@ extension ALKChatBar: UITextViewDelegate {
             return true
         }
         text = text.replacingCharacters(in: range, with: string) as NSString
+        self.startTimeForSearchStockCode(finalText:text as String, enteredText:string, startIndex: range.location, lengthOfChange:range.length)
         updateTextViewHeight(textView: textView, text: text as String)
         return true
     }
