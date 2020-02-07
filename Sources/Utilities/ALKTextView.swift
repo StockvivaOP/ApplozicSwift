@@ -27,7 +27,44 @@ class ALKTextView: UITextView{
     open override var canBecomeFirstResponder: Bool{
         return true
     }
-
+    
+    public static func getStockCodeFrom(message:String) -> [String] {
+        var _result:[String] = []
+        let _replacingStrArray = ["$": "", "hk.":"",
+                                  "(" : "", ")" : "", "\u{FF08}" : "", "\u{FF09}" : "", ".hk": "",
+                                  "\u{FF10}" : "0","\u{FF11}" : "1","\u{FF12}" : "2","\u{FF13}" : "3",
+                                  "\u{FF14}" : "4","\u{FF15}" : "5","\u{FF16}" : "6","\u{FF17}" : "7",
+                                  "\u{FF18}" : "8","\u{FF19}" : "9"]
+        if message.count > 0 {
+            for matchItem in ALKConfiguration.specialLinkList {
+                do{
+                    let _regex = try NSRegularExpression(pattern:matchItem.match, options: NSRegularExpression.Options.caseInsensitive)
+                    let _searchedTextList = _regex.matches(in: message, options: NSRegularExpression.MatchingOptions.reportCompletion, range: NSRange(location: 0, length: message.count))
+                    for searchedItem in _searchedTextList {
+                        guard let _rangeOfStr = Range(searchedItem.range, in: message) else { continue }
+                        let _orgSearchedStr = String(message[_rangeOfStr])
+                        var _searchedStr = _orgSearchedStr.lowercased().trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                        for replacingStrKey in _replacingStrArray.keys {
+                            _searchedStr = _searchedStr.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
+                        }
+                        //check value
+                        switch matchItem.type {
+                        case .stockCode:
+                            if let _stockInfo = ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) as? (code:String, name:String) {
+                                _result.append(_stockInfo.code)
+                            }
+                        default:
+                            //none
+                            break
+                        }
+                    }
+                }catch {
+                }
+            }
+        }
+        
+        return _result
+    }
 }
 
 //MARK: - stockviva tag
