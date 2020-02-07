@@ -80,7 +80,7 @@ extension String {
 
 //MARK: - stockviva tag
 extension String {
-    public func chatGroupSVMessageGetStockCode(message:String) -> [String] {
-        return ALKTextView.getStockCodeFrom(message: message)
+    public func chatGroupSVMessageGetStockCode() -> [String] {
+        return ALKTextView.getStockCodeFrom(message: self)
     }
 }
