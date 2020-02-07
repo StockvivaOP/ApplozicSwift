@@ -76,3 +76,11 @@ extension String {
         return Data(utf8)
     }
 }
+
+
+//MARK: - stockviva tag
+extension String {
+    public func chatGroupSVMessageGetStockCode(message:String) -> [String] {
+        return ALKTextView.getStockCodeFrom(message: message)
+    }
+}
