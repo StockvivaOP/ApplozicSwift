@@ -2674,6 +2674,10 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
     public func chatBarRequestSearchStockCode(key:String) -> [(code:String, name:String)]? {
         return self.delegateConversationChatBarAction?.searchStockCodeInChatBar(key:key)
     }
+    
+    public func chatBarRequestSuggestionStockCodeClicked(code:String, name:String) {
+        self.delegateConversationChatBarAction?.suggestionStockCodeClicked(code:code, name:name)
+    }
 }
 
 //MARK: - stockviva (ConversationCellRequestInfoDelegate)

@@ -398,6 +398,7 @@ public protocol ConversationChatBarActionDelegate: class{
     //did user entered special character key
     func didUserEnteredSpecialCharacterKey(key:String)
     func searchStockCodeInChatBar(key:String) -> [(code:String, name:String)]?
+    func suggestionStockCodeClicked(code:String, name:String)
 }
 
 public protocol ChatBarRequestActionDelegate: class{
@@ -408,6 +409,7 @@ public protocol ChatBarRequestActionDelegate: class{
     func chatBarRequestBlockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String)
     func chatBarRequestSearchStockCode(key:String) -> [(code:String, name:String)]?
+    func chatBarRequestSuggestionStockCodeClicked(code:String, name:String)
 }
 
 public protocol ConversationMessageBoxActionDelegate: class{

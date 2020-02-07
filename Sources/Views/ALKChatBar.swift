@@ -1133,6 +1133,9 @@ extension ALKChatBar {
     }
     
     public func didClickedSearchStockCodeResultInList(code:String, name:String, lastSearchStockCodeInfo:(text:String, range:NSRange)?){
+        //click call back
+        self.delegate?.chatBarRequestSuggestionStockCodeClicked(code: code, name: name)
+        //do add text in input field
         guard let _searchedInfo = lastSearchStockCodeInfo,
             let codeLinkFormatStr = ALKConfiguration.ConversationMessageLinkType.stockCode.getInputDisplayFormat(value: code) else {
             return
