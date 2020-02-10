@@ -1002,7 +1002,9 @@ extension ALKChatBar {
     
     public func setTagStockCodeList(items:[(code:String, name:String)]?){
         guard let _list = items, _list.count > 0 else {
-            self.clearTagStockCodeList()
+            self.tagStockCodeItems.removeAll()
+            self.tagStockCodeList.reloadData()
+            self.hiddenTagStockCodeList(true)
             return
         }
         //clear and remove
@@ -1095,11 +1097,11 @@ extension ALKChatBar {
                     }else{
                         _lastUserEnteredForSearchStockCode?.length = _newLength
                     }
-                }else{
-                    if _isIntValue {
-                        let _newLength = _lastEnteredInfo.length + enteredText.count
-                        _lastUserEnteredForSearchStockCode?.length = _newLength
-                    }
+                }else if _isIntValue {
+                    let _newLength = _lastEnteredInfo.length + enteredText.count
+                    _lastUserEnteredForSearchStockCode?.length = _newLength
+                }else {
+                    _lastUserEnteredForSearchStockCode = nil
                 }
             }else {
                 if _isDeleteAction {
@@ -1113,6 +1115,8 @@ extension ALKChatBar {
                     }
                 }else if _isIntValue {
                     _lastUserEnteredForSearchStockCode = (startIndex:startIndex, length:enteredText.count)
+                }else {
+                    _lastUserEnteredForSearchStockCode = nil
                 }
             }
         }else {
