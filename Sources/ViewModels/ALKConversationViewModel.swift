@@ -106,6 +106,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     public var isDisplayMessageWithinUserListMode = false
     public var messageDisplayWithinUserList:[String]?
+    public var replyMessageViewHistoryList:[ALKMessageViewModel] = []
 
     // MARK: - Initializer
     public required init(
@@ -2266,7 +2267,7 @@ extension ALKConversationViewModel {
             }
             self.isLoadingLatestMessage = true
             //clear all
-            self.clearViewModel(isClearUnReadMessage: false)
+            self.clearViewModel(isClearUnReadMessage: false, isClearFocusReplyMessageMode:false)
             //start process
             self.delegate?.loadingStarted()
             
@@ -2344,9 +2345,42 @@ extension ALKConversationViewModel {
         
     }
     
+    func addReplyMessageViewHistory(currentViewMessage:ALKMessageViewModel?){
+        guard let _cMsg = currentViewMessage else {
+            return
+        }
+        //remove existed
+        self.replyMessageViewHistoryList.removeAll(where: { $0.identifier == _cMsg.identifier })
+        //append to last
+        self.replyMessageViewHistoryList.append(_cMsg)
+    }
+    
+    func getLatestReplyMessageViewHistory(afterMessage:ALKMessageViewModel?) -> ALKMessageViewModel?{
+        var _result:ALKMessageViewModel?
+        let _afterThatMessageTime:Int? = afterMessage?.createdAtTime?.intValue
+        repeat{
+            //get latest history at last
+            if self.replyMessageViewHistoryList.count <= 0 {
+                break
+            }
+            _result = self.replyMessageViewHistoryList.removeLast()
+            if let _msgTime = _afterThatMessageTime,
+                let _lastViewMsgTime = _result?.createdAtTime?.intValue {
+                if _lastViewMsgTime >= _msgTime {
+                    break
+                }
+            }else{
+                break
+            }
+        }while true
+        
+        return _result
+    }
+    
     func clearFocusReplyMessageMode(isCancelTheModel:Bool = true){
         if isCancelTheModel {
             self.isFocusReplyMessageMode = false
+            self.replyMessageViewHistoryList.removeAll()
         }
     }
     

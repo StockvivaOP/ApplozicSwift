@@ -1113,13 +1113,21 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
+        var _needReloadList = true
+        //is go to reply view history
+        _needReloadList = self.openOrGoToViewMessageFromHistory() == false
+        
         if self.viewModel.isUnreadMessageMode || self.viewModel.isFocusReplyMessageMode {
-            //just cancel if user want to read latest message of now
-            self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser:false, isClearFocusReplyMessageMode: true)
+            if _needReloadList {
+                //just cancel if user want to read latest message of now
+                self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser:false, isClearFocusReplyMessageMode: true)
+            }
         }
-        tableView.scrollToBottom(animated: true)
-        unreadScrollButton.isHidden = true
-        self.unReadMessageRemindIndicatorView.isHidden = true
+        if _needReloadList {
+            tableView.scrollToBottom(animated: true)
+            unreadScrollButton.isHidden = true
+            self.unReadMessageRemindIndicatorView.isHidden = true
+        }
     }
     
     @objc func discrimationToucUpInside(_ sender: UIButton) {
@@ -2504,18 +2512,19 @@ extension ALKConversationViewController {
         }
     }
     
-    func didReplyClickedInCell(replyMessage: ALKMessageViewModel?){
+    func didReplyClickedInCell(currentMessage: ALKMessageViewModel?, replyMessage: ALKMessageViewModel?){
         guard let _replyMessage = replyMessage else {
             return
         }
         if self.viewModel.isDisplayMessageWithinUserListMode == false {
             if let _indexPath = self.viewModel.getMessageIndex(messageId: _replyMessage.identifier) {
+                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage)
                 let _cellIndexPath = IndexPath(row: 0, section: _indexPath.section)
                 //if ready loaded, goto that row
                 self.tableView.scrollToRow(at: _cellIndexPath , at: .middle, animated: true)
                 self.highlightCellOneTime(indexPath: _cellIndexPath)
-            }else if let _replyMsgCreateTime = _replyMessage.createdAtTime,
-                    self.viewModel.isDisplayMessageWithinUserListMode == false {
+            }else if let _replyMsgCreateTime = _replyMessage.createdAtTime {
+                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage)
                 //reload and go to reply message
                 self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _replyMessage.identifier, createTime: _replyMsgCreateTime.intValue))
             }
@@ -2534,6 +2543,31 @@ extension ALKConversationViewController {
             }
             self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: _replyMessage)
         }
+    }
+    
+    func openOrGoToViewMessageFromHistory() -> Bool {
+        //get last messages
+        var _lastViewMessage:ALKMessageViewModel?
+        if let _lastIndex = self.tableView.indexPathsForVisibleRows?.last {
+            _lastViewMessage = self.viewModel.messageForRow(indexPath: _lastIndex)
+        }
+        //get last reply message
+        guard let _message = self.viewModel.getLatestReplyMessageViewHistory(afterMessage:_lastViewMessage) else {
+            return false
+        }
+        var _result = false
+        if let _indexPath = self.viewModel.getMessageIndex(messageId: _message.identifier) {
+            let _cellIndexPath = IndexPath(row: 0, section: _indexPath.section)
+            //if ready loaded, goto that row
+            self.tableView.scrollToRow(at: _cellIndexPath , at: .middle, animated: true)
+            self.highlightCellOneTime(indexPath: _cellIndexPath)
+            _result = true
+        }else if let _replyMsgCreateTime = _message.createdAtTime {
+            //reload and go to reply message
+            self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _message.identifier, createTime: _replyMsgCreateTime.intValue))
+            _result = true
+        }
+        return _result
     }
     
     func sendMessageWithClearAllModel(completedBlock:@escaping ()->Void){
