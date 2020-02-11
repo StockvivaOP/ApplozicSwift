@@ -133,7 +133,7 @@ public class ALKChatBarTagStockCodeCollectionViewFlowLayout: UICollectionViewFlo
     }
     
     private func setUp(){
-        self.sectionInset = UIEdgeInsets(top: 7.5, left: 10, bottom: 7.5, right: 10)
+        self.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         self.scrollDirection = .horizontal
         self.invalidateLayout(with: UICollectionViewFlowLayoutInvalidationContext())
     }
