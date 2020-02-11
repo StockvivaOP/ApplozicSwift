@@ -160,4 +160,8 @@ public extension UIColor {
     static func ALKSVGreyColor250()-> UIColor {
         return UIColor.makeColotRGBA(red:250, green: 250, blue: 250)
     }
+    
+    static func ALKSVBuleColor4398FF()-> UIColor {
+        return UIColor.makeColotRGBA(red:67, green: 152, blue: 255)
+    }
 }

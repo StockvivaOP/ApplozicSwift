@@ -84,7 +84,7 @@ extension UITextView {
         }
         
         let _resultAttStr = NSMutableAttributedString(string: message, attributes: _defaultAtt)
-        self.linkTextAttributes = [.foregroundColor: UIColor.blue,
+        self.linkTextAttributes = [.foregroundColor: UIColor.ALKSVBuleColor4398FF(),
                                    .underlineStyle: NSUnderlineStyle.single.rawValue]
         
         if message.count > 0 {
