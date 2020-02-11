@@ -2345,14 +2345,15 @@ extension ALKConversationViewModel {
         
     }
     
-    func addReplyMessageViewHistory(currentViewMessage:ALKMessageViewModel?){
-        guard let _cMsg = currentViewMessage else {
+    func addReplyMessageViewHistory(currentViewMessage:ALKMessageViewModel?, replyMessage:ALKMessageViewModel?){
+        guard let _cMsg = currentViewMessage, let _rMsg = replyMessage else {
             return
         }
         //remove existed
-        self.replyMessageViewHistoryList.removeAll(where: { $0.identifier == _cMsg.identifier })
+        self.replyMessageViewHistoryList.removeAll(where: { $0.identifier == _cMsg.identifier || $0.identifier == _rMsg.identifier })
         //append to last
         self.replyMessageViewHistoryList.append(_cMsg)
+        self.replyMessageViewHistoryList.append(_rMsg)
     }
     
     func getLatestReplyMessageViewHistory(afterMessage:ALKMessageViewModel?) -> ALKMessageViewModel?{

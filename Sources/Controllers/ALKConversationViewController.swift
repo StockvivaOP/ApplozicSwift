@@ -2518,13 +2518,13 @@ extension ALKConversationViewController {
         }
         if self.viewModel.isDisplayMessageWithinUserListMode == false {
             if let _indexPath = self.viewModel.getMessageIndex(messageId: _replyMessage.identifier) {
-                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage)
+                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage, replyMessage: replyMessage)
                 let _cellIndexPath = IndexPath(row: 0, section: _indexPath.section)
                 //if ready loaded, goto that row
                 self.tableView.scrollToRow(at: _cellIndexPath , at: .middle, animated: true)
                 self.highlightCellOneTime(indexPath: _cellIndexPath)
             }else if let _replyMsgCreateTime = _replyMessage.createdAtTime {
-                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage)
+                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage, replyMessage: replyMessage)
                 //reload and go to reply message
                 self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _replyMessage.identifier, createTime: _replyMsgCreateTime.intValue))
             }
