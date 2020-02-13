@@ -16,7 +16,7 @@ class ALKSVMessageDetailViewController: ALKSVBaseMessageDetailViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.tvMessageContent.linkTextAttributes = [.foregroundColor: UIColor.blue,
+        self.tvMessageContent.linkTextAttributes = [.foregroundColor: UIColor.ALKSVBuleColor4398FF(),
                                                     .underlineStyle: NSUnderlineStyle.single.rawValue]
         self.tvMessageContent.delegate = self
         //set content

@@ -328,7 +328,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "newMessageNotification"), object: nil, queue: nil, using: {
             notification in
             guard self.viewModel != nil && self.isLeaveView == false else { return }
-            guard self.viewModel.isUnreadMessageMode == false else { return }
+            guard self.viewModel.isUnreadMessageMode == false && self.viewModel.isFocusReplyMessageMode == false else {
+                return
+            }
             let msgArray = notification.object as? [ALMessage]
             print("new notification received: ", msgArray?.first?.message as Any, msgArray?.count ?? "")
             guard let list = notification.object as? [Any], !list.isEmpty, self.isViewLoaded else { return }
@@ -992,8 +994,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     /// Call this method after proper viewModel initialization
-    public func refreshViewController(isClearUnReadMessage:Bool = false, isClearDisplayMessageWithinUser:Bool = true) {
-        viewModel.clearViewModel(isClearUnReadMessage:isClearUnReadMessage, isClearDisplayMessageWithinUser:isClearDisplayMessageWithinUser)
+    public func refreshViewController(isClearUnReadMessage:Bool = false, isClearDisplayMessageWithinUser:Bool = true, isClearFocusReplyMessageMode:Bool = false) {
+        viewModel.clearViewModel(isClearUnReadMessage:isClearUnReadMessage, isClearDisplayMessageWithinUser:isClearDisplayMessageWithinUser, isClearFocusReplyMessageMode:isClearFocusReplyMessageMode)
         if isClearDisplayMessageWithinUser {
             self.setShowAdminMessageButtonStatus(false)
             self.viewModel.setDisplayMessageWithinUser(nil)
@@ -1002,7 +1004,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             self.scrollingState = .idle
             self.lastScrollingPoint = CGPoint.zero
             self.viewModel.clearUnReadMessageData()
-            ALKSVUserDefaultsControl.shared.removeLastReadMessageTime()
+            ALKSVUserDefaultsControl.shared.removeLastReadMessageInfo()
         }
         unreadScrollButton.isHidden = true
         self.unReadMessageRemindIndicatorView.isHidden = true
@@ -1045,10 +1047,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     // Called from the parent VC
     public func sync(message: ALMessage) {
         /// Return if message is sent by loggedin user
+        guard self.viewModel != nil && self.isLeaveView == false else { return }
         guard !message.isSentMessage() else { return }
-        if self.viewModel.isUnreadMessageMode { return }
+        guard self.viewModel.isUnreadMessageMode == false && self.viewModel.isFocusReplyMessageMode == false else {
+            return
+        }
         guard !viewModel.isOpenGroup else {
-            viewModel.syncOpenGroup(message: message)
+            viewModel.syncOpenGroup(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
             return
         }
         guard (message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id) else {
@@ -1108,12 +1113,21 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
-        if self.viewModel.isUnreadMessageMode {//just cancel if user want to read latest message of now
-            self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser:false)
+        var _needReloadList = true
+        //is go to reply view history
+        _needReloadList = self.openOrGoToViewMessageFromHistory() == false
+        
+        if self.viewModel.isUnreadMessageMode || self.viewModel.isFocusReplyMessageMode {
+            if _needReloadList {
+                //just cancel if user want to read latest message of now
+                self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser:false, isClearFocusReplyMessageMode: true)
+            }
         }
-        tableView.scrollToBottom(animated: true)
-        unreadScrollButton.isHidden = true
-        self.unReadMessageRemindIndicatorView.isHidden = true
+        if _needReloadList {
+            tableView.scrollToBottom(animated: true)
+            unreadScrollButton.isHidden = true
+            self.unReadMessageRemindIndicatorView.isHidden = true
+        }
     }
     
     @objc func discrimationToucUpInside(_ sender: UIButton) {
@@ -1585,22 +1599,27 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         activityIndicator.stopAnimating()
     }
 
-    public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool) {
+    public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool, isFocusTargetAndHighlight:Bool) {
         self.loadingStop()
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
         print("loading finished")
+        var _indexPathCell:IndexPath?
         if self.viewModel.isFirstTime {
             if targetFocusItemIndex != -1 {
                 let _newSectionCount = self.viewModel.numberOfSections()
                 if targetFocusItemIndex < _newSectionCount {
                     ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to targetFocusItemIndex:\(targetFocusItemIndex), total section:\(_newSectionCount)")
-                    self.tableView.scrollToRow(at: IndexPath(row: 0, section: targetFocusItemIndex) , at: .bottom, animated: false)
+                    _indexPathCell = IndexPath(row: 0, section: targetFocusItemIndex)
+                    self.tableView.scrollToRow(at: _indexPathCell!,
+                                               at: isFocusTargetAndHighlight ? .middle : .bottom, animated: false)
                 }else{
                     let _sectionIndex = _newSectionCount - 1
                     if _sectionIndex >= 0 {
                         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to _sectionIndex:\(_sectionIndex), total section:\(_newSectionCount)")
-                        self.tableView.scrollToRow(at: IndexPath(row: 0, section: _sectionIndex) , at: .bottom, animated: false)
+                        _indexPathCell = IndexPath(row: 0, section: _sectionIndex)
+                        self.tableView.scrollToRow(at: _indexPathCell! ,
+                                                   at: isFocusTargetAndHighlight ? .middle : .bottom, animated: false)
                     }
                 }
             }else{
@@ -1609,7 +1628,10 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             self.saveLastReadMessageIfNeeded()
             self.viewModel.isFirstTime = false
         }else{
-            if isLoadNextPage == false {
+            if targetFocusItemIndex != -1 && isFocusTargetAndHighlight {
+                _indexPathCell = IndexPath(row: 0, section: targetFocusItemIndex)
+                self.tableView.scrollToRow(at: _indexPathCell!, at: .middle, animated: false)
+            }else if isLoadNextPage == false {
                 let newSectionCount = self.viewModel.numberOfSections()
                 if newSectionCount > oldSectionCount {
                     let offset = newSectionCount - oldSectionCount - 1
@@ -1619,6 +1641,11 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                     }
                 }
             }
+        }
+        
+        //highlight cell
+        if isFocusTargetAndHighlight{
+            self.highlightCellOneTime(indexPath: _indexPathCell)
         }
         
         //show / off scroll down button
@@ -1739,12 +1766,16 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
         if isViewLoadedFromTappingOnNotification {
             let indexPath: IndexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
-            moveTableViewToBottom(indexPath: indexPath)
+            if self.viewModel.isFocusReplyMessageMode == false {
+                moveTableViewToBottom(indexPath: indexPath)
+            }
             isViewLoadedFromTappingOnNotification = false
         } else {
             if tableView.isCellVisible(section: viewModel.messageModels.count-2, row: 0) { //1 for recent added msg and 1 because it starts with 0
-                let indexPath: IndexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
-                moveTableViewToBottom(indexPath: indexPath)
+                if self.viewModel.isFocusReplyMessageMode == false {
+                    let indexPath: IndexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
+                    moveTableViewToBottom(indexPath: indexPath)
+                }
             } else if viewModel.messageModels.count > 1 { // Check if the function is called before message is added. It happens when user is added in the group.
                 unreadScrollButton.isHidden = false
                 self.hiddenUnReadMessageRemindIndicatorViewIfNeeded()
@@ -2481,28 +2512,67 @@ extension ALKConversationViewController {
         }
     }
     
-    func didReplyClickedInCell(replyMessage: ALKMessageViewModel?){
+    func didReplyClickedInCell(currentMessage: ALKMessageViewModel?, replyMessage: ALKMessageViewModel?){
         guard let _replyMessage = replyMessage else {
             return
         }
-        var _userDisplayName:String? = nil
-        var _userIconUrl:String? = nil
-        if _replyMessage.isMyMessage {
-            _userDisplayName = ALUserDefaultsHandler.getDisplayName()
-            _userIconUrl = ALUserDefaultsHandler.getProfileImageLinkFromServer()
-            if _userDisplayName == nil {
-                _userDisplayName = ""
+        if self.viewModel.isDisplayMessageWithinUserListMode == false {
+            if let _indexPath = self.viewModel.getMessageIndex(messageId: _replyMessage.identifier) {
+                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage, replyMessage: replyMessage)
+                let _cellIndexPath = IndexPath(row: 0, section: _indexPath.section)
+                //if ready loaded, goto that row
+                self.tableView.scrollToRow(at: _cellIndexPath , at: .middle, animated: true)
+                self.highlightCellOneTime(indexPath: _cellIndexPath)
+            }else if let _replyMsgCreateTime = _replyMessage.createdAtTime {
+                self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage, replyMessage: replyMessage)
+                //reload and go to reply message
+                self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _replyMessage.identifier, createTime: _replyMsgCreateTime.intValue))
             }
-            if _userIconUrl == nil {
-                _userIconUrl = ""
+        }else{
+            var _userDisplayName:String? = nil
+            var _userIconUrl:String? = nil
+            if _replyMessage.isMyMessage {
+                _userDisplayName = ALUserDefaultsHandler.getDisplayName()
+                _userIconUrl = ALUserDefaultsHandler.getProfileImageLinkFromServer()
+                if _userDisplayName == nil {
+                    _userDisplayName = ""
+                }
+                if _userIconUrl == nil {
+                    _userIconUrl = ""
+                }
             }
+            self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: _replyMessage)
         }
-        self.presentMessageDetail(userName: _userDisplayName, userIconUrl: _userIconUrl, viewModel: _replyMessage)
+    }
+    
+    func openOrGoToViewMessageFromHistory() -> Bool {
+        //get last messages
+        var _lastViewMessage:ALKMessageViewModel?
+        if let _lastIndex = self.tableView.indexPathsForVisibleRows?.last {
+            _lastViewMessage = self.viewModel.messageForRow(indexPath: _lastIndex)
+        }
+        //get last reply message
+        guard let _message = self.viewModel.getLatestReplyMessageViewHistory(afterMessage:_lastViewMessage) else {
+            return false
+        }
+        var _result = false
+        if let _indexPath = self.viewModel.getMessageIndex(messageId: _message.identifier) {
+            let _cellIndexPath = IndexPath(row: 0, section: _indexPath.section)
+            //if ready loaded, goto that row
+            self.tableView.scrollToRow(at: _cellIndexPath , at: .middle, animated: true)
+            self.highlightCellOneTime(indexPath: _cellIndexPath)
+            _result = true
+        }else if let _replyMsgCreateTime = _message.createdAtTime {
+            //reload and go to reply message
+            self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _message.identifier, createTime: _replyMsgCreateTime.intValue))
+            _result = true
+        }
+        return _result
     }
     
     func sendMessageWithClearAllModel(completedBlock:@escaping ()->Void){
         //check model
-        if self.viewModel.isUnreadMessageMode || self.viewModel.isDisplayMessageWithinUserListMode {
+        if self.viewModel.isUnreadMessageMode || self.viewModel.isDisplayMessageWithinUserListMode || self.viewModel.isFocusReplyMessageMode{
             self.setShowAdminMessageButtonStatus(false)
             self.viewModel.messageSendUnderClearAllModel(startProcess: {
                 self.scrollingState = .idle
@@ -2634,6 +2704,14 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
     public func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String) {
         self.delegateConversationChatBarAction?.didUserEnteredSpecialCharacterKey(key:key)
     }
+    
+    public func chatBarRequestSearchStockCode(key:String) -> [(code:String, name:String)]? {
+        return self.delegateConversationChatBarAction?.searchStockCodeInChatBar(key:key)
+    }
+    
+    public func chatBarRequestSuggestionStockCodeClicked(code:String, name:String) {
+        self.delegateConversationChatBarAction?.suggestionStockCodeClicked(code:code, name:name)
+    }
 }
 
 //MARK: - stockviva (ConversationCellRequestInfoDelegate)
@@ -2682,7 +2760,7 @@ extension ALKConversationViewController {
                     let _chKey = self.viewModel.channelKey,
                     let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
                     (_cellItem.isSent == true || _cellItem.isMyMessage == false)  {
-                    ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
+                    ALKSVUserDefaultsControl.shared.saveLastReadMessageInfo(chatGroupId: _chatGroupId, messageId: _cellItem.identifier, createTime: _createDate.intValue)
                     break
                 }
             }
@@ -2699,7 +2777,7 @@ extension ALKConversationViewController {
             let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
             (_cellItem.isSent == true || _cellItem.isMyMessage == false) {
             debugPrint("PL**** - \(_cellItem.message ?? "nil")")
-            ALKSVUserDefaultsControl.shared.saveLastReadMessageTime(chatGroupId: _chatGroupId, time: _createDate.intValue)
+            ALKSVUserDefaultsControl.shared.saveLastReadMessageInfo(chatGroupId: _chatGroupId, messageId: _cellItem.identifier, createTime: _createDate.intValue)
         }
     }
     
@@ -2712,6 +2790,23 @@ extension ALKConversationViewController {
             self.viewModel.clearUnReadMessageData(isCancelTheModel:false)
         }else{
             self.unReadMessageRemindIndicatorView.isHidden = self.viewModel.lastUnreadMessageKey == nil || self.unreadScrollButton.isHidden
+        }
+    }
+}
+
+//MARK: - stockviva (reply message)
+extension ALKConversationViewController {
+    func highlightCellOneTime(indexPath:IndexPath?, retryCount:Int = 0){
+        if let _cellIndex = indexPath,
+            let _cell = self.tableView.cellForRow(at: _cellIndex) {
+            _cell.setHighlighted(true, animated: true)
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+                _cell.setHighlighted(false, animated: true)
+            }
+        }else if retryCount < 6 {//try 3 second
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+                self.highlightCellOneTime(indexPath:indexPath, retryCount: retryCount + 1 )
+            }
         }
     }
 }
@@ -2767,7 +2862,7 @@ extension ALKConversationViewController {
     
     public func reloadMessageWithTargetUser(adminUserIdList:[String]?){
         self.viewModel.setDisplayMessageWithinUser(adminUserIdList)
-        self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser: false)
+        self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser: false, isClearFocusReplyMessageMode: true)
         tableView.scrollToBottom(animated: true)
     }
 }

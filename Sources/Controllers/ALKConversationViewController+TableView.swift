@@ -51,7 +51,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     self?.menuItemSelected(action: action, message: message) }
                 cell.replyViewAction = {[weak self] in
                     if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                     }
                 }
                 return cell
@@ -78,7 +78,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     self?.menuItemSelected(action: action, message: message) }
                 cell.replyViewAction = {[weak self] in
                     if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                     }
                 }
                 cell.joinOurGroupButtonClicked = { (model) in
@@ -116,7 +116,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     }
                     cell.replyViewAction = {[weak self] in
                         if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                            self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                         }
                     }
                     cell.menuAction = {[weak self] action in
@@ -139,7 +139,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     }
                     cell.replyViewAction = {[weak self] in
                         if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                            self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                         }
                     }
                     cell.delegate = self
@@ -167,7 +167,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     }
                     cell.replyViewAction = {[weak self] in
                         if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                            self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                         }
                     }
                     cell.menuAction = {[weak self] action in
@@ -186,7 +186,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                     cell.update(viewModel: message, replyMessage: replyMessage)
                     cell.replyViewAction = {[weak self] in
                         if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                            self?.didReplyClickedInCell(replyMessage: replyMessage)
+                            self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                         }
                     }
                     cell.delegate = self
@@ -495,7 +495,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.replyViewAction = {[weak self] in
                     if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                     }
                 }
                 return cell
@@ -526,7 +526,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 }
                 cell.replyViewAction = {[weak self] in
                     if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
-                        self?.didReplyClickedInCell(replyMessage: replyMessage)
+                        self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                     }
                 }
                 return cell
@@ -705,7 +705,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 self.viewModel.nextPage(isNextPage: false)
             }
         }else{
-            if nearBottom && self.scrollingState == .down && self.viewModel.isUnreadMessageMode {
+            if nearBottom && self.scrollingState == .down && (self.viewModel.isUnreadMessageMode || self.viewModel.isFocusReplyMessageMode) {
                 self.viewModel.nextPage(isNextPage: true)
             }
         }

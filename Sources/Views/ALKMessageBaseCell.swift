@@ -27,7 +27,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         textView.isSelectable = true
         textView.isEditable = false
         textView.dataDetectorTypes = .link
-        textView.linkTextAttributes = [.foregroundColor: UIColor.blue,
+        textView.linkTextAttributes = [.foregroundColor: UIColor.ALKSVBuleColor4398FF(),
                                        .underlineStyle: NSUnderlineStyle.single.rawValue]
         textView.isScrollEnabled = false
         textView.delaysContentTouches = false
@@ -47,7 +47,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         textView.isSelectable = true
         textView.isEditable = false
         textView.dataDetectorTypes = .link
-        textView.linkTextAttributes = [.foregroundColor: UIColor.blue,
+        textView.linkTextAttributes = [.foregroundColor: UIColor.ALKSVBuleColor4398FF(),
                                        .underlineStyle: NSUnderlineStyle.single.rawValue]
         textView.isScrollEnabled = false
         textView.delaysContentTouches = false
@@ -65,7 +65,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         textView.isSelectable = true
         textView.isEditable = false
         textView.dataDetectorTypes = .link
-        textView.linkTextAttributes = [.foregroundColor: UIColor.blue,
+        textView.linkTextAttributes = [.foregroundColor: UIColor.ALKSVBuleColor4398FF(),
                                        .underlineStyle: NSUnderlineStyle.single.rawValue]
         textView.isScrollEnabled = false
         textView.delaysContentTouches = false

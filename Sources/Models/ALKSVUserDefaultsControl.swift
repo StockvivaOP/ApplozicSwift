@@ -18,30 +18,38 @@ public class ALKSVUserDefaultsControl {
     }
     
     public func clearUserDefaultsWhenLogout(){
-        self.removeLastReadMessageTime()
+        self.removeLastReadMessageInfo()
     }
     
-    //unread message
-    func saveLastReadMessageTime(chatGroupId:String, time:Int) {
-        var _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime") ?? [String:Any]()
-        //if the value is smaller than saved
-        if let _value = _valueDict[chatGroupId] as? Int, _value >= time {
-            return
+    //last message detail info
+    func saveLastReadMessageInfo(chatGroupId:String, messageId:String, createTime:Int) {
+        var _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageInfo") ?? [String:Any]()
+        
+        if let _value = _valueDict[chatGroupId] as? [String:Any] {
+            //if the value is smaller than saved
+            if let _storageCreateTime = _value["createTime"] as? Int,
+                _storageCreateTime >= createTime {
+               return
+            }
         }
-        _valueDict[chatGroupId] = time
-        getUserDefaultsControl()?.setValue(_valueDict, forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime")
+        //update info
+        _valueDict[chatGroupId] = ["msgId":messageId, "createTime":createTime]
+        getUserDefaultsControl()?.setValue(_valueDict, forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageInfo")
         getUserDefaultsControl()?.synchronize()
     }
     
-    func getLastReadMessageTime(chatGroupId:String) -> Int? {
-        if let _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime") {
-            return _valueDict[chatGroupId] as? Int
+    func getLastReadMessageInfo(chatGroupId:String) -> (messageId:String, createTime:Int)? {
+         guard let _valueDict = getUserDefaultsControl()?.dictionary(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageInfo"),
+               let _value = _valueDict[chatGroupId] as? [String:Any],
+               let _msgId = _value["msgId"] as? String,
+               let _createTime = _value["createTime"] as? Int else {
+                return nil
         }
-        return nil
+        return (messageId:_msgId, createTime:_createTime)
     }
     
-    func removeLastReadMessageTime(){
-        getUserDefaultsControl()?.removeObject(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageTime")
+    func removeLastReadMessageInfo(){
+        getUserDefaultsControl()?.removeObject(forKey: "com.svapplozic.userdefault.Stockviva_lastReadMessageInfo")
     }
-
+    
 }
