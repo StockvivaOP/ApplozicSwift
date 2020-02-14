@@ -295,7 +295,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             weakSelf.bottomConstraint?.constant = keyboardHeight
 
             weakSelf.view?.layoutIfNeeded()
-
+            
+            let _contentSize = tableView.contentSize
+            var _newY = tableView.contentOffset.y + keyboardSize.height
+            if _newY > _contentSize.height - tableView.bounds.size.height  {
+                _newY = _contentSize.height - tableView.bounds.size.height
+            }
+            tableView.contentOffset = CGPoint(x: tableView.contentOffset.x, y: _newY)
+            
             if tableView.isCellVisible(section: weakSelf.viewModel.messageModels.count-1, row: 0) {
                 tableView.scrollToBottomByOfset(animated: false)
             } else if weakSelf.viewModel.messageModels.count > 1 && self?.isFirstTime == false {
@@ -319,9 +326,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     .doubleValue ?? 0.05
 
                 UIView.animate(withDuration: duration, animations: {
+                    if let _kHeight = weakSelf.keyboardSize?.height {
+                        var _newY = weakSelf.tableView.contentOffset.y - _kHeight
+                        if _newY < 0  {
+                            _newY = 0
+                        }
+                        weakSelf.tableView.contentOffset = CGPoint(x: weakSelf.tableView.contentOffset.x, y: _newY)
+                    }
                     view?.layoutIfNeeded()
                 }, completion: { (_) in
-                    guard let viewModel = weakSelf.viewModel else { return }
                 })
         })
         
@@ -539,6 +552,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.isViewDisappear = true
         stopAudioPlayer()
         chatBar.stopRecording()
+        chatBar.resignAllResponderFromTextView()
         if let _ = alMqttConversationService {
             alMqttConversationService.unsubscribeToConversation()
         }
