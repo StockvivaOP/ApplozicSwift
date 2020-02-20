@@ -39,10 +39,12 @@ public enum ALKMessageType: String {
 public enum ALKMessageActionType: String {
     case peopleJoinGroup = "1"
     case peopleLeaveGroup = "2"
+    case groupNameChanged = "5"
+    case groupMetaDataChanged = "9"
     case normalMessage = ""
     
     func isSkipMessage() -> Bool {
-        return self == .peopleJoinGroup || self == .peopleLeaveGroup
+        return self == .peopleJoinGroup || self == .peopleLeaveGroup || self == .groupNameChanged || self == .groupMetaDataChanged
     }
 }
 
@@ -70,6 +72,7 @@ public enum SVALKMessageMetaDataFieldName : String {
 // MARK: - stockviva SVALKMessageType
 public enum SVALKMessageType : String {
     case sendGift = "REWARD"
+    case pinAlert = "PIN_UNPIN_ALERT"
 }
 
 // MARK: - stockviva SVALKMessageStatus

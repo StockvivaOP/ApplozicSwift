@@ -211,6 +211,8 @@ extension ALMessage {
                     return .svSendGift
                 }
                 break
+            case .pinAlert:
+                return .information
             }
         }
         
