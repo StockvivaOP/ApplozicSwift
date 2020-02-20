@@ -200,6 +200,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         
         contentView.addViewsForAutolayout(views: [avatarImageView, btnSendGift, nameLabel,btnJoinOurGroup])
         contentView.bringSubviewToFront(messageView)
+        contentView.bringSubviewToFront(btnSendGift)
         
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(
