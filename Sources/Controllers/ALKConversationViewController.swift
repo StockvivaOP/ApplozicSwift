@@ -765,6 +765,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.allowsSelection = false
+        tableView.separatorStyle = .none
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         tableView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 
@@ -814,6 +815,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.register(ReceivedImageMessageCell.self)
         tableView.register(ReceivedFAQMessageCell.self)
         tableView.register(SentFAQMessageCell.self)
+        //tag: stockviva
+        tableView.register(UINib.init(nibName: "SVALKMySendGiftTableViewCell", bundle: Bundle.applozic), forCellReuseIdentifier: "SVALKMySendGiftTableViewCell")
+        tableView.register(UINib.init(nibName: "SVALKFriendSendGiftTableViewCell", bundle: Bundle.applozic), forCellReuseIdentifier: "SVALKFriendSendGiftTableViewCell")
     }
 
     private func prepareMoreBar() {

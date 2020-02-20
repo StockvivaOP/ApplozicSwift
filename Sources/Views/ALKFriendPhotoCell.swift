@@ -23,7 +23,17 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         imv.isUserInteractionEnabled = true
         return imv
     }()
-
+    
+    var btnSendGift: UIButton = {
+        let button = UIButton()
+        button.isUserInteractionEnabled = true
+        button.setTextColor(color: UIColor.white, forState: .normal)
+        button.setFont(font: UIFont.systemFont(ofSize: 11, weight: UIFont.Weight.medium))
+        button.setBackgroundColor(UIColor.ALKSVMainColorPurple())
+        button.layer.cornerRadius = 8.0
+        return button
+    }()
+    
     private var nameLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 1
@@ -46,6 +56,12 @@ class ALKFriendPhotoCell: ALKPhotoCell {
             static let top: CGFloat = 10.0
             static let width: CGFloat = 45.0
             static let height: CGFloat = 45.0
+        }
+        
+        struct ButtonSendGift {
+            static let top: CGFloat = 2.0
+            static let width: CGFloat = 34.0
+            static let height: CGFloat = 16.0
         }
         
         struct BubbleView {
@@ -127,6 +143,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
     var replyViewInnerImgBottomConst:NSLayoutConstraint?
     var replyMsgViewBottomConst:NSLayoutConstraint?
     var photoViewTopConst:NSLayoutConstraint?
+    var sendGiftButtonAction: ((ALKMessageViewModel?)->())? = nil
     //tag: stockviva end
     
     override class func topPadding() -> CGFloat {
@@ -156,6 +173,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
     override func setupViews() {
         super.setupViews()
         //tag: stockviva start
+        self.btnSendGift.addTarget(self, action: #selector(self.sendGiftButtonTouchUpInside(_:)), for: UIControl.Event.touchUpInside)
         replyViewTopConst = replyView.topAnchor.constraint(
             equalTo: nameLabel.bottomAnchor,
             constant: Padding.ReplyView.top)
@@ -181,7 +199,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTappedAction))
         avatarImageView.addGestureRecognizer(tapGesture)
 
-        contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel])
+        contentView.addViewsForAutolayout(views: [avatarImageView,btnSendGift,nameLabel])
         nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: Padding.NameLabel.top).isActive = true
         nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.NameLabel.left).isActive = true
         nameLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -Padding.NameLabel.right).isActive = true
@@ -193,6 +211,11 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         avatarImageView.heightAnchor.constraint(equalToConstant: Padding.AvatarImage.height).isActive = true
         avatarImageView.widthAnchor.constraint(equalToConstant: Padding.AvatarImage.width).isActive = true
 
+        btnSendGift.topAnchor.constraint( equalTo: avatarImageView.bottomAnchor, constant: Padding.ButtonSendGift.top).isActive = true
+        btnSendGift.centerXAnchor.constraint(equalTo: avatarImageView.centerXAnchor).isActive = true
+        btnSendGift.heightAnchor.constraint(equalToConstant: Padding.ButtonSendGift.height).isActive = true
+        btnSendGift.widthAnchor.constraint(equalToConstant: Padding.ButtonSendGift.width).isActive = true
+        
         bubbleView.topAnchor.constraint(equalTo: avatarImageView.topAnchor).isActive = true
         bubbleView.widthAnchor
             .constraint(equalToConstant: ALKPhotoCell.maxWidth*ALKPhotoCell.widthPercentage)
@@ -270,6 +293,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
 
             self.avatarImageView.image = placeHolder
         }
+        self.btnSendGift.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_send_gift") ?? "", for: .normal)
         
         //reply view status
         handleReplyView(replyMessage: replyMessage)
@@ -322,6 +346,10 @@ class ALKFriendPhotoCell: ALKPhotoCell {
     
     @objc private func avatarTappedAction() {
         avatarTapped?()
+    }
+    
+    @objc private func sendGiftButtonTouchUpInside(_ selector: UIButton) {
+        self.sendGiftButtonAction?(self.viewModel)
     }
     
     // MARK: - ChatMenuCell

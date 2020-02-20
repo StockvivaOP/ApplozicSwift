@@ -131,6 +131,10 @@
 		C417997F23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C417997D23EA785F00F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift */; };
 		C417998023EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C417997E23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib */; };
 		C41AAC2E235D49A600AFF4D9 /* ALKSVMessageListRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */; };
+		C425281423FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C425281223FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.swift */; };
+		C425281523FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C425281323FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib */; };
+		C425281A23FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C425281823FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift */; };
+		C425281B23FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C425281923FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib */; };
 		C43F9CF9238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */; };
 		C43F9CFF238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */; };
 		C43F9D00238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */; };
@@ -285,6 +289,10 @@
 		C417997D23EA785F00F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKChatBarTagStockCodeListCollectionViewCell.swift; sourceTree = "<group>"; };
 		C417997E23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ALKChatBarTagStockCodeListCollectionViewCell.xib; sourceTree = "<group>"; };
 		C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageListRequest.swift; sourceTree = "<group>"; };
+		C425281223FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVALKFriendSendGiftTableViewCell.swift; sourceTree = "<group>"; };
+		C425281323FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SVALKFriendSendGiftTableViewCell.xib; sourceTree = "<group>"; };
+		C425281823FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVALKMySendGiftTableViewCell.swift; sourceTree = "<group>"; };
+		C425281923FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SVALKMySendGiftTableViewCell.xib; sourceTree = "<group>"; };
 		C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALKChatBar+UICollectionViewDelegate.swift"; sourceTree = "<group>"; };
 		C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKChatBarTagUserListCollectionViewCell.swift; sourceTree = "<group>"; };
 		C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ALKChatBarTagUserListCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -581,6 +589,10 @@
 				C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */,
 				C417997D23EA785F00F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.swift */,
 				C417997E23EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib */,
+				C425281223FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.swift */,
+				C425281323FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib */,
+				C425281823FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift */,
+				C425281923FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib */,
 			);
 			path = Cell;
 			sourceTree = "<group>";
@@ -704,9 +716,11 @@
 				8BB534001F6946970008C1CF /* Info.plist in Resources */,
 				8BB533D61F69463C0008C1CF /* CustomCamera.storyboard in Resources */,
 				8BB533D11F69463C0008C1CF /* Localizable.strings in Resources */,
+				C425281B23FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib in Resources */,
 				C417998023EA786000F54FDF /* ALKChatBarTagStockCodeListCollectionViewCell.xib in Resources */,
 				8BB533E41F69463C0008C1CF /* PreviewImage.storyboard in Resources */,
 				8BB533E21F69463C0008C1CF /* MediaViewer.storyboard in Resources */,
+				C425281523FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib in Resources */,
 				8BB533EA1F69463C0008C1CF /* ShareLocation.storyboard in Resources */,
 				8BB533DD1F69463C0008C1CF /* Info.plist in Resources */,
 			);
@@ -730,6 +744,7 @@
 				8BB533ED1F69463C0008C1CF /* Style.swift in Sources */,
 				8BB533A51F69463C0008C1CF /* ALKFriendDatasource.swift in Sources */,
 				8BB5338D1F69463B0008C1CF /* ALKBaseCell.swift in Sources */,
+				C425281A23FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift in Sources */,
 				8BB533961F69463B0008C1CF /* ALKConversationViewController+TableView.swift in Sources */,
 				8BB533B91F69463C0008C1CF /* ALKMoreBar.swift in Sources */,
 				C4863F23239F3DD100C99BE3 /* ALKSVMessageAPI.swift in Sources */,
@@ -755,6 +770,7 @@
 				8BB533D31F69463C0008C1CF /* CGSize+Extension.swift in Sources */,
 				8BB533F51F69463C0008C1CF /* UIImaveView+Extension.swift in Sources */,
 				8BB533931F69463B0008C1CF /* ALKChatCell.swift in Sources */,
+				C425281423FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.swift in Sources */,
 				8BB533871F69463B0008C1CF /* ALContact+Extension.swift in Sources */,
 				8BB533D21F69463C0008C1CF /* Bundle+Extension.swift in Sources */,
 				8BB533F91F69463C0008C1CF /* UITextField+Extension.swift in Sources */,

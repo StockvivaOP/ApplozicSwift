@@ -29,6 +29,12 @@ class ALKFriendDocumentCell: ALKDocumentCell {
             static let height: CGFloat = 45.0
         }
         
+        struct ButtonSendGift {
+            static let top: CGFloat = 2.0
+            static let width: CGFloat = 34.0
+            static let height: CGFloat = 16.0
+        }
+        
         struct TimeLabel {
             static let top: CGFloat = 5
             static let bottom: CGFloat = 5
@@ -101,6 +107,16 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         return imv
     }()
     
+    var btnSendGift: UIButton = {
+        let button = UIButton()
+        button.isUserInteractionEnabled = true
+        button.setTextColor(color: UIColor.white, forState: .normal)
+        button.setFont(font: UIFont.systemFont(ofSize: 11, weight: UIFont.Weight.medium))
+        button.setBackgroundColor(UIColor.ALKSVMainColorPurple())
+        button.layer.cornerRadius = 8.0
+        return button
+    }()
+    
     private var nameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
@@ -111,6 +127,7 @@ class ALKFriendDocumentCell: ALKDocumentCell {
     }()
     
     //tag: stockviva start
+    var sendGiftButtonAction: ((ALKMessageViewModel?)->())? = nil
     struct ConstraintIdentifier {
         static let replyViewHeight = "ReplyViewHeight"
         static let replyNameHeight = "ReplyNameHeight"
@@ -129,6 +146,7 @@ class ALKFriendDocumentCell: ALKDocumentCell {
 
     override func setupViews() {
         super.setupViews()
+        self.btnSendGift.addTarget(self, action: #selector(self.sendGiftButtonTouchUpInside(_:)), for: UIControl.Event.touchUpInside)
         
         //tag: stockviva start
         replyViewTopConst = replyView.topAnchor.constraint(
@@ -156,7 +174,7 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTappedAction))
         avatarImageView.addGestureRecognizer(tapGesture)
 
-        contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel,timeLabel])
+        contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel,btnSendGift,timeLabel])
         
         nameLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: Padding.NameLabel.top).isActive = true
         nameLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.NameLabel.left).isActive = true
@@ -168,6 +186,11 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         avatarImageView.heightAnchor.constraint(equalToConstant: Padding.AvatarImage.height).isActive = true
         avatarImageView.widthAnchor.constraint(equalToConstant: Padding.AvatarImage.width).isActive = true
 
+        btnSendGift.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: Padding.ButtonSendGift.top).isActive = true
+        btnSendGift.centerXAnchor.constraint(equalTo: avatarImageView.centerXAnchor).isActive = true
+        btnSendGift.heightAnchor.constraint(equalToConstant: Padding.ButtonSendGift.height).isActive = true
+        btnSendGift.widthAnchor.constraint(equalToConstant: Padding.ButtonSendGift.width).isActive = true
+        
         timeLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: Padding.TimeLabel.left).isActive = true
         timeLabel.topAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: Padding.TimeLabel.top).isActive = true
         timeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Padding.TimeLabel.bottom).isActive = true
@@ -228,6 +251,8 @@ class ALKFriendDocumentCell: ALKDocumentCell {
         } else {
             self.avatarImageView.image = placeHolder
         }
+        self.btnSendGift.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_send_gift") ?? "", for: .normal)
+        
         nameLabel.text = viewModel.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         //set color
@@ -285,6 +310,10 @@ class ALKFriendDocumentCell: ALKDocumentCell {
 
     @objc private func avatarTappedAction() {
         avatarTapped?()
+    }
+    
+    @objc private func sendGiftButtonTouchUpInside(_ selector: UIButton) {
+        self.sendGiftButtonAction?(self.viewModel)
     }
     
     // MARK: - ChatMenuCell

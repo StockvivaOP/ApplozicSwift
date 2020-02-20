@@ -207,6 +207,8 @@ public struct ALKConfiguration {
                 return ConversationMessageTypeForApp.genericCard
             case .imageMessage:
                 return ConversationMessageTypeForApp.imageMessage
+            case .svSendGift:
+                return ConversationMessageTypeForApp.unknown
             }
         }
     }
@@ -387,6 +389,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func joinOurGroupButtonClicked(viewModel:ALKMessageViewModel?)
     func isHiddenFullScreenLoading(_ isHidden:Bool)
     func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+    func didSendGiftButtonClicked(viewModel:ALKMessageViewModel?)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
@@ -444,6 +447,7 @@ public protocol SystemInfoRequestDelegate: class{
     func logging(isDebug:Bool, message:String)
     func getLoginUserHashId() -> String?
     func verifyDetectedValueForSpecialLink(value:String?, type:ALKConfiguration.ConversationMessageLinkType) -> Any?
+    func getGiftIconUrl(_ giftId:String) -> URL?
 }
 
 extension ALKConfiguration {

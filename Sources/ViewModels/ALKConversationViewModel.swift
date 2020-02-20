@@ -426,6 +426,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
                         .rowHeight(model: imageMessage)
                         .cached(with: messageModel.identifier)
             }
+        case .svSendGift:
+            if messageModel.isMyMessage {
+                let height = SVALKMySendGiftTableViewCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
+                return height.cached(with: messageModel.identifier)
+            } else {
+                let height = SVALKFriendSendGiftTableViewCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
+                return height.cached(with: messageModel.identifier)
+            }
         }
     }
 
@@ -2481,5 +2489,20 @@ extension ALKConversationViewModel {
             }
             completed(result, error)
         }
+    }
+}
+
+
+//MARK: - stockviva delete message
+extension ALKConversationViewModel {
+    public func sendGiftMessageToServer(fromMessageModel:ALKMessageViewModel?, message:String, giftId:String) {
+        guard let fromMessage = fromMessageModel, let _fromUserHashId = fromMessage.contactId else {
+            return
+        }
+        var _metaData:[String:Any] = [:]
+        _metaData[SVALKMessageMetaDataFieldName.messageType.rawValue] = SVALKMessageType.sendGift.rawValue
+        _metaData[SVALKMessageMetaDataFieldName.sendGiftInfo_GiftId.rawValue] = giftId
+        _metaData[SVALKMessageMetaDataFieldName.sendGiftInfo_ReceiverHashId.rawValue] = _fromUserHashId
+        self.send(message: message, mentionUserList: nil, isOpenGroup: true, metadata: _metaData)
     }
 }
