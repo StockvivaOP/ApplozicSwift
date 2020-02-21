@@ -246,6 +246,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.isHidden = true
         return view
     }()
+    
+    public var svMarqueeView:SVALKMarqueeView = {
+        let view = SVALKMarqueeView(frame: CGRect.zero)
+        view.isHidden = true
+        return view
+    }()
     //tag: stockviva end
     
     deinit {
@@ -515,6 +521,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
+        //set marquee view
+        self.svMarqueeView.delegate = self
         //add loading
         activityIndicator.color = UIColor.white
         activityIndicator.backgroundColor = UIColor.lightGray
@@ -659,7 +667,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
         
-        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, svMarqueeView, autocompletionView, moreBar, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -695,6 +703,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: (templateView != nil) ? templateView!.topAnchor:discrimationView.topAnchor).isActive = true
 
+        svMarqueeView.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 6.0).isActive = true
+        svMarqueeView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor).isActive = true
+        svMarqueeView.widthAnchor.constraint(equalToConstant: 275.0).isActive = true
+        svMarqueeView.heightAnchor.constraint(equalToConstant: 27.0).isActive = true
+        
         floatingShareButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
         floatingShareButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
         floatingShareButton.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
@@ -2882,6 +2895,13 @@ extension ALKConversationViewController {
         self.viewModel.setDisplayMessageWithinUser(adminUserIdList)
         self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser: false, isClearFocusReplyMessageMode: true)
         tableView.scrollToBottom(animated: true)
+    }
+}
+
+//MARK: - stockviva SVALKMarqueeViewDelegate
+extension ALKConversationViewController : SVALKMarqueeViewDelegate{
+    public func viewDidClosed() {
+        self.delegateConversationChatContentAction?.didSendGiftHistoryViewClosed()
     }
 }
 

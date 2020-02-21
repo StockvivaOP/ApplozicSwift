@@ -390,6 +390,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func isHiddenFullScreenLoading(_ isHidden:Bool)
     func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     func didSendGiftButtonClicked(viewModel:ALKMessageViewModel?)
+    func didSendGiftHistoryViewClosed()
 }
 
 public protocol ConversationChatBarActionDelegate: class{
