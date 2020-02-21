@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 public protocol SVALKMarqueeViewDelegate {
+    func marqueeListDisplayCompleted()
     func viewDidClosed()
 }
 
@@ -220,14 +221,18 @@ extension SVALKMarqueeView {
     }
     
     private func loadNextContentToLabel(label:UILabel){
-        if self.currentMessageIndex >= self.messages.count {
-            self.currentMessageIndex = 0//reset
-        }
         let _getIndex = self.currentMessageIndex
         if _getIndex < self.messages.count {
             let _message = self.messages[_getIndex]
             self.setLabelContent(label: label, message: _message)
             self.currentMessageIndex = _getIndex + 1
+        }
+        //reset next and call
+        if self.currentMessageIndex >= self.messages.count {
+            self.currentMessageIndex = 0//reset
+            if self.messages.count > 0 {
+                self.delegate?.marqueeListDisplayCompleted()
+            }
         }
     }
     

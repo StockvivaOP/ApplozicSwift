@@ -2900,6 +2900,10 @@ extension ALKConversationViewController {
 
 //MARK: - stockviva SVALKMarqueeViewDelegate
 extension ALKConversationViewController : SVALKMarqueeViewDelegate{
+    public func marqueeListDisplayCompleted() {
+        self.delegateConversationChatContentAction?.didSendGiftHistoryDisplayCompleted()
+    }
+    
     public func viewDidClosed() {
         self.delegateConversationChatContentAction?.didSendGiftHistoryViewClosed()
     }
