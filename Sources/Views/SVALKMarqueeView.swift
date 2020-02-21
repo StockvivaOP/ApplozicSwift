@@ -87,7 +87,7 @@ public class SVALKMarqueeView: UIView {
         //button
         self.btnClose.frame = CGRect(x: self.frame.size.width - _closeButtonSize.width - 5.0, y: 0,
                                      width: _closeButtonSize.width, height: _closeButtonSize.height)
-        self.btnClose.imageEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        self.btnClose.imageEdgeInsets = UIEdgeInsets(top: 3, left: 3, bottom: 3, right: 3)
         self.btnClose.setTitle("", for: .normal)
         self.btnClose.backgroundColor = UIColor.clear
         self.btnClose.setImage(self.closeButtonImage, for: .normal)
@@ -239,7 +239,7 @@ extension SVALKMarqueeView {
     private func setLabelContent(label:UILabel, message:String){
         let _contentMessage = "<div style=\"font-family:'-apple-system','HelveticaNeue';font-size:\(self.font.pointSize);color: white;text-align:center;font-weight: normal;\" >\(message)</div>"
         if let _dataImage = _contentMessage.data(using: String.Encoding.utf8),
-            let _htmlString = try? NSMutableAttributedString(data: _dataImage, options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html], documentAttributes: nil) {
+            let _htmlString = try? NSMutableAttributedString(data: _dataImage, options: [NSAttributedString.DocumentReadingOptionKey.documentType : NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding:String.Encoding.utf8.rawValue], documentAttributes: nil) {
             let _resultAttStr = NSMutableAttributedString(attributedString: _htmlString)
             label.attributedText = _resultAttStr
             //update size
