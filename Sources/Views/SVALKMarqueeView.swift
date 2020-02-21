@@ -139,8 +139,11 @@ extension SVALKMarqueeView {
         self.loadNextContentToLabel(label: self.labMessageTwo)
         
         //start animation
+        let _oldValueAnimationRunning = self.isAnimationRunning
         self.isAnimationRunning = true
-        self.startDisplayContentAnimation()
+        if _oldValueAnimationRunning == false {
+            self.startDisplayContentAnimation()
+        }
     }
     
     public func stopAnim(){
