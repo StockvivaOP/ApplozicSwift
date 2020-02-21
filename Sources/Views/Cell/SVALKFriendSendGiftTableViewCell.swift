@@ -63,11 +63,11 @@ class SVALKFriendSendGiftTableViewCell: ALKChatBaseCell<ALKMessageViewModel> {
         //set name
         nameLabel.text = viewModel.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
-        //set color
-        if let _messageUserId = viewModel.contactId,
-            let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
-            nameLabel.textColor = _nameLabelColor
-        }
+//        //set color
+//        if let _messageUserId = viewModel.contactId,
+//            let _nameLabelColor = self.systemConfig?.chatBoxCustomCellUserNameColorMapping[_messageUserId] {
+//            nameLabel.textColor = _nameLabelColor
+//        }
         
         //set time
         self.timeLabel.text   = viewModel.date.toConversationViewDateFormat()
