@@ -257,7 +257,7 @@ extension SVALKMarqueeView {
     }
     
     public class func getHtmlFormatImage(url:String) -> String {
-        return "<img style=\"width:15px;height:15px;\" src='\(url)'>"
+        return "<img style=\"width:13px;height:13px;\" src='\(url)'>"
     }
     
 }
