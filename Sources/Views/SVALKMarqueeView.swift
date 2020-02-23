@@ -22,6 +22,7 @@ public class SVALKMarqueeView: UIView {
     private let durationSecondOfDisplay = 5.0
     private var closeButtonImage:UIImage? = UIImage(named: "sv_icon_circle_close", in: Bundle.applozic, compatibleWith: nil)
     private var endTime:Date?
+    private var isClosedByUser:Bool = false
     
     public var messages:[String] = []
     public var delegate:SVALKMarqueeViewDelegate?
@@ -297,6 +298,7 @@ extension SVALKMarqueeView {
 //MARK: - button control
 extension SVALKMarqueeView {
     @objc private func closeButtonTouchUpInside(_ sender: Any) {
+        self.isClosedByUser = true
         self.closeView()
     }
 }
