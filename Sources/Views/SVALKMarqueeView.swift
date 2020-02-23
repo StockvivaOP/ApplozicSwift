@@ -11,7 +11,7 @@ import UIKit
 
 public protocol SVALKMarqueeViewDelegate {
     func marqueeListDisplayCompleted()
-    func viewDidClosed()
+    func viewDidClosed(isTimeUp:Bool)
 }
 
 public class SVALKMarqueeView: UIView {
@@ -21,9 +21,11 @@ public class SVALKMarqueeView: UIView {
     private let font:UIFont = UIFont.systemFont(ofSize: 13.0)
     private let durationSecondOfDisplay = 5.0
     private var closeButtonImage:UIImage? = UIImage(named: "sv_icon_circle_close", in: Bundle.applozic, compatibleWith: nil)
+    private var endTime:Date?
     
     public var messages:[String] = []
     public var delegate:SVALKMarqueeViewDelegate?
+    public var autoCloseTimeSecond:Int = 7200//2hr
     
     //ui
     private var viewContainer = UIView()
@@ -100,8 +102,11 @@ public class SVALKMarqueeView: UIView {
         self.viewContainer.addSubview(self.labMessageTwo)
     }
     
-    public func closeView(){
-        self.closeButtonTouchUpInside(self.btnClose)
+    public func closeView(isTimeUp:Bool = false ){
+        self.stopAnim()
+        self.clear()
+        self.isHidden = true
+        self.delegate?.viewDidClosed(isTimeUp:isTimeUp)
     }
     
     private func reset(){
@@ -109,6 +114,8 @@ public class SVALKMarqueeView: UIView {
         self.currentMessageIndex = 0
         self.clearLabelContent(label: self.labMessageOne)
         self.clearLabelContent(label: self.labMessageTwo)
+        //time
+        self.endTime = nil
         //reset label position
         self.labMessageOne.frame = CGRect(x: 0,
                                           y: 0,
@@ -143,6 +150,9 @@ extension SVALKMarqueeView {
         self.loadNextContentToLabel(label: self.labMessageOne)
         self.loadNextContentToLabel(label: self.labMessageTwo)
         
+        //cal end time
+        self.endTime = Calendar.current.date(byAdding: .second, value: self.autoCloseTimeSecond, to: Date())
+        
         //start animation
         self.isAnimationRunning = true
         self.startDisplayContentAnimation()
@@ -176,6 +186,11 @@ extension SVALKMarqueeView {
             })
             self.displayContentAnim.isInterruptible = true
             self.displayContentAnim.addCompletion { (viewPosition) in
+                //if timeup system will end the animation
+                if self.animationTimeUpHandle() {
+                    return
+                }
+                //keep doing
                 self.startSwitchContentAnimation()
             }
             if self.isAnimationRunning {
@@ -206,6 +221,10 @@ extension SVALKMarqueeView {
                     self.labMessageOne.frame.origin.y = self.viewContainer.frame.size.height
                     self.loadNextContentToLabel(label: self.labMessageOne)
                 }
+                //if timeup system will end the animation
+                if self.animationTimeUpHandle() {
+                    return
+                }
                 //start loop animation
                 self.startDisplayContentAnimation()
             }
@@ -213,6 +232,14 @@ extension SVALKMarqueeView {
                 self.switchContentAnim.startAnimation()
             }
         }
+    }
+    
+    private func animationTimeUpHandle() -> Bool {
+        if let _endTime = self.endTime, Date().timeIntervalSince1970 >= _endTime.timeIntervalSince1970 {
+            self.closeView(isTimeUp: true)
+            return true
+        }
+        return false
     }
 }
 
@@ -270,10 +297,7 @@ extension SVALKMarqueeView {
 //MARK: - button control
 extension SVALKMarqueeView {
     @objc private func closeButtonTouchUpInside(_ sender: Any) {
-        self.stopAnim()
-        self.clear()
-        self.isHidden = true
-        self.delegate?.viewDidClosed()
+        self.closeView()
     }
 }
 
