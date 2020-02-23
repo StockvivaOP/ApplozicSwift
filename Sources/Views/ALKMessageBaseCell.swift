@@ -272,7 +272,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             if viewModel.isMyMessage {
                 _font = ALKMessageStyle.sentMessage.font
             }
-            messageView.addLink(message: message, font: _font, matchInfo: ALKConfiguration.specialLinkList)
+            if _isDeletedMsg {//not normal message
+                messageView.text = message
+            }else{
+                messageView.addLink(message: message, font: _font, matchInfo: ALKConfiguration.specialLinkList)
+            }
             return
         case .html:
             emailTopHeight.constant = 0
@@ -344,7 +348,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
                              width: CGFloat,
                              font: UIFont) -> CGFloat {
         dummyMessageView.font = font
-
         /// Check if message is nil
         guard let message = viewModel.message else {
             return 0
@@ -353,7 +356,12 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         switch viewModel.messageType {
         case .text:
             dummyAttributedMessageView.font = font
-            dummyAttributedMessageView.addLink(message: message, font: font, matchInfo: ALKConfiguration.specialLinkList)
+            let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+            if _isDeletedMsg {//not normal message
+                dummyAttributedMessageView.text = message
+            }else{
+                dummyAttributedMessageView.addLink(message: message, font: font, matchInfo: ALKConfiguration.specialLinkList)
+            }
             return TextViewSizeCalculator.height(dummyAttributedMessageView, maxWidth: width)
 //            return TextViewSizeCalculator.height(dummyMessageView, text: message, maxWidth: width)
         case .html:
