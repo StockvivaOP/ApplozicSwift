@@ -23,6 +23,7 @@ public class SVALKMarqueeView: UIView {
     private var closeButtonImage:UIImage? = UIImage(named: "sv_icon_circle_close", in: Bundle.applozic, compatibleWith: nil)
     private var endTime:Date?
     
+    public var isClosed:Bool = false
     public var isClosedByUser:Bool = false
     public var messages:[String] = []
     public var delegate:SVALKMarqueeViewDelegate?
@@ -107,6 +108,7 @@ public class SVALKMarqueeView: UIView {
         self.stopAnim()
         self.clear()
         self.isHidden = true
+        self.isClosed = true
         self.delegate?.viewDidClosed(isTimeUp:isTimeUp)
     }
     
