@@ -2904,8 +2904,8 @@ extension ALKConversationViewController : SVALKMarqueeViewDelegate{
         self.delegateConversationChatContentAction?.didSendGiftHistoryDisplayCompleted()
     }
     
-    public func viewDidClosed() {
-        self.delegateConversationChatContentAction?.didSendGiftHistoryViewClosed()
+    public func viewDidClosed(isTimeUp: Bool) {
+        self.delegateConversationChatContentAction?.didSendGiftHistoryViewClosed(isTimeUp: isTimeUp)
     }
 }
 

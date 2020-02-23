@@ -21,7 +21,7 @@ public class SVALKMarqueeView: UIView {
     private let font:UIFont = UIFont.systemFont(ofSize: 13.0)
     private let durationSecondOfDisplay = 5.0
     private var closeButtonImage:UIImage? = UIImage(named: "sv_icon_circle_close", in: Bundle.applozic, compatibleWith: nil)
-    private var endTime:Date
+    private var endTime:Date?
     
     public var isClosedByUser:Bool = false
     public var messages:[String] = []
