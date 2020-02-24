@@ -11,7 +11,7 @@ import UIKit
 
 public protocol SVALKMarqueeViewDelegate {
     func marqueeListDisplayCompleted()
-    func viewDidClosed(isTimeUp:Bool)
+    func viewDidClosed(isUserClick:Bool, isTimeUp:Bool)
 }
 
 public class SVALKMarqueeView: UIView {
@@ -104,13 +104,13 @@ public class SVALKMarqueeView: UIView {
         self.viewContainer.addSubview(self.labMessageTwo)
     }
     
-    public func closeView(isTimeUp:Bool = false, isNotify:Bool = true){
+    public func closeView(isUserClick:Bool = false, isTimeUp:Bool = false, isNotify:Bool = true){
         self.stopAnim()
         self.clear()
         self.isHidden = true
         self.isClosed = true
         if isNotify {
-            self.delegate?.viewDidClosed(isTimeUp:isTimeUp)
+            self.delegate?.viewDidClosed(isUserClick:isUserClick, isTimeUp:isTimeUp)
         }
     }
     
@@ -305,7 +305,7 @@ extension SVALKMarqueeView {
 extension SVALKMarqueeView {
     @objc private func closeButtonTouchUpInside(_ sender: Any) {
         self.isClosedByUser = true
-        self.closeView()
+        self.closeView(isUserClick: true)
     }
 }
 
