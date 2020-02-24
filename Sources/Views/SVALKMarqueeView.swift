@@ -146,6 +146,8 @@ extension SVALKMarqueeView {
             return
         }
         self.isHidden = false
+        self.isClosed = false
+        self.isClosedByUser = false
         //if ready running, no need to do after
         if self.isAnimationRunning {
             return
