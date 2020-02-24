@@ -391,7 +391,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     func didSendGiftButtonClicked(viewModel:ALKMessageViewModel?)
     func didSendGiftHistoryDisplayCompleted()
-    func didSendGiftHistoryViewClosed(isTimeUp: Bool)
+    func didSendGiftHistoryViewClosed(isUserClick:Bool, isTimeUp:Bool)
 }
 
 public protocol ConversationChatBarActionDelegate: class{
