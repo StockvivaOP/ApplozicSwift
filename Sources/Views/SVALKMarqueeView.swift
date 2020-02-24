@@ -104,12 +104,14 @@ public class SVALKMarqueeView: UIView {
         self.viewContainer.addSubview(self.labMessageTwo)
     }
     
-    public func closeView(isTimeUp:Bool = false ){
+    public func closeView(isTimeUp:Bool = false, isNotify:Bool = true){
         self.stopAnim()
         self.clear()
         self.isHidden = true
         self.isClosed = true
-        self.delegate?.viewDidClosed(isTimeUp:isTimeUp)
+        if isNotify {
+            self.delegate?.viewDidClosed(isTimeUp:isTimeUp)
+        }
     }
     
     private func reset(){
@@ -140,7 +142,7 @@ public class SVALKMarqueeView: UIView {
 extension SVALKMarqueeView {
     public func startAnim(){
         if self.messages.count == 0 {
-            self.closeView()
+            self.closeView(isNotify:false)
             return
         }
         self.isHidden = false
