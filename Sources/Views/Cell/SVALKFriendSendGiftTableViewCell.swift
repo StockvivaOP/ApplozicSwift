@@ -58,7 +58,6 @@ class SVALKFriendSendGiftTableViewCell: ALKChatBaseCell<ALKMessageViewModel> {
             self.imgGiftIcon.image = nil
         }
         //set gift button
-        self.btnSendGift.isHidden = true
         self.btnSendGift.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_send_gift") ?? "", for: .normal)
         //set name
         nameLabel.text = viewModel.displayName
