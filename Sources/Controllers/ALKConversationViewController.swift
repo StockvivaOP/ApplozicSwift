@@ -332,13 +332,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     .doubleValue ?? 0.05
 
                 UIView.animate(withDuration: duration, animations: {
-                    if let _kHeight = weakSelf.keyboardSize?.height {
-                        var _newY = weakSelf.tableView.contentOffset.y - _kHeight
-                        if _newY < 0  {
-                            _newY = 0
-                        }
-                        weakSelf.tableView.contentOffset = CGPoint(x: weakSelf.tableView.contentOffset.x, y: _newY)
-                    }
                     view?.layoutIfNeeded()
                 }, completion: { (_) in
                 })

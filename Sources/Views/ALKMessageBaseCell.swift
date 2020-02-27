@@ -191,8 +191,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         if let replyMessage = replyMessage, _isDeletedMsg == false {
             replyNameLabel.text = replyMessage.isMyMessage ?
                 selfNameText : replyMessage.displayName
-            replyMessageLabel.text =
-                getMessageTextFrom(viewModel: replyMessage)
+            replyMessageLabel.text = replyMessage.message
             //update reply icon
             if replyMessage.messageType == ALKMessageType.voice  {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
@@ -487,15 +486,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         } catch {
             print("😢😢😢 Error \(error) while creating attributed string")
             return nil
-        }
-    }
-
-    private func getMessageTextFrom(viewModel: ALKMessageViewModel) -> String? {
-        switch viewModel.messageType {
-        case .text, .html:
-            return viewModel.message
-        default:
-            return viewModel.messageType.rawValue
         }
     }
 
