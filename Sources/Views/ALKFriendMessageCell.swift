@@ -23,6 +23,16 @@ open class ALKFriendMessageCell: ALKMessageCell {
         return imv
     }()
     
+    var btnSendGift: UIButton = {
+        let button = UIButton()
+        button.isUserInteractionEnabled = true
+        button.setTextColor(color: UIColor.white, forState: .normal)
+        button.setFont(font: UIFont.systemFont(ofSize: 11, weight: UIFont.Weight.medium))
+        button.setBackgroundColor(UIColor.ALKSVMainColorPurple())
+        button.layer.cornerRadius = 8.0
+        return button
+    }()
+    
     private var nameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
@@ -45,6 +55,12 @@ open class ALKFriendMessageCell: ALKMessageCell {
             static let left: CGFloat = 7.0
             static let width: CGFloat = 45.0
             static let height: CGFloat = 45.0
+        }
+        
+        struct ButtonSendGift {
+            static let top: CGFloat = 2.0
+            static let width: CGFloat = 34.0
+            static let height: CGFloat = 16.0
         }
         
         struct BubbleView {
@@ -143,8 +159,12 @@ open class ALKFriendMessageCell: ALKMessageCell {
         return ALKMessageStyle.receivedBubble.widthPadding + 5
     }()
     
+    var sendGiftButtonAction: ((ALKMessageViewModel?)->())? = nil
+    
     override func setupViews() {
         super.setupViews()
+        self.btnSendGift.addTarget(self, action: #selector(self.sendGiftButtonTouchUpInside(_:)), for: UIControl.Event.touchUpInside)
+        
         replyViewTopConst = replyView.topAnchor.constraint(
             equalTo: nameLabel.bottomAnchor,
             constant: Padding.ReplyView.top)
@@ -178,8 +198,9 @@ open class ALKFriendMessageCell: ALKMessageCell {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(avatarTappedAction))
         avatarImageView.addGestureRecognizer(tapGesture)
         
-        contentView.addViewsForAutolayout(views: [avatarImageView,nameLabel,btnJoinOurGroup])
+        contentView.addViewsForAutolayout(views: [avatarImageView, btnSendGift, nameLabel,btnJoinOurGroup])
         contentView.bringSubviewToFront(messageView)
+        contentView.bringSubviewToFront(btnSendGift)
         
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(
@@ -201,6 +222,13 @@ open class ALKFriendMessageCell: ALKMessageCell {
                 constant: Padding.AvatarImage.left),
             avatarImageView.heightAnchor.constraint(equalToConstant: Padding.AvatarImage.height),
             avatarImageView.widthAnchor.constraint(equalToConstant: Padding.AvatarImage.width),
+            
+            btnSendGift.topAnchor.constraint(
+                equalTo: avatarImageView.bottomAnchor,
+                constant: Padding.ButtonSendGift.top),
+            btnSendGift.centerXAnchor.constraint(equalTo: avatarImageView.centerXAnchor),
+            btnSendGift.heightAnchor.constraint(equalToConstant: Padding.ButtonSendGift.height),
+            btnSendGift.widthAnchor.constraint(equalToConstant: Padding.ButtonSendGift.width),
             
             bubbleView.topAnchor.constraint(equalTo: avatarImageView.topAnchor),
             bubbleView.leadingAnchor.constraint(
@@ -335,7 +363,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         } else {
             self.avatarImageView.image = placeHolder
         }
-        
+        self.btnSendGift.setTitle(ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_send_gift") ?? "", for: .normal)
         nameLabel.text = viewModel.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
         //set color
@@ -414,6 +442,10 @@ open class ALKFriendMessageCell: ALKMessageCell {
     
     @objc private func avatarTappedAction() {
         avatarTapped?()
+    }
+    
+    @objc private func sendGiftButtonTouchUpInside(_ selector: UIButton) {
+        self.sendGiftButtonAction?(self.viewModel)
     }
     
     // MARK: - ChatMenuCell

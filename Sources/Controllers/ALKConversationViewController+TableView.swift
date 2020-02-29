@@ -84,6 +84,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.joinOurGroupButtonClicked = { (model) in
                     self.delegateConversationChatContentAction?.joinOurGroupButtonClicked(viewModel: model)
                 }
+                cell.sendGiftButtonAction = {(viewModel) in
+                    self.delegateConversationChatContentAction?.didSendGiftButtonClicked(viewModel: viewModel)
+                }
                 return cell
             }
         case .photo:
@@ -170,6 +173,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                             self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                         }
                     }
+                    cell.sendGiftButtonAction = {(viewModel) in
+                        self.delegateConversationChatContentAction?.didSendGiftButtonClicked(viewModel: viewModel)
+                    }
                     cell.menuAction = {[weak self] action in
                         self?.menuItemSelected(action: action, message: message) }
                     cell.delegate = self
@@ -188,6 +194,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                         if self?.configuration.enableScrollToReplyViewWhenClick ?? false {
                             self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                         }
+                    }
+                    cell.sendGiftButtonAction = {(viewModel) in
+                        self.delegateConversationChatContentAction?.didSendGiftButtonClicked(viewModel: viewModel)
                     }
                     cell.delegate = self
                     return cell
@@ -529,6 +538,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                         self?.didReplyClickedInCell(currentMessage:message, replyMessage: replyMessage)
                     }
                 }
+                cell.sendGiftButtonAction = {(viewModel) in
+                    self.delegateConversationChatContentAction?.didSendGiftButtonClicked(viewModel: viewModel)
+                }
                 return cell
             }
         case .contact:
@@ -583,6 +595,47 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             } else {
                 let cell: ReceivedImageMessageCell = tableView.dequeueReusableCell(forIndexPath: indexPath)
                 cell.update(model: imageMessage)
+                return cell
+            }
+        case .svSendGift:
+            if message.isMyMessage {
+                let cell: SVALKMySendGiftTableViewCell = tableView.dequeueReusableCell(withIdentifier: "SVALKMySendGiftTableViewCell", for: indexPath) as! SVALKMySendGiftTableViewCell
+                cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
+                cell.delegateCellRequestInfo = self
+                cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
+                cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
+                cell.updateView(viewModel: message)
+                cell.update(chatBar: self.chatBar)
+                cell.messageViewLinkClicked = { (url, viewModel) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, viewModel:viewModel, sourceView: self, isPushFromSourceView:false)
+                    }
+                }
+                return cell
+            }else {
+                let cell: SVALKFriendSendGiftTableViewCell = tableView.dequeueReusableCell(withIdentifier: "SVALKFriendSendGiftTableViewCell", for: indexPath) as! SVALKFriendSendGiftTableViewCell
+                cell.clientChannelKey = viewModel.channelInfo?.clientChannelKey
+                cell.systemConfig = self.configuration
+                cell.delegateCellRequestInfo = self
+                cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
+                cell.setLocalizedStringFileName(configuration.localizedStringFileName)
+                cell.indexPath = indexPath
+                cell.updateView(viewModel: message)
+                cell.update(chatBar: self.chatBar)
+                cell.avatarTapped = {[weak self] in
+                    guard let currentModel = cell.viewModel else {return}
+                    self?.messageAvatarViewDidTap(messageVM: currentModel, indexPath: indexPath)
+                }
+                cell.messageViewLinkClicked = { (url, viewModel) in
+                    if self.configuration.enableOpenLinkInApp {
+                        self.delegateConversationChatContentAction?.openLink(url: url, viewModel:viewModel, sourceView: self, isPushFromSourceView:false)
+                    }
+                }
+                cell.sendGiftButtonAction = {(viewModel) in
+                    self.delegateConversationChatContentAction?.didSendGiftButtonClicked(viewModel: viewModel)
+                }
                 return cell
             }
         }

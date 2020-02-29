@@ -121,6 +121,8 @@ extension ALMessage: ALKChatViewModelProtocol {
             return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_attachment") ?? "Document"
         case .contact:
             return ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_contact") ?? "Contact"
+        case .svSendGift:
+            return message
         }
     }
 
@@ -200,12 +202,29 @@ extension ALMessage {
             return .email
         }
         
+        let _isDeletedMsg = self.getDeletedMessageInfo().isDeleteMessage
+        //custom message type
+        if let _msgType = self.getMessageTypeInMetaData(), _isDeletedMsg == false {
+            switch _msgType {
+            case .sendGift:
+                if self.getSendGiftMessageInfo() != nil {
+                    return .svSendGift
+                }
+                break
+            case .pinAlert:
+                return .information
+            }
+        }
+        
         var _conType = Int32(contentType)
-        if self.getDeletedMessageInfo().isDeleteMessage {
+        //for deleted message
+        if _isDeletedMsg {
             return .text
         }else if self.fileMeta != nil {
             _conType = ALMESSAGE_CONTENT_ATTACHMENT
         }
+        
+        //applozic message type
         switch _conType {
         case ALMESSAGE_CONTENT_DEFAULT:
             return richMessageType()
@@ -442,6 +461,13 @@ extension ALMessage {
         return ALKMessageActionType(rawValue: _action) ?? ALKMessageActionType.normalMessage
     }
 
+    func getMessageTypeInMetaData() -> SVALKMessageType? {
+        if let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.messageType) as? String {
+            return SVALKMessageType(rawValue: _result)
+        }
+        return nil
+    }
+    
     //system version name
     func addAppVersionNameInMetaData(){
         if let _vName = ALKConfiguration.delegateSystemInfoRequestDelegate?.getAppVersionName() {
@@ -587,5 +613,16 @@ extension ALMessage {
     func getImageThumbnailURL() -> String? {
         let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.imageThumbnailURL) as? String
         return _result
+    }
+    
+    //send gift info
+    func getSendGiftMessageInfo() -> (giftId:String, receiverHashId:String?)? {
+        let _giftId:String? = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.sendGiftInfo_GiftId) as? String
+        let _receiverHashId:String? = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.sendGiftInfo_ReceiverHashId) as? String
+        
+        if let _tGiftId = _giftId {
+            return (giftId:_tGiftId , receiverHashId:_receiverHashId)
+        }
+        return nil
     }
 }

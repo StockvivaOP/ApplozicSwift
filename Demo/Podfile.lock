@@ -26,7 +26,7 @@ PODS:
   - SDWebImage (5.0.6):
     - SDWebImage/Core (= 5.0.6)
   - SDWebImage/Core (5.0.6)
-  - SwiftLint (0.38.2)
+  - SwiftLint (0.39.1)
 
 DEPENDENCIES:
   - Applozic (from `https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git`, branch `feature/SV_Sprint_Performance`)
@@ -69,7 +69,7 @@ SPEC CHECKSUMS:
   Nimble-Snapshots: 5058fb9b459e64371f54a0f8d9dde6f33db490a0
   Quick: 7fb19e13be07b5dfb3b90d4f9824c855a11af40e
   SDWebImage: 920f1a2ff1ca8296ad34f6e0510a1ef1d70ac965
-  SwiftLint: 8f5d2f903e1c9bcbc832fd16771e80a263ac6cbb
+  SwiftLint: 55e96a4a4d537d4a3156859fc1c54bd24851a046
 
 PODFILE CHECKSUM: 742a9962a68ecda49d69bf971b548f84dc9c2896
 

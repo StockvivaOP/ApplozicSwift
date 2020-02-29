@@ -244,8 +244,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         if let replyMessage = replyMessage, _isDeletedMsg == false {
             replyNameLabel.text = replyMessage.isMyMessage ?
                 selfNameText : replyMessage.displayName
-            replyMessageLabel.text =
-                getMessageTextFrom(viewModel: replyMessage)
+            replyMessageLabel.text = replyMessage.message
             //update reply icon
             if replyMessage.messageType == ALKMessageType.voice  {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
@@ -667,15 +666,6 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
     
     //tag: stockviva start
-    private func getMessageTextFrom(viewModel: ALKMessageViewModel) -> String? {
-        switch viewModel.messageType {
-        case .text, .html:
-            return viewModel.message
-        default:
-            return viewModel.messageType.rawValue
-        }
-    }
-    
     private func setImageFrom(url: URL?, to imageView: UIImageView) {
         guard let url = url else { return }
         let provider = LocalFileImageDataProvider(fileURL: url)

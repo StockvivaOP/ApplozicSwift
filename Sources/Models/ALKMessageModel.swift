@@ -31,16 +31,20 @@ public enum ALKMessageType: String {
     case genericCard = "Card"
 
     case imageMessage = "ImageMessage"
+    //tag: stockviva
+    case svSendGift = "sv_reward"
 }
 
 // MARK: - MessageActionType
 public enum ALKMessageActionType: String {
     case peopleJoinGroup = "1"
     case peopleLeaveGroup = "2"
+    case groupNameChanged = "5"
+    case groupMetaDataChanged = "9"
     case normalMessage = ""
     
     func isSkipMessage() -> Bool {
-        return self == .peopleJoinGroup || self == .peopleLeaveGroup
+        return self == .peopleJoinGroup || self == .peopleLeaveGroup || self == .groupNameChanged || self == .groupMetaDataChanged
     }
 }
 
@@ -53,12 +57,23 @@ public enum SVALKMessageMetaDataFieldName : String {
     case userHashId = "userHashId"
     case hiddenMessage = "SV_HIDDEN"//for sprint 27 or later (3.13.0)
     case alDeleteGroupMessageForAll = "AL_DELETE_GROUP_MESSAGE_FOR_ALL"
+    
+    //for send gift message
+    case messageType = "SV_MESSAGE_TYPE"
+    case sendGiftInfo_GiftId = "SV_GIFT_ID"
+    case sendGiftInfo_ReceiverHashId = "SV_GIFT_RECEIVER_HASHID"
+    
     //will not send to server
     case imageThumbnailURL = "SV_IMAGE_THUMBNAIL_URL"
     case sendMessageErrorFind = "SV_SEND_MSG_ERROR_FIND"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
 }
 
+// MARK: - stockviva SVALKMessageType
+public enum SVALKMessageType : String {
+    case sendGift = "REWARD"
+    case pinAlert = "PIN_UNPIN_ALERT"
+}
 
 // MARK: - stockviva SVALKMessageStatus
 public enum SVALKMessageStatus: Int {
@@ -175,6 +190,10 @@ extension ALKMessageViewModel {
     
     func getActionType() -> ALKMessageActionType {
         return self.rawModel?.getActionType() ?? ALKMessageActionType.normalMessage
+    }
+    
+    func getMessageTypeInMetaData() -> SVALKMessageType? {
+        return self.rawModel?.getMessageTypeInMetaData()
     }
     
     func isInvalidAttachement() -> Bool {
@@ -403,5 +422,11 @@ extension ALKMessageViewModel {
     
     func getImageThumbnailURL() -> String? {
         return self.rawModel?.getImageThumbnailURL()
+    }
+    
+    
+    //send gift info
+    func getSendGiftMessageInfo() -> (giftId:String , receiverHashId:String?)? {
+        return self.rawModel?.getSendGiftMessageInfo()
     }
 }

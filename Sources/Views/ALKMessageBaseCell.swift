@@ -191,8 +191,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         if let replyMessage = replyMessage, _isDeletedMsg == false {
             replyNameLabel.text = replyMessage.isMyMessage ?
                 selfNameText : replyMessage.displayName
-            replyMessageLabel.text =
-                getMessageTextFrom(viewModel: replyMessage)
+            replyMessageLabel.text = replyMessage.message
             //update reply icon
             if replyMessage.messageType == ALKMessageType.voice  {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
@@ -272,7 +271,11 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
             if viewModel.isMyMessage {
                 _font = ALKMessageStyle.sentMessage.font
             }
-            messageView.addLink(message: message, font: _font, matchInfo: ALKConfiguration.specialLinkList)
+            if _isDeletedMsg {//not normal message
+                messageView.text = message
+            }else{
+                messageView.addLink(message: message, font: _font, matchInfo: ALKConfiguration.specialLinkList)
+            }
             return
         case .html:
             emailTopHeight.constant = 0
@@ -344,7 +347,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
                              width: CGFloat,
                              font: UIFont) -> CGFloat {
         dummyMessageView.font = font
-
         /// Check if message is nil
         guard let message = viewModel.message else {
             return 0
@@ -353,7 +355,12 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         switch viewModel.messageType {
         case .text:
             dummyAttributedMessageView.font = font
-            dummyAttributedMessageView.addLink(message: message, font: font, matchInfo: ALKConfiguration.specialLinkList)
+            let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+            if _isDeletedMsg {//not normal message
+                dummyAttributedMessageView.text = message
+            }else{
+                dummyAttributedMessageView.addLink(message: message, font: font, matchInfo: ALKConfiguration.specialLinkList)
+            }
             return TextViewSizeCalculator.height(dummyAttributedMessageView, maxWidth: width)
 //            return TextViewSizeCalculator.height(dummyMessageView, text: message, maxWidth: width)
         case .html:
@@ -479,15 +486,6 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         } catch {
             print("😢😢😢 Error \(error) while creating attributed string")
             return nil
-        }
-    }
-
-    private func getMessageTextFrom(viewModel: ALKMessageViewModel) -> String? {
-        switch viewModel.messageType {
-        case .text, .html:
-            return viewModel.message
-        default:
-            return viewModel.messageType.rawValue
         }
     }
 

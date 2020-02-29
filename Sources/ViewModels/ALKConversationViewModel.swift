@@ -426,6 +426,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
                         .rowHeight(model: imageMessage)
                         .cached(with: messageModel.identifier)
             }
+        case .svSendGift:
+            if messageModel.isMyMessage {
+                let height = SVALKMySendGiftTableViewCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
+                return height.cached(with: messageModel.identifier)
+            } else {
+                let height = SVALKFriendSendGiftTableViewCell.rowHeigh(viewModel: messageModel, width: maxWidth, replyMessage: replyMessage)
+                return height.cached(with: messageModel.identifier)
+            }
         }
     }
 
@@ -734,8 +742,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     //send message
-    open func send(message: String, mentionUserList:[(hashID:String, name:String)]? = nil, isOpenGroup: Bool = false, metadata: [AnyHashable : Any]?) {
-        let alMessage = getMessageToPost(isTextMessage: true)
+    open func send(message: String, contentType:Int32 = ALMESSAGE_CONTENT_DEFAULT, mentionUserList:[(hashID:String, name:String)]? = nil, isOpenGroup: Bool = false, metadata: [AnyHashable : Any]?) {
+        let alMessage = getMessageToPost(isTextMessage: true, contentType: contentType)
         //if user has mention some user
         if let _mUserList = mentionUserList, _mUserList.count > 0 {
             var _userDisplayList = ""
@@ -1639,7 +1647,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         messageService.updateDbMessageWith(key: key, value: value, filePath: filePath)
     }
 
-    private func getMessageToPost(isTextMessage: Bool = false) -> ALMessage {
+    private func getMessageToPost(isTextMessage: Bool = false, contentType:Int32 = ALMESSAGE_CONTENT_DEFAULT) -> ALMessage {
         var alMessage = ALMessage()
         // If it's a text message then set the reply id
         //if isTextMessage { alMessage = setReplyId(message: alMessage) }
@@ -1657,7 +1665,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         alMessage.shared = false
         alMessage.fileMeta = nil
         alMessage.storeOnDevice = false
-        alMessage.contentType = Int16(ALMESSAGE_CONTENT_DEFAULT)
+        alMessage.contentType = Int16(contentType)
         alMessage.key = UUID().uuidString
         alMessage.source = Int16(SOURCE_IOS)
         alMessage.conversationId = conversationId
@@ -2481,5 +2489,29 @@ extension ALKConversationViewModel {
             }
             completed(result, error)
         }
+    }
+}
+
+
+//MARK: - stockviva delete message
+extension ALKConversationViewModel {
+    public func sendGiftMessageToServer(fromMessageModel:ALKMessageViewModel?, message:String, giftId:String) {
+        guard let fromMessage = fromMessageModel, let _fromUserHashId = fromMessage.contactId else {
+            return
+        }
+        var _metaData:[String:Any] = [:]
+        _metaData[SVALKMessageMetaDataFieldName.messageType.rawValue] = SVALKMessageType.sendGift.rawValue
+        _metaData[SVALKMessageMetaDataFieldName.sendGiftInfo_GiftId.rawValue] = giftId
+        _metaData[SVALKMessageMetaDataFieldName.sendGiftInfo_ReceiverHashId.rawValue] = _fromUserHashId
+        self.send(message: message, mentionUserList: nil, isOpenGroup: true, metadata: _metaData)
+    }
+}
+
+//MARK: - stockviva pin message
+extension ALKConversationViewModel {
+    public func sendSystemMessagePinMessageToServer(message:String) {
+        var _metaData:[String:Any] = [:]
+        _metaData[SVALKMessageMetaDataFieldName.messageType.rawValue] = SVALKMessageType.pinAlert.rawValue
+        self.send(message: message, contentType:ALMESSAGE_CHANNEL_NOTIFICATION, mentionUserList: nil, isOpenGroup: true, metadata: _metaData)
     }
 }

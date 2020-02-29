@@ -246,6 +246,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         view.isHidden = true
         return view
     }()
+    
+    public var svMarqueeView:SVALKMarqueeView = {
+        let view = SVALKMarqueeView(frame: CGRect.zero)
+        view.isHidden = true
+        return view
+    }()
     //tag: stockviva end
     
     deinit {
@@ -326,13 +332,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     .doubleValue ?? 0.05
 
                 UIView.animate(withDuration: duration, animations: {
-                    if let _kHeight = weakSelf.keyboardSize?.height {
-                        var _newY = weakSelf.tableView.contentOffset.y - _kHeight
-                        if _newY < 0  {
-                            _newY = 0
-                        }
-                        weakSelf.tableView.contentOffset = CGPoint(x: weakSelf.tableView.contentOffset.x, y: _newY)
-                    }
                     view?.layoutIfNeeded()
                 }, completion: { (_) in
                 })
@@ -515,6 +514,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.hideReplyMessageView()
         autocompletionView.contentInset = UIEdgeInsets(top: 0, left: -5, bottom: 0, right: 0)
         chatBar.setup(autocompletionView, withPrefex: "/")
+        //set marquee view
+        self.svMarqueeView.delegate = self
         //add loading
         activityIndicator.color = UIColor.white
         activityIndicator.backgroundColor = UIColor.lightGray
@@ -659,7 +660,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 
     private func setupConstraints() {
         
-        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, autocompletionView, moreBar, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        var allViews = [backgroundView, contextTitleView, tableView, floatingShareButton, svMarqueeView, autocompletionView, moreBar, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         if let templateView = templateView {
             allViews.append(templateView)
         }
@@ -695,6 +696,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: (templateView != nil) ? templateView!.topAnchor:discrimationView.topAnchor).isActive = true
 
+        svMarqueeView.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 6.0).isActive = true
+        svMarqueeView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor).isActive = true
+        svMarqueeView.widthAnchor.constraint(equalToConstant: 275.0).isActive = true
+        svMarqueeView.heightAnchor.constraint(equalToConstant: 27.0).isActive = true
+        
         floatingShareButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
         floatingShareButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
         floatingShareButton.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
@@ -765,6 +771,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.allowsSelection = false
+        tableView.separatorStyle = .none
         tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         tableView.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 
@@ -814,6 +821,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.register(ReceivedImageMessageCell.self)
         tableView.register(ReceivedFAQMessageCell.self)
         tableView.register(SentFAQMessageCell.self)
+        //tag: stockviva
+        tableView.register(UINib.init(nibName: "SVALKMySendGiftTableViewCell", bundle: Bundle.applozic), forCellReuseIdentifier: "SVALKMySendGiftTableViewCell")
+        tableView.register(UINib.init(nibName: "SVALKFriendSendGiftTableViewCell", bundle: Bundle.applozic), forCellReuseIdentifier: "SVALKFriendSendGiftTableViewCell")
     }
 
     private func prepareMoreBar() {
@@ -2878,6 +2888,17 @@ extension ALKConversationViewController {
         self.viewModel.setDisplayMessageWithinUser(adminUserIdList)
         self.refreshViewController(isClearUnReadMessage: true, isClearDisplayMessageWithinUser: false, isClearFocusReplyMessageMode: true)
         tableView.scrollToBottom(animated: true)
+    }
+}
+
+//MARK: - stockviva SVALKMarqueeViewDelegate
+extension ALKConversationViewController : SVALKMarqueeViewDelegate{
+    public func marqueeListDisplayCompleted() {
+        self.delegateConversationChatContentAction?.didSendGiftHistoryDisplayCompleted()
+    }
+    
+    public func viewDidClosed(isUserClick:Bool, isTimeUp:Bool) {
+        self.delegateConversationChatContentAction?.didSendGiftHistoryViewClosed(isUserClick:isUserClick, isTimeUp: isTimeUp)
     }
 }
 
