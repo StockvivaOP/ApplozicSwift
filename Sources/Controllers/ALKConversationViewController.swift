@@ -185,6 +185,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         case defaultButton = 1
         case shareGroup = 2
         case showAdminMsgOnly = 3
+        case searchMessage = 4
         
         func getTagId() -> Int{
             return self.rawValue
@@ -1916,6 +1917,23 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             _svRightNavBtnBar.addArrangedSubview(_showShareGroupButton)
         }
         
+        if configuration.isShowSearchMessageOptionInNavBar{
+            let _sizeSearchMsg = CGSize(width: 24.0, height: 24.0)
+            let _notificationSearchMsgSelector = #selector(ALKConversationViewController.sendSearchMessageNavBarButtonSelectionNotification(_:))
+            let _btnSearchMsg: UIButton = UIButton(type: UIButton.ButtonType.custom)
+            _btnSearchMsg.tag = ALKSVNavigationBarItem.searchMessage.getTagId()
+            _btnSearchMsg.setBackgroundColor(.clear)
+            _btnSearchMsg.setImage(UIImage(named: "sv_button_search_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+            _btnSearchMsg.addTarget(self, action:_notificationSearchMsgSelector, for: UIControl.Event.touchUpInside)
+            _btnSearchMsg.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                _btnSearchMsg.heightAnchor.constraint(equalToConstant: _sizeSearchMsg.height),
+                _btnSearchMsg.widthAnchor.constraint(equalToConstant: _sizeSearchMsg.width)
+                ])
+            _svRightNavBtnBar.addArrangedSubview(_btnSearchMsg)
+        }
+        
+        
         _svRightNavBtnBar.addArrangedSubview(button)
         
         return _svRightNavBtnBar
@@ -2848,6 +2866,10 @@ extension ALKConversationViewController {
     @objc func sendShowShareGroupNavBarButtonSelectionNotification(_ selector: UIButton) {
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatContentAction?.shareGroupButtonClicked(chatView: self, button: selector)
+    }
+    
+    @objc func sendSearchMessageNavBarButtonSelectionNotification(_ selector: UIButton) {
+        self.delegateConversationChatContentAction?.searchMessageButtonClicked()
     }
     
     @objc func didFloatingShareButtonTouchUpInside(_ selector: UIButton) {

@@ -329,6 +329,9 @@ public struct ALKConfiguration {
     /// chat view Right Nav Bar Button - show share group
     public var isShowFloatingShareGroupButton:Bool = false
     
+    /// chat view Right Nav Bar Button - search message
+    public var isShowSearchMessageOptionInNavBar:Bool = true
+    
     /// chat box cell background color
     public var conversationViewChatBoxCustomCellBackgroundColor = UIColor.white
     /// chat box cell user name color
@@ -370,9 +373,6 @@ public protocol ConversationChatContentActionDelegate: class{
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?, mentionUserList:[(hashID:String, name:String)]?)
     func openLink(url:URL, viewModel:ALKMessageViewModel?, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
-    func rightMenuClicked(chatView:UIViewController)
-    func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
-    func shareGroupButtonClicked(chatView:UIViewController, button:UIButton)
     func loadingFloatingShareButton() -> UIImage?
     func loadingFloatingShareTip() -> (title:String, bgColor:UIColor, size:CGSize, titleEdgeInsets:UIEdgeInsets?, dismissSecond:Int)
     func didFloatingShareButtonClicked(chatView:UIViewController, button:UIButton)
@@ -381,6 +381,11 @@ public protocol ConversationChatContentActionDelegate: class{
     func showAlert(type:ALKConfiguration.ConversationErrorType)
     func isAdminUser(_ userHashId:String?) -> Bool
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
+    //nav bar
+    func rightMenuClicked(chatView:UIViewController)
+    func showAdminMessageOnlyButtonClicked(chatView:UIViewController, button:UIButton)
+    func shareGroupButtonClicked(chatView:UIViewController, button:UIButton)
+    func searchMessageButtonClicked()
     //pin message
     func didPinMessageCloseButtonClicked(pinMsgUuid:String?, viewModel:ALKMessageViewModel)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
