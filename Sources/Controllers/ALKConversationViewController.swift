@@ -1078,7 +1078,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             return
         }
         guard !viewModel.isOpenGroup else {
-            viewModel.syncOpenGroup(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
+            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
             return
         }
         guard (message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id) else {
@@ -2157,7 +2157,7 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
         //auto refresh after
         if self.isAutoRefreshMessage {
             self.isAutoRefreshMessage = false
-            self.viewModel.refresh()
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
         }
     }
 
