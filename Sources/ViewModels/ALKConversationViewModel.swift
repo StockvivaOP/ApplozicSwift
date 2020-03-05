@@ -100,6 +100,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private var isLoadingEarlierMessage = false
     private var isLoadingLatestMessage = false
     private var unreadMessageSeparator:ALMessage = ALMessage()
+    public var targetOpenMessageForFirstOpen:(id: String, createTime: Int)?
     public var isUnreadMessageMode = false
     public var isFocusReplyMessageMode = false
     public var lastUnreadMessageKey:String? = nil
@@ -128,7 +129,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
         // Load messages from server in case of open group
         guard !isOpenGroup else {
             delegate?.loadingStarted()
-            self.loadOpenGroupMessageWithUnreadModel()
+            if let _targetOpenMsg = self.targetOpenMessageForFirstOpen {
+                self.targetOpenMessageForFirstOpen = nil
+                self.reloadOpenGroupFocusReplyMessage(targetMessageInfo: _targetOpenMsg)
+            }else{
+                self.loadOpenGroupMessageWithUnreadModel()
+            }
             return
         }
 
