@@ -776,7 +776,7 @@ open class ALKChatBar: UIView, Localizable {
     }
 
     func disableChat(message: String) {
-        toggleUserInteractionForViews(enabled: false)
+        //toggleUserInteractionForViews(enabled: false)
         placeHolder.text = message
         if !soundRec.isHidden {
             cancelAudioRecording()
