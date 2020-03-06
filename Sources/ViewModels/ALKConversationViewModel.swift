@@ -2416,7 +2416,7 @@ extension ALKConversationViewModel {
 }
 
 
-//MARK: - stockviva delete message
+//MARK: - stockviva gift message
 extension ALKConversationViewModel {
     public func sendGiftMessageToServer(fromMessageModel:ALKMessageViewModel?, message:String, giftId:String) {
         guard let fromMessage = fromMessageModel, let _fromUserHashId = fromMessage.contactId else {

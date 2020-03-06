@@ -795,7 +795,9 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
             let collectionView = scrollView as! UICollectionView
             contentOffsetDictionary[collectionView.tag] = horizontalOffset as AnyObject
         }
-        self.configurePaginationWindow()
+        if scrollView.isDragging {
+            self.configurePaginationWindow()
+        }
     }
 
 }
