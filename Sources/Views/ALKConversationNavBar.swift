@@ -67,7 +67,6 @@ class ALKConversationNavBar: UIView, Localizable {
         label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         label.textColor = UIColor.ALKSVColorPurpleD9DBFF()
         label.textAlignment = .left
-        label.text = "aaaaa"
         return label
     }()
     
@@ -196,10 +195,9 @@ class ALKConversationNavBar: UIView, Localizable {
         profileView.topAnchor.constraint(equalTo: profileImage.topAnchor).isActive = true
         profileView.bottomAnchor.constraint(equalTo: actionRemark.topAnchor).isActive = true
         profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
-        profileView.heightAnchor.constraint(equalToConstant: 22).isActive = true
         
         actionRemark.leadingAnchor.constraint(equalTo: profileView.leadingAnchor, constant: 0).isActive = true
-        actionRemark.topAnchor.constraint(equalTo: profileView.bottomAnchor).isActive = true
+        actionRemark.topAnchor.constraint(equalTo: profileView.bottomAnchor, constant: 5).isActive = true
         actionRemark.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor).isActive = true
         actionRemark.trailingAnchor.constraint(equalTo: profileView.trailingAnchor).isActive = true
         actionRemark.heightAnchor.constraint(equalToConstant: 14).isActive = true
