@@ -1862,19 +1862,21 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
         let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
 
-        if let imageCustom = configuration.conversationViewCustomRightNavBarView {
-            button.setImage(imageCustom, for: .normal)
-            button.addTarget(self, action: notificationCustomSelector, for: UIControl.Event.touchUpInside)
-        }else if let image = configuration.rightNavBarImageForConversationView {
-            button.setImage(image, for: .normal)
-            button.addTarget(self, action: notificationSelector, for: UIControl.Event.touchUpInside)
-        } else {
-            var selector = notificationSelector
-            if configuration.rightNavBarSystemIconForConversationView == .refresh {
-                selector = #selector(ALKConversationViewController.refreshButtonAction(_:))
+        if configuration.isShowRightMenuNavBar {
+            if let imageCustom = configuration.conversationViewCustomRightNavBarView {
+                button.setImage(imageCustom, for: .normal)
+                button.addTarget(self, action: notificationCustomSelector, for: UIControl.Event.touchUpInside)
+            }else if let image = configuration.rightNavBarImageForConversationView {
+                button.setImage(image, for: .normal)
+                button.addTarget(self, action: notificationSelector, for: UIControl.Event.touchUpInside)
+            } else {
+                var selector = notificationSelector
+                if configuration.rightNavBarSystemIconForConversationView == .refresh {
+                    selector = #selector(ALKConversationViewController.refreshButtonAction(_:))
+                }
+                button.setTitle("R", for: .normal)
+                button.addTarget(self, action: selector, for: UIControl.Event.touchUpInside)
             }
-            button.setTitle("R", for: .normal)
-            button.addTarget(self, action: selector, for: UIControl.Event.touchUpInside)
         }
         
         if configuration.isShowAdminMessageOnlyOptionInNavBar {

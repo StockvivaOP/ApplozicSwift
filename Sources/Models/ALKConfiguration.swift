@@ -320,6 +320,9 @@ public struct ALKConfiguration {
     /// chat view Right Nav Bar Button
     public var conversationViewCustomRightNavBarView:UIImage?
     
+    /// chat view Right Nav Bar Button - show share group
+    public var isShowRightMenuNavBar:Bool = true
+    
     /// chat view Right Nav Bar Button - show admin message only
     public var isShowAdminMessageOnlyOptionInNavBar:Bool = false
     
