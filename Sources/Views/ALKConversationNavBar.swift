@@ -192,13 +192,14 @@ class ALKConversationNavBar: UIView, Localizable {
         onlineStatusIcon.heightAnchor.constraint(equalToConstant: 10).isActive = true
         
         profileView.leadingAnchor.constraint(equalTo: statusIconBackground.trailingAnchor, constant: 5).isActive = true
-        profileView.topAnchor.constraint(equalTo: profileImage.topAnchor).isActive = true
+        profileView.topAnchor.constraint(equalTo: profileImage.topAnchor, constant: -2.5).isActive = true
         profileView.bottomAnchor.constraint(equalTo: actionRemark.topAnchor).isActive = true
         profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        profileView.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         actionRemark.leadingAnchor.constraint(equalTo: profileView.leadingAnchor, constant: 0).isActive = true
         actionRemark.topAnchor.constraint(equalTo: profileView.bottomAnchor, constant: 5).isActive = true
-        actionRemark.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor).isActive = true
+        actionRemark.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 2.5).isActive = true
         actionRemark.trailingAnchor.constraint(equalTo: profileView.trailingAnchor).isActive = true
         actionRemark.heightAnchor.constraint(equalToConstant: 14).isActive = true
         
