@@ -1858,11 +1858,11 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         let button: UIButton = UIButton(type: UIButton.ButtonType.custom)
         button.tag = ALKSVNavigationBarItem.defaultButton.getTagId() //for menu or refresh button
         button.setTitleColor(.white, for: .normal)
-
-        let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
-        let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
-
+        
         if configuration.isShowRightMenuNavBar {
+            let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
+            let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
+
             if let imageCustom = configuration.conversationViewCustomRightNavBarView {
                 button.setImage(imageCustom, for: .normal)
                 button.addTarget(self, action: notificationCustomSelector, for: UIControl.Event.touchUpInside)
@@ -1935,8 +1935,9 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             _svRightNavBtnBar.addArrangedSubview(_btnSearchMsg)
         }
         
-        
-        _svRightNavBtnBar.addArrangedSubview(button)
+        if configuration.isShowRightMenuNavBar {
+            _svRightNavBtnBar.addArrangedSubview(button)
+        }
         
         return _svRightNavBtnBar
     }
