@@ -441,7 +441,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             })
             if self?.isViewFirstLoad == false {
                 self?.subscribeChannelToMqtt()
-                if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
+                if self.viewModel.isUnreadMessageMode == false &&
+                    self.viewModel.isFocusReplyMessageMode == false &&
+                    ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
                     self?.isAutoRefreshMessage = true
                 }
             }
