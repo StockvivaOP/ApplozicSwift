@@ -111,6 +111,12 @@ class ALKConversationNavBar: UIView, Localizable {
         stackView.isHidden = true
         return stackView
     }()
+    
+    lazy var openProfileEventArea: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.clear
+        return view
+    }()
 
     required init(configuration: ALKConfiguration, delegate: NavigationBarCallbacks) {
         self.navigationBarBackgroundColor = configuration.navigationBarBackgroundColor
@@ -163,7 +169,7 @@ class ALKConversationNavBar: UIView, Localizable {
 
     private func setupConstraints() {
         statusIconBackground.addViewsForAutolayout(views: [onlineStatusIcon])
-        self.addViewsForAutolayout(views: [backImage, backButton, profileImage, statusIconBackground, profileView, actionRemark])
+        self.addViewsForAutolayout(views: [backImage, backButton, profileImage, statusIconBackground, profileView, actionRemark, openProfileEventArea])
 
         //Setup constraints
         backButton.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
@@ -203,6 +209,11 @@ class ALKConversationNavBar: UIView, Localizable {
         actionRemark.trailingAnchor.constraint(equalTo: profileView.trailingAnchor).isActive = true
         actionRemark.heightAnchor.constraint(equalToConstant: 14).isActive = true
         
+        openProfileEventArea.leadingAnchor.constraint(equalTo: profileView.leadingAnchor, constant: 0).isActive = true
+        openProfileEventArea.topAnchor.constraint(equalTo: profileView.topAnchor, constant: 0).isActive = true
+        openProfileEventArea.bottomAnchor.constraint(equalTo: actionRemark.bottomAnchor, constant: 0).isActive = true
+        openProfileEventArea.trailingAnchor.constraint(equalTo: profileView.trailingAnchor, constant: 0).isActive = true
+        
         groupMuteImage.widthAnchor.constraint(equalToConstant: 15).isActive = true
         groupMuteImage.heightAnchor.constraint(equalToConstant: 15).isActive = true
     }
@@ -223,7 +234,7 @@ class ALKConversationNavBar: UIView, Localizable {
 
         let tapAction = UITapGestureRecognizer(target: self, action: #selector(titleTapped))
         tapAction.numberOfTapsRequired = 1
-        profileView.addGestureRecognizer(tapAction)
+        openProfileEventArea.addGestureRecognizer(tapAction)
     }
 
     private func setupProfile(name: String, imageUrl: String?, isContact: Bool) {
