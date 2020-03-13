@@ -94,7 +94,6 @@ extension String {
         if _tempMessage.length > 0 {
             for matchItem in matchInfo {
                 do{
-                    var _offsetForReplaceStockCode = 0
                     let _regex = try NSRegularExpression(pattern:matchItem.match, options: NSRegularExpression.Options.caseInsensitive)
                     let _searchedTextList = _regex.matches(in: self, options: NSRegularExpression.MatchingOptions.reportCompletion, range: NSRange(location: 0, length: self.count))
                     for searchedItem in _searchedTextList {
@@ -105,17 +104,15 @@ extension String {
                             _searchedStr = _searchedStr.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
                         }
                         //add link
-                        switch matchItem.type {
-                        case .stockCode:
-                            if let _stockInfo = ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) as? (code:String, name:String) {
-                                let _searchItemStartIndexAdjust = _offsetForReplaceStockCode + searchedItem.range.location
-                                
-                                _tempMessage = _tempMessage.replacingOccurrences(of: _searchedStr, with: _stockInfo.name, options: .literal, range: NSMakeRange(_searchItemStartIndexAdjust, searchedItem.range.length)) as NSString
-                                
-                                _offsetForReplaceStockCode += _stockInfo.name.count - searchedItem.range.length
+                        if let _formatValue = matchItem.type.getInputDisplayFormat(value: _searchedStr) {
+                            switch matchItem.type {
+                            case .stockCode:
+                                if let _stockInfo = ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) as? (code:String, name:String) {
+                                    _tempMessage = _tempMessage.replacingOccurrences(of: _formatValue, with: _stockInfo.name) as NSString
+                                }
+                            default:
+                                break
                             }
-                        default:
-                            break
                         }
                     }
                 }catch {
