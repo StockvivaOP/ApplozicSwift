@@ -396,7 +396,7 @@ open class ALKMyMessageCell: ALKMessageCell {
         var _replyMsgContent:String? = ""
         switch replyMessage!.messageType {
         case .text, .html:
-            _replyMsgContent = replyMessage!.message
+            _replyMsgContent = replyMessage!.message?.scAlkReplaceSpecialKey(matchInfo: ALKConfiguration.specialLinkList)
         default:
             _replyMsgContent = replyMessage!.messageType.rawValue
         }

@@ -191,7 +191,7 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         if let replyMessage = replyMessage, _isDeletedMsg == false {
             replyNameLabel.text = replyMessage.isMyMessage ?
                 selfNameText : replyMessage.displayName
-            replyMessageLabel.text = replyMessage.message
+            replyMessageLabel.text = replyMessage.message?.scAlkReplaceSpecialKey(matchInfo: ALKConfiguration.specialLinkList)
             //update reply icon
             if replyMessage.messageType == ALKMessageType.voice  {
                 replyMessageTypeImageView.image = UIImage(named: "sv_icon_chatroom_audio_grey", in: Bundle.applozic, compatibleWith: nil)
