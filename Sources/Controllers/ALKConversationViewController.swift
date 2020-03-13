@@ -441,8 +441,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             })
             if self?.isViewFirstLoad == false {
                 self?.subscribeChannelToMqtt()
-                if self.viewModel.isUnreadMessageMode == false &&
-                    self.viewModel.isFocusReplyMessageMode == false &&
+                if self?.viewModel.isUnreadMessageMode == false &&
+                    self?.viewModel.isFocusReplyMessageMode == false &&
                     ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
                     self?.isAutoRefreshMessage = true
                 }
@@ -888,7 +888,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 if message.count < 1 {
                     return
                 }
-
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click send text message")
                 button.isUserInteractionEnabled = false
 
                 weakSelf.chatBar.clear()
@@ -931,7 +931,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     button.isUserInteractionEnabled = true
                 })
             case .chatBarTextChange:
-
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - chatgroup - user click text changed")
                 UIView.animate(withDuration: 0.05, animations: { () in
                     weakSelf.view.layoutIfNeeded()
                 }, completion: { [weak self] (_) in
@@ -945,42 +945,46 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     }
                 })
             case .sendVoice(let voice):
-                self?.sendMessageWithClearAllModel(completedBlock: {
-                    weakSelf.viewModel.send(voiceMessage: voice as Data, metadata:self?.configuration.messageMetadata)
-                })
+                break
+//                self?.sendMessageWithClearAllModel(completedBlock: {
+//                    weakSelf.viewModel.send(voiceMessage: voice as Data, metadata:self?.configuration.messageMetadata)
+//                })
             case .startVideoRecord:
-                if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                    AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
-                        granted in
-                        DispatchQueue.main.async {
-                            if granted {
-                                let imagePicker = UIImagePickerController()
-                                imagePicker.delegate = self
-                                imagePicker.allowsEditing = true
-                                imagePicker.sourceType = .camera
-                                imagePicker.mediaTypes = [kUTTypeMovie as String]
-                                UIViewController.topViewController()?.present(imagePicker, animated: false, completion: nil)
-                            } else {
-                                let msg = weakSelf.localizedString(
-                                    forKey: "EnableCameraPermissionMessage",
-                                    withDefaultValue: SystemMessage.Camera.cameraPermission,
-                                    fileName: weakSelf.localizedStringFileName)
-                                ALUtilityClass.permissionPopUp(withMessage: msg, andViewController: self)
-                            }
-                        }
-                    })
-                } else {
-                    let msg = weakSelf.localizedString(forKey: "CameraNotAvailableMessage", withDefaultValue: SystemMessage.Camera.CamNotAvailable, fileName: weakSelf.localizedStringFileName)
-                    let title = weakSelf.localizedString(forKey: "CameraNotAvailableTitle", withDefaultValue: SystemMessage.Camera.camNotAvailableTitle, fileName: weakSelf.localizedStringFileName)
-                    ALUtilityClass.showAlertMessage(msg, andTitle: title)
-                }
+                break
+//                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+//                    AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
+//                        granted in
+//                        DispatchQueue.main.async {
+//                            if granted {
+//                                let imagePicker = UIImagePickerController()
+//                                imagePicker.delegate = self
+//                                imagePicker.allowsEditing = true
+//                                imagePicker.sourceType = .camera
+//                                imagePicker.mediaTypes = [kUTTypeMovie as String]
+//                                UIViewController.topViewController()?.present(imagePicker, animated: false, completion: nil)
+//                            } else {
+//                                let msg = weakSelf.localizedString(
+//                                    forKey: "EnableCameraPermissionMessage",
+//                                    withDefaultValue: SystemMessage.Camera.cameraPermission,
+//                                    fileName: weakSelf.localizedStringFileName)
+//                                ALUtilityClass.permissionPopUp(withMessage: msg, andViewController: self)
+//                            }
+//                        }
+//                    })
+//                } else {
+//                    let msg = weakSelf.localizedString(forKey: "CameraNotAvailableMessage", withDefaultValue: SystemMessage.Camera.CamNotAvailable, fileName: weakSelf.localizedStringFileName)
+//                    let title = weakSelf.localizedString(forKey: "CameraNotAvailableTitle", withDefaultValue: SystemMessage.Camera.camNotAvailableTitle, fileName: weakSelf.localizedStringFileName)
+//                    ALUtilityClass.showAlertMessage(msg, andTitle: title)
+//                }
             case .showUploadAttachmentFile:
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click open document list")
                 let _types:[String] = ["com.adobe.pdf", "public.image"]
                 let _vc = ALKCVDocumentPickerViewController(documentTypes: _types, in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
             case .showImagePicker:
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click open iamge list")
                 guard let vc = ALKCustomPickerViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate:weakSelf, and: weakSelf.configuration)
                     else {
                         return
@@ -989,14 +993,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(vc, animated: false, completion: nil)
             case .showLocation:
-                let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mapView, bundle: Bundle.applozic)
-
-                guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
-                guard let mapViewVC = nav.viewControllers.first as? ALKMapViewController else { return }
-                mapViewVC.delegate = self
-                mapViewVC.setConfiguration(weakSelf.configuration)
-                self?.present(nav, animated: true, completion: {})
+                break
+//                let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mapView, bundle: Bundle.applozic)
+//
+//                guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
+//                guard let mapViewVC = nav.viewControllers.first as? ALKMapViewController else { return }
+//                mapViewVC.delegate = self
+//                mapViewVC.setConfiguration(weakSelf.configuration)
+//                self?.present(nav, animated: true, completion: {})
             case .cameraButtonClicked(let button):
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click show camera")
                 guard let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate: weakSelf, and: weakSelf.configuration)
                 else {
                     button.isUserInteractionEnabled = true
@@ -1008,7 +1014,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 button.isUserInteractionEnabled = true
 
             case .shareContact:
-                weakSelf.shareContact()
+                break
+//                weakSelf.shareContact()
             default:
                 print("Not available")
             }
