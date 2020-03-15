@@ -151,7 +151,7 @@ open class ALKReplyMessageView: UIView, Localizable {
         nameLabel.text = message.isMyMessage ?
             selfNameText:message.displayName
         nameLabel.textColor = UIColor.ALKSVOrangeColor()
-        messageLabel.text = getMessageText()
+        messageLabel.text = getMessageText()?.scAlkReplaceSpecialKey(matchInfo: ALKConfiguration.specialLinkList)
         
         ReplyMessageImage().loadPreviewFor(message: message) { (url, image) in
             self.message?.saveImageThumbnailURLInMetaData(url: url?.absoluteString)

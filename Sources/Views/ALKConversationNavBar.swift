@@ -61,7 +61,15 @@ class ALKConversationNavBar: UIView, Localizable {
         imageView.isHidden = true
         return imageView
     }()
-
+    
+    var actionRemark: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 10, weight: .medium)
+        label.textColor = UIColor.ALKSVColorPurpleD9DBFF()
+        label.textAlignment = .left
+        return label
+    }()
+    
     lazy var statusIconBackground: UIView = {
         let view = UIView()
         view.backgroundColor = self.navigationBarBackgroundColor
@@ -103,6 +111,12 @@ class ALKConversationNavBar: UIView, Localizable {
         stackView.isHidden = true
         return stackView
     }()
+    
+    lazy var openProfileEventArea: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.clear
+        return view
+    }()
 
     required init(configuration: ALKConfiguration, delegate: NavigationBarCallbacks) {
         self.navigationBarBackgroundColor = configuration.navigationBarBackgroundColor
@@ -131,6 +145,7 @@ class ALKConversationNavBar: UIView, Localizable {
     
     func updateContent(){
         profileName.text = delegate?.getTitle() ?? profileName.text
+        self.actionRemark.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chatgroup_top_bar_subtitle") ?? ""
     }
 
     func updateStatus(isOnline: Bool, lastSeenAt: NSNumber?) {
@@ -154,7 +169,7 @@ class ALKConversationNavBar: UIView, Localizable {
 
     private func setupConstraints() {
         statusIconBackground.addViewsForAutolayout(views: [onlineStatusIcon])
-        self.addViewsForAutolayout(views: [backImage, backButton, profileImage, statusIconBackground, profileView])
+        self.addViewsForAutolayout(views: [backImage, backButton, profileImage, statusIconBackground, profileView, actionRemark, openProfileEventArea])
 
         //Setup constraints
         backButton.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
@@ -183,9 +198,21 @@ class ALKConversationNavBar: UIView, Localizable {
         onlineStatusIcon.heightAnchor.constraint(equalToConstant: 10).isActive = true
         
         profileView.leadingAnchor.constraint(equalTo: statusIconBackground.trailingAnchor, constant: 5).isActive = true
-        profileView.topAnchor.constraint(equalTo: profileImage.topAnchor).isActive = true
-        profileView.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor).isActive = true
+        profileView.topAnchor.constraint(equalTo: profileImage.topAnchor, constant: -2.5).isActive = true
+        profileView.bottomAnchor.constraint(equalTo: actionRemark.topAnchor).isActive = true
         profileView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        profileView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        
+        actionRemark.leadingAnchor.constraint(equalTo: profileView.leadingAnchor, constant: 0).isActive = true
+        actionRemark.topAnchor.constraint(equalTo: profileView.bottomAnchor, constant: 5).isActive = true
+        actionRemark.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 2.5).isActive = true
+        actionRemark.trailingAnchor.constraint(equalTo: profileView.trailingAnchor).isActive = true
+        actionRemark.heightAnchor.constraint(equalToConstant: 14).isActive = true
+        
+        openProfileEventArea.leadingAnchor.constraint(equalTo: profileView.leadingAnchor, constant: 0).isActive = true
+        openProfileEventArea.topAnchor.constraint(equalTo: profileView.topAnchor, constant: 0).isActive = true
+        openProfileEventArea.bottomAnchor.constraint(equalTo: actionRemark.bottomAnchor, constant: 0).isActive = true
+        openProfileEventArea.trailingAnchor.constraint(equalTo: profileView.trailingAnchor, constant: 0).isActive = true
         
         groupMuteImage.widthAnchor.constraint(equalToConstant: 15).isActive = true
         groupMuteImage.heightAnchor.constraint(equalToConstant: 15).isActive = true
@@ -207,7 +234,7 @@ class ALKConversationNavBar: UIView, Localizable {
 
         let tapAction = UITapGestureRecognizer(target: self, action: #selector(titleTapped))
         tapAction.numberOfTapsRequired = 1
-        profileView.addGestureRecognizer(tapAction)
+        openProfileEventArea.addGestureRecognizer(tapAction)
     }
 
     private func setupProfile(name: String, imageUrl: String?, isContact: Bool) {

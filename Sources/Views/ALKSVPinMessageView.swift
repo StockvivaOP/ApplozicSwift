@@ -129,7 +129,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
             }else if _msgType == .photo {
                 self.labMessage.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_photo") ?? ""
             }else if _msgType == .text {
-                self.labMessage.text = _message
+                self.labMessage.text = _message.scAlkReplaceSpecialKey(matchInfo: ALKConfiguration.specialLinkList)
             }else{
                 self.labMessage.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message_not_support") ?? ""
             }

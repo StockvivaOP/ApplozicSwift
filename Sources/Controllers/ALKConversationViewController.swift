@@ -185,6 +185,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         case defaultButton = 1
         case shareGroup = 2
         case showAdminMsgOnly = 3
+        case searchMessage = 4
         
         func getTagId() -> Int{
             return self.rawValue
@@ -440,7 +441,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             })
             if self?.isViewFirstLoad == false {
                 self?.subscribeChannelToMqtt()
-                if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
+                if self?.viewModel.isUnreadMessageMode == false &&
+                    self?.viewModel.isFocusReplyMessageMode == false &&
+                    ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
                     self?.isAutoRefreshMessage = true
                 }
             }
@@ -885,7 +888,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 if message.count < 1 {
                     return
                 }
-
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click send text message")
                 button.isUserInteractionEnabled = false
 
                 weakSelf.chatBar.clear()
@@ -928,7 +931,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     button.isUserInteractionEnabled = true
                 })
             case .chatBarTextChange:
-
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - chatgroup - user click text changed")
                 UIView.animate(withDuration: 0.05, animations: { () in
                     weakSelf.view.layoutIfNeeded()
                 }, completion: { [weak self] (_) in
@@ -942,42 +945,46 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     }
                 })
             case .sendVoice(let voice):
-                self?.sendMessageWithClearAllModel(completedBlock: {
-                    weakSelf.viewModel.send(voiceMessage: voice as Data, metadata:self?.configuration.messageMetadata)
-                })
+                break
+//                self?.sendMessageWithClearAllModel(completedBlock: {
+//                    weakSelf.viewModel.send(voiceMessage: voice as Data, metadata:self?.configuration.messageMetadata)
+//                })
             case .startVideoRecord:
-                if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                    AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
-                        granted in
-                        DispatchQueue.main.async {
-                            if granted {
-                                let imagePicker = UIImagePickerController()
-                                imagePicker.delegate = self
-                                imagePicker.allowsEditing = true
-                                imagePicker.sourceType = .camera
-                                imagePicker.mediaTypes = [kUTTypeMovie as String]
-                                UIViewController.topViewController()?.present(imagePicker, animated: false, completion: nil)
-                            } else {
-                                let msg = weakSelf.localizedString(
-                                    forKey: "EnableCameraPermissionMessage",
-                                    withDefaultValue: SystemMessage.Camera.cameraPermission,
-                                    fileName: weakSelf.localizedStringFileName)
-                                ALUtilityClass.permissionPopUp(withMessage: msg, andViewController: self)
-                            }
-                        }
-                    })
-                } else {
-                    let msg = weakSelf.localizedString(forKey: "CameraNotAvailableMessage", withDefaultValue: SystemMessage.Camera.CamNotAvailable, fileName: weakSelf.localizedStringFileName)
-                    let title = weakSelf.localizedString(forKey: "CameraNotAvailableTitle", withDefaultValue: SystemMessage.Camera.camNotAvailableTitle, fileName: weakSelf.localizedStringFileName)
-                    ALUtilityClass.showAlertMessage(msg, andTitle: title)
-                }
+                break
+//                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+//                    AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
+//                        granted in
+//                        DispatchQueue.main.async {
+//                            if granted {
+//                                let imagePicker = UIImagePickerController()
+//                                imagePicker.delegate = self
+//                                imagePicker.allowsEditing = true
+//                                imagePicker.sourceType = .camera
+//                                imagePicker.mediaTypes = [kUTTypeMovie as String]
+//                                UIViewController.topViewController()?.present(imagePicker, animated: false, completion: nil)
+//                            } else {
+//                                let msg = weakSelf.localizedString(
+//                                    forKey: "EnableCameraPermissionMessage",
+//                                    withDefaultValue: SystemMessage.Camera.cameraPermission,
+//                                    fileName: weakSelf.localizedStringFileName)
+//                                ALUtilityClass.permissionPopUp(withMessage: msg, andViewController: self)
+//                            }
+//                        }
+//                    })
+//                } else {
+//                    let msg = weakSelf.localizedString(forKey: "CameraNotAvailableMessage", withDefaultValue: SystemMessage.Camera.CamNotAvailable, fileName: weakSelf.localizedStringFileName)
+//                    let title = weakSelf.localizedString(forKey: "CameraNotAvailableTitle", withDefaultValue: SystemMessage.Camera.camNotAvailableTitle, fileName: weakSelf.localizedStringFileName)
+//                    ALUtilityClass.showAlertMessage(msg, andTitle: title)
+//                }
             case .showUploadAttachmentFile:
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click open document list")
                 let _types:[String] = ["com.adobe.pdf", "public.image"]
                 let _vc = ALKCVDocumentPickerViewController(documentTypes: _types, in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
             case .showImagePicker:
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click open iamge list")
                 guard let vc = ALKCustomPickerViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate:weakSelf, and: weakSelf.configuration)
                     else {
                         return
@@ -986,14 +993,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 vc.modalTransitionStyle = .crossDissolve
                 weakSelf.present(vc, animated: false, completion: nil)
             case .showLocation:
-                let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mapView, bundle: Bundle.applozic)
-
-                guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
-                guard let mapViewVC = nav.viewControllers.first as? ALKMapViewController else { return }
-                mapViewVC.delegate = self
-                mapViewVC.setConfiguration(weakSelf.configuration)
-                self?.present(nav, animated: true, completion: {})
+                break
+//                let storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.mapView, bundle: Bundle.applozic)
+//
+//                guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
+//                guard let mapViewVC = nav.viewControllers.first as? ALKMapViewController else { return }
+//                mapViewVC.delegate = self
+//                mapViewVC.setConfiguration(weakSelf.configuration)
+//                self?.present(nav, animated: true, completion: {})
             case .cameraButtonClicked(let button):
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click show camera")
                 guard let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate: weakSelf, and: weakSelf.configuration)
                 else {
                     button.isUserInteractionEnabled = true
@@ -1005,7 +1014,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 button.isUserInteractionEnabled = true
 
             case .shareContact:
-                weakSelf.shareContact()
+                break
+//                weakSelf.shareContact()
             default:
                 print("Not available")
             }
@@ -1077,7 +1087,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             return
         }
         guard !viewModel.isOpenGroup else {
-            viewModel.syncOpenGroup(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
+            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
             return
         }
         guard (message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id) else {
@@ -1857,23 +1867,25 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         let button: UIButton = UIButton(type: UIButton.ButtonType.custom)
         button.tag = ALKSVNavigationBarItem.defaultButton.getTagId() //for menu or refresh button
         button.setTitleColor(.white, for: .normal)
+        
+        if configuration.isShowRightMenuNavBar {
+            let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
+            let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
 
-        let notificationSelector = #selector(ALKConversationViewController.sendRightNavBarButtonSelectionNotification(_:))
-        let notificationCustomSelector = #selector(ALKConversationViewController.sendRightNavBarButtonCustomSelectionNotification(_:))
-
-        if let imageCustom = configuration.conversationViewCustomRightNavBarView {
-            button.setImage(imageCustom, for: .normal)
-            button.addTarget(self, action: notificationCustomSelector, for: UIControl.Event.touchUpInside)
-        }else if let image = configuration.rightNavBarImageForConversationView {
-            button.setImage(image, for: .normal)
-            button.addTarget(self, action: notificationSelector, for: UIControl.Event.touchUpInside)
-        } else {
-            var selector = notificationSelector
-            if configuration.rightNavBarSystemIconForConversationView == .refresh {
-                selector = #selector(ALKConversationViewController.refreshButtonAction(_:))
+            if let imageCustom = configuration.conversationViewCustomRightNavBarView {
+                button.setImage(imageCustom, for: .normal)
+                button.addTarget(self, action: notificationCustomSelector, for: UIControl.Event.touchUpInside)
+            }else if let image = configuration.rightNavBarImageForConversationView {
+                button.setImage(image, for: .normal)
+                button.addTarget(self, action: notificationSelector, for: UIControl.Event.touchUpInside)
+            } else {
+                var selector = notificationSelector
+                if configuration.rightNavBarSystemIconForConversationView == .refresh {
+                    selector = #selector(ALKConversationViewController.refreshButtonAction(_:))
+                }
+                button.setTitle("R", for: .normal)
+                button.addTarget(self, action: selector, for: UIControl.Event.touchUpInside)
             }
-            button.setTitle("R", for: .normal)
-            button.addTarget(self, action: selector, for: UIControl.Event.touchUpInside)
         }
         
         if configuration.isShowAdminMessageOnlyOptionInNavBar {
@@ -1916,7 +1928,25 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             _svRightNavBtnBar.addArrangedSubview(_showShareGroupButton)
         }
         
-        _svRightNavBtnBar.addArrangedSubview(button)
+        if configuration.isShowSearchMessageOptionInNavBar{
+            let _sizeSearchMsg = CGSize(width: 24.0, height: 24.0)
+            let _notificationSearchMsgSelector = #selector(ALKConversationViewController.sendSearchMessageNavBarButtonSelectionNotification(_:))
+            let _btnSearchMsg: UIButton = UIButton(type: UIButton.ButtonType.custom)
+            _btnSearchMsg.tag = ALKSVNavigationBarItem.searchMessage.getTagId()
+            _btnSearchMsg.setBackgroundColor(.clear)
+            _btnSearchMsg.setImage(UIImage(named: "sv_button_search_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+            _btnSearchMsg.addTarget(self, action:_notificationSearchMsgSelector, for: UIControl.Event.touchUpInside)
+            _btnSearchMsg.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                _btnSearchMsg.heightAnchor.constraint(equalToConstant: _sizeSearchMsg.height),
+                _btnSearchMsg.widthAnchor.constraint(equalToConstant: _sizeSearchMsg.width)
+                ])
+            _svRightNavBtnBar.addArrangedSubview(_btnSearchMsg)
+        }
+        
+        if configuration.isShowRightMenuNavBar {
+            _svRightNavBtnBar.addArrangedSubview(button)
+        }
         
         return _svRightNavBtnBar
     }
@@ -2139,7 +2169,7 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
         //auto refresh after
         if self.isAutoRefreshMessage {
             self.isAutoRefreshMessage = false
-            self.viewModel.refresh()
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
         }
     }
 
@@ -2848,6 +2878,10 @@ extension ALKConversationViewController {
     @objc func sendShowShareGroupNavBarButtonSelectionNotification(_ selector: UIButton) {
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatContentAction?.shareGroupButtonClicked(chatView: self, button: selector)
+    }
+    
+    @objc func sendSearchMessageNavBarButtonSelectionNotification(_ selector: UIButton) {
+        self.delegateConversationChatContentAction?.searchMessageButtonClicked()
     }
     
     @objc func didFloatingShareButtonTouchUpInside(_ selector: UIButton) {

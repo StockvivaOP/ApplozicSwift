@@ -83,4 +83,43 @@ extension String {
     public func chatGroupSVMessageGetStockCode() -> [String] {
         return ALKTextView.getStockCodeFrom(message: self)
     }
+    
+    public func scAlkReplaceSpecialKey(matchInfo:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)]) -> String {
+        let _replacingStrArray = ["$": "", "hk.":"",
+                                  "(" : "", ")" : "", "\u{FF08}" : "", "\u{FF09}" : "", ".hk": "",
+                                  "\u{FF10}" : "0","\u{FF11}" : "1","\u{FF12}" : "2","\u{FF13}" : "3",
+                                  "\u{FF14}" : "4","\u{FF15}" : "5","\u{FF16}" : "6","\u{FF17}" : "7",
+                                  "\u{FF18}" : "8","\u{FF19}" : "9"]
+        var _tempMessage = self as NSString
+        if _tempMessage.length > 0 {
+            for matchItem in matchInfo {
+                do{
+                    let _regex = try NSRegularExpression(pattern:matchItem.match, options: NSRegularExpression.Options.caseInsensitive)
+                    let _searchedTextList = _regex.matches(in: self, options: NSRegularExpression.MatchingOptions.reportCompletion, range: NSRange(location: 0, length: self.count))
+                    for searchedItem in _searchedTextList {
+                        guard let _rangeOfStr = Range(searchedItem.range, in: self) else { continue }
+                        let _orgSearchedStr = String(self[_rangeOfStr])
+                        var _searchedStr = _orgSearchedStr.lowercased().trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                        for replacingStrKey in _replacingStrArray.keys {
+                            _searchedStr = _searchedStr.replacingOccurrences(of: replacingStrKey, with: _replacingStrArray[replacingStrKey]!)
+                        }
+                        //add link
+                        if let _formatValue = matchItem.type.getInputDisplayFormat(value: _searchedStr) {
+                            switch matchItem.type {
+                            case .stockCode:
+                                if let _stockInfo = ALKConfiguration.delegateSystemInfoRequestDelegate?.verifyDetectedValueForSpecialLink(value: _searchedStr, type: matchItem.type) as? (code:String, name:String) {
+                                    _tempMessage = _tempMessage.replacingOccurrences(of: _formatValue, with: _stockInfo.name) as NSString
+                                }
+                            default:
+                                break
+                            }
+                        }
+                    }
+                }catch {
+                    
+                }
+            }
+        }
+        return _tempMessage as String
+    }
 }
