@@ -1989,11 +1989,11 @@ extension ALKConversationViewModel {
         
         //end time
         var _endTimeNumber:NSNumber? = nil
-        var _dateComponent = DateComponents()
-        _dateComponent.year = 5
-        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: _startDate) {
-            _endTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
-        }
+//        var _dateComponent = DateComponents()
+//        _dateComponent.year = 10
+//        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: _startDate) {
+//            _endTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
+//        }
         
         let _defaultPageSize = pageSize ?? self.defaultValue_requestMessagePageSize
         let _defaultMinMessageRequired = minMessageRequired ?? self.defaultValue_minMessageRequired
