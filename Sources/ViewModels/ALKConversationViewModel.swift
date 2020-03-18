@@ -1754,8 +1754,14 @@ extension ALKConversationViewModel {
         //start process
         startProcess()
         //reload
+        var _lastReadMsgTimeNumber:NSNumber? = nil
+        var _dateComponent = DateComponents()
+        _dateComponent.year = 10
+        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
+            _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
+        }
         //call before record
-        self.getSearchTimeBeforeOpenGroupMessage { (results, fistItemCreateTime, lastItemCreateTime) in
+        self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber) { (results, fistItemCreateTime, lastItemCreateTime) in
             var _resultSet:[ALMessage] = []
             if let _results = results {
                 _resultSet.append(contentsOf: _results)
@@ -1863,7 +1869,7 @@ extension ALKConversationViewModel {
         
         if _lastReadMsgTimeNumber == nil {
             var _dateComponent = DateComponents()
-            _dateComponent.year = 1
+            _dateComponent.year = 10
             if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
                 _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
             }
@@ -1989,11 +1995,11 @@ extension ALKConversationViewModel {
         
         //end time
         var _endTimeNumber:NSNumber? = nil
-//        var _dateComponent = DateComponents()
-//        _dateComponent.year = 10
-//        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: _startDate) {
-//            _endTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
-//        }
+        var _dateComponent = DateComponents()
+        _dateComponent.year = 10
+        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: _startDate) {
+            _endTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
+        }
         
         let _defaultPageSize = pageSize ?? self.defaultValue_requestMessagePageSize
         let _defaultMinMessageRequired = minMessageRequired ?? self.defaultValue_minMessageRequired
