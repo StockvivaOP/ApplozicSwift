@@ -2397,30 +2397,56 @@ extension ALKConversationViewModel {
 
 //MARK: - stockviva delete message
 extension ALKConversationViewModel {
-    func deleteMessagForAll(viewModel:ALKMessageViewModel, indexPath:IndexPath?, startProcess:(()->())? = nil, completed:@escaping ((_ result:String?, _ error:Error?)->())){
+    func deleteMessagForAll(viewModel:ALKMessageViewModel, indexPath:IndexPath?, startProcess:(()->())? = nil, completed:@escaping ((_ result:Bool, _ error:Error?)->())){
         //start process
         startProcess?()
         
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - start")
-        ALKSVMessageAPI.deleteMessage(msgKey: viewModel.identifier, isDeleteForAll: true) { (result, error) in
-            if error == nil && result?.count ?? 0 > 0 {
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - successful result:\(result ?? ""), message:\(viewModel.message ?? "")")
-                //change the cell, if deleted done
-                if  let _rawHolder = viewModel.rawModel,
-                    let _objIndexPath = indexPath,
-                    _objIndexPath.section >= 0 && _objIndexPath.section < self.messageModels.count &&
-                        _objIndexPath.section >= 0 && _objIndexPath.section < self.alMessageWrapper.messageArray.count {
-                    _rawHolder.setDeletedMessage(true)
-                    self.updateMessageContent(index: _objIndexPath.section, updatedMessage: _rawHolder)
+        if let _delegate = self.delegateConversationChatContentAction {
+            _delegate.messageRequestToDelete(messageId: viewModel.identifier, completed: { (result, error) in
+                if error == nil && result {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - successful, message:\(viewModel.message ?? "")")
+                    //change the cell, if deleted done
+                    if  let _rawHolder = viewModel.rawModel,
+                        let _objIndexPath = indexPath,
+                        _objIndexPath.section >= 0 && _objIndexPath.section < self.messageModels.count &&
+                            _objIndexPath.section >= 0 && _objIndexPath.section < self.alMessageWrapper.messageArray.count {
+                        _rawHolder.setDeletedMessage(true)
+                        self.updateMessageContent(index: _objIndexPath.section, updatedMessage: _rawHolder)
+                    }
                 }
+                
+                if let _error = error as NSError? {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - error code:\(_error.code), desc:\(_error.localizedDescription)")
+                }else {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - error empty result")
+                }
+                completed(result, error)
+            })
+        }else{
+            //for testing only, it run when using demo app
+            ALKSVMessageAPI.deleteMessage(msgKey: viewModel.identifier, isDeleteForAll: true) { (result, error) in
+                var _isSuccessful = false
+                if error == nil && result?.count ?? 0 > 0 {
+                    _isSuccessful = true
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message (testing) - successful, message:\(viewModel.message ?? "")")
+                    //change the cell, if deleted done
+                    if  let _rawHolder = viewModel.rawModel,
+                        let _objIndexPath = indexPath,
+                        _objIndexPath.section >= 0 && _objIndexPath.section < self.messageModels.count &&
+                            _objIndexPath.section >= 0 && _objIndexPath.section < self.alMessageWrapper.messageArray.count {
+                        _rawHolder.setDeletedMessage(true)
+                        self.updateMessageContent(index: _objIndexPath.section, updatedMessage: _rawHolder)
+                    }
+                }
+                
+                if let _error = error as NSError? {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message (testing) - error result:\(result ?? ""), code:\(_error.code), desc:\(_error.localizedDescription)")
+                }else if result?.count ?? 0 == 0 {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message (testing) - error empty result")
+                }
+                completed(_isSuccessful, error)
             }
-            
-            if let _error = error as NSError? {
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - error result:\(result ?? ""), code:\(_error.code), desc:\(_error.localizedDescription)")
-            }else if result?.count ?? 0 == 0 {
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - delete message - error empty result")
-            }
-            completed(result, error)
         }
     }
 }
