@@ -9,7 +9,7 @@
 import Foundation
 import Applozic
 
-class ALKSVMessageAPI {
+open class ALKSVMessageAPI {
     
     class func deleteMessage(msgKey:String?, isDeleteForAll:Bool, completed:@escaping ((_ result:String?, _ error:Error?)->())) {
         guard let _msgKey = msgKey else {
@@ -28,5 +28,17 @@ class ALKSVMessageAPI {
             }
             completed( resultJson as? String , nil)
         }
+    }
+    
+    class func getRequestHeader() -> [String : String] {
+        var _headerList:[String : String] = [:]
+        if let _requestHeader = ALRequestHandler.getGlobalHeader() as? [String : Any?] {
+            for item in _requestHeader {
+                if let _value = item.value as? String {
+                    _headerList[item.key] = _value
+                }
+            }
+        }
+        return _headerList
     }
 }
