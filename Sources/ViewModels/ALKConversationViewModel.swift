@@ -94,8 +94,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     //tag: stockviva
     private let defaultValue_minMessageRequired:Int = 10
-    private let defaultValue_requestMessagePageSize:Int = 50
-    private let defaultValue_requestMessageHalfPageSize:Int = 25
+    private let defaultValue_requestMessagePageSize:Int = 30
+    private let defaultValue_requestMessageHalfPageSize:Int = 15
     private var isLoadingAllMessage = false
     private var isLoadingEarlierMessage = false
     private var isLoadingLatestMessage = false
