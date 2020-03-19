@@ -30,7 +30,7 @@ open class ALKSVMessageAPI {
         }
     }
     
-    class func getRequestHeader() -> [String : String] {
+    public class func getRequestHeader() -> [String : String] {
         var _headerList:[String : String] = [:]
         if let _requestHeader = ALRequestHandler.getGlobalHeader() as? [String : Any?] {
             for item in _requestHeader {
