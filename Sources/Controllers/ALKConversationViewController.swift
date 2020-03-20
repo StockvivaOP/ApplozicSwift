@@ -1049,7 +1049,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.unReadMessageRemindIndicatorView.isHidden = true
         tableView.reloadData()
         configureView()
-        viewModel.prepareController()
+        viewModel.prepareController(isFirstLoad:self.isViewFirstLoadingMessage)
         isFirstTime = false
     }
 

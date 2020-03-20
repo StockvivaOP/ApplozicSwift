@@ -410,8 +410,8 @@ public protocol ConversationChatContentLifeCycleDelegate: class{
     //life cycle
     func didFirstLoadStart()
     func didFirstLoadCompleted()
-    func didMessageLoadStart(isEarlierMessage:Bool, isNextPage:Bool)
-    func didMessageLoadCompleted(isEarlierMessage:Bool, isNextPage:Bool)
+    func didMessageLoadStart(isEarlierMessage:Bool, isFirstLoad:Bool)
+    func didMessageLoadCompleted(isEarlierMessage:Bool, isFirstLoad:Bool)
 }
 
 public protocol ConversationChatBarActionDelegate: class{

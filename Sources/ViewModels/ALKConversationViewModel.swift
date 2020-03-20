@@ -125,21 +125,20 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     // MARK: - Public methods
-    public func prepareController() {
+    public func prepareController(isFirstLoad:Bool) {
 
         // Load messages from server in case of open group
         guard !isOpenGroup else {
             delegate?.loadingStarted()
             if let _targetOpenMsg = self.targetOpenMessageForFirstOpen {
                 self.targetOpenMessageForFirstOpen = nil
-                self.reloadOpenGroupFocusReplyMessage(targetMessageInfo: _targetOpenMsg)
+                self.reloadOpenGroupFocusReplyMessage(targetMessageInfo: _targetOpenMsg, isFirstLoad:isFirstLoad)
             }else{
-                self.loadOpenGroupMessageWithUnreadModel()
+                self.loadOpenGroupMessageWithUnreadModel(isFirstLoad:isFirstLoad)
             }
             return
         }
-        
-        self.messageSendUnderClearAllModel(startProcess: {
+        self.messageSendUnderClearAllModel(isFirstLoad: isFirstLoad, startProcess: {
             self.delegate?.loadingStarted()
         }) {
             self.delegate?.loadingStop()
@@ -439,9 +438,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     open func nextPage(isNextPage:Bool) {
         if isNextPage {
-            self.loadLatestOpenGroupMessage(isLoadNextPage:true)
+            self.loadLatestOpenGroupMessage()
         }else{
-            self.loadEarlierOpenGroupMessage(isLoadNextPage:true)
+            self.loadEarlierOpenGroupMessage()
         }
     }
 
@@ -1724,7 +1723,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 //MARK: - stockviva fetch message
 extension ALKConversationViewModel {
     
-    func messageSendUnderClearAllModel( startProcess:@escaping ()->Void, completed:@escaping ()->Void){
+    func messageSendUnderClearAllModel(isFirstLoad:Bool = false, startProcess:@escaping ()->Void, completed:@escaping ()->Void){
         self.isLoadingAllMessage = false
         self.isLoadingEarlierMessage = false
         self.isLoadingLatestMessage = false
@@ -1748,7 +1747,9 @@ extension ALKConversationViewModel {
             _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
         }
         //call before record
+        self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: false, isFirstLoad: isFirstLoad)
         self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber) { (results, fistItemCreateTime, lastItemCreateTime) in
+            self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isFirstLoad: isFirstLoad)
             var _resultSet:[ALMessage] = []
             if let _results = results {
                 _resultSet.append(contentsOf: _results)
@@ -1793,7 +1794,7 @@ extension ALKConversationViewModel {
 
 //MARK: - stockviva unread message
 extension ALKConversationViewModel {
-    open func loadOpenGroupMessageWithUnreadModel(){
+    open func loadOpenGroupMessageWithUnreadModel(isFirstLoad:Bool = false){
         if self.isLoadingAllMessage {
             return
         }
@@ -1854,6 +1855,7 @@ extension ALKConversationViewModel {
             _lastReadMsgTimeNumber = NSNumber(value: _lsatReadMsgInfo.createTime)
         }
         
+        self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: false, isFirstLoad: isFirstLoad)
         if _lastReadMsgTimeNumber == nil {
             var _dateComponent = DateComponents()
             _dateComponent.year = 10
@@ -1862,6 +1864,7 @@ extension ALKConversationViewModel {
             }
             //call record
             self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber) { (resultsOfBefore, firstItemCreateTime, lastItemCreateTime) in
+                self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isFirstLoad: isFirstLoad)
                 _completedBlock(resultsOfBefore, nil, firstItemCreateTime, lastItemCreateTime)
             }
         }else{
@@ -1880,6 +1883,7 @@ extension ALKConversationViewModel {
                 }
                 //call before record
                 self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber, pageSize:_halfPageSize, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
+                    self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isFirstLoad: isFirstLoad)
                     _completedBlock(resultsOfBefore, resultsOfAfter, firstItemCreateTimeBefore ?? firstItemCreateTimeAfter , lastItemCreateTimeAfter)
                 })
             }
@@ -2019,13 +2023,13 @@ extension ALKConversationViewModel {
         }
     }
     
-    open func loadEarlierOpenGroupMessage(isLoadNextPage:Bool = false) {
+    open func loadEarlierOpenGroupMessage() {
         if self.isLoadingEarlierMessage {
             return
         }
         self.isLoadingEarlierMessage = true
         
-        self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: true, isNextPage: isLoadNextPage)
+        self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: true, isFirstLoad: false)
         
         var time: NSNumber?
         if let messageList = alMessageWrapper.getUpdatedMessageArray(), messageList.count > 1 {
@@ -2039,7 +2043,7 @@ extension ALKConversationViewModel {
         self.getSearchTimeBeforeOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in //complete
-            self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: true, isNextPage: isLoadNextPage)
+            self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: true, isFirstLoad: false)
             guard let newMessages = messageList, newMessages.count > 0  else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadEarlierOpenGroupMessage - no message list")
                 self.delegate?.loadingFinished(error: nil, targetFocusItemIndex: -1, isLoadNextPage:false, isFocusTargetAndHighlight: false)
@@ -2066,13 +2070,13 @@ extension ALKConversationViewModel {
         }
     }
     
-    open func loadLatestOpenGroupMessage(isLoadNextPage:Bool = false){
+    open func loadLatestOpenGroupMessage(){
         if self.isLoadingLatestMessage {
             return
         }
         self.isLoadingLatestMessage = true
 
-        self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: false, isNextPage: isLoadNextPage)
+        self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: false, isFirstLoad: false)
         
         var time: NSNumber? = nil
         if let _lastMsgTime = self.alMessages.last?.createdAtTime {
@@ -2086,7 +2090,7 @@ extension ALKConversationViewModel {
         self.getSearchTimeAfterOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList, firstItemCreateTime, lastItemCreateTime) in//completed
-            self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isNextPage: isLoadNextPage)
+            self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isFirstLoad: false)
             
             guard let newMessages = messageList, newMessages.count > 0 else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadLateOpenGroupMessage - no message list")
@@ -2191,7 +2195,7 @@ extension ALKConversationViewModel {
 
 //MARK: - stockviva reply message
 extension ALKConversationViewModel {
-    open func reloadOpenGroupFocusReplyMessage(targetMessageInfo:(id:String, createTime:Int)){
+    open func reloadOpenGroupFocusReplyMessage(targetMessageInfo:(id:String, createTime:Int), isFirstLoad:Bool = false){
             self.isLoadingAllMessage = false
             self.isLoadingEarlierMessage = false
             self.isLoadingLatestMessage = false
@@ -2266,6 +2270,7 @@ extension ALKConversationViewModel {
                 self.isLoadingAllMessage = false
             }
         
+            self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: false, isFirstLoad: isFirstLoad)
             self.getSearchTimeAfterOpenGroupMessage(time: _targetMsgTimeNumber,  pageSize:_halfPageSize) { (resultsOfAfter, firstItemCreateTimeAfter, lastItemCreateTimeAfter) in
                 if let _resultCount = resultsOfAfter?.count, _resultCount > 0 {
                     if _resultCount < self.defaultValue_requestMessageHalfPageSize {
@@ -2278,6 +2283,7 @@ extension ALKConversationViewModel {
                 _targetMsgTimeNumber = NSNumber(value: (_targetMsgTimeNumber.intValue + 1))
                 //call before record
                 self.getSearchTimeBeforeOpenGroupMessage(time: _targetMsgTimeNumber, pageSize:_halfPageSize, completed: { (resultsOfBefore, firstItemCreateTimeBefore, lastItemCreateTimeBefore) in
+                    self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isFirstLoad: isFirstLoad)
                     _completedBlock(resultsOfBefore, resultsOfAfter, firstItemCreateTimeBefore ?? firstItemCreateTimeAfter , lastItemCreateTimeAfter)
                 })
             }
