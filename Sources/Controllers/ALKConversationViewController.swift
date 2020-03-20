@@ -199,8 +199,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     public var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
+    public var delegateChatGroupLifeCycle:ConversationChatContentLifeCycleDelegate?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     private var isViewFirstLoad: Bool = true
+    private var isViewFirstLoadingMessage: Bool = true
     private var isAutoRefreshMessage: Bool = false
     private var isViewDisappear = false
     private var isLeaveView = false
@@ -506,7 +508,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.isViewFirstLoad = true
         setupConstraints()
         //tag: stockviva
+        self.isViewFirstLoadingMessage = true
+        self.delegateChatGroupLifeCycle?.didFirstLoadStart()
         self.viewModel.delegateConversationChatContentAction = self.delegateConversationChatContentAction
+        self.viewModel.delegateChatGroupLifeCycle = self.delegateChatGroupLifeCycle
         self.tableView.scrollsToTop = false
         self.chatBar.delegate = self
         self.chatBar.setUpViewConfig()
@@ -1676,7 +1681,12 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 }
             }
         }
-        
+
+        //is first time to load message
+        if self.isViewFirstLoadingMessage {
+            self.isViewFirstLoadingMessage = false
+            self.delegateChatGroupLifeCycle?.didFirstLoadCompleted()
+        }
         //highlight cell
         if isFocusTargetAndHighlight{
             self.highlightCellOneTime(indexPath: _indexPathCell)

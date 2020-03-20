@@ -405,6 +405,15 @@ public protocol ConversationChatContentActionDelegate: class{
     func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
 }
 
+//tag: stockviva - start
+public protocol ConversationChatContentLifeCycleDelegate: class{
+    //life cycle
+    func didFirstLoadStart()
+    func didFirstLoadCompleted()
+    func didMessageLoadStart(isEarlierMessage:Bool, isNextPage:Bool)
+    func didMessageLoadCompleted(isEarlierMessage:Bool, isNextPage:Bool)
+}
+
 public protocol ConversationChatBarActionDelegate: class{
     func getTextViewPashHolder(chatBar:ALKChatBar) -> String?
     func isHiddenJoinGroupButton(chatBar:ALKChatBar, isHidden:Bool)
