@@ -437,16 +437,19 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
-            let profile = weakSelf.viewModel.currentConversationProfile(completion: { (profile) in
+            let _ = weakSelf.viewModel.currentConversationProfile(completion: { (profile) in
                 guard let profile = profile else { return }
                 weakSelf.navigationBar.updateView(profile: profile)
             })
             if self?.isViewFirstLoad == false {
                 self?.subscribeChannelToMqtt()
                 if self?.viewModel.isUnreadMessageMode == false &&
-                    self?.viewModel.isFocusReplyMessageMode == false &&
-                    ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
-                    self?.isAutoRefreshMessage = true
+                    self?.viewModel.isFocusReplyMessageMode == false {
+                    if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
+                        self?.isAutoRefreshMessage = true
+                    }else{
+                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false)
+                    }
                 }
             }
         }
