@@ -558,26 +558,28 @@ open class ALKConversationViewModel: NSObject, Localizable {
             if channelKey != nil && channelKey ==  message.groupId {
                 _isAdded = true
                 filteredArray.append(message)
-                delegate?.updateTyingStatus(status: false, userId: message.to)
+                //delegate?.updateTyingStatus(status: false, userId: message.to)
             } else if message.channelKey == nil && channelKey == nil && contactId == message.to {
                 _isAdded = true
                 filteredArray.append(message)
-                delegate?.updateTyingStatus(status: false, userId: message.to)
+                //delegate?.updateTyingStatus(status: false, userId: message.to)
             }
             //if add into list
-            if _isAdded && _isDeletedMsg == false {
+            if _isAdded {
                 let contactId = message.to ?? ""
                 if !contactService.isContactExist(contactId) {
                     contactsNotPresent.append(contactId)
                 }
-                if let metadata = message.metadata,
-                    let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
-                    replyMessageKeys.append(key)
-                }
-                if message.getAttachmentType() != nil,
-                    let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message,
-                    dbMessage.filePath != nil {
-                    alMessages[index] = messageDbService.createMessageEntity(dbMessage)
+                if _isDeletedMsg == false {
+                    if let metadata = message.metadata,
+                        let key = metadata[AL_MESSAGE_REPLY_KEY] as? String {
+                        replyMessageKeys.append(key)
+                    }
+                    if message.getAttachmentType() != nil,
+                        let dbMessage = messageDbService.getMessageByKey("key", value: message.identifier) as? DB_Message,
+                        dbMessage.filePath != nil {
+                        alMessages[index] = messageDbService.createMessageEntity(dbMessage)
+                    }
                 }
             }
         }
