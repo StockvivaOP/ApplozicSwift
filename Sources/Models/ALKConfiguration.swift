@@ -396,10 +396,22 @@ public protocol ConversationChatContentActionDelegate: class{
     //join our group
     func joinOurGroupButtonClicked(viewModel:ALKMessageViewModel?)
     func isHiddenFullScreenLoading(_ isHidden:Bool)
-    func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+    //gift
     func didSendGiftButtonClicked(viewModel:ALKMessageViewModel?)
     func didSendGiftHistoryDisplayCompleted()
     func didSendGiftHistoryViewClosed(isUserClick:Bool, isTimeUp:Bool)
+    //delete messaege
+    func messageRequestToDelete(messageId:String, completed:@escaping ((_ result:Bool, _ error:Error?)->()))
+    func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+}
+
+//tag: stockviva - start
+public protocol ConversationChatContentLifeCycleDelegate: class{
+    //life cycle
+    func didFirstLoadStart()
+    func didFirstLoadCompleted()
+    func didMessageLoadStart(isEarlierMessage:Bool, isFirstLoad:Bool)
+    func didMessageLoadCompleted(isEarlierMessage:Bool, isFirstLoad:Bool)
 }
 
 public protocol ConversationChatBarActionDelegate: class{

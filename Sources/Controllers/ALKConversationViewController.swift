@@ -199,8 +199,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     public var delegateConversationChatBarAction:ConversationChatBarActionDelegate?
     public var delegateConversationChatContentAction:ConversationChatContentActionDelegate?
     public var delegateConversationMessageBoxAction:ConversationMessageBoxActionDelegate?
+    public var delegateChatGroupLifeCycle:ConversationChatContentLifeCycleDelegate?
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     private var isViewFirstLoad: Bool = true
+    private var isViewFirstLoadingMessage: Bool = true
     private var isAutoRefreshMessage: Bool = false
     private var isViewDisappear = false
     private var isLeaveView = false
@@ -435,16 +437,19 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
-            let profile = weakSelf.viewModel.currentConversationProfile(completion: { (profile) in
+            let _ = weakSelf.viewModel.currentConversationProfile(completion: { (profile) in
                 guard let profile = profile else { return }
                 weakSelf.navigationBar.updateView(profile: profile)
             })
             if self?.isViewFirstLoad == false {
                 self?.subscribeChannelToMqtt()
                 if self?.viewModel.isUnreadMessageMode == false &&
-                    self?.viewModel.isFocusReplyMessageMode == false &&
-                    ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
-                    self?.isAutoRefreshMessage = true
+                    self?.viewModel.isFocusReplyMessageMode == false {
+                    if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
+                        self?.isAutoRefreshMessage = true
+                    }else{
+                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false)
+                    }
                 }
             }
         }
@@ -506,7 +511,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.isViewFirstLoad = true
         setupConstraints()
         //tag: stockviva
+        self.isViewFirstLoadingMessage = true
+        self.delegateChatGroupLifeCycle?.didFirstLoadStart()
         self.viewModel.delegateConversationChatContentAction = self.delegateConversationChatContentAction
+        self.viewModel.delegateChatGroupLifeCycle = self.delegateChatGroupLifeCycle
         self.tableView.scrollsToTop = false
         self.chatBar.delegate = self
         self.chatBar.setUpViewConfig()
@@ -1044,7 +1052,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         self.unReadMessageRemindIndicatorView.isHidden = true
         tableView.reloadData()
         configureView()
-        viewModel.prepareController()
+        viewModel.prepareController(isFirstLoad:self.isViewFirstLoadingMessage)
         isFirstTime = false
     }
 
@@ -1237,7 +1245,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(false)
                 }) { (result, error) in
                     self.delegateConversationChatContentAction?.isHiddenFullScreenLoading(true)
-                    if error == nil && result?.count ?? 0 > 0 {
+                    if error == nil && result {
                         self.delegateConversationChatContentAction?.messageHadDeleted(viewModel: _model, indexPath: indexPath)
                     }else{
                         self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.networkProblem)
@@ -1676,7 +1684,12 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 }
             }
         }
-        
+
+        //is first time to load message
+        if self.isViewFirstLoadingMessage {
+            self.isViewFirstLoadingMessage = false
+            self.delegateChatGroupLifeCycle?.didFirstLoadCompleted()
+        }
         //highlight cell
         if isFocusTargetAndHighlight{
             self.highlightCellOneTime(indexPath: _indexPathCell)
