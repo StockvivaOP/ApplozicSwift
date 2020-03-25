@@ -1391,10 +1391,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
         messageListRequest.orderBy = isOrderByAsc ? 0 : 1
         messageListRequest.pageSize = maxRecord ?? "\(self.defaultValue_requestMessagePageSize)"
         messageListRequest.userIds = self.messageDisplayWithinUserList
+        
+        let _startTime = Date()
         let messageClientService = ALMessageClientService()
         messageClientService.getMessageList(forUser: messageListRequest, withCompletion: {
             messages, error, userDetailsList in
-
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.loggingAPI(isDebug: true, message: "chatgroup - fetchOpenGroupMessages completed", apiName: "getMessageList", startTime: _startTime, endTime: Date())
             if let _error = error {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - fetchOpenGroupMessages - have error \(_error.localizedDescription) ")
             }
@@ -1473,8 +1475,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private func fetchReplyMessage(replyMessageKeys:[String], completion:@escaping (_ contactsNotPresent:[String])->Void){
         let contactService = ALContactService()
         var contactsNotPresent = [String]()
+        let _startTime = Date()
         if !replyMessageKeys.isEmpty {
             ALMessageService().fetchReplyMessages(NSMutableArray(array: replyMessageKeys), withCompletion: { (replyMessages) in
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.loggingAPI(isDebug: true, message: "chatgroup - fetchReplyMessage completed", apiName: "fetchReplyMessages", startTime: _startTime, endTime: Date())
+                
                 guard let replyMessages = replyMessages as? [ALMessage] else {
                     completion(contactsNotPresent)
                     return
@@ -1494,7 +1499,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     private func processContacts(_ contacts: [String], completion: @escaping () -> Void) {
         if !contacts.isEmpty {
+            let _startTime = Date()
             ALUserService().fetchAndupdateUserDetails(NSMutableArray(array: contacts), withCompletion: { (userDetails, _) in
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.loggingAPI(isDebug: true, message: "chatgroup - processContacts completed", apiName: "fetchAndupdateUserDetails", startTime: _startTime, endTime: Date())
                 ALContactDBService().addUserDetails(userDetails)
                 completion()
             })

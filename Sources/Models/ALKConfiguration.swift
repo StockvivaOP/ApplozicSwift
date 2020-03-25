@@ -467,6 +467,7 @@ public protocol SystemInfoRequestDelegate: class{
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
     func logging(isDebug:Bool, message:String)
+    func loggingAPI(isDebug:Bool, message:String, apiName:String, startTime:Date, endTime:Date)
     func getLoginUserHashId() -> String?
     func verifyDetectedValueForSpecialLink(value:String?, type:ALKConfiguration.ConversationMessageLinkType) -> Any?
     func getGiftIconUrl(_ giftId:String) -> URL?
