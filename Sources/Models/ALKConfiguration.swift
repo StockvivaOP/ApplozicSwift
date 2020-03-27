@@ -290,6 +290,12 @@ public struct ALKConfiguration {
         }
     }
     
+    public enum LoggingType : CaseIterable {
+        case info
+        case debug
+        case error
+    }
+    
     /// delegate for get / set system info
     public static var delegateSystemInfoRequestDelegate:SystemInfoRequestDelegate?
     
@@ -466,8 +472,8 @@ public protocol SystemInfoRequestDelegate: class{
     func getAppVersionName() -> String?
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
-    func logging(isDebug:Bool, message:String)
-    func loggingAPI(isDebug:Bool, message:String, apiName:String, startTime:Date, endTime:Date)
+    func logging(type:ALKConfiguration.LoggingType, message:String)
+    func loggingAPI(type:ALKConfiguration.LoggingType, message:String, apiName:String, startTime:Date?, endTime:Date?)
     func getLoginUserHashId() -> String?
     func verifyDetectedValueForSpecialLink(value:String?, type:ALKConfiguration.ConversationMessageLinkType) -> Any?
     func getGiftIconUrl(_ giftId:String) -> URL?

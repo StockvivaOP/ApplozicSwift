@@ -896,7 +896,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 if message.count < 1 {
                     return
                 }
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click send text message")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - user click send text message")
                 button.isUserInteractionEnabled = false
 
                 weakSelf.chatBar.clear()
@@ -939,7 +939,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     button.isUserInteractionEnabled = true
                 })
             case .chatBarTextChange:
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - chatgroup - user click text changed")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - chatgroup - user click text changed")
                 UIView.animate(withDuration: 0.05, animations: { () in
                     weakSelf.view.layoutIfNeeded()
                 }, completion: { [weak self] (_) in
@@ -985,14 +985,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 //                    ALUtilityClass.showAlertMessage(msg, andTitle: title)
 //                }
             case .showUploadAttachmentFile:
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click open document list")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - user click open document list")
                 let _types:[String] = ["com.adobe.pdf", "public.image"]
                 let _vc = ALKCVDocumentPickerViewController(documentTypes: _types, in: UIDocumentPickerMode.import)
                 _vc.delegate = weakSelf
                 weakSelf.present(_vc, animated: false, completion: nil)
                 break
             case .showImagePicker:
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click open iamge list")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - user click open iamge list")
                 guard let vc = ALKCustomPickerViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate:weakSelf, and: weakSelf.configuration)
                     else {
                         return
@@ -1010,7 +1010,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 //                mapViewVC.setConfiguration(weakSelf.configuration)
 //                self?.present(nav, animated: true, completion: {})
             case .cameraButtonClicked(let button):
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - user click show camera")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - user click show camera")
                 guard let vc = ALKCustomCameraViewController.makeInstanceWith(delegate: weakSelf, conversationRequestInfoDelegate: weakSelf, and: weakSelf.configuration)
                 else {
                     button.isUserInteractionEnabled = true
@@ -1211,8 +1211,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     func menuItemSelected(action: ALKChatBaseCell<ALKMessageViewModel>.MenuActionType,
                           message: ALKMessageViewModel) {
         switch action {
+        case .copy( _, _, let viewModelObj, _):
+            UIPasteboard.general.string = viewModelObj?.message ?? ""
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - message menu click copy:\(viewModelObj?.rawModel?.dictionary() ?? ["nil":"nil"])")
+            break;
         case .reply(let chatGroupHashID, let userHashID, let viewModelObj, let indexPath):
             print("Reply selected")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - message menu click reply:\(viewModelObj?.rawModel?.dictionary() ?? ["nil":"nil"])")
             viewModel.setSelectedMessageToReply(message)
             replyMessageView.update(message: message, configuration:self.configuration)
             showReplyMessageView()
@@ -1221,16 +1226,18 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 self.delegateConversationMessageBoxAction?.didMenuReplyClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
             }
             break;
-        case .appeal(let chatGroupHashID, let userHashID, let messageID, let message):
+        case .appeal(let chatGroupHashID, let userHashID, let viewModelObj, _):
             print("Appeal selected")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - message menu click appeal:\(viewModelObj?.rawModel?.dictionary() ?? ["nil":"nil"])")
             if let _chatGroupID = chatGroupHashID,
                 let _userID = userHashID,
-                let _msgID = messageID {
-                self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:message)
+                let _msgID = viewModelObj?.identifier {
+                self.delegateConversationMessageBoxAction?.didMenuAppealClicked(chatGroupHashID:_chatGroupID, userHashID:_userID, messageID:_msgID, message:viewModelObj?.message)
             }
             break;
         case .pinMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
             print("PinMsg selected")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - message menu click pin msg:\(viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
             if let _chatGroupID = chatGroupHashID,
                 let _model = viewModel {
                 self.delegateConversationMessageBoxAction?.didMenuPinMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
@@ -1238,6 +1245,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             break;
         case .deleteMsg(let chatGroupHashID, let userHashID, let viewModel, let indexPath):
             print("DeleteMsg selected")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - message menu click delete msg:\(viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
              if let _chatGroupID = chatGroupHashID,
                 let _model = viewModel {
                 self.delegateConversationMessageBoxAction?.didMenuDeleteMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
@@ -1285,7 +1293,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         let actualMessage = messageService.getALMessage(byKey: replyId).messageModel
         guard let indexPath = viewModel.getIndexpathFor(message: actualMessage)
             else {return}
-        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - scrollTo() - scroll to indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - scrollTo() - scroll to indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
 
     }
@@ -1651,14 +1659,14 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             if targetFocusItemIndex != -1 {
                 let _newSectionCount = self.viewModel.numberOfSections()
                 if targetFocusItemIndex < _newSectionCount {
-                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to targetFocusItemIndex:\(targetFocusItemIndex), total section:\(_newSectionCount)")
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - loadingFinished - scroll to targetFocusItemIndex:\(targetFocusItemIndex), total section:\(_newSectionCount)")
                     _indexPathCell = IndexPath(row: 0, section: targetFocusItemIndex)
                     self.tableView.scrollToRow(at: _indexPathCell!,
                                                at: isFocusTargetAndHighlight ? .middle : .bottom, animated: false)
                 }else{
                     let _sectionIndex = _newSectionCount - 1
                     if _sectionIndex >= 0 {
-                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to _sectionIndex:\(_sectionIndex), total section:\(_newSectionCount)")
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - loadingFinished - scroll to _sectionIndex:\(_sectionIndex), total section:\(_newSectionCount)")
                         _indexPathCell = IndexPath(row: 0, section: _sectionIndex)
                         self.tableView.scrollToRow(at: _indexPathCell! ,
                                                    at: isFocusTargetAndHighlight ? .middle : .bottom, animated: false)
@@ -1678,7 +1686,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                 if newSectionCount > oldSectionCount {
                     let offset = newSectionCount - oldSectionCount - 1
                     if offset >= 0 && offset < newSectionCount {
-                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - scroll to offset:\(offset), total section:\(newSectionCount)")
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - loadingFinished - scroll to offset:\(offset), total section:\(newSectionCount)")
                         tableView.scrollToRow(at: IndexPath(row: 0, section: offset), at: .top, animated: false)
                     }
                 }
@@ -1698,7 +1706,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         //show / off scroll down button
         if self.viewModel.messageModels.count > 0 {
             let _lastItemIndex = self.viewModel.messageModels.count-1
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - loadingFinished - rectForRow _lastItemIndex:\(_lastItemIndex), total section:\(self.viewModel.messageModels.count)")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - loadingFinished - rectForRow _lastItemIndex:\(_lastItemIndex), total section:\(self.viewModel.messageModels.count)")
             let _cellPos = self.tableView.rectForRow(at: IndexPath(row: 0, section: _lastItemIndex))
             if (tableView.isCellVisible(section: _lastItemIndex, row: 0) &&
                 _cellPos.maxY <= self.tableView.contentOffset.y + self.tableView.bounds.size.height + 10) ||
@@ -1760,7 +1768,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         guard indexPath.section >= 0 else {
             return
         }
-        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to indexPath:\(indexPath.section), total section:\(tableView.numberOfSections)")
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - moveTableViewToBottom - scroll to indexPath:\(indexPath.section), total section:\(tableView.numberOfSections)")
         if indexPath.section > 0 && indexPath.section < tableView.numberOfSections {
             tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
         }else{
@@ -1768,13 +1776,13 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
             if _lastIndex < 0 {
                 _lastIndex = 0
             }
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - adjust the index because the index should under 0, scroll to indexPath:\(_lastIndex), total section:\(tableView.numberOfSections)")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - moveTableViewToBottom - adjust the index because the index should under 0, scroll to indexPath:\(_lastIndex), total section:\(tableView.numberOfSections)")
             tableView.scrollToRow(at: IndexPath(row: 0, section: _lastIndex) , at: .bottom, animated: false)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let sectionCount = self.tableView.numberOfSections
             if indexPath.section <= sectionCount {
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - scroll to asyncAfter indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - moveTableViewToBottom - scroll to asyncAfter indexPath:\(indexPath.section), total section:\(self.tableView.numberOfSections)")
                 if indexPath.section > 0 && indexPath.section < self.tableView.numberOfSections {
                     self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
                 }else{
@@ -1782,7 +1790,7 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
                     if _lastIndex < 0 {
                         _lastIndex = 0
                     }
-                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - moveTableViewToBottom - adjust the index because the index should under 0, scroll to asyncAfter indexPath:\(_lastIndex), total section:\(self.tableView.numberOfSections)")
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - moveTableViewToBottom - adjust the index because the index should under 0, scroll to asyncAfter indexPath:\(_lastIndex), total section:\(self.tableView.numberOfSections)")
                     self.tableView.scrollToRow(at: IndexPath(row: 0, section: _lastIndex) , at: .bottom, animated: false)
                 }
             }
@@ -2818,7 +2826,7 @@ extension ALKConversationViewController {
         }
         let _maxYForVisableContent = self.tableView.contentOffset.y + self.tableView.bounds.size.height
         for _cellIndex in self.tableView.indexPathsForVisibleRows?.reversed() ?? [] {
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(isDebug:true, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections)")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections)")
             let _cellPos = self.tableView.rectForRow(at: _cellIndex)
             let _cellMinHeightOffset = _cellPos.height / 2.5
             if (_cellPos.maxY - _cellMinHeightOffset) <= _maxYForVisableContent {
