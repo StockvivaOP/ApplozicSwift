@@ -50,18 +50,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
         }
         return true
     }
-    open var isContextBasedChat: Bool {
-        guard conversationProxy == nil else { return true }
-        guard
-            let channelKey = channelKey,
-            let alChannel = ALChannelService().getChannelByKey(channelKey),
-            let metadata = alChannel.metadata,
-            let contextBased = metadata["AL_CONTEXT_BASED_CHAT"] as? String
-        else {
-            return false
-        }
-        return contextBased.lowercased() == "true"
-    }
 
     open var messageModels: [ALKMessageModel] = []
 
@@ -441,20 +429,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
             self.loadLatestOpenGroupMessage()
         }else{
             self.loadEarlierOpenGroupMessage()
-        }
-    }
-
-    open func getContextTitleData() -> ALKContextTitleDataType? {
-        guard isContextBasedChat else { return nil }
-        if let proxy = conversationProxy, let topicDetail = proxy.getTopicDetail() {
-            return topicDetail
-        } else {
-            guard let metadata = ALChannelService().getChannelByKey(channelKey)?.metadata else { return nil }
-            let topicDetail = ALTopicDetail()
-            topicDetail.title = metadata["title"] as? String
-            topicDetail.subtitle = metadata["price"] as? String
-            topicDetail.link = metadata["link"] as? String
-            return topicDetail
         }
     }
 
@@ -1299,10 +1273,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
         }
     }
 
-    open func showPoweredByMessage() -> Bool {
-        return ALApplicationInfo().showPoweredByMessage()
-    }
-
     func updateUserDetail(_ userId: String) {
         ALUserService.updateUserDetail(userId, withCompletion: {
             userDetail in
@@ -1317,25 +1287,14 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     func currentConversationProfile(completion: @escaping (ALKConversationProfile?) -> Void) {
-        if channelKey != nil {
-            ALChannelService().getChannelInformation(channelKey, orClientChannelKey: nil) { (channel) in
-                guard let channel = channel else {
-                    print("Error while fetching channel details")
-                    completion(nil)
-                    return
-                }
-                completion(self.conversationProfileFrom(contact: nil, channel: channel))
-            }
+        
+        if let _channel = self.channelInfo {
+            completion(self.conversationProfileFrom(contact: nil, channel: _channel))
+        }else if channelKey != nil {
+            let channel = ALChannelService().getChannelByKey(channelKey)
+            completion(self.conversationProfileFrom(contact: nil, channel: channel))
         } else if contactId != nil {
-            ALUserService().getUserDetail(contactId) { (contact) in
-                guard let contact = contact else {
-                    print("Error while fetching contact details")
-                    completion(nil)
-                    return
-                }
-                self.updateUserDetail(contact.userId)
-                completion(self.conversationProfileFrom(contact: contact, channel: nil))
-            }
+            completion(self.conversationProfileFrom(contact: nil, channel: nil))
         }
     }
 
