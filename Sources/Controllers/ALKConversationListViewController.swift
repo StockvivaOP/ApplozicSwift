@@ -429,7 +429,6 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
         guard let viewController = self.navigationController?.visibleViewController as? ALKConversationViewController else {
             return
         }
-        viewController.checkUserBlock()
     }
 
     open func updateLastSeen(atStatus alUserDetail: ALUserDetail!) {

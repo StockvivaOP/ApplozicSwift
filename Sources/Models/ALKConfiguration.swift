@@ -221,8 +221,8 @@ public struct ALKConfiguration {
         case networkProblem
     }
     
-    public enum ConversationMessageLinkType : CaseIterable {
-        case stockCode
+    public enum ConversationMessageLinkType {
+        case stockCode(isNameOnly:Bool)
         case unknown
         
         func getURLLink(value:String) -> URL? {
@@ -288,6 +288,25 @@ public struct ALKConfiguration {
                 return ""
             }
         }
+        
+        public func getCaseValue() -> Int {
+            switch self{
+            case .stockCode:
+                return 1
+            default://for unknow
+                return -1
+            }
+        }
+        
+        public static func getAllCase() -> [ConversationMessageLinkType] {
+            return [.stockCode(isNameOnly:false)]
+        }
+    }
+    
+    public enum LoggingType : CaseIterable {
+        case info
+        case debug
+        case error
     }
     
     /// delegate for get / set system info
@@ -358,8 +377,10 @@ public struct ALKConfiguration {
     public var expireSecondForDeleteMessage : Double = 120.0
     
     //for create special link
+    //"\\${1}(hk\\.|HK\\.)?(\\d{5})\\${1}"
+    public static var stockCodeRegularExpressionString = "\\${1}(hk\\.|HK\\.)?(\\d{5})\\${1}"
     public static var specialLinkList:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)] = [
-                                        (match:"\\${1}(hk\\.|HK\\.)?(\\d{5})\\${1}", type:ALKConfiguration.ConversationMessageLinkType.stockCode)]
+        (match:ALKConfiguration.stockCodeRegularExpressionString, type:ALKConfiguration.ConversationMessageLinkType.stockCode(isNameOnly: false))]
     
     //tag: stockviva - end
     
@@ -466,8 +487,8 @@ public protocol SystemInfoRequestDelegate: class{
     func getAppVersionName() -> String?
     func getSystemLocaleName() -> String
     func getSystemTextLocalizable(key:String) -> String?
-    func logging(isDebug:Bool, message:String)
-    func loggingAPI(isDebug:Bool, message:String, apiName:String, startTime:Date, endTime:Date)
+    func logging(type:ALKConfiguration.LoggingType, message:String)
+    func loggingAPI(type:ALKConfiguration.LoggingType, message:String, apiName:String, startTime:Date?, endTime:Date?)
     func getLoginUserHashId() -> String?
     func verifyDetectedValueForSpecialLink(value:String?, type:ALKConfiguration.ConversationMessageLinkType) -> Any?
     func getGiftIconUrl(_ giftId:String) -> URL?

@@ -56,16 +56,6 @@ open class ALKChatBar: UIView, Localizable {
 
     public var action: ((ActionType) -> Void)?
 
-    open var poweredByMessageLabel: ALKHyperLabel = {
-        let label = ALKHyperLabel(frame: CGRect.zero)
-        label.backgroundColor = UIColor.ALKSVGreyColor245()
-        label.numberOfLines = 1
-        label.textAlignment = NSTextAlignment.center
-        label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 14)
-        return label
-    }()
-
     public var autocompletionView: UITableView!
 
     lazy open var soundRec: ALKAudioRecorderView = {
@@ -362,8 +352,6 @@ open class ALKChatBar: UIView, Localizable {
         textView.reloadInputViews()
     }
 
-    private weak var comingSoonDelegate: UIView?
-
     var chatIdentifier: String?
     private var pashHolderStr = ""
 
@@ -420,10 +408,6 @@ open class ALKChatBar: UIView, Localizable {
         autoCompletionViewHeightConstraint = autocompletionView.heightAnchor.constraint(equalToConstant: 0)
         autoCompletionViewHeightConstraint?.isActive = true
         self.prefix = prefix
-    }
-
-    func setComingSoonDelegate(delegate: UIView) {
-        comingSoonDelegate = delegate
     }
 
     open func clear() {
@@ -561,7 +545,6 @@ open class ALKChatBar: UIView, Localizable {
             frameView,
             placeHolder,
             soundRec,
-            poweredByMessageLabel,
             mentionUserList,
             tagStockCodeList,
             joinGroupView,
@@ -636,14 +619,9 @@ open class ALKChatBar: UIView, Localizable {
             sendButton.isHidden = true
         }
 
-        textView.topAnchor.constraint(equalTo: poweredByMessageLabel.bottomAnchor, constant: 9.5).isActive = true
+        textView.topAnchor.constraint(equalTo: tagStockCodeList.bottomAnchor, constant: 9.5).isActive = true
         textView.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: -9.5).isActive = true
         textView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7).isActive = true
-        poweredByMessageLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        poweredByMessageLabel.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        poweredByMessageLabel.heightAnchor.constraintEqualToAnchor(constant: 0, identifier: ConstraintIdentifier.poweredByMessageHeight.rawValue).isActive = true
-        poweredByMessageLabel.topAnchor.constraint(equalTo: tagStockCodeList.bottomAnchor).isActive = true
-
         textView.trailingAnchor.constraint(equalTo: lineImageView.leadingAnchor).isActive = true
 
         textViewHeighConstrain = textView.heightAnchor.constraint(equalToConstant: textViewHeigh)
@@ -699,11 +677,7 @@ open class ALKChatBar: UIView, Localizable {
     public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    public func showPoweredByMessage() {
-        poweredByMessageLabel.constraint(withIdentifier: ConstraintIdentifier.poweredByMessageHeight.rawValue)?.constant = 20
-    }
-
+    
     /// Use this to update the visibilty of attachment options
     /// after the view has been set up.
     ///
@@ -1141,7 +1115,7 @@ extension ALKChatBar {
         self.delegate?.chatBarRequestSuggestionStockCodeClicked(code: code, name: name)
         //do add text in input field
         guard let _searchedInfo = lastSearchStockCodeInfo,
-            let codeLinkFormatStr = ALKConfiguration.ConversationMessageLinkType.stockCode.getInputDisplayFormat(value: code) else {
+            let codeLinkFormatStr = ALKConfiguration.ConversationMessageLinkType.stockCode(isNameOnly: false).getInputDisplayFormat(value: code) else {
             return
         }
         let _displayText = self.textView.text as NSString
@@ -1151,7 +1125,7 @@ extension ALKChatBar {
         let _checkPerChar2 = _searchedInfo.range.location - 2
         if _checkPerChar1 >= 0 && _checkPerChar1 < _result.length {
             let _pChat1 = String(_result.substring(with: NSMakeRange(_checkPerChar1, 1)))
-            if _pChat1 == ALKConfiguration.ConversationMessageLinkType.stockCode.getKeyStr() {
+            if _pChat1 == ALKConfiguration.ConversationMessageLinkType.stockCode(isNameOnly: false).getKeyStr() {
                 if _checkPerChar2 >= 0 && _checkPerChar2 < _result.length {
                     if Int(_result.substring(with: NSMakeRange(_checkPerChar2, 1))) == nil {
                         _result = _result.replacingCharacters(in: NSMakeRange(_checkPerChar1, 1), with: "") as NSString

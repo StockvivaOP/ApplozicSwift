@@ -288,6 +288,7 @@ extension ALKMessageViewModel {
             }
         } catch {
             print(error.localizedDescription)
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.error, message: "chatgroup - pin message decode(convertToPinMessageModel) with error:\(error.localizedDescription)")
         }
         
         var _result:(uuid:String?, userName:String?, userIconUrl:String?, message:ALKMessageViewModel?) = (uuid:nil, userName:nil, userIconUrl:nil, message:nil)
