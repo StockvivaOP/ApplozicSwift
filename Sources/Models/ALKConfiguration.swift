@@ -289,6 +289,15 @@ public struct ALKConfiguration {
             }
         }
         
+        public func getCaseValue() -> Int {
+            switch self{
+            case .stockCode:
+                return 1
+            default://for unknow
+                return -1
+            }
+        }
+        
         public static func getAllCase() -> [ConversationMessageLinkType] {
             return [.stockCode(isNameOnly:false)]
         }
