@@ -1115,7 +1115,7 @@ extension ALKChatBar {
         self.delegate?.chatBarRequestSuggestionStockCodeClicked(code: code, name: name)
         //do add text in input field
         guard let _searchedInfo = lastSearchStockCodeInfo,
-            let codeLinkFormatStr = ALKConfiguration.ConversationMessageLinkType.stockCode.getInputDisplayFormat(value: code) else {
+            let codeLinkFormatStr = ALKConfiguration.ConversationMessageLinkType.stockCode(isNameOnly: false).getInputDisplayFormat(value: code) else {
             return
         }
         let _displayText = self.textView.text as NSString
@@ -1125,7 +1125,7 @@ extension ALKChatBar {
         let _checkPerChar2 = _searchedInfo.range.location - 2
         if _checkPerChar1 >= 0 && _checkPerChar1 < _result.length {
             let _pChat1 = String(_result.substring(with: NSMakeRange(_checkPerChar1, 1)))
-            if _pChat1 == ALKConfiguration.ConversationMessageLinkType.stockCode.getKeyStr() {
+            if _pChat1 == ALKConfiguration.ConversationMessageLinkType.stockCode(isNameOnly: false).getKeyStr() {
                 if _checkPerChar2 >= 0 && _checkPerChar2 < _result.length {
                     if Int(_result.substring(with: NSMakeRange(_checkPerChar2, 1))) == nil {
                         _result = _result.replacingCharacters(in: NSMakeRange(_checkPerChar1, 1), with: "") as NSString

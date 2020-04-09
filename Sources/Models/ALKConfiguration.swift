@@ -221,8 +221,8 @@ public struct ALKConfiguration {
         case networkProblem
     }
     
-    public enum ConversationMessageLinkType : CaseIterable {
-        case stockCode
+    public enum ConversationMessageLinkType {
+        case stockCode(isNameOnly:Bool)
         case unknown
         
         func getURLLink(value:String) -> URL? {
@@ -364,8 +364,10 @@ public struct ALKConfiguration {
     public var expireSecondForDeleteMessage : Double = 120.0
     
     //for create special link
+    //"\\${1}(hk\\.|HK\\.)?(\\d{5})\\${1}"
+    public static var stockCodeRegularExpressionString = "\\${1}(hk\\.|HK\\.)?(\\d{5})\\${1}"
     public static var specialLinkList:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)] = [
-                                        (match:"\\${1}(hk\\.|HK\\.)?(\\d{5})\\${1}", type:ALKConfiguration.ConversationMessageLinkType.stockCode)]
+        (match:ALKConfiguration.stockCodeRegularExpressionString, type:ALKConfiguration.ConversationMessageLinkType.stockCode(isNameOnly: false))]
     
     //tag: stockviva - end
     
