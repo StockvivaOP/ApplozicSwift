@@ -288,6 +288,10 @@ public struct ALKConfiguration {
                 return ""
             }
         }
+        
+        public static func getAllCase() -> [ConversationMessageLinkType] {
+            return [.stockCode(isNameOnly:false)]
+        }
     }
     
     public enum LoggingType : CaseIterable {
