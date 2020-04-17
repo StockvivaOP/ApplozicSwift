@@ -310,7 +310,7 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         if let message = viewModel.message, !message.isEmpty {
             height += message.rectWithConstrainedWidth(
                 finalWidth,
-                font: messageTextFont).height.rounded(.up) + Padding.CaptionLabel.bottom
+                font: messageTextFont).height.rounded(.up) + ALKPhotoCell.Padding.CaptionLabel.bottom
         }
         
         //10(top padding) + 32(user name label) + height(photo content) + 32(captionLabel) + 23(timeLabel)

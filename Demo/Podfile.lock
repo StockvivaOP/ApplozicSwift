@@ -58,7 +58,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   Applozic:
-    :commit: 432ded47a08a010d9de93e759e3dd4bae37f0c63
+    :commit: 821acc7411770e8890fb126b12324c17bf3f82d1
     :git: https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git
 
 SPEC CHECKSUMS:
@@ -75,4 +75,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: c42fce0e1c2170d23d6e82e4a35a2c18d6797247
 
-COCOAPODS: 1.8.1
+COCOAPODS: 1.9.1

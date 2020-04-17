@@ -436,7 +436,6 @@
 				TargetAttributes = {
 					8B36D0E31F3DC5E900FEFFD2 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = C25JNDCBM4;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
@@ -449,13 +448,11 @@
 					};
 					8B36D0F71F3DC5EA00FEFFD2 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = C25JNDCBM4;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 8B36D0E31F3DC5E900FEFFD2;
 					};
 					8B36D1021F3DC5EA00FEFFD2 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = C25JNDCBM4;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 8B36D0E31F3DC5E900FEFFD2;
 					};
@@ -780,7 +777,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -824,7 +821,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = "";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -840,7 +837,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = C25JNDCBM4;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -887,7 +884,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = C25JNDCBM4;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ApplozicSwiftDemoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.applozic.ApplozicSwiftDemoTests;
@@ -903,7 +900,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = C25JNDCBM4;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ApplozicSwiftDemoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.applozic.ApplozicSwiftDemoTests;
@@ -917,7 +914,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				DEVELOPMENT_TEAM = C25JNDCBM4;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ApplozicSwiftDemoUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.applozic.ApplozicSwiftDemoUITests;
@@ -931,7 +928,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				DEVELOPMENT_TEAM = C25JNDCBM4;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = ApplozicSwiftDemoUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.applozic.ApplozicSwiftDemoUITests;
