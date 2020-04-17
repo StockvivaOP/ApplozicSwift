@@ -1508,7 +1508,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         alMessage.storeOnDevice = false
         alMessage.contentType = Int16(contentType)
         alMessage.key = UUID().uuidString
-        alMessage.source = Int16(SOURCE_IOS)
+        alMessage.source = Int16(AL_SOURCE_IOS)
         alMessage.conversationId = conversationId
         alMessage.groupId = channelKey
         alMessage.addAppVersionNameInMetaData()
@@ -2158,7 +2158,7 @@ extension ALKConversationViewModel {
         alMessage.storeOnDevice = false
         alMessage.contentType = Int16(ALMESSAGE_CHANNEL_NOTIFICATION)
         alMessage.key = UUID().uuidString
-        alMessage.source = Int16(SOURCE_IOS)
+        alMessage.source = Int16(AL_SOURCE_IOS)
         alMessage.conversationId = conversationId
         alMessage.groupId = channelKey
         alMessage.addIsUnreadMessageSeparatorInMetaData(true)

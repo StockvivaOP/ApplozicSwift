@@ -133,7 +133,7 @@ final class ALKCreateGroupViewController: ALKBaseViewController, Localizable {
             if let image = cropedImage {
 
                //upload image first
-                guard let uploadUrl = URL(string: ALUserDefaultsHandler.getBASEURL() + IMAGE_UPLOAD_URL) else {
+                guard let uploadUrl = URL(string: ALUserDefaultsHandler.getBASEURL() + AL_IMAGE_UPLOAD_URL) else {
                     NSLog("NO URL TO UPLOAD GROUP PROFILE IMAGE")
                     return
                 }

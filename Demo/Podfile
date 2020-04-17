@@ -5,14 +5,14 @@ use_frameworks!
 
 target 'ApplozicSwiftDemo' do
     pod 'ApplozicSwift', :path => '../ApplozicSwift.podspec'
-    pod 'Applozic', :git => 'https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git', :branch => 'feature/SV_Sprint_32'
+    pod 'Applozic', :git => 'https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git', :branch => 'feature/SV_A_Upgrade_to_swift_5'
     #pod 'Applozic', :git => 'https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git', :branch => 'feature/SVApplozicObjcSDK'
     pod 'SwiftLint'
 end
 
 target 'ApplozicSwiftDemoTests' do
     pod 'ApplozicSwift', :path => '../ApplozicSwift.podspec'
-    pod 'Applozic', :git => 'https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git', :branch => 'feature/SV_Sprint_32'
+    pod 'Applozic', :git => 'https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git', :branch => 'feature/SV_A_Upgrade_to_swift_5'
     #pod 'Applozic', :git => 'https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git', :branch => 'feature/SVApplozicObjcSDK'
     pod 'Nimble'
     pod 'Quick'
