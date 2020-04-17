@@ -29,6 +29,8 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
     var searchController: UISearchController!
     var searchBar: CustomSearchBar!
+    let registerUserClientService = ALRegisterUserClientService()
+
     lazy var resultVC = ALKSearchResultViewController(configuration: configuration)
 
     var dbService = ALMessageDBService()
@@ -67,7 +69,6 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         super.init(configuration: configuration)
         conversationListTableViewController.delegate = self
         localizedStringFileName = configuration.localizedStringFileName
-        viewModel.localizationFileName = configuration.localizedStringFileName
     }
 
     public required init?(coder _: NSCoder) {
@@ -75,11 +76,13 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
     }
 
     deinit {
-        removeObserver()
+        if alMqttConversationService != nil {
+            alMqttConversationService.unsubscribeToConversation()
+        }
         conversationListTableViewController.remove()
     }
 
-    override func addObserver() {
+    open override func addObserver() {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "newMessageNotification"), object: nil, queue: nil, using: { [weak self] notification in
             guard let weakSelf = self else { return }
             let msgArray = notification.object as? [ALMessage]
@@ -156,11 +159,13 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
 
             guard let weakSelf = self, let userId = notification.object as? String else { return }
             print("update user detail")
-            ALUserService.updateUserDetail(userId, withCompletion: {
-                userDetail in
-                guard userDetail != nil else { return }
-                weakSelf.tableView.reloadData()
-            })
+
+            weakSelf.viewModel.updateUserDetail(userId: userId) { success in
+                if success {
+                    weakSelf.tableView.reloadData()
+                }
+            }
+
         })
 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "UPDATE_CHANNEL_NAME"), object: nil, queue: nil, using: { [weak self] _ in
@@ -171,10 +176,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
         })
     }
 
-    override func removeObserver() {
-        if alMqttConversationService != nil {
-            alMqttConversationService.unsubscribeToConversation()
-        }
+    open override func removeObserver() {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "pushNotification"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "newMessageNotification"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "reloadTable"), object: nil)
@@ -268,12 +270,8 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
     }
 
     func setupSearchController() {
-        searchController = UISearchController(searchResultsController: resultVC)
-        searchController.searchBar.autocapitalizationType = .none
-        searchController.hidesNavigationBarDuringPresentation = false
+        searchController = resultVC.setUpSearchViewController()
         searchController.searchBar.delegate = self
-        searchController.searchBar.alpha = 0
-        searchController.searchBar.showsCancelButton = true
         searchBar = CustomSearchBar(searchBar: searchController.searchBar)
         definesPresentationContext = true
     }
@@ -291,7 +289,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
     }
 
     func launchChat(contactId: String?, groupId: NSNumber?, conversationId: NSNumber? = nil) {
-        let conversationViewModel = viewModel.conversationViewModelOf(type: conversationViewModelType, contactId: contactId, channelId: groupId, conversationId: conversationId)
+        let conversationViewModel = viewModel.conversationViewModelOf(type: conversationViewModelType, contactId: contactId, channelId: groupId, conversationId: conversationId, localizedStringFileName: localizedStringFileName)
 
         let viewController: ALKConversationViewController!
         if conversationViewController == nil {
@@ -303,6 +301,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
             viewController.viewModel.channelKey = conversationViewModel.channelKey
             viewController.viewModel.conversationProxy = conversationViewModel.conversationProxy
         }
+        viewController.individualLaunch = false
         push(conversationVC: viewController, with: conversationViewModel)
     }
 
@@ -330,21 +329,25 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
     }
 
     @objc func customBackAction() {
-        guard let nav = self.navigationController else { return }
+        guard let nav = navigationController else { return }
         let poppedVC = nav.popViewController(animated: true)
         if poppedVC == nil {
             dismiss(animated: true, completion: nil)
         }
     }
 
-    override func showAccountSuspensionView() {
+    open override func showAccountSuspensionView() {
         let accountVC = ALKAccountSuspensionController()
-        present(accountVC, animated: false, completion: nil)
         accountVC.closePressed = { [weak self] in
-            let popVC = self?.navigationController?.popViewController(animated: true)
-            if popVC == nil {
-                self?.navigationController?.dismiss(animated: true, completion: nil)
+            self?.dismiss(animated: true, completion: nil)
+        }
+        present(accountVC, animated: false, completion: nil)
+        registerUserClientService.syncAccountStatus { response, error in
+            guard error == nil, let response = response, response.isRegisteredSuccessfully() else {
+                print("Failed to sync the account package status")
+                return
             }
+            print("Successfuly synced the account package status")
         }
     }
 
@@ -409,7 +412,7 @@ extension ALKConversationListViewController: ALKConversationListViewModelDelegat
 
 extension ALKConversationListViewController: ALMQTTConversationDelegate {
     open func mqttDidConnected() {
-        if let viewController = self.navigationController?.visibleViewController as? ALKConversationViewController {
+        if let viewController = navigationController?.visibleViewController as? ALKConversationViewController {
             viewController.subscribeChannelToMqtt()
         }
         print("MQTT did connected")
@@ -418,13 +421,11 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
     open func updateUserDetail(_ userId: String!) {
         guard let userId = userId else { return }
         print("update user detail")
-
-        ALUserService.updateUserDetail(userId, withCompletion: {
-            userDetail in
-            guard let detail = userDetail else { return }
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "USER_DETAIL_OTHER_VC"), object: detail)
-            self.tableView.reloadData()
-        })
+        viewModel.updateUserDetail(userId: userId) { updated in
+            if updated {
+                self.tableView.reloadData()
+            }
+        }
     }
 
     func isNewMessageForActiveThread(alMessage: ALMessage, vm: ALKConversationViewModel) -> Bool {
@@ -448,19 +449,22 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
         guard let message = alMessage else { return }
         let viewController = navigationController?.visibleViewController as? ALKConversationViewController
         if let vm = viewController?.viewModel, vm.contactId != nil || vm.channelKey != nil,
-            let visibleController = self.navigationController?.visibleViewController,
+            let visibleController = navigationController?.visibleViewController,
             visibleController.isKind(of: ALKConversationViewController.self),
             isNewMessageForActiveThread(alMessage: alMessage, vm: vm) {
             viewModel.syncCall(viewController: viewController, message: message, isChatOpen: true)
 
         } else if !isMessageSentByLoggedInUser(alMessage: alMessage) {
+            guard !configuration.isInAppNotificationBannerDisabled else {
+                return
+            }
             let notificationView = ALNotificationView(alMessage: message, withAlertMessage: message.message)
             notificationView?.showNativeNotificationWithcompletionHandler {
                 _ in
                 self.launchChat(contactId: message.contactId, groupId: message.groupId, conversationId: message.conversationId)
             }
         }
-        if let visibleController = self.navigationController?.visibleViewController,
+        if let visibleController = navigationController?.visibleViewController,
             visibleController.isKind(of: ALKConversationListViewController.self) {
             sync(message: alMessage)
         }
@@ -499,7 +503,7 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
         let userDetail = ALUserDetail()
         userDetail.userId = userId
         viewModel.updateStatusFor(userDetail: userDetail)
-        guard let viewController = self.navigationController?.visibleViewController as? ALKConversationViewController else {
+        guard let viewController = navigationController?.visibleViewController as? ALKConversationViewController else {
             return
         }
         viewController.checkUserBlock()
@@ -508,7 +512,7 @@ extension ALKConversationListViewController: ALMQTTConversationDelegate {
     open func updateLastSeen(atStatus alUserDetail: ALUserDetail!) {
         print("Last seen updated")
         viewModel.updateStatusFor(userDetail: alUserDetail)
-        guard let viewController = self.navigationController?.visibleViewController as? ALKConversationViewController else {
+        guard let viewController = navigationController?.visibleViewController as? ALKConversationViewController else {
             return
         }
         viewController.updateLastSeen(atStatus: alUserDetail)
@@ -534,6 +538,7 @@ extension ALKConversationListViewController: ALKConversationListTableViewDelegat
         }
         let viewController = conversationViewController ?? ALKConversationViewController(configuration: configuration)
         viewController.viewModel = convViewModel
+        viewController.individualLaunch = false
         navigationController?.pushViewController(viewController, animated: false)
     }
 
@@ -546,23 +551,11 @@ extension ALKConversationListViewController: ALKConversationListTableViewDelegat
     }
 
     public func userBlockNotification(userId: String, isBlocked: Bool) {
-        var dic = [AnyHashable: Any]()
-        dic["UserId"] = userId
-        dic["Controller"] = self
-        dic["Blocked"] = isBlocked
-        NotificationCenter.default.post(name: Notification.Name(rawValue: ALKNotification.conversationListAction), object: self, userInfo: dic)
+        viewModel.userBlockNotification(userId: userId, isBlocked: isBlocked)
     }
 
     public func muteNotification(conversation: ALMessage, isMuted: Bool) {
-        var dic = [AnyHashable: Any]()
-        dic["Muted"] = isMuted
-        dic["Controller"] = self
-        if conversation.isGroupChat {
-            dic["ChannelKey"] = conversation.groupId
-        } else {
-            dic["UserId"] = conversation.contactIds
-        }
-        NotificationCenter.default.post(name: Notification.Name(rawValue: ALKNotification.conversationListAction), object: self, userInfo: dic)
+        viewModel.muteNotification(conversation: conversation, isMuted: isMuted)
     }
 
     func showNavigationItems() {

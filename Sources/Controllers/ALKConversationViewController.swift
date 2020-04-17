@@ -54,6 +54,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     open lazy var navigationBar = ALKConversationNavBar(configuration: self.configuration, delegate: self)
 
     var contactService: ALContactService!
+    let registerUserClientService = ALRegisterUserClientService()
 
     var loadingIndicator = ALKLoadingIndicator(frame: .zero)
 
@@ -176,7 +177,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     // swiftlint:disable:next function_body_length cyclomatic_complexity
-    override func addObserver() {
+    open override func addObserver() {
         NotificationCenter.default.addObserver(
             forName: UIResponder.keyboardWillShowNotification,
             object: nil,
@@ -241,7 +242,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             print("new notification received: ", msgArray?.first?.message as Any, msgArray?.count ?? "")
             guard let list = notification.object as? [Any], !list.isEmpty, weakSelf.isViewLoaded else { return }
             weakSelf.viewModel.addMessagesToList(list)
-//            weakSelf.handlePushNotification = false
+            //            weakSelf.handlePushNotification = false
         })
 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "notificationIndividualChat"), object: nil, queue: nil, using: {
@@ -319,7 +320,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             weakSelf.newMessagesAdded()
         })
 
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND"), object: nil, queue: nil) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
             weakSelf.viewModel.currentConversationProfile(completion: { profile in
                 guard let profile = profile else { return }
@@ -327,13 +328,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             })
         }
 
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil, queue: nil) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { [weak self] _ in
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
             weakSelf.viewModel.sendKeyboardDoneTyping()
         }
     }
 
-    override func removeObserver() {
+    open override func removeObserver() {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "newMessageNotification"), object: nil)
@@ -344,8 +345,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "UPDATE_MESSAGE_SEND_STATUS"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "USER_DETAILS_UPDATE_CALL"), object: nil)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "UPDATE_CHANNEL_NAME"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND"), object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
 
     open override func viewWillAppear(_ animated: Bool) {
@@ -359,9 +360,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         activityIndicator.color = UIColor.lightGray
         tableView.addSubview(activityIndicator)
         setUpRightNavigationButtons()
-        if let listVC = self.navigationController?.viewControllers.first as? ALKConversationListViewController, listVC.isViewLoaded, individualLaunch {
-            individualLaunch = false
-        }
+        setupNavigation()
         alMqttConversationService = ALMQTTConversationService.sharedInstance()
         if individualLaunch {
             alMqttConversationService.mqttConversationDelegate = self
@@ -431,11 +430,18 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    override func showAccountSuspensionView() {
+    open override func showAccountSuspensionView() {
         let accountVC = ALKAccountSuspensionController()
-        present(accountVC, animated: false, completion: nil)
         accountVC.closePressed = { [weak self] in
-            _ = self?.navigationController?.popToRootViewController(animated: true)
+            self?.dismiss(animated: true, completion: nil)
+        }
+        present(accountVC, animated: false, completion: nil)
+        registerUserClientService.syncAccountStatus { response, error in
+            guard error == nil, let response = response, response.isRegisteredSuccessfully() else {
+                print("Failed to sync the account package status")
+                return
+            }
+            print("Successfuly synced the account  package status")
         }
     }
 
@@ -456,7 +462,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    func checkUserBlock() {
+    open func checkUserBlock() {
         guard !viewModel.isGroup, let contactId = viewModel.contactId else { return }
         ALUserService().getUserDetail(contactId) { contact in
             guard let contact = contact, contact.block else {
@@ -587,14 +593,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             loadingIndicator.set(titleColor)
             navigationBar.setupAppearance(navBar)
         }
-        navigationItem.titleView = loadingIndicator
-        loadingIndicator.startLoading(localizationFileName: configuration.localizedStringFileName)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: navigationBar)
-        viewModel.currentConversationProfile { profile in
-            guard let profile = profile else { return }
-            self.loadingIndicator.stopLoading()
-            self.navigationBar.updateView(profile: profile)
-        }
+        var items: [UIBarButtonItem] = navigationItem.leftBarButtonItems ?? []
+        items.append(UIBarButtonItem(customView: navigationBar))
+        navigationItem.leftBarButtonItems = items
     }
 
     private func prepareTable() {
@@ -664,7 +665,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         }
     }
 
-    private func configureChatBar() {
+    public func configureChatBar() {
         if viewModel.isOpenGroup {
             chatBar.updateMediaViewVisibility(hide: true)
             chatBar.hideMicButton()
@@ -854,7 +855,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             switch (pattern, filename) {
             case ("", ""):
                 return nil
-            case (let pattern, ""):
+            case let (pattern, ""):
                 return (try ProfanityFilter(restrictedMessageRegex: pattern))
             case let ("", filename):
                 return (try ProfanityFilter(fileName: filename))
@@ -895,18 +896,15 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     /// Call this method after proper viewModel initialization
-    public func refreshViewController() {
-        viewModel.clearViewModel()
-        tableView.reloadData()
-
-        setupNavigation()
+    open func refreshViewController() {
+        clearAndReloadTable()
+        updateConversationProfile()
         prepareContextView()
         configureChatBar()
         // Check for group left
         isChannelLeft()
         checkUserBlock()
         subscribeChannelToMqtt()
-
         viewModel.prepareController()
     }
 
@@ -975,6 +973,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         guard !message.isSentMessage() else { return }
         guard !viewModel.isOpenGroup else {
             viewModel.syncOpenGroup(message: message)
+            return
+        }
+        guard !configuration.isInAppNotificationBannerDisabled else {
             return
         }
         guard message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id else {
@@ -1481,11 +1482,11 @@ extension ALKConversationViewController: CNContactPickerDelegate {
 }
 
 extension ALKConversationViewController: ALKConversationViewModelDelegate {
-    public func loadingStarted() {
+    @objc open func loadingStarted() {
         activityIndicator.startAnimating()
     }
 
-    public func loadingFinished(error _: Error?) {
+    @objc open func loadingFinished(error _: Error?) {
         activityIndicator.stopAnimating()
         let oldSectionCount = tableView.numberOfSections
         tableView.reloadData()
@@ -1592,6 +1593,15 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         navigationBar.updateView(profile: profile)
     }
 
+    // Call this if the last message is not fully visible.
+    // This happens when chatbar's header height increases later on.
+    public func showLastMessage() {
+        if tableView.isCellVisible(section: viewModel.messageModels.count - 2, row: 0) {
+            let indexPath: IndexPath = IndexPath(row: 0, section: viewModel.messageModels.count - 1)
+            moveTableViewToBottom(indexPath: indexPath)
+        }
+    }
+
     func rightNavbarButton() -> UIBarButtonItem? {
         guard !configuration.hideRightNavBarButtonForConversationView else {
             return nil
@@ -1659,6 +1669,21 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
 
     public func updateTyingStatus(status: Bool, userId: String) {
         showTypingLabel(status: status, userId: userId)
+    }
+
+    public func clearAndReloadTable() {
+        viewModel.clearViewModel()
+        tableView.reloadData()
+    }
+
+    public func updateConversationProfile() {
+        navigationItem.titleView = loadingIndicator
+        loadingIndicator.startLoading(localizationFileName: configuration.localizedStringFileName)
+        viewModel.currentConversationProfile { profile in
+            guard let profile = profile else { return }
+            self.loadingIndicator.stopLoading()
+            self.navigationBar.updateView(profile: profile)
+        }
     }
 }
 
@@ -1917,7 +1942,7 @@ extension ALKConversationViewController: ALKCustomPickerDelegate {
                 guard let indexPath = viewModel.sendVideo(
                     atPath: path,
                     sourceType: .photoLibrary,
-                    metadata: self.configuration.messageMetadata
+                    metadata: configuration.messageMetadata
                 ).1
                 else { continue }
                 tableView.beginUpdates()
@@ -1937,10 +1962,6 @@ extension ALKConversationViewController: ALKCustomPickerDelegate {
 }
 
 extension ALKConversationViewController: NavigationBarCallbacks {
-    open func backButtonTapped() {
-        backTapped()
-    }
-
     open func titleTapped() {
         if let contact = contactDetails(), let contactId = contact.userId {
             let info: [String: Any] =

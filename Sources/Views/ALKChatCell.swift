@@ -27,6 +27,7 @@ public protocol ALKChatViewModelProtocol {
     var conversationId: NSNumber! { get set }
     var createdAt: String? { get }
     var messageType: ALKMessageType { get }
+    var channelType: Int16 { get }
 }
 
 public enum ALKChatCellAction {
@@ -105,15 +106,6 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         imageView.isHidden = true
         imageView.image = Config.iconMuted
         return imageView
-    }()
-
-    private lazy var favoriteButton: UIButton = {
-        let bt = UIButton(type: .custom)
-        bt.setImage(UIImage(named: "icon_favorite"), for: .normal)
-        bt.setImage(UIImage(named: "icon_favorite_active"), for: .highlighted)
-        bt.setImage(UIImage(named: "icon_favorite_active"), for: .selected)
-        bt.addTarget(self, action: #selector(favoriteTapped(button:)), for: UIControl.Event.touchUpInside)
-        return bt
     }()
 
     private var emailIcon: UIImageView = {
@@ -371,14 +363,18 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
 
     private func placeholderImage(_ placeholderImage: UIImage? = nil, viewModel: ALKChatViewModelProtocol) -> UIImage? {
         guard let image = placeholderImage else {
-            let placeholder = viewModel.isGroupChat ? "groupPlaceholder" : "contactPlaceholder"
+            var placeholder = "contactPlaceholder"
+
+            if viewModel.isGroupChat, viewModel.channelType != Int16(SUPPORT_GROUP.rawValue) {
+                placeholder = "groupPlaceholder"
+            }
             return UIImage(named: placeholder, in: Bundle.applozic, compatibleWith: nil)
         }
         return image
     }
 
     private func setupConstraints() {
-        contentView.addViewsForAutolayout(views: [avatarImageView, nameLabel, locationLabel, lineView, muteIcon, /* favoriteButton, */ badgeNumberView, timeLabel, onlineStatusView, emailIcon])
+        contentView.addViewsForAutolayout(views: [avatarImageView, nameLabel, locationLabel, lineView, muteIcon, badgeNumberView, timeLabel, onlineStatusView, emailIcon])
 
         // setup constraint of imageProfile
         avatarImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 17.0).isActive = true
@@ -409,16 +405,6 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
         lineView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
         lineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
 
-        // setup constraint of favorite button
-        /*
-         favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15).isActive = true
-         favoriteButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
-         favoriteButton.widthAnchor.constraint(equalToConstant: 24.0).isActive = true
-         favoriteButton.heightAnchor.constraint(equalToConstant: 24.0).isActive = true
-         */
-
-        // setup constraint of VOIP button
-        // voipButton.trailingAnchor.constraint(equalTo: favoriteButton.leadingAnchor, constant: -25.0).isActive = true
         muteIcon.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -19).isActive = true
         muteIcon.centerYAnchor.constraint(equalTo: locationLabel.centerYAnchor).isActive = true
         muteIcon.widthAnchor.constraint(equalToConstant: 15.0).isActive = true
@@ -461,10 +447,6 @@ public final class ALKChatCell: MGSwipeTableCell, Localizable {
 
     func setComingSoonDelegate(delegate: UIView) {
         comingSoonDelegate = delegate
-    }
-
-    @objc func favoriteTapped(button _: UIButton) {
-//        comingSoonDelegate?.makeToast(SystemMessage.ComingSoon.Favorite, duration: 1.0, position: .center)
     }
 
     public override func setEditing(_ editing: Bool, animated: Bool) {

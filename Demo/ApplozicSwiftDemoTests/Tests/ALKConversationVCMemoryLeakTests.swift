@@ -11,17 +11,15 @@ import Quick
 @testable import ApplozicSwift
 
 class ALKConversationVCMemoryLeakTests: QuickSpec {
-
     override func spec() {
-
         var conversationVC: ALKConversationViewControllerMock?
         var isDeinitCalled: Bool = false
 
         describe("when ALKConversationViewController is dismissed") {
             beforeEach {
                 waitUntil(timeout: 5.0) { done in
-                    conversationVC  = ALKConversationViewControllerMock(configuration: ALKConfiguration())
-                    conversationVC?.viewModel = ALKConversationViewModel(contactId: nil, channelKey: 000, localizedStringFileName: ALKConfiguration().localizedStringFileName)
+                    conversationVC = ALKConversationViewControllerMock(configuration: ALKConfiguration())
+                    conversationVC?.viewModel = ALKConversationViewModel(contactId: "000", channelKey: nil, localizedStringFileName: ALKConfiguration().localizedStringFileName)
                     conversationVC?.contactService = ALContactServiceMock()
                     conversationVC?.onDeinitialized = {
                         done()
