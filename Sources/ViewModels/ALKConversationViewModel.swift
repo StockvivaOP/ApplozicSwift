@@ -2188,10 +2188,20 @@ extension ALKConversationViewModel {
             //start process
             self.delegate?.loadingStarted()
             
+            //adjust target msg value
+            var _targetMsgTimeValueAdjust = targetMessageInfo.createTime
+            let _targetMsgTimeValueCount = "\(_targetMsgTimeValueAdjust)".count
+            let _diff = 13 - _targetMsgTimeValueCount
+            if _diff > 0 {
+                for _ in 0 ..< _diff {
+                    _targetMsgTimeValueAdjust = _targetMsgTimeValueAdjust * 10
+                }
+            }
+
             //reload
             //fetch message
             let _targetMsgId:String = targetMessageInfo.id
-            var _targetMsgTimeNumber:NSNumber = NSNumber(value: targetMessageInfo.createTime)
+            var _targetMsgTimeNumber:NSNumber = NSNumber(value: _targetMsgTimeValueAdjust)
         
             let _completedBlock:( (_ resultsOfBefore:[ALMessage]?, _ resultsOfAfter:[ALMessage]?)->() ) = { resultsOfBefore , resultsOfAfter in
                 self.isFocusReplyMessageMode = true
