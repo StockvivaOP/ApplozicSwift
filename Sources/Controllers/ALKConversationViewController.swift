@@ -2189,7 +2189,7 @@ extension ALKConversationViewController: NavigationBarCallbacks {
 
 }
 
-extension ALKConversationViewController: AttachmentDelegate {
+extension ALKConversationViewController: AttachmentDelegate, ALKMediaViewerViewControllerDelegate {
     func tapAction(message: ALKMessageViewModel) {
         //before show need paid
         let _isAllowOpen = self.isEnablePaidFeature()
@@ -2209,6 +2209,7 @@ extension ALKConversationViewController: AttachmentDelegate {
 
         guard let msg = message as? ALKMessageModel,
             let currentIndex = messageModels.index(of: msg) else { return }
+        vc?.delegate = self
         vc?.viewModel = ALKMediaViewerViewModel(
             messages: messageModels,
             currentIndex: currentIndex,
@@ -2216,6 +2217,12 @@ extension ALKConversationViewController: AttachmentDelegate {
         nav.modalPresentationStyle = .overFullScreen
         nav.modalTransitionStyle = .crossDissolve
         self.present(nav, animated: true, completion: nil)
+    }
+    
+    //ALKMediaViewerViewControllerDelegate
+    func refreshMediaCell(message: ALKMessageViewModel) {
+        guard let _msgIndexPath = self.viewModel.getMessageIndex(messageId: message.identifier) else { return }
+        self.updateMessageAt(indexPath: _msgIndexPath, needReloadTable: false)
     }
 }
 
@@ -2379,6 +2386,7 @@ extension ALKConversationViewController {
                 _vc.downloadTapped = {[weak self] value in
                     self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
                 }
+                _vc.imageFileUpdateDelegate = self
                 _presentVC = _vc
             }
         }else if _msgType == .document {

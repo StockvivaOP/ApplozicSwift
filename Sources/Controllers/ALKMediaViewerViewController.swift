@@ -11,10 +11,15 @@ import AVFoundation
 import Kingfisher
 import AVKit
 
+protocol ALKMediaViewerViewControllerDelegate {
+    func refreshMediaCell(message: ALKMessageViewModel)
+}
+
 final class ALKMediaViewerViewController: UIViewController {
 
     // to be injected
     var viewModel: ALKMediaViewerViewModel?
+    var delegate:ALKMediaViewerViewControllerDelegate?
 
     @IBOutlet private weak var fakeView: UIView!
 
@@ -161,6 +166,10 @@ final class ALKMediaViewerViewController: UIViewController {
     @IBAction private func dismissPress(_ sender: Any) {
         dismiss(animated: true, completion: nil)
     }
+    
+    @IBAction private func reloadPress(_ sender: Any) {
+        self.reDownloadImageFile()
+    }
 
     @objc private func swipeRightAction() {
         viewModel?.updateCurrentIndex(by: -1)
@@ -182,22 +191,11 @@ final class ALKMediaViewerViewController: UIViewController {
                     self.resetScrollImageStatus(imgSize: value.image.size)
                     break
                 case .failure(_):
-                    //none action
                     break
                 }
             }
-        }else if let _ = message.fileMetaInfo?.blobKey {
-            viewModel?.downloadImage(message: message)
         }else {
-            self.loadingIndicator.startAnimating()
-            viewModel?.fetchMessageWithId(messageId: message.identifier, completed: { (msgList) in
-                self.loadingIndicator.stopAnimating()
-                if let _msg = msgList?[0] {
-                    self.viewModel?.replaceCurrentMessage(message: _msg)
-                    self.showPhotoView(message:_msg.messageModel)
-                }
-            })
-            return
+            self.downloadImageFile(message: message)
         }
         
         //imageView.sizeToFit()
@@ -286,10 +284,44 @@ final class ALKMediaViewerViewController: UIViewController {
     }
 }
 
+extension ALKMediaViewerViewController {
+    func reDownloadImageFile(){
+        guard var message = viewModel?.getMessageForCurrentIndex(),
+            let _filePath = message.filePath else { return }
+        
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let path = documentsURL.appendingPathComponent(_filePath).path
+        try? FileManager.default.removeItem(atPath: path)
+        //refresh and update view
+        message.filePath = nil
+        //refresh cell
+        self.delegate?.refreshMediaCell(message: message)
+        self.updateView(message: message)
+    }
+    
+    func downloadImageFile(message: ALKMessageViewModel){
+        if let _ = message.fileMetaInfo?.blobKey {
+            viewModel?.downloadImage(message: message)
+        }else {
+            self.loadingIndicator.startAnimating()
+            viewModel?.fetchMessageWithId(messageId: message.identifier, completed: { (msgList) in
+                self.loadingIndicator.stopAnimating()
+                if let _msg = msgList?[0] {
+                    self.viewModel?.replaceCurrentMessage(message: _msg)
+                    self.showPhotoView(message:_msg.messageModel)
+                }
+            })
+        }
+    }
+}
+
 extension ALKMediaViewerViewController: ALKMediaViewerViewModelDelegate {
-    func reloadView() {
+    func reloadView(isDownloadAction:Bool) {
         guard let message = viewModel?.getMessageForCurrentIndex() else { return }
         updateView(message: message)
+        if isDownloadAction {
+            self.delegate?.refreshMediaCell(message: message)
+        }
     }
     
     func isHiddenLoadingView(_ isHidden:Bool) {

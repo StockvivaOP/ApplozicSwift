@@ -756,6 +756,7 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
             return
         }
+        
         guard !ThumbnailIdentifier.hasPrefix(in: identifier) else {
             DispatchQueue.main.async {
                 self.setThumbnail(filePath)
@@ -763,6 +764,19 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
             self.updateThumbnailPath(identifier, filePath: filePath)
             return
         }
+        
+        //check can open or not
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let path = documentsURL.appendingPathComponent(filePath).path
+        if UIImage(contentsOfFile: path) == nil {
+            try? FileManager.default.removeItem(atPath: path)
+            //update view
+            DispatchQueue.main.async {
+                self.updateView(for: .download)
+            }
+            return
+        }
+        
         ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))
