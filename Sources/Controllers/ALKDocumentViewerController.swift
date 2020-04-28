@@ -25,26 +25,32 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
     
     let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
 
-    required init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setUpNavigationBar()
-        activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
+        self.view.backgroundColor = .white
         activityIndicator.backgroundColor = UIColor.gray
         activityIndicator.layer.cornerRadius = 5
-        view.addSubview(activityIndicator)
-        self.view.bringSubviewToFront(activityIndicator)
+        
         let webConfiguration = WKWebViewConfiguration()
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = self
-        view = webView
+        self.view.addViewsForAutolayout(views: [webView, activityIndicator])
+        
+        self.view.bringSubviewToFront(activityIndicator)
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            
+            activityIndicator.heightAnchor.constraint(equalToConstant: 50.0),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 50.0),
+            activityIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+        ])
+        self.view.layoutIfNeeded()
+        
         self.reloadWebView()
     }
 
