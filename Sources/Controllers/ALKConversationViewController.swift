@@ -2224,6 +2224,10 @@ extension ALKConversationViewController: AttachmentDelegate, ALKMediaViewerViewC
         guard let _msgIndexPath = self.viewModel.getMessageIndex(messageId: message.identifier) else { return }
         self.updateMessageAt(indexPath: _msgIndexPath, needReloadTable: false)
     }
+    
+    func didDownloadImageFailure(){
+        self.requestToShowAlert(type: .networkProblem)
+    }
 }
 
 //MARK: - stockviva

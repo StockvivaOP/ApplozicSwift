@@ -13,6 +13,7 @@ import Applozic
 
 protocol AttachmentDelegate {
     func tapAction(message: ALKMessageViewModel)
+    func didDownloadImageFailure()
 }
 
 // MARK: - ALKPhotoCell
@@ -773,6 +774,7 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
             //update view
             DispatchQueue.main.async {
                 self.updateView(for: .download)
+                self.delegate?.didDownloadImageFailure()
             }
             return
         }
