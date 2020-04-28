@@ -2394,6 +2394,7 @@ extension ALKConversationViewController {
                 _vc.downloadTapped = {[weak self] value in
                     self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
                 }
+                _vc.documentFileUpdateDelegate = self
                 _presentVC = _vc
             }
         }
@@ -2518,7 +2519,7 @@ extension ALKConversationViewController: ALKSVMessageDetailViewControllerDelegat
 }
 
 //MARK: - stockviva (UIDocumentPickerDelegate)
-extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUploadConfirmViewControllerDelegate {
+extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUploadConfirmViewControllerDelegate, ALKDocumentViewerControllerDelegate {
     //UIDocumentPickerDelegate
     public func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         self.showDocumentConfirmPage(urls: [url])
@@ -2569,6 +2570,12 @@ extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUpload
                 }
             }
         }
+    }
+    
+    //ALKDocumentViewerControllerDelegate
+    func refreshDocumentCell(message: ALKMessageViewModel) {
+        guard let _msgIndexPath = self.viewModel.getMessageIndex(messageId: message.identifier) else { return }
+        self.updateMessageAt(indexPath: _msgIndexPath, needReloadTable: false)
     }
 }
 

@@ -206,6 +206,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
     
     //MARK: stockviva tag start
     var fileNameTrailing :NSLayoutConstraint?
+    var documentUpdateDelegate:ALKDocumentViewerControllerDelegate?
     
     func menuReply(_ sender: Any) {
         menuAction?(.reply(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
@@ -363,6 +364,8 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         let docViewController = ALKDocumentViewerController()
         docViewController.filePath = self.viewModel?.filePath ?? ""
         docViewController.fileName = self.viewModel?.fileMetaInfo?.name ?? ""
+        docViewController.message = self.viewModel
+        docViewController.delegate = self.documentUpdateDelegate
         let pushAssist = ALPushAssist()
         pushAssist.topViewController.navigationController?.pushViewController(docViewController, animated: false)
     }
