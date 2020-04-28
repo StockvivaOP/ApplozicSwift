@@ -23,7 +23,7 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
     var message: ALKMessageViewModel!
     var delegate:ALKDocumentViewerControllerDelegate?
     
-    let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
+    let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
 
     required init() {
         super.init(nibName: nil, bundle: nil)
@@ -37,7 +37,8 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
         super.viewDidLoad()
         self.setUpNavigationBar()
         activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
-        activityIndicator.color = UIColor.gray
+        activityIndicator.backgroundColor = UIColor.gray
+        activityIndicator.layer.cornerRadius = 5
         view.addSubview(activityIndicator)
         self.view.bringSubviewToFront(activityIndicator)
         let webConfiguration = WKWebViewConfiguration()
@@ -54,7 +55,10 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
 
     @objc func showShare(_ sender: Any?) {
         let vc = UIActivityViewController(activityItems: [fileUrl], applicationActivities: [])
-        self.present(vc, animated: true)
+        self.activityIndicator.startAnimating()
+        self.present(vc, animated: true) {
+            self.activityIndicator.stopAnimating()
+        }
     }
     
     @objc func reloadView(_ sender: Any?) {
