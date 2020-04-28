@@ -24,7 +24,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     var photoView: UIImageView = {
         let mv = UIImageView()
-        mv.backgroundColor = .clear
+        mv.backgroundColor = .lightGray
         mv.contentMode = .scaleAspectFill
         mv.clipsToBounds = true
         return mv
