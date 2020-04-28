@@ -157,8 +157,8 @@ final class ALKMediaViewerViewController: UIViewController {
         audioIcon.heightAnchor.constraint(equalToConstant: 50).isActive = true
         audioIcon.widthAnchor.constraint(equalToConstant: 50).isActive = true
         
-        loadingIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor).isActive = true
-        loadingIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor).isActive = true
+        loadingIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        loadingIndicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
 
         view.layoutIfNeeded()
     }
