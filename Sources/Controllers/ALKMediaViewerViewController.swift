@@ -73,8 +73,8 @@ final class ALKMediaViewerViewController: UIViewController {
         _view.style = .whiteLarge
         _view.backgroundColor = UIColor.darkGray
         _view.layer.cornerRadius = 5.0
-        _view.widthAnchor.constraint(equalToConstant: 40.0).isActive = true
-        _view.heightAnchor.constraint(equalToConstant: 40.0).isActive = true
+        _view.widthAnchor.constraint(equalToConstant: 50.0).isActive = true
+        _view.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
         _view.hidesWhenStopped = true
         return _view
     }()
