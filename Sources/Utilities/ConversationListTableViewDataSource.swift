@@ -21,7 +21,7 @@ public class ConversationListTableViewDataSource: NSObject, UITableViewDataSourc
         self.cellConfigurator = cellConfigurator
     }
 
-    func numberOfSections(in tableView: UITableView) -> Int {
+    public func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.numberOfSections()
     }
 
