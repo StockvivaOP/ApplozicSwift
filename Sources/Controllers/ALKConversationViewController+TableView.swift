@@ -484,6 +484,7 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.indexPath = indexPath
+                cell.documentUpdateDelegate = self
 
                 cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
@@ -516,6 +517,8 @@ extension ALKConversationViewController: UITableViewDelegate, UITableViewDataSou
                 cell.delegateConversationMessageBoxAction = self.delegateConversationMessageBoxAction
                 cell.setLocalizedStringFileName(configuration.localizedStringFileName)
                 cell.indexPath = indexPath
+                cell.documentUpdateDelegate = self
+                
                 cell.update(viewModel: message, replyMessage: replyMessage)
                 cell.update(chatBar: self.chatBar)
                 cell.menuAction = {[weak self] action in

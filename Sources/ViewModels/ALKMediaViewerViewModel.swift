@@ -12,7 +12,7 @@ import Applozic
 
 protocol ALKMediaViewerViewModelDelegate: class {
     func isHiddenLoadingView(_ isHidden:Bool)
-    func reloadView()
+    func reloadView(isDownloadAction:Bool)
 }
 
 final class ALKMediaViewerViewModel: NSObject, Localizable {
@@ -33,7 +33,7 @@ final class ALKMediaViewerViewModel: NSObject, Localizable {
     fileprivate var messages: [ALKMessageViewModel]
     fileprivate var currentIndex: Int {
         didSet {
-            delegate?.reloadView()
+            delegate?.reloadView(isDownloadAction: false)
         }
     }
     fileprivate var isFirstIndexAudioVideo = false
@@ -193,7 +193,7 @@ extension ALKMediaViewerViewModel : ALKHTTPManagerDownloadDelegate{
             self.messages[self.currentIndex].filePath = filePath
         }
         DispatchQueue.main.async {
-            self.delegate?.reloadView()
+            self.delegate?.reloadView(isDownloadAction: true)
         }
     }
 }
