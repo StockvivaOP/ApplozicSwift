@@ -27,6 +27,7 @@ class ALKSVDocumentMessageDetailViewController: ALKSVBaseMessageDetailViewContro
         return view
     }()
     var downloadTapped:((Bool) ->Void)?
+    var documentFileUpdateDelegate:ALKDocumentViewerControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,6 +108,8 @@ extension ALKSVDocumentMessageDetailViewController {
         let docViewController = ALKDocumentViewerController()
         docViewController.filePath = self.viewModel?.filePath ?? ""
         docViewController.fileName = self.viewModel?.fileMetaInfo?.name ?? ""
+        docViewController.message = self.viewModel
+        docViewController.delegate = self
         let _nagVC = UINavigationController(rootViewController: docViewController)
         _nagVC.modalPresentationStyle = .overCurrentContext
         _nagVC.modalTransitionStyle = .crossDissolve
@@ -115,6 +118,15 @@ extension ALKSVDocumentMessageDetailViewController {
     
     @IBAction func downloadButtonTouchUpInside(_ sender: Any) {
         self.downloadTapped?(true)
+    }
+}
+
+//MARK: - file update
+extension ALKSVDocumentMessageDetailViewController: ALKDocumentViewerControllerDelegate {
+    func refreshDocumentCell(message: ALKMessageViewModel) {
+        self.viewModel = message
+        self.updateContent()
+        self.documentFileUpdateDelegate?.refreshDocumentCell(message: message)
     }
 }
 

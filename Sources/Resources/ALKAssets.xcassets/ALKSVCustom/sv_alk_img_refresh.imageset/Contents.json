@@ -1,0 +1,15 @@
+{
+  "images" : [
+    {
+      "filename" : "sv_alk_img_refresh.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
+  }
+}

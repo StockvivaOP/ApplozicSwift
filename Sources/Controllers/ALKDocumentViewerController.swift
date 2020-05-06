@@ -7,6 +7,12 @@
 
 import Foundation
 import WebKit
+import AVFoundation
+import Applozic
+
+protocol ALKDocumentViewerControllerDelegate {
+    func refreshDocumentCell(message: ALKMessageViewModel)
+}
 
 class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
 
@@ -14,42 +20,70 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
     var fileName: String = ""
     var filePath: String = ""
     var fileUrl : URL = URL(fileURLWithPath: "")
-
-    let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
-
-    required init() {
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    var message: ALKMessageViewModel!
+    var delegate:ALKDocumentViewerControllerDelegate?
+    
+    let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.addBackButtonNavigation()
-        activityIndicator.center = CGPoint(x: view.bounds.size.width/2, y: view.bounds.size.height/2)
-        activityIndicator.color = UIColor.gray
-        view.addSubview(activityIndicator)
-        self.view.bringSubviewToFront(activityIndicator)
+        self.setUpNavigationBar()
+        self.view.backgroundColor = .white
+        activityIndicator.backgroundColor = UIColor.gray
+        activityIndicator.layer.cornerRadius = 5
+        
         let webConfiguration = WKWebViewConfiguration()
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.navigationDelegate = self
-        view = webView
-        self.fileUrl = ALKFileUtils().getDocumentDirectory(fileName: filePath)
-        activityIndicator.startAnimating()
-        webView.loadFileURL(self.fileUrl, allowingReadAccessTo: self.fileUrl)
+        self.view.addViewsForAutolayout(views: [webView, activityIndicator])
+        
+        self.view.bringSubviewToFront(activityIndicator)
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            
+            activityIndicator.heightAnchor.constraint(equalToConstant: 50.0),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 50.0),
+            activityIndicator.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+        ])
+        self.view.layoutIfNeeded()
+        
+        self.reloadWebView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationItem.rightBarButtonItem =  UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(self.showShare(_:)))
         self.title =  fileName
     }
 
     @objc func showShare(_ sender: Any?) {
         let vc = UIActivityViewController(activityItems: [fileUrl], applicationActivities: [])
-        self.present(vc, animated: true)
+        self.activityIndicator.startAnimating()
+        self.present(vc, animated: true) {
+            self.activityIndicator.stopAnimating()
+        }
+    }
+    
+    @objc func reloadView(_ sender: Any?) {
+        let _filePath = self.message.filePath ?? self.filePath
+        
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let path = documentsURL.appendingPathComponent(_filePath).path
+        try? FileManager.default.removeItem(atPath: path)
+        //refresh and update view
+        self.message.filePath = nil
+        //refresh cell
+        self.delegate?.refreshDocumentCell(message: self.message)
+        self.downloadFile()
+    }
+    
+    func reloadWebView(){
+        self.fileUrl = ALKFileUtils().getDocumentDirectory(fileName: self.filePath)
+        activityIndicator.startAnimating()
+        webView.loadFileURL(self.fileUrl, allowingReadAccessTo: self.fileUrl)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -58,6 +92,38 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         activityIndicator.stopAnimating()
+    }
+    
+    func setUpNavigationBar(){
+        self.addBackButtonNavigation()
+        //right button
+        let _svRightBtnGroup:UIStackView = UIStackView()
+        _svRightBtnGroup.alignment = .fill
+        _svRightBtnGroup.distribution = .fill
+        _svRightBtnGroup.spacing = 8.0
+        
+        let _btnSize = CGSize(width: 24.0, height: 24.0)
+        //share button
+        let _shareBtn:UIButton = UIButton(type: .custom)
+        _shareBtn.setImage(UIImage(named: "sv_button_share_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        _shareBtn.addTarget(self, action: #selector(self.showShare(_:)), for: .touchUpInside)
+        NSLayoutConstraint.activate([
+            _shareBtn.heightAnchor.constraint(equalToConstant: _btnSize.height),
+            _shareBtn.widthAnchor.constraint(equalToConstant: _btnSize.width)
+        ])
+        _svRightBtnGroup.addArrangedSubview(_shareBtn)
+        
+        //refresh button
+        let _refreshBtn:UIButton = UIButton(type: .custom)
+        _refreshBtn.setImage(UIImage(named: "sv_alk_img_refresh", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        _refreshBtn.addTarget(self, action: #selector(self.reloadView(_:)), for: .touchUpInside)
+        NSLayoutConstraint.activate([
+            _refreshBtn.heightAnchor.constraint(equalToConstant: _btnSize.height),
+            _refreshBtn.widthAnchor.constraint(equalToConstant: _btnSize.width)
+        ])
+        _svRightBtnGroup.addArrangedSubview(_refreshBtn)
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: _svRightBtnGroup)
     }
 
     func addBackButtonNavigation(){
@@ -71,6 +137,43 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
     @objc private func backViewAction(_ sender: UIBarButtonItem) {
         if self.navigationController?.popViewController(animated: true) == nil {
             self.navigationController?.dismiss(animated: true, completion: nil)
+        }
+    }
+}
+
+//controller for download
+extension ALKDocumentViewerController : ALKHTTPManagerDownloadDelegate{
+    
+    func downloadFile(){
+        self.activityIndicator.startAnimating()
+        ALMessageClientService().downloadImageUrl(self.message.fileMetaInfo?.blobKey) { (fileUrl, error) in
+            guard error == nil, let fileUrl = fileUrl else {
+                return
+            }
+            let httpManager = ALKHTTPManager()
+            httpManager.downloadDelegate = self
+            let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: self.message.fileMetaInfo?.name)
+            task.identifier = self.message.identifier
+            task.totalBytesExpectedToDownload = self.message.size
+            httpManager.downloadAttachment(task: task)
+        }
+    }
+    
+    func dataDownloaded(task: ALKDownloadTask) {
+        //none
+    }
+    
+    func dataDownloadingFinished(task: ALKDownloadTask) {
+        self.activityIndicator.stopAnimating()
+        guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier else {
+            return
+        }
+        self.filePath = filePath
+        self.message?.filePath = filePath
+        ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
+        DispatchQueue.main.async {
+            self.reloadWebView()
+            self.delegate?.refreshDocumentCell(message:self.message)
         }
     }
 }

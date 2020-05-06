@@ -29,6 +29,7 @@ class ALKSVImageMessageDetailViewController: ALKSVBaseMessageDetailViewControlle
     }()
     
     var downloadTapped:((Bool) ->Void)?
+    var imageFileUpdateDelegate:ALKMediaViewerViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -97,6 +98,7 @@ extension ALKSVImageMessageDetailViewController {
         guard let nav = storyboard.instantiateInitialViewController() as? UINavigationController else { return }
         let vc = nav.viewControllers.first as? ALKMediaViewerViewController
         guard let _messageModel = self.viewModel else { return }
+        vc?.delegate = self
         vc?.viewModel = ALKMediaViewerViewModel(
             messages: [_messageModel],
             currentIndex: 0,
@@ -108,6 +110,15 @@ extension ALKSVImageMessageDetailViewController {
     
     @IBAction func downloadButtonTouchUpInside(_ sender: Any) {
         self.downloadTapped?(true)
+    }
+}
+
+//MARK: - image file update
+extension ALKSVImageMessageDetailViewController : ALKMediaViewerViewControllerDelegate{
+    func refreshMediaCell(message: ALKMessageViewModel) {
+        self.viewModel = message
+        self.updateContent()
+        self.imageFileUpdateDelegate?.refreshMediaCell(message: message)
     }
 }
 
