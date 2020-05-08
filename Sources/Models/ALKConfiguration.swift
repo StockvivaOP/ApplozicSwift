@@ -463,12 +463,14 @@ public protocol ConversationMessageBoxActionDelegate: class{
     func didMenuAppealClicked(chatGroupHashID:String, userHashID:String, messageID:String, message:String?)
     func didMenuPinMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     func didMenuDeleteMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+    func didMenuBookmarkMsgClicked(chatGroupHashID:String, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
 }
 
 public protocol ConversationCellRequestInfoDelegate: class{
     func isEnableReplyMenuItem() -> Bool
     func isEnablePinMsgMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
+    func isEnableBookmarkMenuItem() -> Bool
     func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
     func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) //response
     func isAdminUserMessage(userHashId:String?) -> Bool

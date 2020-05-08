@@ -171,6 +171,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             return self.rawValue
         }
     }
+    public var enableBookmarkMsgFeture: Bool = true
     public var enableShowJoinGroupMode: Bool = false
     public var enableShowBlockChatMode: Bool = false
     public var conversationType: ALKConversationType = .free
@@ -1115,6 +1116,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                         self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.networkProblem)
                     }
                 }
+            }
+            break;
+        case .bookmarkMsg(chatGroupHashID: let chatGroupHashID, userHashID: let userHashID, viewModel: let viewModel, indexPath: let indexPath):
+            print("DeleteMsg selected")
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - message menu click bookmark msg:\(viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
+            if let _chatGroupID = chatGroupHashID,
+                let _model = viewModel {
+                self.delegateConversationMessageBoxAction?.didMenuBookmarkMsgClicked(chatGroupHashID:_chatGroupID, userHashID:userHashID, viewModel: _model, indexPath:indexPath)
             }
             break;
         }
@@ -2634,6 +2643,10 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
     
     public func isEnablePinMsgMenuItem() -> Bool {
         return self.delegateConversationChatContentAction?.isAdminUser(nil) ?? false
+    }
+    
+    public func isEnableBookmarkMenuItem() -> Bool {
+        return self.enableBookmarkMsgFeture
     }
     
     public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){

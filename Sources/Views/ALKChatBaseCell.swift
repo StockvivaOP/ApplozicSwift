@@ -39,6 +39,7 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         case appeal(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
         case pinMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
         case deleteMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+        case bookmarkMsg(chatGroupHashID:String?, userHashID:String?, viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     }
 
     /// It will be invoked when one of the actions
@@ -124,6 +125,10 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
                 menus.append(appealMenu)
             }
             
+            if let bookmarkMsgMenu = getBookmarkMsgMenuItem(bookmarkMsgItem: self) {
+                menus.append(bookmarkMsgMenu)
+            }
+            
             menuController.menuItems = menus
             menuController.setTargetRect(gestureView.frame, in: superView)
             menuController.setMenuVisible(true, animated: true)
@@ -146,6 +151,8 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             return self.delegateCellRequestInfo?.isEnablePinMsgMenuItem() ?? false
         case let menuItem as ALKDeleteMsgMenuItemProtocol where action == menuItem.selector:
             return true
+        case let menuItem as ALKBookmarkMsgMenuItemProtocol where action == menuItem.selector:
+            return self.delegateCellRequestInfo?.isEnableBookmarkMenuItem() ?? false
         default:
             return false
         }
@@ -194,6 +201,15 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
         let title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_delete") ?? localizedString(forKey: "DeleteMsg", withDefaultValue: SystemMessage.LabelName.DeleteMsg, fileName: localizedStringFileName)
         let deleteMsgMenu = UIMenuItem(title: title, action: deleteMsgMenuItem.selector)
         return deleteMsgMenu
+    }
+
+    private func getBookmarkMsgMenuItem(bookmarkMsgItem: Any) -> UIMenuItem? {
+        guard let bookmarkMsgMenuItem = bookmarkMsgItem as? ALKBookmarkMsgMenuItemProtocol else {
+            return nil
+        }
+        let title = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_bookmark_message") ?? localizedString(forKey: "BookmarkMsg", withDefaultValue: SystemMessage.LabelName.BookmarkMsg, fileName: localizedStringFileName)
+        let bookmarkMsgMenu = UIMenuItem(title: title, action: bookmarkMsgMenuItem.selector)
+        return bookmarkMsgMenu
     }
 }
 
@@ -249,6 +265,17 @@ extension ALKPinMsgMenuItemProtocol {
 extension ALKDeleteMsgMenuItemProtocol {
     var selector: Selector {
         return #selector(menuDeleteMsg(_:))
+    }
+}
+
+// MARK: - ALKBookmarkMsgMenuItemProtocol
+@objc protocol ALKBookmarkMsgMenuItemProtocol {
+    func menuBookmarkMsg(_ sender: Any)
+}
+
+extension ALKBookmarkMsgMenuItemProtocol {
+    var selector: Selector {
+        return #selector(menuBookmarkMsg(_:))
     }
 }
 
