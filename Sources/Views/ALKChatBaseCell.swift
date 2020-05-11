@@ -105,7 +105,11 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
             gestureView.becomeFirstResponder()
 
             var menus: [UIMenuItem] = []
-
+            
+            if let bookmarkMsgMenu = getBookmarkMsgMenuItem(bookmarkMsgItem: self) {
+                menus.append(bookmarkMsgMenu)
+            }
+            
             if let copyMenu = getCopyMenuItem(copyItem: self) {
                 menus.append(copyMenu)
             }
@@ -123,10 +127,6 @@ open class ALKChatBaseCell<T>: ALKBaseCell<T>, Localizable {
 
             if let appealMenu = getAppealMenuItem(appealItem: self) {
                 menus.append(appealMenu)
-            }
-            
-            if let bookmarkMsgMenu = getBookmarkMsgMenuItem(bookmarkMsgItem: self) {
-                menus.append(bookmarkMsgMenu)
             }
             
             menuController.menuItems = menus
