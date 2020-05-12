@@ -14,7 +14,7 @@ public protocol ALKSVMessagePhotoDownloaderDelegate: class {
     func didPhotoDownloadFinished(messageKey:String?, path:String?, error:Error?)
 }
 
-open class ALKSVMessagePhotoDownloader {
+open class ALKSVMessagePhotoDownloader : NSObject {
     
     open var delegate:ALKSVMessagePhotoDownloaderDelegate?
     open var messageKey:String?
@@ -23,6 +23,10 @@ open class ALKSVMessagePhotoDownloader {
     open var photoBlobKey:String?
     
     private var isCanceled:Bool = false
+    
+    // MARK: - Initializer
+    public required override init(){
+    }
     
     open func downloadPhoto(){
         guard let _messageKey = self.messageKey, let _photoBlobKey = self.photoBlobKey else {
