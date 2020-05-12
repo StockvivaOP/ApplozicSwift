@@ -2390,15 +2390,6 @@ extension ALKConversationViewModel {
             delegate?.updateMessageAt(indexPath: IndexPath(row: 0, section: index), needReloadTable: false)
         }
     }
-    
-    public static func getMessageType(isDeletedMessage:Bool, fileMetaContentType:String?) -> ALKConfiguration.ConversationMessageTypeForApp {
-        var _result = ALKConfiguration.ConversationMessageTypeForApp.text
-        if let _contentType = fileMetaContentType, isDeletedMessage == false {
-            let _alMsgType = ALMessage.getAttachmentType(contentType: _contentType)
-            _result = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _alMsgType)
-        }
-        return _result
-    }
 }
 
 //MARK: - stockviva delete message
