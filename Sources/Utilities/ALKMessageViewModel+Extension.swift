@@ -144,45 +144,4 @@ extension ALKMessageViewModel {
             return file.1 != nil ? .downloaded(filePath: file.0) : .download
         }
     }
-    
-    public static func getMessageType(isDeletedMessage:Bool, fileMetaContentType:String?) -> ALKConfiguration.ConversationMessageTypeForApp {
-        var _result = ALKConfiguration.ConversationMessageTypeForApp.text
-        if let _contentType = fileMetaContentType, isDeletedMessage == false {
-            let _alMsgType = ALMessage.getAttachmentType(contentType: _contentType)
-            _result = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _alMsgType)
-        }
-        return _result
-    }
-    
-    public static func getImageMessageThumbnail(thumbnailUrl:String?, thumbnailBlobKey:String?, completed:@escaping (_ result:String?)->()) {
-        guard let _thumbnailUrl = thumbnailUrl, let _thumbnailBlobKey = thumbnailBlobKey else {
-            completed(nil)
-            return
-        }
-        ALMessageClientService().downloadImageThumbnailUrl(_thumbnailUrl, blobKey: _thumbnailBlobKey) { (url, error) in
-            guard error == nil, let url = url else {
-                completed(nil)
-                return
-            }
-            completed(url)
-        }
-    }
-    
-    public static func getDownloadImagePathURL(messageId:String?, name:String?) -> String? {
-        guard let _messageId = messageId, let _fileName = name,
-            let _fileExtension = _fileName.components(separatedBy: ".").last else {
-            return nil
-        }
-        let _url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        var _path:String? = _url.appendingPathComponent(String(format: "%@_local.%@", _messageId, _fileExtension)).path
-        var _data = NSData(contentsOfFile: _path!)
-        if _data == nil {
-            _path = nil
-            _data = NSData(contentsOfFile: _url.appendingPathComponent(_fileName).path)
-            if _data != nil {
-                _path = _url.appendingPathComponent(_fileName).path
-            }
-        }
-        return _path
-    }
 }
