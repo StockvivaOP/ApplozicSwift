@@ -2417,8 +2417,8 @@ extension ALKConversationViewModel {
         }
     }
     
-    public static func getDownloadImagePathURL(messageId:String?, name:String?) -> String? {
-        guard let _messageId = messageId, let _fileName = name,
+    public static func getDownloadImagePathURL(messageId:String?, filename:String?) -> String? {
+        guard let _messageId = messageId, let _fileName = filename,
             let _fileExtension = _fileName.components(separatedBy: ".").last else {
             return nil
         }
