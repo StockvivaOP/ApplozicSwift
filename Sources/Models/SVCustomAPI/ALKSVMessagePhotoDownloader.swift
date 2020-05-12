@@ -25,7 +25,8 @@ open class ALKSVMessagePhotoDownloader : NSObject {
     private var isCanceled:Bool = false
     
     // MARK: - Initializer
-    public required override init(){
+    public override init() {
+        super.init()
     }
     
     open func downloadPhoto(){
