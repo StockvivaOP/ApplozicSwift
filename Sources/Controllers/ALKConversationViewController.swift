@@ -2543,6 +2543,10 @@ extension ALKConversationViewController: UIDocumentPickerDelegate, ALKFileUpload
         self.showDocumentConfirmPage(urls: urls)
     }
     
+    public func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        //none
+    }
+    
     //ALKFileUploadConfirmViewControllerDelegate
     private func showDocumentConfirmPage(urls: [URL]){
         //check and block over file size limit

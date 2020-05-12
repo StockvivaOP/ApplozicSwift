@@ -2403,18 +2403,19 @@ extension ALKConversationViewModel {
         return _result
     }
     
-    public static func getImageMessageThumbnail(thumbnailUrl:String?, thumbnailBlobKey:String?, completed:@escaping (_ result:String?)->()) {
+    public static func getImageMessageThumbnail(thumbnailUrl:String?, thumbnailBlobKey:String?, completed:@escaping (_ result:String?)->()) -> URLSessionDataTask? {
         guard let _thumbnailUrl = thumbnailUrl, let _thumbnailBlobKey = thumbnailBlobKey else {
             completed(nil)
-            return
+            return nil
         }
-        ALMessageClientService().downloadImageThumbnailUrl(_thumbnailUrl, blobKey: _thumbnailBlobKey) { (url, error) in
+        let _dataTask = ALMessageClientService().svDownloadImageThumbnailUrl(_thumbnailUrl, blobKey: _thumbnailBlobKey) { (url, error) in
             guard error == nil, let url = url else {
                 completed(nil)
                 return
             }
             completed(url)
         }
+        return _dataTask
     }
     
     public static func getDownloadImagePathURL(messageId:String?, filename:String?) -> String? {
