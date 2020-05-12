@@ -374,6 +374,18 @@ extension ALMessage {
         return .document//when content type is nil
     }
     
+    static func getAttachmentType(contentType:String) -> ALKMessageType {
+        if contentType.hasPrefix("image") {
+            return .photo
+        } else if contentType.hasPrefix("audio") {
+            return .voice
+        } else if contentType.hasPrefix("video") {
+            return .video
+        } else {
+            return .document
+        }
+    }
+    
     private func richMessageType() -> ALKMessageType {
         guard let metadata = metadata,
             let contentType = metadata["contentType"] as? String, contentType == "300",
