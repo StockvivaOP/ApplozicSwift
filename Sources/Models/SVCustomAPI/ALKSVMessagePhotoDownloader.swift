@@ -83,6 +83,16 @@ extension ALKSVMessagePhotoDownloader : ALKHTTPManagerDownloadDelegate{
             _completed(filePath, nil)
             return
         }
+        
+        //check can open or not
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let path = documentsURL.appendingPathComponent(filePath).path
+        if UIImage(contentsOfFile: path) == nil {
+            try? FileManager.default.removeItem(atPath: path)
+            _completed(nil, nil)
+            return
+        }
+        //save file and remove item
         ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         _completed(filePath, nil)
     }
