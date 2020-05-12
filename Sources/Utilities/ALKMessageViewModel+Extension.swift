@@ -174,9 +174,10 @@ extension ALKMessageViewModel {
             return nil
         }
         let _url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        var _path = _url.appendingPathComponent(String(format: "%@_local.%@", _messageId, _fileExtension)).path
+        var _path:String? = _url.appendingPathComponent(String(format: "%@_local.%@", _messageId, _fileExtension)).path
         var _data = NSData(contentsOfFile: _path)
         if _data == nil {
+            _path = nil
             _data = NSData(contentsOfFile: _url.appendingPathComponent(_fileName).path)
             if _data != nil {
                 _path = _url.appendingPathComponent(_fileName).path
