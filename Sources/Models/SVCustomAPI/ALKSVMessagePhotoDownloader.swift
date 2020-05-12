@@ -70,7 +70,7 @@ extension ALKSVMessagePhotoDownloader : ALKHTTPManagerDownloadDelegate{
                     self.delegate?.didPhotoDownloadCanceled(messageKey:self.messageKey)
                     return
                 }else{
-                    self.delegate?.didPhotoDownloadFinished(messageKey:self.messageKey, path:nil, error:task.downloadError)
+                    self.delegate?.didPhotoDownloadFinished(messageKey:self.messageKey, path:path, error:error)
                 }
             }
         }
