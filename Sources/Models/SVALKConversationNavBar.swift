@@ -68,13 +68,15 @@ open class SVALKConversationNavBar {
     }
     
     public func updateContent(profile:ALKConversationProfile? = nil){
-        if let _profile = profile {
-            self.currentNavProfile = profile
-            self.navigationBar?.updateView(profile: _profile)
-        }else if let _cProfile = self.currentNavProfile,
-            let _navigationBar = self.navigationBar {
+        if let _navigationBar = self.navigationBar {
             self.navigationItem?.leftBarButtonItem = UIBarButtonItem(customView: _navigationBar)
-            self.navigationBar?.updateView(profile: _cProfile)
+        }
+        
+        if let _profile = profile {
+           self.currentNavProfile = profile
+           self.navigationBar?.updateView(profile: _profile)
+        }else if let _cProfile = self.currentNavProfile {
+           self.navigationBar?.updateView(profile: _cProfile)
         }
         self.navigationBar?.updateContent()
         self.updateShowAdminMessageButtonTitle()
