@@ -71,7 +71,9 @@ open class SVALKConversationNavBar {
         if let _profile = profile {
             self.currentNavProfile = profile
             self.navigationBar?.updateView(profile: _profile)
-        }else if let _cProfile = self.currentNavProfile {
+        }else if let _cProfile = self.currentNavProfile,
+            let _navigationBar = self.navigationBar {
+            self.navigationItem?.leftBarButtonItem = UIBarButtonItem(customView: _navigationBar)
             self.navigationBar?.updateView(profile: _cProfile)
         }
         self.navigationBar?.updateContent()
