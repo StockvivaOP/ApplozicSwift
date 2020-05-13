@@ -34,6 +34,7 @@ open class SVALKConversationNavBar {
     public var configuration: ALKConfiguration?
     public var viewModel: ALKConversationViewModel?
     
+    private var currentNavProfile:ALKConversationProfile?
     private var loadingIndicator:ALKLoadingIndicator?
     private var navigationBar:ALKConversationNavBar?
     
@@ -54,6 +55,7 @@ open class SVALKConversationNavBar {
         _navItem.leftBarButtonItem = UIBarButtonItem(customView: self.navigationBar!)
         _viewModel.currentConversationProfile { (profile) in
             guard let profile = profile else { return }
+            self.currentNavProfile = profile
             _navItem.titleView = nil
             self.loadingIndicator?.stopLoading()
             self.updateContent(profile: profile)
@@ -67,7 +69,10 @@ open class SVALKConversationNavBar {
     
     public func updateContent(profile:ALKConversationProfile? = nil){
         if let _profile = profile {
+            self.currentNavProfile = profile
             self.navigationBar?.updateView(profile: _profile)
+        }else if let _cProfile = self.currentNavProfile {
+            self.navigationBar?.updateView(profile: _cProfile)
         }
         self.navigationBar?.updateContent()
         self.updateShowAdminMessageButtonTitle()
