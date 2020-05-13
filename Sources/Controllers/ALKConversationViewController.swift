@@ -2496,6 +2496,10 @@ extension ALKConversationViewController: ChatBarRequestActionDelegate{
         self.delegateConversationChatBarAction?.didUserEnteredSpecialCharacterKey(key:key)
     }
     
+    public func chatBarRequestSendContentDetectedSpecialKeyword(type: ALKConfiguration.ConversationMessageKeywordType, content: String) -> Bool {
+        return self.delegateConversationChatBarAction?.didSendContentDetectedSpecialKeyword(type: type, content: content) ?? false
+    }
+    
     public func chatBarRequestSearchStockCode(key:String) -> [(code:String, name:String)]? {
         return self.delegateConversationChatBarAction?.searchStockCodeInChatBar(key:key)
     }

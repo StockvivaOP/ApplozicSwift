@@ -303,6 +303,11 @@ public struct ALKConfiguration {
         }
     }
     
+    public enum ConversationMessageKeywordType : CaseIterable {
+        case none
+        case contactCS
+    }
+    
     public enum LoggingType : CaseIterable {
         case info
         case debug
@@ -382,6 +387,7 @@ public struct ALKConfiguration {
     public static var specialLinkList:[(match:String, type:ALKConfiguration.ConversationMessageLinkType)] = [
         (match:ALKConfiguration.stockCodeRegularExpressionString, type:ALKConfiguration.ConversationMessageLinkType.stockCode(isNameOnly: false))]
     
+    public static var chatMessageKeywordDetectList:[(match:String, type:ALKConfiguration.ConversationMessageKeywordType)] = []
     //tag: stockviva - end
     
     public init() { }
@@ -443,6 +449,7 @@ public protocol ConversationChatBarActionDelegate: class{
     func blockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     //did user entered special character key
     func didUserEnteredSpecialCharacterKey(key:String)
+    func didSendContentDetectedSpecialKeyword(type:ALKConfiguration.ConversationMessageKeywordType, content:String) -> Bool
     func searchStockCodeInChatBar(key:String) -> [(code:String, name:String)]?
     func suggestionStockCodeClicked(code:String, name:String)
 }
@@ -454,6 +461,7 @@ public protocol ChatBarRequestActionDelegate: class{
     func chatBarRequestJoinGroupButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     func chatBarRequestBlockChatButtonClicked(chatBar:ALKChatBar, chatView:UIViewController?)
     func chatBarRequestUserEnteredSpecialCharacterKeyDetected(key:String)
+    func chatBarRequestSendContentDetectedSpecialKeyword(type:ALKConfiguration.ConversationMessageKeywordType, content:String) -> Bool
     func chatBarRequestSearchStockCode(key:String) -> [(code:String, name:String)]?
     func chatBarRequestSuggestionStockCodeClicked(code:String, name:String)
 }
