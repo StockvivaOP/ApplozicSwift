@@ -79,9 +79,10 @@ open class SVALKConversationNavBar {
         return _btn
     }
     
-    public func getConvertTitleViewPoint(targetDisplayView:UIView) -> CGPoint?{
-        if let _titleView = self.navigationBar?.profileView {
-            return self.navigationItem?.leftBarButtonItem?.customView?.convert(_titleView.frame.origin, to: targetDisplayView)
+    public func getConvertTitleViewFrame(targetDisplayView:UIView) -> CGRect?{
+        if let _titleView = self.navigationBar?.profileView,
+            let _point = self.navigationItem?.leftBarButtonItem?.customView?.convert(_titleView.frame.origin, to: targetDisplayView) {
+            return CGRect(x: _point.x, y: _point.y, width: _titleView.frame.size.width, height: _titleView.frame.size.height)
         }
         return nil
     }
