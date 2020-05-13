@@ -135,6 +135,7 @@
 		C425281523FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C425281323FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib */; };
 		C425281A23FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C425281823FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift */; };
 		C425281B23FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C425281923FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib */; };
+		C438B34C246BD8AB007BF5A2 /* SVALKConversationNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C438B34B246BD8AB007BF5A2 /* SVALKConversationNavBar.swift */; };
 		C43F9CF9238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */; };
 		C43F9CFF238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */; };
 		C43F9D00238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */; };
@@ -295,6 +296,7 @@
 		C425281323FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SVALKFriendSendGiftTableViewCell.xib; sourceTree = "<group>"; };
 		C425281823FD2DB500539305 /* SVALKMySendGiftTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVALKMySendGiftTableViewCell.swift; sourceTree = "<group>"; };
 		C425281923FD2DB500539305 /* SVALKMySendGiftTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SVALKMySendGiftTableViewCell.xib; sourceTree = "<group>"; };
+		C438B34B246BD8AB007BF5A2 /* SVALKConversationNavBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVALKConversationNavBar.swift; sourceTree = "<group>"; };
 		C43F9CF8238BD98900811901 /* ALKChatBar+UICollectionViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ALKChatBar+UICollectionViewDelegate.swift"; sourceTree = "<group>"; };
 		C43F9CFD238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKChatBarTagUserListCollectionViewCell.swift; sourceTree = "<group>"; };
 		C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ALKChatBarTagUserListCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -473,6 +475,7 @@
 				8BB533411F69463B0008C1CF /* ALKMessageModel.swift */,
 				8BB5332E1F69463B0008C1CF /* ALKFriendDatasource.swift */,
 				C4FA8A6D235955B9002D1AA5 /* ALKSVUserDefaultsControl.swift */,
+				C438B34B246BD8AB007BF5A2 /* SVALKConversationNavBar.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -776,6 +779,7 @@
 				8BB533D31F69463C0008C1CF /* CGSize+Extension.swift in Sources */,
 				8BB533F51F69463C0008C1CF /* UIImaveView+Extension.swift in Sources */,
 				8BB533931F69463B0008C1CF /* ALKChatCell.swift in Sources */,
+				C438B34C246BD8AB007BF5A2 /* SVALKConversationNavBar.swift in Sources */,
 				C425281423FD2D8900539305 /* SVALKFriendSendGiftTableViewCell.swift in Sources */,
 				8BB533871F69463B0008C1CF /* ALContact+Extension.swift in Sources */,
 				8BB533D21F69463C0008C1CF /* Bundle+Extension.swift in Sources */,
