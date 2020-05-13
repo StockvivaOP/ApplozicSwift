@@ -312,6 +312,8 @@ open class ALKChatBar: UIView, Localizable {
             if text.lengthOfBytes(using: .utf8) > 0 {
                 if self.searchedKeywordInSendText(sendingText: text) == false {
                     action?(.sendText(button,text, self.getMentionUserList()))
+                }else{
+                    self.resignAllResponderFromTextView()
                 }
             }
             break
