@@ -310,8 +310,9 @@ open class ALKChatBar: UIView, Localizable {
             self.clearTagStockCodeList()
             let text = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
             if text.lengthOfBytes(using: .utf8) > 0 {
-                if self.searchedKeywordInSendText(sendingText: text) == false {
-                    action?(.sendText(button,text, self.getMentionUserList()))
+                let _mentionUser = self.getMentionUserList()
+                if self.searchedKeywordInSendText(sendingText: text, mentionUserList: _mentionUser) == false {
+                    action?(.sendText(button,text, _mentionUser))
                 }else{
                     self.resignAllResponderFromTextView()
                 }
@@ -1146,14 +1147,16 @@ extension ALKChatBar {
 }
 
 extension ALKChatBar {
-    private func searchedKeywordInSendText(sendingText:String) -> Bool {
+    private func searchedKeywordInSendText(sendingText:String, mentionUserList:[(hashID:String, name:String)]?) -> Bool {
         var _result = false
+        let _finalSendingText = ALKConversationViewModel.getCombineMessagreString(sendingText: sendingText, mentionUserList: mentionUserList)
+        
         for matchItem in ALKConfiguration.chatMessageKeywordDetectList {
             do{
                 let _regex = try NSRegularExpression(pattern:matchItem.match, options: NSRegularExpression.Options.caseInsensitive)
-                let _searchedTextList = _regex.matches(in: sendingText, options: NSRegularExpression.MatchingOptions.reportCompletion, range: NSRange(location: 0, length: sendingText.count))
+                let _searchedTextList = _regex.matches(in: _finalSendingText, options: NSRegularExpression.MatchingOptions.reportCompletion, range: NSRange(location: 0, length: _finalSendingText.count))
                 if _searchedTextList.count > 0 {
-                    _result = self.delegate?.chatBarRequestSendContentDetectedSpecialKeyword(type: matchItem.type, content: sendingText) ?? false
+                    _result = self.delegate?.chatBarRequestSendContentDetectedSpecialKeyword(type: matchItem.type, content: _finalSendingText) ?? false
                     break
                 }
             }catch {
