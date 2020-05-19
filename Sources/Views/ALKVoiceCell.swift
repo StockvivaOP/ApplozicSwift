@@ -25,7 +25,7 @@ public enum ALKVoiceCellState {
 }
 
 class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol, ALKBookmarkMsgMenuItemProtocol {
 
     var soundPlayerView: UIView = {
         let mv = UIView()
@@ -321,6 +321,11 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
                 return false
             }
             return self.canDeleteMessage()
+        case let menuItem as ALKBookmarkMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
         default:
             return super.canPerformAction(action, withSender: sender)
         }
@@ -340,6 +345,10 @@ class ALKVoiceCell:ALKChatBaseCell<ALKMessageViewModel>,
     
     func menuDeleteMsg(_ sender: Any){
         menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
+    }
+    
+    func menuBookmarkMsg(_ sender: Any){
+        menuAction?(.bookmarkMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
     }
 }
 

@@ -15,7 +15,7 @@ protocol ALKLocationCellDelegate: class {
 }
 
 class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
-                        ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol{
+                        ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol, ALKBookmarkMsgMenuItemProtocol{
 
     weak var delegate:ALKLocationCellDelegate?
 
@@ -195,6 +195,10 @@ class ALKLocationCell: ALKChatBaseCell<ALKMessageViewModel>,
     
     func menuDeleteMsg(_ sender: Any){
         menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
+    }
+    
+    func menuBookmarkMsg(_ sender: Any){
+        menuAction?(.bookmarkMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
     }
 }
 

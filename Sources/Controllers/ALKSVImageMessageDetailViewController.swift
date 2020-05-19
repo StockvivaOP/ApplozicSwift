@@ -203,6 +203,19 @@ extension ALKSVImageMessageDetailViewController : ALKHTTPManagerDownloadDelegate
             self.updateThumbnailPath(identifier, filePath: filePath)
             return
         }
+        
+        //check can open or not
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let path = documentsURL.appendingPathComponent(filePath).path
+        if UIImage(contentsOfFile: path) == nil {
+            try? FileManager.default.removeItem(atPath: path)
+            //update view
+            DispatchQueue.main.async {
+                self.updateDownloadView(state: .download)
+            }
+            return
+        }
+        
         ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateDownloadView(state: .downloaded(filePath: filePath))

@@ -310,7 +310,11 @@ open class ALKChatBar: UIView, Localizable {
             self.clearTagStockCodeList()
             let text = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
             if text.lengthOfBytes(using: .utf8) > 0 {
-                action?(.sendText(button,text, self.getMentionUserList()))
+                if self.searchedKeywordInSendText(sendingText: text) == false {
+                    action?(.sendText(button,text, self.getMentionUserList()))
+                }else{
+                    self.resignAllResponderFromTextView()
+                }
             }
             break
         case plusButton:
@@ -1138,6 +1142,24 @@ extension ALKChatBar {
         
         self.textView.text = _result as String
         self.clearTagStockCodeList()
+    }
+}
+
+extension ALKChatBar {
+    private func searchedKeywordInSendText(sendingText:String) -> Bool {
+        var _result = false
+        for matchItem in ALKConfiguration.chatMessageKeywordDetectList {
+            do{
+                let _regex = try NSRegularExpression(pattern:matchItem.match, options: NSRegularExpression.Options.caseInsensitive)
+                let _searchedTextList = _regex.matches(in: sendingText, options: NSRegularExpression.MatchingOptions.reportCompletion, range: NSRange(location: 0, length: sendingText.count))
+                if _searchedTextList.count > 0 {
+                    _result = self.delegate?.chatBarRequestSendContentDetectedSpecialKeyword(type: matchItem.type, content: sendingText) ?? false
+                    break
+                }
+            }catch {
+            }
+        }
+        return _result
     }
 }
 

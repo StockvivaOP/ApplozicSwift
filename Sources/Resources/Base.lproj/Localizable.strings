@@ -104,6 +104,7 @@ Reply = "Reply";
 Appeal = "Appeal";
 PinMsg = "PinMsg";
 DeleteMsg = "DeleteMsg";
+BookmarkMsg = "Bookmark";
 You = "You";
 
 NotPartOfGroup = "You are not part of this group";

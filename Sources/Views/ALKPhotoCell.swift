@@ -18,7 +18,7 @@ protocol AttachmentDelegate {
 
 // MARK: - ALKPhotoCell
 class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
-                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol {
+                    ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, ALKDeleteMsgMenuItemProtocol, ALKBookmarkMsgMenuItemProtocol {
 
     var delegate: AttachmentDelegate?
 
@@ -632,6 +632,11 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                 return false
             }
             return self.canDeleteMessage()
+        case let menuItem as ALKBookmarkMsgMenuItemProtocol where action == menuItem.selector:
+            if self.viewModel?.getSVMessageStatus() != .sent {
+                return false
+            }
+            return super.canPerformAction(action, withSender: sender)
         default:
             return super.canPerformAction(action, withSender: sender)
         }
@@ -651,6 +656,10 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     
     func menuDeleteMsg(_ sender: Any){
         menuAction?(.deleteMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
+    }
+    
+    func menuBookmarkMsg(_ sender: Any){
+        menuAction?(.bookmarkMsg(chatGroupHashID: self.clientChannelKey, userHashID: self.viewModel?.getMessageSenderHashId(), viewModel: self.viewModel, indexPath:self.indexPath))
     }
     
     func setPhotoViewImageFromFileURL(_ fileURL: URL) {
