@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Applozic
 
 enum AttachmentState {
     case download
@@ -127,7 +128,7 @@ extension ALKMessageViewModel {
         }
         return path
     }
-
+    
     func attachmentState() -> AttachmentState? {
         guard let file = downloadPath() else {
             return nil
