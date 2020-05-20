@@ -713,17 +713,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     open func send(message: String, contentType:Int32 = ALMESSAGE_CONTENT_DEFAULT, mentionUserList:[(hashID:String, name:String)]? = nil, isOpenGroup: Bool = false, metadata: [AnyHashable : Any]?) {
         let alMessage = getMessageToPost(isTextMessage: true, contentType: contentType)
         //if user has mention some user
-        if let _mUserList = mentionUserList, _mUserList.count > 0 {
-            var _userDisplayList = ""
-            for item in _mUserList {
-                _userDisplayList += "@\(item.name) "
-            }
-            _userDisplayList = _userDisplayList.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-            _userDisplayList += "\n"
-            alMessage.message = _userDisplayList + message
-        }else{
-            alMessage.message = message
-        }
+        alMessage.message = ALKConversationViewModel.getCombineMessagreString(sendingText: message, mentionUserList: mentionUserList)
         alMessage.metadata = self.modfiedMessageMetadata(alMessage: alMessage, metadata: metadata)
         alMessage.addMentionsUserList(mentionUserList)
 
@@ -2401,6 +2391,21 @@ extension ALKConversationViewModel {
             _result = ALKConfiguration.ConversationMessageTypeForApp.getMessageTypeString(type: _alMsgType)
         }
         return _result
+    }
+    
+    public static func getCombineMessagreString(sendingText:String, mentionUserList:[(hashID:String, name:String)]?) -> String {
+        //if user has mention some user
+        var _finalSendingText = sendingText
+        if let _mUserList = mentionUserList, _mUserList.count > 0 {
+            var _userDisplayList = ""
+            for item in _mUserList {
+                _userDisplayList += "@\(item.name) "
+            }
+            _userDisplayList = _userDisplayList.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            _userDisplayList += "\n"
+            _finalSendingText = _userDisplayList + sendingText
+        }
+        return _finalSendingText
     }
     
     public static func getImageMessageThumbnail(thumbnailUrl:String?, thumbnailBlobKey:String?, completed:@escaping (_ result:String?)->()) -> URLSessionDataTask? {
