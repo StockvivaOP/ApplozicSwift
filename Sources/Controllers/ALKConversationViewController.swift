@@ -1549,9 +1549,14 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         DispatchQueue.main.async {
             self.loadingStop()
             if needReloadTable == false {
-                self.tableView.beginUpdates()
-                self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .fade)
-                self.tableView.endUpdates()
+                let newSectionCount = self.viewModel.numberOfSections()
+                if newSectionCount > indexPath.section {
+                    self.tableView.beginUpdates()
+                    self.tableView.reloadSections(IndexSet(integer: indexPath.section), with: .fade)
+                    self.tableView.endUpdates()
+                }else{
+                    self.tableView.reloadData()
+                }
             }else{
                 self.tableView.reloadData()
             }
