@@ -312,16 +312,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "newMessageNotification"), object: nil, queue: nil, using: {
             notification in
             guard self.viewModel != nil && self.isLeaveView == false else { return }
+            if let msgArray = notification.object as? [ALMessage] {
+                print("new notification received: ", msgArray.first?.message as Any, msgArray.count )
+                self.delegateConversationChatContentAction?.didOriginalMessageReceived(messages: msgArray.map({$0.messageModel}))
+            }
             guard self.viewModel.isUnreadMessageMode == false && self.viewModel.isFocusReplyMessageMode == false else {
                 return
             }
-            let msgArray = notification.object as? [ALMessage]
-            print("new notification received: ", msgArray?.first?.message as Any, msgArray?.count ?? "")
             guard let list = notification.object as? [Any], !list.isEmpty, self.isViewLoaded else { return }
 //            weakSelf.handlePushNotification = false
-            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false) { (list) in
-                self.delegateConversationChatContentAction?.didMessageReceived(messages: list)
-            }
+            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false, result: nil)
         })
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "messageMetaDataUpdateNotification"), object: nil, queue: nil, using: {
