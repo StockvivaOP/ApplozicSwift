@@ -400,6 +400,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
+    func didMessageReceived(messages:[ALKMessageModel]?)
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?, mentionUserList:[(hashID:String, name:String)]?)
     func openLink(url:URL, viewModel:ALKMessageViewModel?, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)

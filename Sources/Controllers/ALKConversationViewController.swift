@@ -318,8 +318,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             let msgArray = notification.object as? [ALMessage]
             print("new notification received: ", msgArray?.first?.message as Any, msgArray?.count ?? "")
             guard let list = notification.object as? [Any], !list.isEmpty, self.isViewLoaded else { return }
-            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
 //            weakSelf.handlePushNotification = false
+            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false) { (list) in
+                self.delegateConversationChatContentAction?.didMessageReceived(messages: list)
+            }
         })
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "messageMetaDataUpdateNotification"), object: nil, queue: nil, using: {
@@ -417,7 +419,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
                         self?.isAutoRefreshMessage = true
                     }else{
-                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false)
+                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false){ (list) in
+                            self?.delegateConversationChatContentAction?.didMessageReceived(messages: list)
+                        }
                     }
                 }
             }
@@ -926,7 +930,9 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             return
         }
         guard !viewModel.isOpenGroup else {
-            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
+            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false) { (list) in
+                self.delegateConversationChatContentAction?.didMessageReceived(messages: list)
+            }
             return
         }
         guard (message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id) else {
@@ -1880,7 +1886,9 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
         //auto refresh after
         if self.isAutoRefreshMessage {
             self.isAutoRefreshMessage = false
-            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false){ (list) in
+                self.delegateConversationChatContentAction?.didMessageReceived(messages: list)
+            }
         }
     }
 

@@ -493,8 +493,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     /// Received from notification and from network
-    open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false) {
-        guard let messages = messageList as? [ALMessage] else { return }
+    open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false, result:((_ messages:[ALKMessageModel]?)->())?) {
+        guard let messages = messageList as? [ALMessage] else {
+            result?(nil)
+            return
+        }
         let _loginUserId = ALUserDefaultsHandler.getUserId()
         let contactService = ALContactService()
         let messageDbService = ALMessageDBService()
@@ -579,6 +582,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
                 //if empty list
                 if _tempFilteredArray.count == 0 {
+                    result?(nil)
                     return
                 }
                 filteredArray = _tempFilteredArray
@@ -589,7 +593,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 if filteredArray.count > 1 {
                     sortedArray = filteredArray.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
                 }
-                guard !sortedArray.isEmpty else { return }
+                guard !sortedArray.isEmpty else {
+                    result?(nil)
+                    return
+                }
                 
                 //add unread message
                 if self.isUnreadMessageMode == false && isNeedOnUnreadMessageModel, let _unReadMsgCreateTime:Int = sortedArray.first?.createdAtTime.intValue {
@@ -621,6 +628,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
                 
                 self.delegate?.newMessagesAdded()
+                result?(models)
             })
         }
     }
@@ -1855,17 +1863,17 @@ extension ALKConversationViewModel {
         }
     }
     
-    func syncOpenGroupOneMessage(message: ALMessage, isNeedOnUnreadMessageModel:Bool) {
+    func syncOpenGroupOneMessage(message: ALMessage, isNeedOnUnreadMessageModel:Bool, result:((_ messages:[ALKMessageModel]?)->())?) {
         guard let groupId = message.groupId,
             groupId == self.channelKey,
             !message.isMyMessage,
             message.deviceKey != ALUserDefaultsHandler.getDeviceKeyString() else {
             return
         }
-        addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel )
+        addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, result: result )
     }
     
-    open func syncOpenGroupMessage(isNeedOnUnreadMessageModel:Bool) {
+    open func syncOpenGroupMessage(isNeedOnUnreadMessageModel:Bool, result:((_ messages:[ALKMessageModel]?)->())?) {
         var time: NSNumber? = nil
         if let _lastMsgTime = self.alMessages.last?.createdAtTime {
             time = NSNumber(value: (_lastMsgTime.intValue) )
@@ -1885,7 +1893,7 @@ extension ALKConversationViewModel {
                 return
             }
             //add to message list
-            self.addMessagesToList(newMessages, isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel)
+            self.addMessagesToList(newMessages, isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, result: result)
         }
     }
     
