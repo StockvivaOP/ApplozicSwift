@@ -419,9 +419,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
                         self?.isAutoRefreshMessage = true
                     }else{
-                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false){ (list) in
-                            self?.delegateConversationChatContentAction?.didMessageReceived(messages: list)
-                        }
+                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false, result: nil)
                     }
                 }
             }
@@ -930,9 +928,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             return
         }
         guard !viewModel.isOpenGroup else {
-            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false) { (list) in
-                self.delegateConversationChatContentAction?.didMessageReceived(messages: list)
-            }
+            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false, result: nil)
             return
         }
         guard (message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id) else {
