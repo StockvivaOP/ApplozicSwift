@@ -2368,7 +2368,7 @@ extension ALKConversationViewModel {
         }
         
         if _isNeedToRefreshChatGroupInfo {
-            self.delegateConversationChatContentAction?.updateChatGroupDidReceivedSpecialMessage()
+            self.delegateConversationChatContentAction?.updateChatGroupBySpecialResson()
         }
     }
     

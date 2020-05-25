@@ -431,7 +431,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func messageRequestToDelete(messageId:String, completed:@escaping ((_ result:Bool, _ error:Error?)->()))
     func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
     //special message detected
-    func updateChatGroupDidReceivedSpecialMessage()
+    func updateChatGroupBySpecialResson()
 }
 
 //tag: stockviva - start

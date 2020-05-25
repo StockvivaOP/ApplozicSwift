@@ -890,6 +890,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.reloadData()
         configureView()
         self.navigationBar.updateContent()
+        self.delegateConversationChatContentAction?.updateChatGroupBySpecialResson()
         viewModel.prepareController(isFirstLoad:self.isViewFirstLoadingMessage)
         isFirstTime = false
     }
