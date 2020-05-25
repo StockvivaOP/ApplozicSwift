@@ -595,7 +595,7 @@ extension ALMessage {
     }
     
     //delete message
-    func getDeletedMessageInfo() -> (isDeleteMessage:Bool , isDeleteMessageForAll:Bool) {
+    public func getDeletedMessageInfo() -> (isDeleteMessage:Bool , isDeleteMessageForAll:Bool) {
         var _isDeleteMessage = false
         var _isDeleteMessageForAll = false
         if let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.alDeleteGroupMessageForAll) as? String {

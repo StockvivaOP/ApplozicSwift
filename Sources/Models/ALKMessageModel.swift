@@ -402,7 +402,7 @@ extension ALKMessageViewModel {
         return self.isMyMessage && _isOverMin
     }
     
-    func getDeletedMessageInfo() -> (isDeleteMessage:Bool , isDeleteMessageForAll:Bool) {
+    public func getDeletedMessageInfo() -> (isDeleteMessage:Bool , isDeleteMessageForAll:Bool) {
         return self.rawModel?.getDeletedMessageInfo() ?? (isDeleteMessage:false , isDeleteMessageForAll:false)
     }
     
