@@ -473,7 +473,7 @@ extension ALMessage {
         return ALKMessageActionType(rawValue: _action) ?? ALKMessageActionType.normalMessage
     }
 
-    func getMessageTypeInMetaData() -> SVALKMessageType? {
+    public func getMessageTypeInMetaData() -> SVALKMessageType? {
         if let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.messageType) as? String {
             return SVALKMessageType(rawValue: _result)
         }
