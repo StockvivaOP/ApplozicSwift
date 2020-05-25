@@ -192,7 +192,7 @@ extension ALKMessageViewModel {
         return self.rawModel?.getActionType() ?? ALKMessageActionType.normalMessage
     }
     
-    func getMessageTypeInMetaData() -> SVALKMessageType? {
+    public func getMessageTypeInMetaData() -> SVALKMessageType? {
         return self.rawModel?.getMessageTypeInMetaData()
     }
     
