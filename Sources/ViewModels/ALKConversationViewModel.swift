@@ -493,9 +493,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     /// Received from notification and from network
-    open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false, result:((_ messages:[ALKMessageModel]?)->())?) {
+    open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false) {
         guard let messages = messageList as? [ALMessage] else {
-            result?(nil)
             return
         }
         let _loginUserId = ALUserDefaultsHandler.getUserId()
@@ -582,7 +581,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
                 //if empty list
                 if _tempFilteredArray.count == 0 {
-                    result?(nil)
                     return
                 }
                 filteredArray = _tempFilteredArray
@@ -594,7 +592,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     sortedArray = filteredArray.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
                 }
                 guard !sortedArray.isEmpty else {
-                    result?(nil)
                     return
                 }
                 
@@ -628,7 +625,6 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
                 
                 self.delegate?.newMessagesAdded()
-                result?(models)
             })
         }
     }
@@ -1863,17 +1859,17 @@ extension ALKConversationViewModel {
         }
     }
     
-    func syncOpenGroupOneMessage(message: ALMessage, isNeedOnUnreadMessageModel:Bool, result:((_ messages:[ALKMessageModel]?)->())?) {
+    func syncOpenGroupOneMessage(message: ALMessage, isNeedOnUnreadMessageModel:Bool) {
         guard let groupId = message.groupId,
             groupId == self.channelKey,
             !message.isMyMessage,
             message.deviceKey != ALUserDefaultsHandler.getDeviceKeyString() else {
             return
         }
-        addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, result: result )
+        addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel)
     }
     
-    open func syncOpenGroupMessage(isNeedOnUnreadMessageModel:Bool, result:((_ messages:[ALKMessageModel]?)->())?) {
+    open func syncOpenGroupMessage(isNeedOnUnreadMessageModel:Bool) {
         var time: NSNumber? = nil
         if let _lastMsgTime = self.alMessages.last?.createdAtTime {
             time = NSNumber(value: (_lastMsgTime.intValue) )
@@ -1893,7 +1889,7 @@ extension ALKConversationViewModel {
                 return
             }
             //add to message list
-            self.addMessagesToList(newMessages, isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, result: result)
+            self.addMessagesToList(newMessages, isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel)
         }
     }
     
@@ -2099,6 +2095,9 @@ extension ALKConversationViewModel {
                 self.alMessages.append(mesg)
                 self.messageModels.append(mesg.messageModel)
             }
+            
+            //for checking message type
+            self.checkDidContainSpecialMessage(messages: sortedArray)
             
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - loadLateOpenGroupMessage - successful list count  \(self.messageModels.count) ")
             //get last unread message key
@@ -2353,6 +2352,24 @@ extension ALKConversationViewModel {
         }
         
         self.updateMessageContent(index: _foundMessageIndex ?? -1, updatedMessage: updatedMessage, isUpdateView:isUpdateView)
+    }
+    
+    func checkDidContainSpecialMessage(messages:[ALMessage]?){
+        guard let _msgList = messages else {
+            return
+        }
+        var _isNeedToRefreshChatGroupInfo:Bool = false
+        for _msgItem in _msgList {
+            let _isDeleted = _msgItem.getDeletedMessageInfo().isDeleteMessage
+            if _msgItem.getMessageTypeInMetaData() == .pinAlert && _isDeleted == false {
+                _isNeedToRefreshChatGroupInfo = true
+                break
+            }
+        }
+        
+        if _isNeedToRefreshChatGroupInfo {
+            self.delegateConversationChatContentAction?.updateChatGroupDidReceivedSpecialMessage()
+        }
     }
     
     private func updateMessageContent(index:Int, updatedMessage: ALMessage, isUpdateView:Bool = true) {

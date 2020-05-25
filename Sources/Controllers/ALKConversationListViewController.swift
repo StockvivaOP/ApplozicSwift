@@ -261,7 +261,7 @@ open class ALKConversationListViewController: ALKBaseViewController, Localizable
             viewController.viewModel.contactId == message.contactId,
             viewController.viewModel.channelKey == message.groupId {
             print("Contact id matched1")
-            viewController.viewModel.addMessagesToList([message], result: nil)
+            viewController.viewModel.addMessagesToList([message])
         }
         viewModel.prepareController(dbService: dbService)
     }

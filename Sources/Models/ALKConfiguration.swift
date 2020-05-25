@@ -400,7 +400,6 @@ public protocol ConversationChatContentActionDelegate: class{
     func getJoinGroupButtonInfo(chatView:UIViewController) -> (title:String?, backgroundColor:UIColor, textColor:UIColor, rightIcon:UIImage?)
     func getGroupTitle(chatView:UIViewController)  -> String?
     func groupTitleViewClicked(chatView:UIViewController)
-    func didOriginalMessageReceived(messages:[ALKMessageModel]?)
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?, mentionUserList:[(hashID:String, name:String)]?)
     func openLink(url:URL, viewModel:ALKMessageViewModel?, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
@@ -431,6 +430,8 @@ public protocol ConversationChatContentActionDelegate: class{
     //delete messaege
     func messageRequestToDelete(messageId:String, completed:@escaping ((_ result:Bool, _ error:Error?)->()))
     func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+    //special message detected
+    func updateChatGroupDidReceivedSpecialMessage()
 }
 
 //tag: stockviva - start

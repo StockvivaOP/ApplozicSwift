@@ -314,14 +314,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             guard self.viewModel != nil && self.isLeaveView == false else { return }
             if let msgArray = notification.object as? [ALMessage] {
                 print("new notification received: ", msgArray.first?.message as Any, msgArray.count )
-                self.delegateConversationChatContentAction?.didOriginalMessageReceived(messages: msgArray.map({$0.messageModel}))
+                self.viewModel.checkDidContainSpecialMessage(messages: msgArray)
             }
             guard self.viewModel.isUnreadMessageMode == false && self.viewModel.isFocusReplyMessageMode == false else {
                 return
             }
             guard let list = notification.object as? [Any], !list.isEmpty, self.isViewLoaded else { return }
 //            weakSelf.handlePushNotification = false
-            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false, result: nil)
+            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
         })
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "messageMetaDataUpdateNotification"), object: nil, queue: nil, using: {
@@ -419,7 +419,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                     if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
                         self?.isAutoRefreshMessage = true
                     }else{
-                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false, result: nil)
+                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false)
                     }
                 }
             }
@@ -928,7 +928,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             return
         }
         guard !viewModel.isOpenGroup else {
-            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false, result: nil)
+            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
             return
         }
         guard (message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id) else {
@@ -1882,7 +1882,7 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
         //auto refresh after
         if self.isAutoRefreshMessage {
             self.isAutoRefreshMessage = false
-            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false, result:nil)
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
         }
     }
 
