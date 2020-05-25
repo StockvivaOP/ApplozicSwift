@@ -1882,9 +1882,7 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
         //auto refresh after
         if self.isAutoRefreshMessage {
             self.isAutoRefreshMessage = false
-            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false){ (list) in
-                self.delegateConversationChatContentAction?.didMessageReceived(messages: list)
-            }
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false, result:nil)
         }
     }
 
