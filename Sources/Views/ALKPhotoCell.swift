@@ -158,6 +158,18 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         label.textColor = UIColor.ALKSVPrimaryDarkGrey()
         return label
     }()
+    
+    var adminMsgDisclaimerLabel: UILabel = {
+        let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 8)
+        lb.textAlignment = .left
+        lb.textColor = UIColor.ALKSVGreyColor102()
+        return lb
+    }()
+    
+    lazy var adminMsgDisclaimerLabelHeightConst:NSLayoutConstraint? = self.adminMsgDisclaimerLabel.heightAnchor.constraint(equalToConstant: 0)
+    var adminMsgDisclaimerLabelBottomConst:NSLayoutConstraint?
+    
     static var maxWidth = UIScreen.main.bounds.width
 
     // To be changed from the class that is subclassing `ALKPhotoCell`
@@ -171,11 +183,19 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     struct Padding {
         struct CaptionLabel {
-            static var top: CGFloat = 5.0
-            static var bottom: CGFloat = 7.0
-            static var left: CGFloat = 7.0
-            static var right: CGFloat = 7.0
+            static var top: CGFloat = 7.5
+            static var bottom: CGFloat = 7.5
+            static var left: CGFloat = 6.0
+            static var right: CGFloat = 6.0
             static var height: CGFloat = 7.0
+        }
+        
+        struct AdminMsgDisclaimerLabel {
+            static let top: CGFloat = 7.5
+            static let bottom: CGFloat = 7.5
+            static let left: CGFloat = 6.0
+            static let right: CGFloat = 6.0
+            static let height: CGFloat = 11.0
         }
     }
 
@@ -225,7 +245,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         if captionLabel.text?.count ?? 0 > 0 {
             //captionLabelTopConst?.constant = Padding.CaptionLabel.top
             captionLabelHeightConst?.constant = Padding.CaptionLabel.height
-            captionLabelBottomConst?.constant = -Padding.CaptionLabel.bottom
+            captionLabelBottomConst?.constant = Padding.CaptionLabel.bottom
         }else{
             //captionLabelTopConst?.constant = 0
             captionLabelHeightConst?.constant = 0
@@ -300,6 +320,13 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.image = nil
         }
+        
+        if _isDeletedMsg {
+            self.isHiddenAdminDisclaimer(true)
+        }else{
+            self.isHiddenAdminDisclaimer( ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) ?? true)
+        }
+        
         //set color
         let _contactID:String? = replyMessage?.getMessageReceiverHashId()
         if let _messageUserId = _contactID,
@@ -359,7 +386,8 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
              uploadButtonClickArea,
              downloadButton,
              downloadButtonClickArea,
-             activityIndicator])
+             activityIndicator,
+             adminMsgDisclaimerLabel])
         contentView.bringSubviewToFront(photoView)
         contentView.bringSubviewToFront(frontView)
         contentView.bringSubviewToFront(downloadButton)
@@ -427,11 +455,23 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                 equalTo:bubbleView.trailingAnchor,
                 constant: -Padding.CaptionLabel.right).isActive = true
         captionLabelBottomConst = captionLabel.bottomAnchor.constraint(
-                equalTo: bubbleView.bottomAnchor,
-                constant: -Padding.CaptionLabel.bottom)
+                equalTo: self.adminMsgDisclaimerLabel.topAnchor,
+                constant: Padding.CaptionLabel.bottom)
         captionLabelBottomConst?.isActive = true
         captionLabelHeightConst = captionLabel.heightAnchor.constraint(equalToConstant: Padding.CaptionLabel.height)
         captionLabelHeightConst?.isActive = true
+        
+        self.adminMsgDisclaimerLabelHeightConst?.isActive = true
+        self.adminMsgDisclaimerLabelBottomConst = self.adminMsgDisclaimerLabel.bottomAnchor.constraint(
+            equalTo: bubbleView.bottomAnchor,
+            constant: -Padding.AdminMsgDisclaimerLabel.bottom)
+        self.adminMsgDisclaimerLabelBottomConst?.isActive = true
+        self.adminMsgDisclaimerLabel.leadingAnchor.constraint(
+                equalTo: bubbleView.leadingAnchor,
+                constant: Padding.AdminMsgDisclaimerLabel.left).isActive = true
+        self.adminMsgDisclaimerLabel.trailingAnchor.constraint(
+                equalTo:bubbleView.trailingAnchor,
+                constant: -Padding.AdminMsgDisclaimerLabel.right).isActive = true
         
         //tag: stockviva start
         let replyTapGesture = UITapGestureRecognizer(target: self, action: #selector(replyViewTapped))
@@ -719,6 +759,22 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
     }
     //tag: stockviva end
 }
+
+//MARK: - adminMsgDisclaimerLabel control
+extension ALKPhotoCell {
+    func isHiddenAdminDisclaimer(_ isHidden:Bool ){
+        self.adminMsgDisclaimerLabel.isHidden = isHidden
+        if isHidden {
+            self.adminMsgDisclaimerLabel.text = ""
+        }else{
+            self.adminMsgDisclaimerLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_message_disclaimer")
+        }
+        
+        self.adminMsgDisclaimerLabelHeightConst?.constant = isHidden ? 0 : Padding.AdminMsgDisclaimerLabel.height
+        self.adminMsgDisclaimerLabelBottomConst?.constant = isHidden ? 0 : -Padding.AdminMsgDisclaimerLabel.bottom
+    }
+}
+
 
 extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
     func dataUploaded(task: ALKUploadTask) {

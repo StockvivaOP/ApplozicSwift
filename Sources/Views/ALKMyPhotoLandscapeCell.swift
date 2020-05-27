@@ -354,12 +354,17 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
         if let message = viewModel.message, !message.isEmpty {
             height += message.rectWithConstrainedWidth(
                 finalWidth,
-                font: messageTextFont).height.rounded(.up) + ALKPhotoCell.Padding.CaptionLabel.bottom
+                font: messageTextFont).height.rounded(.up) + ALKPhotoCell.Padding.CaptionLabel.top
         }
         
         //10(top padding) + height(photo content) + 32(captionLabel) + 25(statusLabel)
-        let totalHeight = 10+height+32+25
+        var totalHeight = 10+height+32+25
         
+        if ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) == false {
+            let _adminMsgDisclaimerHeight = super.Padding.AdminMsgDisclaimerLabel.height + super.Padding.AdminMsgDisclaimerLabel.bottom
+            totalHeight += _adminMsgDisclaimerHeight
+        }
+
         guard replyMessage != nil else { return totalHeight }
         //add reply view height
         //get width
