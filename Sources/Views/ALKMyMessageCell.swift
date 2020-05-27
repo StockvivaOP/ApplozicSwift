@@ -137,7 +137,7 @@ open class ALKMyMessageCell: ALKMessageCell {
     override func setupViews() {
         super.setupViews()
 
-        contentView.addViewsForAutolayout(views: [stateView, stateErrorRemarkView])
+        contentView.addViewsForAutolayout(views: [stateView, stateErrorRemarkView, adminMsgDisclaimerLabel])
         //button action
         stateErrorRemarkView.addTarget(self, action: #selector(stateErrorRemarkViewButtonTouchUpInside(_:)), for: .touchUpInside)
         
