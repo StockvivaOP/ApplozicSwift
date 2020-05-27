@@ -597,7 +597,7 @@ extension ALKMessageCell {
         }
         
         self.adminMsgDisclaimerLabelHeightConst?.constant = isHidden ? 0 : BaseViewPadding.AdminMsgDisclaimerLabel.height
-        self.adminMsgDisclaimerLabelBottomConst?.constant = isHidden ? 0 : BaseViewPadding.AdminMsgDisclaimerLabel.bottom
+        self.adminMsgDisclaimerLabelBottomConst?.constant = isHidden ? 0 : -BaseViewPadding.AdminMsgDisclaimerLabel.bottom
     }
 }
 

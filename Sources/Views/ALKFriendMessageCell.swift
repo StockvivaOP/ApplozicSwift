@@ -123,7 +123,7 @@ open class ALKFriendMessageCell: ALKMessageCell {
         }
         
         struct JoinOurGroupButton {
-            static let top: CGFloat = 10
+            static let top: CGFloat = 7.5
             static let left: CGFloat = 7
             static let right: CGFloat = 7
             static let height: CGFloat = 33
