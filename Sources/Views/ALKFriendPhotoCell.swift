@@ -316,7 +316,8 @@ class ALKFriendPhotoCell: ALKPhotoCell {
         //10(top padding) + 32(user name label) + height(photo content) + 32(captionLabel) + 23(timeLabel)
         var totalHeight = 10+32+height+32+23
         
-        if ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) == false {
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        if ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) == false && _isDeletedMsg == false {
             let _adminMsgDisclaimerHeight = super.Padding.AdminMsgDisclaimerLabel.height + super.Padding.AdminMsgDisclaimerLabel.bottom
             totalHeight += _adminMsgDisclaimerHeight
         }

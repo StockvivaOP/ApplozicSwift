@@ -360,7 +360,8 @@ class ALKMyPhotoLandscapeCell: ALKPhotoCell {
         //10(top padding) + height(photo content) + 32(captionLabel) + 25(statusLabel)
         var totalHeight = 10+height+32+25
         
-        if ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) == false {
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        if ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) == false && _isDeletedMsg == false {
             let _adminMsgDisclaimerHeight = super.Padding.AdminMsgDisclaimerLabel.height + super.Padding.AdminMsgDisclaimerLabel.bottom
             totalHeight += _adminMsgDisclaimerHeight
         }
