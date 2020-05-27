@@ -157,11 +157,34 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         _view.isHidden = true
         return _view
     }()
+    
+    var adminMsgDisclaimerLabel: UILabel = {
+        let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 8)
+        lb.textAlignment = .left
+        lb.textColor = UIColor.ALKSVGreyColor102()
+        return lb
+    }()
 
     let emailTopView = ALKEmailTopView(frame: .zero)
 
     lazy var emailTopHeight = emailTopView.heightAnchor.constraint(equalToConstant: 0)
-
+    
+    //
+    lazy var adminMsgDisclaimerLabelHeightConst:NSLayoutConstraint? = self.adminMsgDisclaimerLabel.heightAnchor.constraint(equalToConstant: 0)
+    var adminMsgDisclaimerLabelBottomConst:NSLayoutConstraint?
+    
+    //
+    struct BaseViewPadding {
+        struct AdminMsgDisclaimerLabel {
+            static let top: CGFloat = 7.5
+            static let bottom: CGFloat = 7.5
+            static let left: CGFloat = 7.5
+            static let right: CGFloat = 7.5
+            static let height: CGFloat = 11.0
+        }
+    }
+    
     fileprivate static let paragraphStyle: NSMutableParagraphStyle = {
         let style = NSMutableParagraphStyle.init()
         style.lineBreakMode = .byWordWrapping
@@ -562,6 +585,22 @@ open class ALKMessageCell: ALKChatBaseCell<ALKMessageViewModel>, ALKCopyMenuItem
         }
     }
 }
+
+//MARK: - adminMsgDisclaimerLabel control
+extension ALKMessageCell {
+    func isHiddenAdminDisclaimer(_ isHidden:Bool ){
+        self.adminMsgDisclaimerLabel.isHidden = isHidden
+        if isHidden {
+            self.adminMsgDisclaimerLabel.text = ""
+        }else{
+            self.adminMsgDisclaimerLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_message_disclaimer")
+        }
+        
+        self.adminMsgDisclaimerLabelHeightConst?.constant = isHidden ? 0 : BaseViewPadding.AdminMsgDisclaimerLabel.height
+        self.adminMsgDisclaimerLabelBottomConst?.constant = isHidden ? 0 : BaseViewPadding.AdminMsgDisclaimerLabel.bottom
+    }
+}
+
 
 extension ALKMessageCell : UITextViewDelegate {
     public func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
