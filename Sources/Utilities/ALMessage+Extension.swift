@@ -637,4 +637,26 @@ extension ALMessage {
         }
         return nil
     }
+    
+    //reply message
+    func setReplyMessageInfo(id:String, msgUserHashId:String) {
+        if self.metadata == nil {
+            self.metadata = NSMutableDictionary.init()
+        }
+        self.metadata.setValue(id, forKey: AL_MESSAGE_REPLY_KEY)
+        self.metadata.setValue(msgUserHashId, forKey: SVALKMessageMetaDataFieldName.replyUserHashId.rawValue)
+    }
+    
+    func haveReplyMessage() -> Bool {
+        var _result = false
+        if let _msgId = self.metadata.value(forKey: AL_MESSAGE_REPLY_KEY) as? String, _msgId.isEmpty == false {
+            _result = true
+        }
+        return _result
+    }
+    
+    func getReplyUserHashId() -> String {
+        let _result = self.getValueFromMetadata(SVALKMessageMetaDataFieldName.replyUserHashId) as? String ?? ""
+        return _result
+    }
 }

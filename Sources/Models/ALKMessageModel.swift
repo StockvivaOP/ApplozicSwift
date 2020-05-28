@@ -67,6 +67,10 @@ public enum SVALKMessageMetaDataFieldName : String {
     case imageThumbnailURL = "SV_IMAGE_THUMBNAIL_URL"
     case sendMessageErrorFind = "SV_SEND_MSG_ERROR_FIND"
     case unreadMessageSeparator = "SV_UnreadMessageSeparator"
+    
+    //reply msg
+    case replyUserHashId = "SV_REPLY_RECEIVER_HASHID"
+    
 }
 
 // MARK: - stockviva SVALKMessageType
@@ -429,5 +433,21 @@ extension ALKMessageViewModel {
     //send gift info
     func getSendGiftMessageInfo() -> (giftId:String , receiverHashId:String?)? {
         return self.rawModel?.getSendGiftMessageInfo()
+    }
+    
+    //reply message
+    mutating func setReplyMessageInfo(id:String, msgUserHashId:String) {
+        if let _rawModel = self.rawModel {
+            _rawModel.setReplyMessageInfo(id: id, msgUserHashId: msgUserHashId)
+            self.metadata = _rawModel.metadata as? Dictionary<String, Any>
+        }
+    }
+    
+    func haveReplyMessage() -> Bool {
+        return self.rawModel?.haveReplyMessage() ?? false
+    }
+    
+    func getReplyUserHashId() -> String {
+        return self.rawModel?.getReplyUserHashId() ?? ""
     }
 }

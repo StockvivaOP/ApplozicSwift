@@ -1634,9 +1634,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     private func setReplyId(message: ALMessage) -> ALMessage {
         if let replyMessage = getSelectedMessageToReply() {
-            let metaData = NSMutableDictionary()
-            metaData[AL_MESSAGE_REPLY_KEY] = replyMessage.identifier
-            message.metadata = metaData
+            message.setReplyMessageInfo(id: replyMessage.identifier, msgUserHashId: replyMessage.contactId ?? "")
         }
         return message
     }
