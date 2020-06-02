@@ -1352,6 +1352,13 @@ open class ALKConversationViewModel: NSObject, Localizable {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.loggingAPI(type:.debug, message: "chatgroup - fetchOpenGroupMessages completed", apiName: "getMessageList", startTime: _startTime, endTime: Date())
             if let _error = error {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.error, message: "chatgroup - fetchOpenGroupMessages - have error \(_error.localizedDescription) ")
+                //check error
+                let _nsError = _error as NSError
+                if _nsError.code == URLError.Code.timedOut.rawValue ||
+                    _nsError.code == URLError.Code.notConnectedToInternet.rawValue {//retry
+                    self.fetchOpenGroupMessages(startFromTime:startFromTime, time: time, contactId: contactId, channelKey: channelKey, maxRecord:maxRecord, isOrderByAsc:isOrderByAsc, completion:completion)
+                    return
+                }
             }
             
             guard let alMessages = messages as? [ALMessage], alMessages.count > 0 else {
