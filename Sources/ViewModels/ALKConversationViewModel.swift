@@ -1356,7 +1356,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 let _nsError = _error as NSError
                 if _nsError.code == URLError.Code.timedOut.rawValue ||
                     _nsError.code == URLError.Code.notConnectedToInternet.rawValue {//retry
-                    self.fetchOpenGroupMessages(startFromTime:startFromTime, time: time, contactId: contactId, channelKey: channelKey, maxRecord:maxRecord, isOrderByAsc:isOrderByAsc, completion:completion)
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+                        self.fetchOpenGroupMessages(startFromTime:startFromTime, time: time, contactId: contactId, channelKey: channelKey, maxRecord:maxRecord, isOrderByAsc:isOrderByAsc, completion:completion)
+                    }
                     return
                 }
             }
