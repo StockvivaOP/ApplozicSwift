@@ -442,6 +442,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         super.viewWillAppear(animated)
         self.isViewDisappear = false
         self.isLeaveView = false
+        self.viewModel.isLeaveChatGroup = false
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             tableView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
@@ -534,6 +535,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         if self.isMovingFromParent {
             self.isLeaveView = true
             self.removeObserver()
+        }
+    }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if self.isMovingFromParent {
+            self.viewModel.isLeaveChatGroup = true
         }
     }
 
