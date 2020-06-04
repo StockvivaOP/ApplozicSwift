@@ -540,9 +540,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        if self.isMovingFromParent {
-            self.viewModel.isLeaveChatGroup = true
-        }
+        self.viewModel.isLeaveChatGroup = true
     }
 
     override func backTapped() {
