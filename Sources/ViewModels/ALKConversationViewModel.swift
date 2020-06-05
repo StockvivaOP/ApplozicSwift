@@ -467,6 +467,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
             let notificationView = ALNotificationView()
             notificationView.noDataConnectionNotificationView()
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - downloadAttachment no data connection, msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             return
         }
         /// For email attachments url is to be used directly
@@ -477,16 +478,18 @@ open class ALKConversationViewModel: NSObject, Localizable {
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
             httpManager.downloadImage(task: task)
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment call with emailSourceType, msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             return
         }
         ALMessageClientService().downloadImageUrl(message.fileMetaInfo?.blobKey) { (fileUrl, error) in
-            guard error == nil, let fileUrl = fileUrl else {
+            guard error == nil, let _fileUrl = fileUrl else {
                 print("Error downloading attachment :: \(String(describing: error))")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - downloadAttachment downloadImageUrl with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), fileUrl:\(fileUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
                 return
             }
             let httpManager = ALKHTTPManager()
             httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate ?? viewController as? ALKHTTPManagerDownloadDelegate
-            let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: message.fileMetaInfo?.name)
+            let task = ALKDownloadTask(downloadUrl: _fileUrl, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
             httpManager.downloadAttachment(task: task)

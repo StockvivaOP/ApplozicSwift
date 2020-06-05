@@ -586,6 +586,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
             return
         }
         guard (ALApplozicSettings.isS3StorageServiceEnabled() || ALApplozicSettings.isGoogleCloudServiceEnabled()) else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - loadThumbnail not enable 'isS3StorageServiceEnabled' or 'isGoogleCloudServiceEnabled', url:\(metadata.thumbnailUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             self.photoView.kf.setImage(with: message.thumbnailURL)
             return
         }
@@ -594,6 +595,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
                 guard error == nil,
                     let url = url
                     else {
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - loadThumbnail with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), url:\(message.fileMetaInfo?.thumbnailUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
                     print("Error downloading thumbnail url")
                     return
                 }
@@ -820,8 +822,10 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
 
     func dataDownloadingFinished(task: ALKDownloadTask) {
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - dataDownloadingFinished with error:\(task.downloadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), filePath:\(task.filePath ?? "nil"), msg_key:\(task.identifier ?? "")")
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKPhotoCell - dataDownloadingFinished downloaded, filePath:\(filePath ), msg_key:\(identifier)")
         
         guard !ThumbnailIdentifier.hasPrefix(in: identifier) else {
             DispatchQueue.main.async {
@@ -835,6 +839,7 @@ extension ALKPhotoCell: ALKHTTPManagerDownloadDelegate {
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let path = documentsURL.appendingPathComponent(filePath).path
         if UIImage(contentsOfFile: path) == nil {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier)")
             try? FileManager.default.removeItem(atPath: path)
             //update view
             DispatchQueue.main.async {

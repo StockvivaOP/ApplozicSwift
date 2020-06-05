@@ -32,21 +32,24 @@ open class ALKSVMessagePhotoDownloader : NSObject {
     open func downloadPhoto(){
         guard let _messageKey = self.messageKey, let _photoBlobKey = self.photoBlobKey else {
             self.delegate?.didPhotoDownloadFinished(messageKey:self.messageKey, path:nil, error:nil)
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader downloadPhoto error with msg_key:\(self.messageKey ?? "nil"), photoBlobKey:\(self.photoBlobKey ?? "nil")")
             return
         }
         self.isCanceled = false
         ALMessageClientService().downloadImageUrl(_photoBlobKey) { (fileUrl, error) in
             if self.isCanceled {
                 self.delegate?.didPhotoDownloadCanceled(messageKey:self.messageKey)
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader downloadPhoto with canceled, fileUrl:\(fileUrl ?? "nil"), msg_key:\(self.messageKey ?? "nil"), photoBlobKey:\(self.photoBlobKey ?? "nil")")
                 return
             }
-            guard error == nil, let fileUrl = fileUrl else {
+            guard error == nil, let _fileUrl = fileUrl else {
                 self.delegate?.didPhotoDownloadFinished(messageKey:self.messageKey, path:nil, error:error)
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader downloadPhoto with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), fileUrl:\(fileUrl ?? "nil"), msg_key:\(self.messageKey ?? "nil"), photoBlobKey:\(self.photoBlobKey ?? "nil")")
                 return
             }
             let httpManager = ALKHTTPManager()
             httpManager.downloadDelegate = self
-            let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: self.photoName)
+            let task = ALKDownloadTask(downloadUrl: _fileUrl, fileName: self.photoName)
             task.identifier = _messageKey
             task.totalBytesExpectedToDownload = Int64(self.photoSize)
             httpManager.downloadAttachment(task: task)
@@ -76,9 +79,13 @@ extension ALKSVMessagePhotoDownloader : ALKHTTPManagerDownloadDelegate{
         }
         
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader - dataDownloadingFinished with error:\(task.downloadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), filePath:\(task.filePath ?? "nil"), msg_key:\(task.identifier ?? "")")
             _completed(nil, task.downloadError)
             return
         }
+        
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader - dataDownloadingFinished downloaded, filePath:\(filePath ), msg_key:\(identifier)")
+        
         guard !ThumbnailIdentifier.hasPrefix(in: identifier) else {
             _completed(filePath, nil)
             return
@@ -88,6 +95,7 @@ extension ALKSVMessagePhotoDownloader : ALKHTTPManagerDownloadDelegate{
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let path = documentsURL.appendingPathComponent(filePath).path
         if UIImage(contentsOfFile: path) == nil {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier)")
             try? FileManager.default.removeItem(atPath: path)
             _completed(nil, nil)
             return

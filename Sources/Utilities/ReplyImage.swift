@@ -75,6 +75,7 @@ public struct ReplyMessageImage {
             } else {
                 if let _savedThumbnailURLStr = message.getImageThumbnailURL(),
                     let _savedThumbnailURL = URL(string: _savedThumbnailURLStr) {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ReplyMessageImage - loadPreviewFor load saved with url:\(_savedThumbnailURLStr ), msg_key:\(message.identifier)")
                     completed(_savedThumbnailURL, self.imagePlaceholder)
                 }else if let _thumbnailURL = message.fileMetaInfo?.thumbnailUrl, let _thumbnailBlobKey = message.fileMetaInfo?.thumbnailBlobKey {
                     ALMessageClientService().downloadImageThumbnailUrl(_thumbnailURL, blobKey: _thumbnailBlobKey) { (url, error) in
@@ -83,6 +84,7 @@ public struct ReplyMessageImage {
                             let _urlObj = URL(string: url)
                             else {
                                 print("Error downloading thumbnail url")
+                                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ReplyMessageImage - loadPreviewFor with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), url:\(message.fileMetaInfo?.thumbnailUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
                                 completed(nil, self.imagePlaceholder)
                                 return
                         }
@@ -90,6 +92,7 @@ public struct ReplyMessageImage {
                     }
                 }else{
                     url = message.thumbnailURL
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ReplyMessageImage - loadPreviewFor load saved with url:\(url?.absoluteString ?? "nil"), msg_key:\(message.identifier)")
                     completed(url, self.imagePlaceholder)
                 }
             }

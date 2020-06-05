@@ -166,13 +166,14 @@ extension ALKMediaViewerViewModel : ALKHTTPManagerDownloadDelegate{
     func downloadImage(message: ALKMessageViewModel){
         self.delegate?.isHiddenLoadingView(false)
         ALMessageClientService().downloadImageUrl(message.fileMetaInfo?.blobKey) { (fileUrl, error) in
-            guard error == nil, let fileUrl = fileUrl else {
+            guard error == nil, let _fileUrl = fileUrl else {
                 print("Error downloading attachment :: \(String(describing: error))")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKMediaViewerViewModel - downloadImage - downloadImageUrl with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), fileUrl:\(fileUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
                 return
             }
             let httpManager = ALKHTTPManager()
             httpManager.downloadDelegate = self
-            let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: message.fileMetaInfo?.name)
+            let task = ALKDownloadTask(downloadUrl: _fileUrl, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
             httpManager.downloadAttachment(task: task)
@@ -186,8 +187,11 @@ extension ALKMediaViewerViewModel : ALKHTTPManagerDownloadDelegate{
     func dataDownloadingFinished(task: ALKDownloadTask) {
         self.delegate?.isHiddenLoadingView(true)
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKMediaViewerViewModel - dataDownloadingFinished with error:\(task.downloadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), task.filePath:\(task.filePath ?? "nil"), msg_key:\(task.identifier ?? "")")
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKMediaViewerViewModel - dataDownloadingFinished downloaded, filePath:\(filePath ), msg_key:\(identifier)")
+        
         ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         if self.currentIndex >= 0  && self.currentIndex < self.messages.count {
             self.messages[self.currentIndex].filePath = filePath

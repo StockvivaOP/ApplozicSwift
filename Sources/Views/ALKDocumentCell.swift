@@ -730,11 +730,14 @@ extension ALKDocumentCell: ALKHTTPManagerDownloadDelegate {
 
     func dataDownloadingFinished(task: ALKDownloadTask) {
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKDocumentCell - dataDownloadingFinished with error:\(task.downloadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), filePath:\(task.filePath ?? "nil"), msg_key:\(task.identifier ?? "")")
             DispatchQueue.main.async {
                 self.updateView(for: .download)
             }
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKDocumentCell - dataDownloadingFinished downloaded, filePath:\(filePath ), msg_key:\(identifier)")
+        
         ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))

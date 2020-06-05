@@ -148,6 +148,7 @@ extension ALKDocumentViewerController : ALKHTTPManagerDownloadDelegate{
         self.activityIndicator.startAnimating()
         ALMessageClientService().downloadImageUrl(self.message.fileMetaInfo?.blobKey) { (fileUrl, error) in
             guard error == nil, let fileUrl = fileUrl else {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload -  ALKSVMessagePhotoDownloader downloadPhoto with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(self.message.identifier), msg:\(self.message.rawModel?.dictionary() ?? ["nil":"nil"])")
                 return
             }
             let httpManager = ALKHTTPManager()
@@ -166,8 +167,11 @@ extension ALKDocumentViewerController : ALKHTTPManagerDownloadDelegate{
     func dataDownloadingFinished(task: ALKDownloadTask) {
         self.activityIndicator.stopAnimating()
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKDocumentViewerController - dataDownloadingFinished with error:\(task.downloadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), filePath:\(task.filePath ?? "nil"), msg_key:\(task.identifier ?? "")")
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKDocumentViewerController - dataDownloadingFinished downloaded, filePath:\(filePath ), msg_key:\(identifier)")
+        
         self.filePath = filePath
         self.message?.filePath = filePath
         ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
