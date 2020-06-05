@@ -1119,7 +1119,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
         NSLog("file path: ", alMessage.imageFilePath)
         clientService.sendPhoto(forUserInfo: alMessage.dictionary(), withCompletion: {
             urlStr, error in
-            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else { return }
+            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadImage - send with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
+                return
+            }
             let task = ALKUploadTask(url: url, fileName: alMessage.fileMeta.name)
             task.identifier = String(format: "section: %i, row: %i", indexPath.section, indexPath.row)
             task.contentType = alMessage.fileMeta.contentType
@@ -1130,7 +1133,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
             downloadManager.uploadCompleted = {[weak self] responseDict, task in
                 if task.uploadError == nil && task.completed {
                     self?.uploadAttachmentCompleted(responseDict: responseDict, indexPath: indexPath)
+                    return
                 }
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadImage upload with error:\(task.uploadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
             }
         })
     }
@@ -1158,7 +1163,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
         NSLog("file path: ", alMessage.imageFilePath)
         clientService.sendPhoto(forUserInfo: alMessage.dictionary(), withCompletion: {
             urlStr, error in
-            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else { return }
+            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadFile - send with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
+                return
+            }
             let task = ALKUploadTask(url: url, fileName: alMessage.fileMeta.name)
             task.identifier = String(format: "section: %i, row: %i", indexPath.section, indexPath.row)
             task.contentType = alMessage.fileMeta.contentType
@@ -1169,7 +1177,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
             downloadManager.uploadCompleted = {[weak self] responseDict, task in
                 if task.uploadError == nil && task.completed {
                     self?.uploadAttachmentCompleted(responseDict: responseDict, indexPath: indexPath)
+                    return
                 }
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadFile upload with error:\(task.uploadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
             }
         })
     }
