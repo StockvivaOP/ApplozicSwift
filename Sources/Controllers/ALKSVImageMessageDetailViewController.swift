@@ -126,9 +126,11 @@ extension ALKSVImageMessageDetailViewController : ALKMediaViewerViewControllerDe
 extension ALKSVImageMessageDetailViewController : ALKHTTPManagerDownloadDelegate {
     func loadThumbnail() {
         guard let message = viewModel, let metadata = message.fileMetaInfo else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - loadThumbnail missing value, msg_key:\(viewModel?.identifier ?? "nil"), msg:\(viewModel?.rawModel?.dictionary() ?? ["nil":"nil"])")
             return
         }
         guard (ALApplozicSettings.isS3StorageServiceEnabled() || ALApplozicSettings.isGoogleCloudServiceEnabled()) else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - loadThumbnail not enable 'isS3StorageServiceEnabled' or 'isGoogleCloudServiceEnabled', url:\(metadata.thumbnailUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             self.imgMessageFile.kf.setImage(with: message.thumbnailURL)
             return
         }
@@ -138,6 +140,7 @@ extension ALKSVImageMessageDetailViewController : ALKHTTPManagerDownloadDelegate
                     let url = url
                     else {
                         print("Error downloading thumbnail url")
+                        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - loadThumbnail with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), url:\(metadata.thumbnailUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
                         return
                 }
                 let httpManager = ALKHTTPManager()
@@ -194,8 +197,11 @@ extension ALKSVImageMessageDetailViewController : ALKHTTPManagerDownloadDelegate
     
     func dataDownloadingFinished(task: ALKDownloadTask) {
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished with error:\(task.downloadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), filePath:\(task.filePath ?? "nil"), msg_key:\(task.identifier ?? "")")
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished downloaded, filePath:\(filePath ), msg_key:\(identifier)")
+        
         guard !ThumbnailIdentifier.hasPrefix(in: identifier) else {
             DispatchQueue.main.async {
                 self.setPhotoViewImage(path:filePath)
@@ -208,6 +214,7 @@ extension ALKSVImageMessageDetailViewController : ALKHTTPManagerDownloadDelegate
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let path = documentsURL.appendingPathComponent(filePath).path
         if UIImage(contentsOfFile: path) == nil {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier)")
             try? FileManager.default.removeItem(atPath: path)
             //update view
             DispatchQueue.main.async {

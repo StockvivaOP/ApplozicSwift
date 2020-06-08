@@ -80,7 +80,6 @@ open class ALKMyMessageCell: ALKMessageCell {
         
         struct MessageView {
             static let top: CGFloat = 5
-            static let bottom: CGFloat = 7
             static let left: CGFloat = 7
         }
 
@@ -138,7 +137,7 @@ open class ALKMyMessageCell: ALKMessageCell {
     override func setupViews() {
         super.setupViews()
 
-        contentView.addViewsForAutolayout(views: [stateView, stateErrorRemarkView])
+        contentView.addViewsForAutolayout(views: [stateView, stateErrorRemarkView, adminMsgDisclaimerLabel])
         //button action
         stateErrorRemarkView.addTarget(self, action: #selector(stateErrorRemarkViewButtonTouchUpInside(_:)), for: .touchUpInside)
         
@@ -166,7 +165,11 @@ open class ALKMyMessageCell: ALKMessageCell {
             equalTo: replyView.bottomAnchor,
             constant: Padding.MessageView.top)
         replyMsgViewBottomConst = replyMessageLabel.bottomAnchor.constraint(equalTo: replyView.bottomAnchor, constant: -Padding.ReplyMessageLabel.bottom)
-
+        
+        self.adminMsgDisclaimerLabelBottomConst = self.adminMsgDisclaimerLabel.bottomAnchor.constraint(
+            equalTo: bubbleView.bottomAnchor,
+            constant: -BaseViewPadding.AdminMsgDisclaimerLabel.bottom)
+        
         NSLayoutConstraint.activate([
             bubbleView.topAnchor.constraint(equalTo: contentView.topAnchor,
                                             constant: Padding.BubbleView.top),
@@ -261,14 +264,19 @@ open class ALKMyMessageCell: ALKMessageCell {
             messageView.topAnchor.constraint(
                 equalTo: emailTopView.bottomAnchor),
             messageView.bottomAnchor.constraint(
-                equalTo: bubbleView.bottomAnchor,
-                constant: -Padding.MessageView.bottom),
+                equalTo: adminMsgDisclaimerLabel.topAnchor,
+                constant: BaseViewPadding.AdminMsgDisclaimerLabel.top),
             messageView.trailingAnchor.constraint(
                 equalTo: bubbleView.trailingAnchor,
                 constant: -ALKMessageStyle.receivedBubble.widthPadding),
             messageView.leadingAnchor.constraint(
                 equalTo: bubbleView.leadingAnchor,
                 constant: Padding.MessageView.left),
+            
+            adminMsgDisclaimerLabelHeightConst!,
+            adminMsgDisclaimerLabelBottomConst!,
+            adminMsgDisclaimerLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: BaseViewPadding.AdminMsgDisclaimerLabel.left),
+            adminMsgDisclaimerLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -BaseViewPadding.AdminMsgDisclaimerLabel.right),
             
             stateView.topAnchor.constraint(
                 equalTo: bubbleView.bottomAnchor,
@@ -323,8 +331,10 @@ open class ALKMyMessageCell: ALKMessageCell {
         //reply view
         if viewModel.getDeletedMessageInfo().isDeleteMessage {
             handleReplyView(replyMessage: nil)
+            self.isHiddenAdminDisclaimer(true)
         }else{
             handleReplyView(replyMessage: replyMessage)
+            self.isHiddenAdminDisclaimer( ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) ?? true)
         }
         
         self.stateErrorRemarkView.isHidden = true
@@ -363,7 +373,7 @@ open class ALKMyMessageCell: ALKMessageCell {
         let leftSpacing = Padding.BubbleView.left + ALKMessageStyle.sentBubble.leftPadding
         let rightSpacing = Padding.BubbleView.right + ALKMessageStyle.sentBubble.widthPadding /*+ bubbleViewRightPadding*/
         
-        var heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + Padding.MessageView.bottom + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
+        var heightPadding = Padding.BubbleView.top + Padding.ReplyView.top + BaseViewPadding.AdminMsgDisclaimerLabel.top + Padding.StateView.top + Padding.StateView.height + Padding.StateView.bottom
         
         /// Calculating messageHeight
         let messageWidth = width - (leftSpacing + rightSpacing)
@@ -375,6 +385,11 @@ open class ALKMyMessageCell: ALKMessageCell {
             
             if viewModel.isReplyMessage {
                 heightPadding += Padding.MessageView.top
+            }
+            
+            if ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) == false {
+                let _adminMsgDisclaimerHeight = BaseViewPadding.AdminMsgDisclaimerLabel.height + BaseViewPadding.AdminMsgDisclaimerLabel.bottom
+                heightPadding += _adminMsgDisclaimerHeight
             }
         }
         

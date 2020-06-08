@@ -303,7 +303,13 @@ class ALKMyDocumentCell: ALKDocumentCell {
         let minimumHeight: CGFloat = 0
         var messageHeight : CGFloat = 0.0
         messageHeight += heightPadding()
-        let totalHeight = max(messageHeight, minimumHeight)
+        var totalHeight = max(messageHeight, minimumHeight)
+        
+        let _isDeletedMsg = viewModel.getDeletedMessageInfo().isDeleteMessage
+        if ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) == false && _isDeletedMsg == false {
+            let _adminMsgDisclaimerHeight = CommonPadding.AdminMsgDisclaimerLabel.height + CommonPadding.AdminMsgDisclaimerLabel.bottom
+            totalHeight += _adminMsgDisclaimerHeight
+        }
         
         guard replyMessage != nil else { return totalHeight }
         //add reply view height
