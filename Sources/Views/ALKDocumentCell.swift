@@ -46,9 +46,17 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         
         struct AttachBgUIView {
             static let top: CGFloat = 7.0
-            static let bottom: CGFloat = 7.0
+            static let bottom: CGFloat = 7.5
             static let left: CGFloat = 7.0
             static let right: CGFloat = 7.0
+        }
+        
+        struct AdminMsgDisclaimerLabel {
+            static let top: CGFloat = 7.5
+            static let bottom: CGFloat = 7.5
+            static let left: CGFloat = 7.0
+            static let right: CGFloat = 7.0
+            static let height: CGFloat = 11.0
         }
     }
 
@@ -198,6 +206,17 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         return text
     }()
     
+    var adminMsgDisclaimerLabel: UILabel = {
+        let lb = UILabel()
+        lb.font = UIFont.systemFont(ofSize: 8)
+        lb.textAlignment = .left
+        lb.textColor = UIColor.ALKSVGreyColor102()
+        return lb
+    }()
+    
+    lazy var adminMsgDisclaimerLabelHeightConst:NSLayoutConstraint? = self.adminMsgDisclaimerLabel.heightAnchor.constraint(equalToConstant: 0)
+    var adminMsgDisclaimerLabelBottomConst:NSLayoutConstraint?
+    
     var replyViewAction: (()->())? = nil
     
     var replyMessageTypeImagewidthConst:NSLayoutConstraint?
@@ -258,6 +277,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         docImageView,
         sizeAndFileType,
         frontView,
+        adminMsgDisclaimerLabel,
         progressView])
         
         contentView.bringSubviewToFront(uploadButton)
@@ -269,6 +289,7 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         contentView.bringSubviewToFront(replyMessageTypeImageView)
         contentView.bringSubviewToFront(replyMessageLabel)
         contentView.bringSubviewToFront(previewImageView)
+        contentView.bringSubviewToFront(adminMsgDisclaimerLabel)
         frontView.addGestureRecognizer(longPressGesture)
 
         let topToOpen = UITapGestureRecognizer(target: self, action: #selector(self.openWKWebView(gesture:)))
@@ -290,9 +311,19 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
         frontView.rightAnchor.constraint(equalTo: bubbleView.rightAnchor).isActive = true
 
         attachBgView.topAnchor.constraint(equalTo: frameUIView.topAnchor, constant: CommonPadding.AttachBgUIView.top).isActive = true
-        attachBgView.bottomAnchor.constraint(equalTo: frameUIView.bottomAnchor, constant: -CommonPadding.AttachBgUIView.bottom).isActive = true
+        attachBgView.bottomAnchor.constraint(equalTo: adminMsgDisclaimerLabel.topAnchor, constant: -CommonPadding.AttachBgUIView.bottom).isActive = true
         attachBgView.leftAnchor.constraint(equalTo: frameUIView.leftAnchor, constant: CommonPadding.AttachBgUIView.left).isActive = true
         attachBgView.rightAnchor.constraint(equalTo: frameUIView.rightAnchor, constant: -CommonPadding.AttachBgUIView.right).isActive = true
+        
+        self.adminMsgDisclaimerLabelHeightConst?.isActive = true
+        self.adminMsgDisclaimerLabelBottomConst = adminMsgDisclaimerLabel.bottomAnchor.constraint(equalTo: frameUIView.bottomAnchor, constant: -CommonPadding.AdminMsgDisclaimerLabel.bottom)
+        self.adminMsgDisclaimerLabelBottomConst?.isActive = true
+        self.adminMsgDisclaimerLabel.leadingAnchor.constraint(
+                equalTo: frameUIView.leadingAnchor,
+                constant: CommonPadding.AdminMsgDisclaimerLabel.left).isActive = true
+        self.adminMsgDisclaimerLabel.trailingAnchor.constraint(
+                equalTo:frameUIView.trailingAnchor,
+                constant: -CommonPadding.AdminMsgDisclaimerLabel.right).isActive = true
         
         docImageView.centerYAnchor.constraint(equalTo: attachBgView.centerYAnchor).isActive = true
         docImageView.leadingAnchor.constraint(equalTo: attachBgView.leadingAnchor, constant: CommonPadding.DocumentView.left).isActive = true
@@ -465,6 +496,13 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
             replyIndicatorView.tintColor = UIColor.ALKSVOrangeColor()
             replyIndicatorView.image = nil
         }
+        
+        if _isDeletedMsg {
+            self.isHiddenAdminDisclaimer(true)
+        }else{
+            self.isHiddenAdminDisclaimer( ALKConfiguration.delegateConversationRequestInfo?.isHiddenMessageAdminDisclaimerLabel(viewModel: viewModel) ?? true)
+        }
+        
         //set color
         let _contactID:String? = replyMessage?.getMessageReceiverHashId()
         if let _messageUserId = _contactID,
@@ -643,6 +681,21 @@ ALKReplyMenuItemProtocol, ALKAppealMenuItemProtocol, ALKPinMsgMenuItemProtocol, 
     //tag: stockviva end
 }
 
+//MARK: - adminMsgDisclaimerLabel control
+extension ALKDocumentCell {
+    func isHiddenAdminDisclaimer(_ isHidden:Bool ){
+        self.adminMsgDisclaimerLabel.isHidden = isHidden
+        if isHidden {
+            self.adminMsgDisclaimerLabel.text = ""
+        }else{
+            self.adminMsgDisclaimerLabel.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_message_disclaimer")
+        }
+        
+        self.adminMsgDisclaimerLabelHeightConst?.constant = isHidden ? 0 : CommonPadding.AdminMsgDisclaimerLabel.height
+        self.adminMsgDisclaimerLabelBottomConst?.constant = isHidden ? 0 : -CommonPadding.AdminMsgDisclaimerLabel.bottom
+    }
+}
+
 extension ALKDocumentCell: ALKHTTPManagerUploadDelegate {
 
     func dataUploaded(task: ALKUploadTask) {
@@ -677,11 +730,14 @@ extension ALKDocumentCell: ALKHTTPManagerDownloadDelegate {
 
     func dataDownloadingFinished(task: ALKDownloadTask) {
         guard task.downloadError == nil, let filePath = task.filePath, let identifier = task.identifier, let _ = self.viewModel else {
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKDocumentCell - dataDownloadingFinished with error:\(task.downloadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), filePath:\(task.filePath ?? "nil"), msg_key:\(task.identifier ?? "")")
             DispatchQueue.main.async {
                 self.updateView(for: .download)
             }
             return
         }
+        ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - ALKDocumentCell - dataDownloadingFinished downloaded, filePath:\(filePath ), msg_key:\(identifier)")
+        
         ALMessageDBService().updateDbMessageWith(key: "key", value: identifier, filePath: filePath)
         DispatchQueue.main.async {
             self.updateView(for: .downloaded(filePath: filePath))

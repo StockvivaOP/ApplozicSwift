@@ -312,14 +312,16 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "newMessageNotification"), object: nil, queue: nil, using: {
             notification in
             guard self.viewModel != nil && self.isLeaveView == false else { return }
+            if let msgArray = notification.object as? [ALMessage] {
+                print("new notification received: ", msgArray.first?.message as Any, msgArray.count )
+                self.viewModel.checkDidContainSpecialMessage(messages: msgArray)
+            }
             guard self.viewModel.isUnreadMessageMode == false && self.viewModel.isFocusReplyMessageMode == false else {
                 return
             }
-            let msgArray = notification.object as? [ALMessage]
-            print("new notification received: ", msgArray?.first?.message as Any, msgArray?.count ?? "")
             guard let list = notification.object as? [Any], !list.isEmpty, self.isViewLoaded else { return }
-            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
 //            weakSelf.handlePushNotification = false
+            self.viewModel.addMessagesToList(list, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
         })
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "messageMetaDataUpdateNotification"), object: nil, queue: nil, using: {
@@ -440,6 +442,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         super.viewWillAppear(animated)
         self.isViewDisappear = false
         self.isLeaveView = false
+        self.viewModel.isLeaveChatGroup = false
         if UIApplication.shared.userInterfaceLayoutDirection == .rightToLeft {
             tableView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         }
@@ -533,6 +536,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             self.isLeaveView = true
             self.removeObserver()
         }
+    }
+    
+    open override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        self.viewModel.isLeaveChatGroup = true
     }
 
     override func backTapped() {
@@ -888,6 +896,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         tableView.reloadData()
         configureView()
         self.navigationBar.updateContent()
+        self.delegateConversationChatContentAction?.updateChatGroupBySpecialResson()
         viewModel.prepareController(isFirstLoad:self.isViewFirstLoadingMessage)
         isFirstTime = false
     }

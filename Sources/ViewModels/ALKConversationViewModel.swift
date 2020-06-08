@@ -81,7 +81,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private var selectedMessageForReply: ALKMessageViewModel?
 
     //tag: stockviva
-    private let defaultValue_minMessageRequired:Int = 10
+    public var isLeaveChatGroup = false
+    private let defaultValue_minMessageRequired:Int = 15
     private let defaultValue_requestMessagePageSize:Int = 20
     private let defaultValue_requestMessageHalfPageSize:Int = 10
     private var isLoadingAllMessage = false
@@ -466,6 +467,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         guard ALDataNetworkConnection.checkDataNetworkAvailable() else {
             let notificationView = ALNotificationView()
             notificationView.noDataConnectionNotificationView()
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - downloadAttachment no data connection, msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             return
         }
         /// For email attachments url is to be used directly
@@ -476,16 +478,18 @@ open class ALKConversationViewModel: NSObject, Localizable {
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
             httpManager.downloadImage(task: task)
+            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment call with emailSourceType, msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             return
         }
         ALMessageClientService().downloadImageUrl(message.fileMetaInfo?.blobKey) { (fileUrl, error) in
-            guard error == nil, let fileUrl = fileUrl else {
+            guard error == nil, let _fileUrl = fileUrl else {
                 print("Error downloading attachment :: \(String(describing: error))")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - downloadAttachment downloadImageUrl with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), fileUrl:\(fileUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
                 return
             }
             let httpManager = ALKHTTPManager()
             httpManager.downloadDelegate = view as? ALKHTTPManagerDownloadDelegate ?? viewController as? ALKHTTPManagerDownloadDelegate
-            let task = ALKDownloadTask(downloadUrl: fileUrl, fileName: message.fileMetaInfo?.name)
+            let task = ALKDownloadTask(downloadUrl: _fileUrl, fileName: message.fileMetaInfo?.name)
             task.identifier = message.identifier
             task.totalBytesExpectedToDownload = message.size
             httpManager.downloadAttachment(task: task)
@@ -494,7 +498,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     /// Received from notification and from network
     open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false) {
-        guard let messages = messageList as? [ALMessage] else { return }
+        guard let messages = messageList as? [ALMessage] else {
+            return
+        }
         let _loginUserId = ALUserDefaultsHandler.getUserId()
         let contactService = ALContactService()
         let messageDbService = ALMessageDBService()
@@ -589,7 +595,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 if filteredArray.count > 1 {
                     sortedArray = filteredArray.sorted { $0.createdAtTime.intValue < $1.createdAtTime.intValue }
                 }
-                guard !sortedArray.isEmpty else { return }
+                guard !sortedArray.isEmpty else {
+                    return
+                }
                 
                 //add unread message
                 if self.isUnreadMessageMode == false && isNeedOnUnreadMessageModel, let _unReadMsgCreateTime:Int = sortedArray.first?.createdAtTime.intValue {
@@ -1111,7 +1119,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
         NSLog("file path: ", alMessage.imageFilePath)
         clientService.sendPhoto(forUserInfo: alMessage.dictionary(), withCompletion: {
             urlStr, error in
-            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else { return }
+            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadImage - send with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
+                return
+            }
             let task = ALKUploadTask(url: url, fileName: alMessage.fileMeta.name)
             task.identifier = String(format: "section: %i, row: %i", indexPath.section, indexPath.row)
             task.contentType = alMessage.fileMeta.contentType
@@ -1122,7 +1133,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
             downloadManager.uploadCompleted = {[weak self] responseDict, task in
                 if task.uploadError == nil && task.completed {
                     self?.uploadAttachmentCompleted(responseDict: responseDict, indexPath: indexPath)
+                    return
                 }
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadImage upload with error:\(task.uploadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
             }
         })
     }
@@ -1150,7 +1163,10 @@ open class ALKConversationViewModel: NSObject, Localizable {
         NSLog("file path: ", alMessage.imageFilePath)
         clientService.sendPhoto(forUserInfo: alMessage.dictionary(), withCompletion: {
             urlStr, error in
-            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else { return }
+            guard error == nil, let urlStr = urlStr, let url = URL(string: urlStr)   else {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadFile - send with error:\(error ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
+                return
+            }
             let task = ALKUploadTask(url: url, fileName: alMessage.fileMeta.name)
             task.identifier = String(format: "section: %i, row: %i", indexPath.section, indexPath.row)
             task.contentType = alMessage.fileMeta.contentType
@@ -1161,7 +1177,9 @@ open class ALKConversationViewModel: NSObject, Localizable {
             downloadManager.uploadCompleted = {[weak self] responseDict, task in
                 if task.uploadError == nil && task.completed {
                     self?.uploadAttachmentCompleted(responseDict: responseDict, indexPath: indexPath)
+                    return
                 }
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKConversationViewModel - uploadFile upload with error:\(task.uploadError ?? NSError(domain: "none", code: -1, userInfo: ["localizedDescription" : "none error got"])), msg_key:\(alMessage.key ?? "nil"), msg:\(alMessage.dictionary() ?? ["nil":"nil"])")
             }
         })
     }
@@ -1348,6 +1366,18 @@ open class ALKConversationViewModel: NSObject, Localizable {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.loggingAPI(type:.debug, message: "chatgroup - fetchOpenGroupMessages completed", apiName: "getMessageList", startTime: _startTime, endTime: Date())
             if let _error = error {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.error, message: "chatgroup - fetchOpenGroupMessages - have error \(_error.localizedDescription) ")
+                //check error
+                let _nsError = _error as NSError
+                if _nsError.code == URLError.Code.timedOut.rawValue ||
+                    _nsError.code == URLError.Code.notConnectedToInternet.rawValue {//retry
+                    if self.isLeaveChatGroup {
+                        return
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
+                        self.fetchOpenGroupMessages(startFromTime:startFromTime, time: time, contactId: contactId, channelKey: channelKey, maxRecord:maxRecord, isOrderByAsc:isOrderByAsc, completion:completion)
+                    }
+                    return
+                }
             }
             
             guard let alMessages = messages as? [ALMessage], alMessages.count > 0 else {
@@ -1630,9 +1660,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
 
     private func setReplyId(message: ALMessage) -> ALMessage {
         if let replyMessage = getSelectedMessageToReply() {
-            let metaData = NSMutableDictionary()
-            metaData[AL_MESSAGE_REPLY_KEY] = replyMessage.identifier
-            message.metadata = metaData
+            message.setReplyMessageInfo(id: replyMessage.identifier, msgUserHashId: replyMessage.contactId ?? "")
         }
         return message
     }
@@ -1862,7 +1890,7 @@ extension ALKConversationViewModel {
             message.deviceKey != ALUserDefaultsHandler.getDeviceKeyString() else {
             return
         }
-        addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel )
+        addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel)
     }
     
     open func syncOpenGroupMessage(isNeedOnUnreadMessageModel:Bool) {
@@ -2091,6 +2119,9 @@ extension ALKConversationViewModel {
                 self.alMessages.append(mesg)
                 self.messageModels.append(mesg.messageModel)
             }
+            
+            //for checking message type
+            self.checkDidContainSpecialMessage(messages: sortedArray)
             
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - loadLateOpenGroupMessage - successful list count  \(self.messageModels.count) ")
             //get last unread message key
@@ -2345,6 +2376,24 @@ extension ALKConversationViewModel {
         }
         
         self.updateMessageContent(index: _foundMessageIndex ?? -1, updatedMessage: updatedMessage, isUpdateView:isUpdateView)
+    }
+    
+    func checkDidContainSpecialMessage(messages:[ALMessage]?){
+        guard let _msgList = messages else {
+            return
+        }
+        var _isNeedToRefreshChatGroupInfo:Bool = false
+        for _msgItem in _msgList {
+            let _isDeleted = _msgItem.getDeletedMessageInfo().isDeleteMessage
+            if _msgItem.getMessageTypeInMetaData() == .pinAlert && _isDeleted == false {
+                _isNeedToRefreshChatGroupInfo = true
+                break
+            }
+        }
+        
+        if _isNeedToRefreshChatGroupInfo {
+            self.delegateConversationChatContentAction?.updateChatGroupBySpecialResson()
+        }
     }
     
     private func updateMessageContent(index:Int, updatedMessage: ALMessage, isUpdateView:Bool = true) {

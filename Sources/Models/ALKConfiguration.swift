@@ -430,6 +430,8 @@ public protocol ConversationChatContentActionDelegate: class{
     //delete messaege
     func messageRequestToDelete(messageId:String, completed:@escaping ((_ result:Bool, _ error:Error?)->()))
     func messageHadDeleted(viewModel:ALKMessageViewModel?, indexPath:IndexPath?)
+    //special message detected
+    func updateChatGroupBySpecialResson()
 }
 
 //tag: stockviva - start
@@ -486,6 +488,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
 
 public protocol ConversationRequestInfoDelegate: class{
     func isShowJoinOurGroupButton(viewModel:ALKMessageViewModel?) -> Bool
+    func isHiddenMessageAdminDisclaimerLabel(viewModel:ALKMessageViewModel?) -> Bool
     //validate message
     func validateMessageBeforeSend(message:String?, completed:@escaping ((_ isPass:Bool, _ error:Error?) -> ()))
     //show action for remark button
