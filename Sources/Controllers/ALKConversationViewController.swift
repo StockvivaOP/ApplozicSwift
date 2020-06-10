@@ -2091,19 +2091,6 @@ extension ALKConversationViewController {
         self.chatBar.hiddenBlockChatButton(!self.enableShowBlockChatMode)
     }
     
-    public func showPinMessageView(isHidden:Bool, pinMsgUuid:String? = nil, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
-        if let _viewModel = viewModel, isHidden == false {
-            self.pinMessageView.isHidden = isHidden
-            let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
-            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-            self.pinMessageView.updateContent(pinMsgUuid:pinMsgUuid, userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
-        }else{
-            self.pinMessageView.isHidden = true
-            let height: CGFloat = 0
-            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-        }
-    }
-    
     public func isHiddenFloatingShareTip(_ isHidden:Bool) {
         if let _btnShare = self.navigationBar.getRightBarItemButton(item: .shareGroup),
             let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
@@ -2193,7 +2180,7 @@ extension ALKConversationViewController {
         }
     }
     
-    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
+    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel, completed:((_ isSuccessful:Bool)->())? = nil){
         let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
         var _presentVC:ALKSVBaseMessageDetailViewController?
         let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
@@ -2233,7 +2220,11 @@ extension ALKConversationViewController {
             _pVC.delegate = self
             _pVC.modalPresentationStyle = .overCurrentContext
             _pVC.modalTransitionStyle = .crossDissolve
-            self.present(_pVC, animated: true, completion: nil)
+            self.present(_pVC, animated: true) {
+                completed?(true)
+            }
+        }else{
+            completed?(false)
         }
     }
     
@@ -2387,6 +2378,28 @@ extension ALKConversationViewController: SVALKConversationNavBarDelegate {
 
 //MARK: - stockviva (ALKSVPinMessageViewDelegate)
 extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
+    public func showPinMessageView(isHidden:Bool, pinMsgUuid:String? = nil, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
+        if let _viewModel = viewModel, isHidden == false {
+            self.pinMessageView.isHidden = isHidden
+            let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
+            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
+            self.pinMessageView.updateContent(pinMsgUuid:pinMsgUuid, userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
+        }else{
+            self.pinMessageView.isHidden = true
+            let height: CGFloat = 0
+            self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
+        }
+    }
+    
+    public func showPinMessageDialogManually(completed:((_ isSuccessful:Bool)->())? = nil){
+        if self.pinMessageView.isHidden {
+            completed?(false)
+            return
+        }
+        //show message
+        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.userName, userIconUrl:self.pinMessageView.userIconUrl, viewModel: self.pinMessageView.viewModel, completed:completed)
+    }
+    
     func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel) {
         self.delegateConversationChatContentAction?.didPinMessageClicked()
         if self.isEnablePaidFeature() == false {
