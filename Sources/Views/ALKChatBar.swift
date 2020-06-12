@@ -1106,6 +1106,10 @@ extension ALKChatBar {
         
         if let _lastEnteredInfo = _lastUserEnteredForSearchStockCode {
             let _range = NSMakeRange(_lastEnteredInfo.startIndex, _lastEnteredInfo.length )
+            let _inRange = Range(_range, in: finalText) != nil
+            if _inRange == false {
+                return
+            }
             var _targetSearchStr = finalText as NSString
             _targetSearchStr = _targetSearchStr.substring(with: _range) as NSString
             self.lastSearchStockCodeInfo = (text:_targetSearchStr as String, range:_range)
