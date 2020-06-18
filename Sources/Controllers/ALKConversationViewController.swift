@@ -2183,7 +2183,7 @@ extension ALKConversationViewController {
             }else if let _replyMsgCreateTime = _replyMessage.createdAtTime {
                 self.viewModel.addReplyMessageViewHistory(currentViewMessage: currentMessage, replyMessage: replyMessage)
                 //reload and go to reply message
-                self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _replyMessage.identifier, createTime: _replyMsgCreateTime.intValue))
+                self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _replyMessage.identifier, createTime: _replyMsgCreateTime))
             }
         }else{
             var _userDisplayName:String? = nil
@@ -2221,7 +2221,7 @@ extension ALKConversationViewController {
             _result = true
         }else if let _replyMsgCreateTime = _message.createdAtTime {
             //reload and go to reply message
-            self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _message.identifier, createTime: _replyMsgCreateTime.intValue))
+            self.viewModel.reloadOpenGroupFocusReplyMessage(targetMessageInfo: (id: _message.identifier, createTime: _replyMsgCreateTime))
             _result = true
         }
         return _result

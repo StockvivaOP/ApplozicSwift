@@ -89,7 +89,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
     private var isLoadingEarlierMessage = false
     private var isLoadingLatestMessage = false
     private var unreadMessageSeparator:ALMessage = ALMessage()
-    public var targetOpenMessageForFirstOpen:(id: String, createTime: Int)?
+    public var targetOpenMessageForFirstOpen:(id: String, createTime: NSNumber)?
     public var isUnreadMessageMode = false
     public var isFocusReplyMessageMode = false
     public var lastUnreadMessageKey:String? = nil
@@ -2190,7 +2190,7 @@ extension ALKConversationViewModel {
 
 //MARK: - stockviva reply message
 extension ALKConversationViewModel {
-    open func reloadOpenGroupFocusReplyMessage(targetMessageInfo:(id:String, createTime:Int), isFirstLoad:Bool = false){
+    open func reloadOpenGroupFocusReplyMessage(targetMessageInfo:(id:String, createTime:NSNumber), isFirstLoad:Bool = false){
             self.isLoadingAllMessage = false
             self.isLoadingEarlierMessage = false
             self.isLoadingLatestMessage = false
@@ -2210,7 +2210,7 @@ extension ALKConversationViewModel {
             self.delegate?.loadingStarted()
             
             //adjust target msg value
-            var _targetMsgTimeValueAdjust = targetMessageInfo.createTime
+            var _targetMsgTimeValueAdjust = targetMessageInfo.createTime.int64Value
             let _targetMsgTimeValueCount = "\(_targetMsgTimeValueAdjust)".count
             let _diff = 13 - _targetMsgTimeValueCount
             if _diff > 0 {
