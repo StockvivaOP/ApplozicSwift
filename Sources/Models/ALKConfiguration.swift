@@ -353,7 +353,10 @@ public struct ALKConfiguration {
     /// chat view Right Nav Bar Button - show share group
     public var isShowShareGroupOptionInNavBar:Bool = false
     
-    /// chat view Right Nav Bar Button - show share group
+    /// chat view Right - show Affiliate Promotion button
+    public var isShowFloatingAffiliatePromotionButton:Bool = false
+    
+    /// chat view Right - show share group
     public var isShowFloatingShareGroupButton:Bool = false
     
     /// chat view Right Nav Bar Button - search message
@@ -403,8 +406,10 @@ public protocol ConversationChatContentActionDelegate: class{
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?, mentionUserList:[(hashID:String, name:String)]?)
     func openLink(url:URL, viewModel:ALKMessageViewModel?, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
+    func loadingFloatingAffiliatePromotionButton() -> UIImage?
     func loadingFloatingShareButton() -> UIImage?
     func loadingFloatingShareTip() -> (title:String, bgColor:UIColor, size:CGSize, titleEdgeInsets:UIEdgeInsets?, dismissSecond:Int)
+    func didFloatingAffiliatePromotionButtonClicked(chatView:UIViewController, button:UIButton)
     func didFloatingShareButtonClicked(chatView:UIViewController, button:UIButton)
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?

@@ -194,6 +194,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         return _view
     }()
     
+    lazy private var floatingAffiliatePromoButton: UIButton = {
+        let view = UIButton(type: UIButton.ButtonType.custom)
+        view.backgroundColor = .clear
+        view.isHidden = true
+        view.addTarget(self, action: #selector(ALKConversationViewController.didFloatingAffiliatePromotionButtonTouchUpInside), for: .touchUpInside)
+        return view
+    }()
+    
     lazy private var floatingShareButton: UIButton = {
         let view = UIButton(type: UIButton.ButtonType.custom)
         view.backgroundColor = .clear
@@ -581,7 +589,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     
     private func setupConstraints() {
         
-        let allViews = [backgroundView, tableView, floatingShareButton, svMarqueeView, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        let allViews = [backgroundView, tableView, floatingAffiliatePromoButton, floatingShareButton, svMarqueeView, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         
         view.addViewsForAutolayout(views: allViews)
 
@@ -610,8 +618,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         svMarqueeView.widthAnchor.constraint(equalToConstant: 275.0).isActive = true
         svMarqueeView.heightAnchor.constraint(equalToConstant: 27.0).isActive = true
         
-        floatingShareButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
-        floatingShareButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
+        floatingAffiliatePromoButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
+        floatingAffiliatePromoButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
+        floatingAffiliatePromoButton.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
+        floatingAffiliatePromoButton.heightAnchor.constraint(equalToConstant: 70.0).isActive = true
+        
+        floatingShareButton.topAnchor.constraint(equalTo: floatingAffiliatePromoButton.bottomAnchor, constant: 8.0).isActive = true
+        floatingShareButton.trailingAnchor.constraint(equalTo: floatingAffiliatePromoButton.trailingAnchor, constant: 0).isActive = true
         floatingShareButton.widthAnchor.constraint(equalToConstant: 70.0).isActive = true
         floatingShareButton.heightAnchor.constraint(equalToConstant: 70.0).isActive = true
         
@@ -2091,80 +2104,8 @@ extension ALKConversationViewController {
         self.chatBar.hiddenBlockChatButton(!self.enableShowBlockChatMode)
     }
     
-    public func isHiddenFloatingShareTip(_ isHidden:Bool) {
-        if let _btnShare = self.navigationBar.getRightBarItemButton(item: .shareGroup),
-            let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
-            let _inViewPoint = self.navigationItem.rightBarButtonItem?.customView?.convert(_btnShare.frame.origin, to: self.view),
-            isHidden == false {
-            let _sizeOfArrow = CGSize(width: 19.0, height: 8.0)
-            let _centerXWithTargetArrow = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_sizeOfArrow.width / 2.0)
-            let _centerYWithTargetArrow = (self.navigationController?.navigationBar.frame.minY ?? 0) + abs(_inViewPoint.y)
-            
-            var _centerXWithTargetButton = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_floatingShareTipInfo.size.width / 2.0)
-            _centerXWithTargetButton = min(_centerXWithTargetButton, (self.view.frame.size.width - _floatingShareTipInfo.size.width) )
-            let _centerYWithTargetButton = _centerYWithTargetArrow + _sizeOfArrow.height
-            
-            self.floatingShareTipButtonArrowImg.tintColor = _floatingShareTipInfo.bgColor
-            self.floatingShareTipButtonArrowImg.frame.origin = CGPoint(x: _centerXWithTargetArrow, y: _centerYWithTargetArrow)
-            self.floatingShareTipButtonArrowImg.frame.size = _sizeOfArrow
-            self.floatingShareTipButtonArrowImg.alpha = 0.0
-            self.floatingShareTipButtonArrowImg.isHidden = false
-            
-            self.floatingShareTipButton.setTitle(_floatingShareTipInfo.title, for: .normal)
-            self.floatingShareTipButton.setBackgroundColor(_floatingShareTipInfo.bgColor)
-            self.floatingShareTipButton.titleEdgeInsets = _floatingShareTipInfo.titleEdgeInsets ?? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-            self.floatingShareTipButton.frame.origin = CGPoint(x: _centerXWithTargetButton, y: _centerYWithTargetButton)
-            self.floatingShareTipButton.frame.size = _floatingShareTipInfo.size
-            self.floatingShareTipButton.layer.cornerRadius = _floatingShareTipInfo.size.height / 2.0
-            self.floatingShareTipButton.alpha = 0.0
-            self.floatingShareTipButton.isHidden = false
-            
-            let _currentWindow: UIWindow? = UIApplication.shared.keyWindow
-            _currentWindow?.addSubview(self.floatingShareTipButtonArrowImg)
-            _currentWindow?.addSubview(self.floatingShareTipButton)
-            _currentWindow?.bringSubviewToFront(self.floatingShareTipButtonArrowImg)
-            _currentWindow?.bringSubviewToFront(self.floatingShareTipButton)
-            //animation
-            UIView.animate(withDuration: 0.4, animations: {
-                self.floatingShareTipButtonArrowImg.alpha = 1.0
-                self.floatingShareTipButton.alpha = 1.0
-            }) { (isSuccessful) in
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(_floatingShareTipInfo.dismissSecond) ) {
-                    UIView.animate(withDuration: 0.4, animations: {
-                        self.floatingShareTipButtonArrowImg.alpha = 0.0
-                        self.floatingShareTipButton.alpha = 0.0
-                    }) { (isSuccessful) in
-                        self.floatingShareTipButton.isHidden = true
-                        self.floatingShareTipButtonArrowImg.isHidden = true
-                        if self.floatingShareTipButton.superview != nil {
-                            self.floatingShareTipButton.removeFromSuperview()
-                        }
-                        if self.floatingShareTipButtonArrowImg.superview != nil {
-                            self.floatingShareTipButtonArrowImg.removeFromSuperview()
-                        }
-                    }
-                }
-            }
-        }else{
-            self.floatingShareTipButton.isHidden = true
-            self.floatingShareTipButtonArrowImg.isHidden = true
-            if self.floatingShareTipButton.superview != nil {
-                self.floatingShareTipButton.removeFromSuperview()
-            }
-            if self.floatingShareTipButtonArrowImg.superview != nil {
-                self.floatingShareTipButtonArrowImg.removeFromSuperview()
-            }
-        }
-    }
-    
     private func prepareAllCustomView() {
-        self.floatingShareButton.isHidden = !self.configuration.isShowFloatingShareGroupButton
-        if let _image = self.delegateConversationChatContentAction?.loadingFloatingShareButton(),
-            self.floatingShareButton.isHidden == false {
-            self.floatingShareButton.setImage(_image, for: .normal)
-        }else{
-            self.floatingShareButton.isHidden = true
-        }
+        self.refreshFloatingButtonView()
     }
     
     private func prepareDiscrimationView() {
@@ -2637,14 +2578,120 @@ extension ALKConversationViewController {
     }
 }
 
+
+//MARK: - stockviva (floating button)
+extension ALKConversationViewController {
+    public func refreshFloatingButtonView(){
+        if self.configuration.isShowFloatingAffiliatePromotionButton {
+            self.configuration.isShowFloatingShareGroupButton = false
+        }
+        self.hiddenFloatingShareButton(!self.configuration.isShowFloatingShareGroupButton)
+        self.hiddenFloatingAffiliatePromotionButton(!self.configuration.isShowFloatingAffiliatePromotionButton)
+    }
+    
+    private func hiddenFloatingShareButton(_ hidden:Bool){
+        self.floatingShareButton.isHidden = hidden
+        if let _image = self.delegateConversationChatContentAction?.loadingFloatingShareButton(),
+            self.floatingShareButton.isHidden == false {
+            self.configuration.isShowFloatingShareGroupButton = true
+            self.floatingShareButton.setImage(_image, for: .normal)
+        }else{
+            self.floatingShareButton.isHidden = true
+            self.configuration.isShowFloatingShareGroupButton = false
+        }
+    }
+    
+    private func hiddenFloatingAffiliatePromotionButton(_ hidden:Bool){
+        self.floatingAffiliatePromoButton.isHidden = hidden
+        if let _image = self.delegateConversationChatContentAction?.loadingFloatingAffiliatePromotionButton(),
+            self.floatingAffiliatePromoButton.isHidden == false {
+            self.configuration.isShowFloatingAffiliatePromotionButton = true
+            self.floatingAffiliatePromoButton.setImage(_image, for: .normal)
+        }else{
+            self.floatingAffiliatePromoButton.isHidden = true
+            self.configuration.isShowFloatingAffiliatePromotionButton = false
+        }
+    }
+    
+    public func isHiddenFloatingShareTip(_ isHidden:Bool) {
+        if let _btnShare = self.navigationBar.getRightBarItemButton(item: .shareGroup),
+            let _floatingShareTipInfo = self.delegateConversationChatContentAction?.loadingFloatingShareTip(),
+            let _inViewPoint = self.navigationItem.rightBarButtonItem?.customView?.convert(_btnShare.frame.origin, to: self.view),
+            isHidden == false {
+            let _sizeOfArrow = CGSize(width: 19.0, height: 8.0)
+            let _centerXWithTargetArrow = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_sizeOfArrow.width / 2.0)
+            let _centerYWithTargetArrow = (self.navigationController?.navigationBar.frame.minY ?? 0) + abs(_inViewPoint.y)
+            
+            var _centerXWithTargetButton = ( _inViewPoint.x + (_btnShare.frame.size.width / 2.0) ) - (_floatingShareTipInfo.size.width / 2.0)
+            _centerXWithTargetButton = min(_centerXWithTargetButton, (self.view.frame.size.width - _floatingShareTipInfo.size.width) )
+            let _centerYWithTargetButton = _centerYWithTargetArrow + _sizeOfArrow.height
+            
+            self.floatingShareTipButtonArrowImg.tintColor = _floatingShareTipInfo.bgColor
+            self.floatingShareTipButtonArrowImg.frame.origin = CGPoint(x: _centerXWithTargetArrow, y: _centerYWithTargetArrow)
+            self.floatingShareTipButtonArrowImg.frame.size = _sizeOfArrow
+            self.floatingShareTipButtonArrowImg.alpha = 0.0
+            self.floatingShareTipButtonArrowImg.isHidden = false
+            
+            self.floatingShareTipButton.setTitle(_floatingShareTipInfo.title, for: .normal)
+            self.floatingShareTipButton.setBackgroundColor(_floatingShareTipInfo.bgColor)
+            self.floatingShareTipButton.titleEdgeInsets = _floatingShareTipInfo.titleEdgeInsets ?? UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            self.floatingShareTipButton.frame.origin = CGPoint(x: _centerXWithTargetButton, y: _centerYWithTargetButton)
+            self.floatingShareTipButton.frame.size = _floatingShareTipInfo.size
+            self.floatingShareTipButton.layer.cornerRadius = _floatingShareTipInfo.size.height / 2.0
+            self.floatingShareTipButton.alpha = 0.0
+            self.floatingShareTipButton.isHidden = false
+            
+            let _currentWindow: UIWindow? = UIApplication.shared.keyWindow
+            _currentWindow?.addSubview(self.floatingShareTipButtonArrowImg)
+            _currentWindow?.addSubview(self.floatingShareTipButton)
+            _currentWindow?.bringSubviewToFront(self.floatingShareTipButtonArrowImg)
+            _currentWindow?.bringSubviewToFront(self.floatingShareTipButton)
+            //animation
+            UIView.animate(withDuration: 0.4, animations: {
+                self.floatingShareTipButtonArrowImg.alpha = 1.0
+                self.floatingShareTipButton.alpha = 1.0
+            }) { (isSuccessful) in
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(_floatingShareTipInfo.dismissSecond) ) {
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.floatingShareTipButtonArrowImg.alpha = 0.0
+                        self.floatingShareTipButton.alpha = 0.0
+                    }) { (isSuccessful) in
+                        self.floatingShareTipButton.isHidden = true
+                        self.floatingShareTipButtonArrowImg.isHidden = true
+                        if self.floatingShareTipButton.superview != nil {
+                            self.floatingShareTipButton.removeFromSuperview()
+                        }
+                        if self.floatingShareTipButtonArrowImg.superview != nil {
+                            self.floatingShareTipButtonArrowImg.removeFromSuperview()
+                        }
+                    }
+                }
+            }
+        }else{
+            self.floatingShareTipButton.isHidden = true
+            self.floatingShareTipButtonArrowImg.isHidden = true
+            if self.floatingShareTipButton.superview != nil {
+                self.floatingShareTipButton.removeFromSuperview()
+            }
+            if self.floatingShareTipButtonArrowImg.superview != nil {
+                self.floatingShareTipButtonArrowImg.removeFromSuperview()
+            }
+        }
+    }
+}
+
 //MARK: - stockviva (display admin message)
 extension ALKConversationViewController {
     
-    @objc func didFloatingShareButtonTouchUpInside(_ selector: UIButton) {
+    @objc func didFloatingAffiliatePromotionButtonTouchUpInside(_ sender: UIButton) {
         self.chatBar.resignAllResponderFromTextView()
-        self.delegateConversationChatContentAction?.didFloatingShareButtonClicked(chatView: self, button: selector)
-        self.floatingShareButton.isHidden = true
-        self.configuration.isShowFloatingShareGroupButton = false
+        self.delegateConversationChatContentAction?.didFloatingAffiliatePromotionButtonClicked(chatView: self, button: sender)
+    }
+    
+    @objc func didFloatingShareButtonTouchUpInside(_ sender: UIButton) {
+        self.chatBar.resignAllResponderFromTextView()
+        self.delegateConversationChatContentAction?.didFloatingShareButtonClicked(chatView: self, button: sender)
+        self.hiddenFloatingShareButton(true)
     }
     
     public func reloadMessageWithTargetUser(adminUserIdList:[String]?){
