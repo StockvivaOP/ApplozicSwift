@@ -2603,10 +2603,10 @@ extension ALKConversationViewController {
     
     private func hiddenFloatingAffiliatePromotionButton(_ hidden:Bool){
         self.floatingAffiliatePromoButton.isHidden = hidden
-        if let _image = self.delegateConversationChatContentAction?.loadingFloatingAffiliatePromotionButton(),
+        if let _imageUrl = self.delegateConversationChatContentAction?.loadingFloatingAffiliatePromotionButtonUrl(),
             self.floatingAffiliatePromoButton.isHidden == false {
             self.configuration.isShowFloatingAffiliatePromotionButton = true
-            self.floatingAffiliatePromoButton.setImage(_image, for: .normal)
+            self.floatingAffiliatePromoButton.kf.setImage(with: _imageUrl, for: .normal)
         }else{
             self.floatingAffiliatePromoButton.isHidden = true
             self.configuration.isShowFloatingAffiliatePromotionButton = false

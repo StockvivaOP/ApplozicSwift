@@ -406,7 +406,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func didMessageSent(type:ALKConfiguration.ConversationMessageTypeForApp, messageID:String, messageReplyID:String, message:String?, mentionUserList:[(hashID:String, name:String)]?)
     func openLink(url:URL, viewModel:ALKMessageViewModel?, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
-    func loadingFloatingAffiliatePromotionButton() -> UIImage?
+    func loadingFloatingAffiliatePromotionButtonUrl() -> URL?
     func loadingFloatingShareButton() -> UIImage?
     func loadingFloatingShareTip() -> (title:String, bgColor:UIColor, size:CGSize, titleEdgeInsets:UIEdgeInsets?, dismissSecond:Int)
     func didFloatingAffiliatePromotionButtonClicked(chatView:UIViewController, button:UIButton)
