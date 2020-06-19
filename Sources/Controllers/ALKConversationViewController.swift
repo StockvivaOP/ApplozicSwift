@@ -623,8 +623,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         floatingAffiliatePromoButton.widthAnchor.constraint(equalToConstant: 75.0).isActive = true
         floatingAffiliatePromoButton.heightAnchor.constraint(equalToConstant: 75.0).isActive = true
         
-        floatingShareButton.topAnchor.constraint(equalTo: floatingAffiliatePromoButton.bottomAnchor, constant: 8.0).isActive = true
-        floatingShareButton.trailingAnchor.constraint(equalTo: floatingAffiliatePromoButton.trailingAnchor, constant: 0).isActive = true
+        floatingShareButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
+        floatingShareButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
         floatingShareButton.widthAnchor.constraint(equalToConstant: 75.0).isActive = true
         floatingShareButton.heightAnchor.constraint(equalToConstant: 75.0).isActive = true
         
