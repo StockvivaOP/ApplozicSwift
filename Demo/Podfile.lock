@@ -18,16 +18,16 @@ PODS:
     - Kingfisher/Core (= 5.13.4)
   - Kingfisher/Core (5.13.4)
   - MGSwipeTableCell (1.6.11)
-  - Nimble (8.0.7)
-  - Nimble-Snapshots (8.2.0):
-    - Nimble-Snapshots/Core (= 8.2.0)
-  - Nimble-Snapshots/Core (8.2.0):
+  - Nimble (8.1.1)
+  - Nimble-Snapshots (8.2.1):
+    - Nimble-Snapshots/Core (= 8.2.1)
+  - Nimble-Snapshots/Core (8.2.1):
     - iOSSnapshotTestCase (~> 6.0)
     - Nimble (~> 8.0)
-  - Quick (2.2.0)
-  - SDWebImage (5.7.3):
-    - SDWebImage/Core (= 5.7.3)
-  - SDWebImage/Core (5.7.3)
+  - Quick (3.0.0)
+  - SDWebImage (5.7.4):
+    - SDWebImage/Core (= 5.7.4)
+  - SDWebImage/Core (5.7.4)
   - SwiftLint (0.39.2)
 
 DEPENDENCIES:
@@ -58,19 +58,19 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   Applozic:
-    :commit: f9a029e5dcf4c00fbf98bf5bcdc4f5b405f0d203
+    :commit: 394b057d70b7f029f1d9088bcba15989e3d05248
     :git: https://github.com/StockvivaOP/Applozic-Chat-iOS-Framework.git
 
 SPEC CHECKSUMS:
   Applozic: 80e4de658137ffa44af0c99989905fd501427030
-  ApplozicSwift: 640acf42093c0d16cf51ced44184dbea52e4d812
+  ApplozicSwift: 2691381d8e404aa021e7a9e8aaa8018e76d6dfeb
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Kingfisher: d2279a7abece3c7f25a80cd2b7f363ca5cf3f44c
   MGSwipeTableCell: b804e4e450dee439c42250be90bd50458bf67fce
-  Nimble: a73af6ecd4c9106f434f3d55fc54570be3739e0b
-  Nimble-Snapshots: 7a1133b2dcce853ecdf1026f0a17fedf03bc41c9
-  Quick: 7fb19e13be07b5dfb3b90d4f9824c855a11af40e
-  SDWebImage: 97351f6582ceca541ea294ba66a1fcb342a331c2
+  Nimble: 5f8a2fb6fa343a7242dfdd9d42f7267419d464b2
+  Nimble-Snapshots: 3a4750d83752625c8ebfdc588da105303ee2201e
+  Quick: 6d9559f40647bc4d510103842ef2fdd882d753e2
+  SDWebImage: 48b88379b798fd1e4298f95bb25d2cdabbf4deb3
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
 
 PODFILE CHECKSUM: c42fce0e1c2170d23d6e82e4a35a2c18d6797247
