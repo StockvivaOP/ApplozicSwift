@@ -2121,7 +2121,7 @@ extension ALKConversationViewController {
         }
     }
     
-    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel, completed:((_ isSuccessful:Bool)->())? = nil){
+    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel, isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
         let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
         var _presentVC:ALKSVBaseMessageDetailViewController?
         let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
@@ -2158,6 +2158,7 @@ extension ALKConversationViewController {
             _pVC.userName = userName
             _pVC.userIconUrl = userIconUrl
             _pVC.viewModel = viewModel
+            _pVC.isHiddenPromotionImage = isShowPromotionImage
             _pVC.delegate = self
             _pVC.modalPresentationStyle = .overCurrentContext
             _pVC.modalTransitionStyle = .crossDissolve
@@ -2332,13 +2333,13 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
         }
     }
     
-    public func showPinMessageDialogManually(completed:((_ isSuccessful:Bool)->())? = nil){
+    public func showPinMessageDialogManually(isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
         if self.pinMessageView.isHidden {
             completed?(false)
             return
         }
         //show message
-        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.userName, userIconUrl:self.pinMessageView.userIconUrl, viewModel: self.pinMessageView.viewModel, completed:completed)
+        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.userName, userIconUrl:self.pinMessageView.userIconUrl, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
     }
     
     func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel) {
