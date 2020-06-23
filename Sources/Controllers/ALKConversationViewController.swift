@@ -2158,7 +2158,7 @@ extension ALKConversationViewController {
             _pVC.userName = userName
             _pVC.userIconUrl = userIconUrl
             _pVC.viewModel = viewModel
-            _pVC.isHiddenPromotionImage = isShowPromotionImage
+            _pVC.isShowPromotionImage = isShowPromotionImage
             _pVC.delegate = self
             _pVC.modalPresentationStyle = .overCurrentContext
             _pVC.modalTransitionStyle = .crossDissolve

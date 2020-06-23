@@ -28,7 +28,7 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
     var userName:String?
     var userIconUrl:String?
     var viewModel:ALKMessageViewModel?
-    var isHiddenPromotionImage:Bool = false
+    var isShowPromotionImage:Bool = false
     private var messageheader:ALKSVMessageDetailHeaderViewController?
     
     override func viewDidLoad() {
@@ -44,7 +44,7 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
             self.labPageTitle.text =  ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_reply_message") ?? ""
         }
         
-        self.hiddenPromotionImage(self.isHiddenPromotionImage)
+        self.hiddenPromotionImage(!self.isShowPromotionImage)
     }
     
     override func viewDidAppear(_ animated: Bool) {
