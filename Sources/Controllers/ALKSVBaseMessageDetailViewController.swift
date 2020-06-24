@@ -19,12 +19,16 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
     @IBOutlet weak var labPageTitle: UILabel!
     @IBOutlet weak var btnClose: UIButton!
     
+    @IBOutlet weak var svContent: UIStackView!
+    @IBOutlet weak var imgPromotion: UIImageView!
+    
     var configuration: ALKConfiguration!
     var delegate:ALKSVMessageDetailViewControllerDelegate?
     var isViewFromPinMessage:Bool = false
     var userName:String?
     var userIconUrl:String?
     var viewModel:ALKMessageViewModel?
+    var isShowPromotionImage:Bool = false
     private var messageheader:ALKSVMessageDetailHeaderViewController?
     
     override func viewDidLoad() {
@@ -39,6 +43,8 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
             self.imgPageIcon.image = UIImage(named: "sv_icon_reply", in: Bundle.applozic, compatibleWith: nil)
             self.labPageTitle.text =  ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_reply_message") ?? ""
         }
+        
+        self.hiddenPromotionImage(!self.isShowPromotionImage)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -62,6 +68,10 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
         }
         _header.delegate = self
         _header.setHeader(userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
+    }
+    
+    func hiddenPromotionImage(_ isHidden:Bool){
+        self.imgPromotion.isHidden = isHidden
     }
     
     //button control
