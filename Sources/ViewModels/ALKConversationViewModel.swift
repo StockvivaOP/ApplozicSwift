@@ -1344,7 +1344,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
         })
     }
 
-    private func fetchOpenGroupMessages(startFromTime:NSNumber? = nil, time: NSNumber? = nil, contactId: String?, channelKey: NSNumber?, maxRecord:String? = nil, isOrderByAsc:Bool = false, completion:@escaping ([ALMessage]?, _ fistItemCreateTime:NSNumber?, _ lastItemCreateTime:NSNumber?)->Void) {
+    private func fetchOpenGroupMessages(startFromTime:NSNumber? = nil, time: NSNumber? = nil, contactId: String?, channelKey: NSNumber?, maxRecord:String? = nil, isOrderByAsc:Bool = false, retryCount:Int = 0, completion:@escaping ([ALMessage]?, _ fistItemCreateTime:NSNumber?, _ lastItemCreateTime:NSNumber?)->Void) {
         let messageListRequest = ALKSVMessageListRequest()
         messageListRequest.userId = contactId
         messageListRequest.channelKey = channelKey
@@ -1370,11 +1370,11 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 let _nsError = _error as NSError
                 if _nsError.code == URLError.Code.timedOut.rawValue ||
                     _nsError.code == URLError.Code.notConnectedToInternet.rawValue {//retry
-                    if self.isLeaveChatGroup {
+                    if self.isLeaveChatGroup || retryCount == 5 {
                         return
                     }
-                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5) {
-                        self.fetchOpenGroupMessages(startFromTime:startFromTime, time: time, contactId: contactId, channelKey: channelKey, maxRecord:maxRecord, isOrderByAsc:isOrderByAsc, completion:completion)
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.0) {
+                        self.fetchOpenGroupMessages(startFromTime:startFromTime, time: time, contactId: contactId, channelKey: channelKey, maxRecord:maxRecord, isOrderByAsc:isOrderByAsc, retryCount: (retryCount + 1), completion:completion)
                     }
                     return
                 }
