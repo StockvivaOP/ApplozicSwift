@@ -14,7 +14,8 @@ public protocol ALKSVMessageAttachmentDownloaderDelegate: class {
     func didAttachmentDownloadProgress(progress:Double, total:Int64)
     func didAttachmentDownloadFinished(messageKey:String?, path:String?, error:Error?)
 }
-class SVALKMessageAttachmentDownloader : NSObject {
+
+open class SVALKMessageAttachmentDownloader : NSObject {
     
     open var delegate:ALKSVMessageAttachmentDownloaderDelegate?
     open var messageKey:String?
