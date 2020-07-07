@@ -318,7 +318,7 @@ extension ALKMessageViewModel {
                                                      msgKey:String,
                                                      message:String?,
                                                      contactIds:String?,
-                                                     contentType:String,
+                                                     contentType:Int,
                                                      createdAtTime:NSNumber,
                                                      receiverId to:String?,
                                                      metadata:[String:Any]?,
