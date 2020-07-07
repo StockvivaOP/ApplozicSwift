@@ -43,7 +43,7 @@ extension SVALKBaseMessageListViewController {
     }
 
     //attachment
-    public func openAttachmentViewerPage(sender: UITableViewCell, viewModel: ALKMessageViewModel?) {
+    public func openAttachmentViewerPage(viewModel: ALKMessageViewModel?) {
         guard  let filePath = viewModel?.filePath, ALKFileUtils().isSupportedFileType(filePath:filePath) else {
             return
         }
