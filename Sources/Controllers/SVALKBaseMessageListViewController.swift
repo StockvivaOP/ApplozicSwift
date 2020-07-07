@@ -10,7 +10,7 @@ import UIKit
 
 open class SVALKBaseMessageListViewController: UIViewController {
     
-    var configuration: ALKConfiguration!
+    public var configuration: ALKConfiguration!
     
     open override func viewDidLoad() {
         super.viewDidLoad()
