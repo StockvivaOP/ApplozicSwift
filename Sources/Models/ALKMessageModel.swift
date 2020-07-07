@@ -311,13 +311,13 @@ extension ALKMessageViewModel {
         return _result
     }
     
-    public static func convertValueToPinMessageModel(chatgroupId:NSNumber,
+    public static func convertValueToPinMessageModel(chatgroupId:NSNumber?,
                                                      pinMsgAtTime:NSNumber?,
                                                      userName:String,
                                                      userIconUrl:String?,
                                                      msgKey:String,
                                                      message:String?,
-                                                     contactIds:String,
+                                                     contactIds:String?,
                                                      contentType:String,
                                                      createdAtTime:NSNumber,
                                                      receiverId to:String?,
