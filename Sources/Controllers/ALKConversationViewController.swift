@@ -2333,6 +2333,15 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
         }
     }
     
+    public func showPinMessageDialogManually(isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
+        if self.pinMessageView.isHidden {
+            completed?(false)
+            return
+        }
+        //show message
+        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.pinMsgItem.userName, userIconUrl:self.pinMessageView.pinMsgItem.userIconUrl, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
+    }
+    
     func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel) {
         if self.isEnablePaidFeature() == false {
             self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
@@ -2350,7 +2359,9 @@ extension ALKConversationViewController: ALKSVMessageDetailViewControllerDelegat
     }
     
     func didMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel, isFromPinMessage:Bool) {
-        //none action
+        if isFromPinMessage {
+            self.delegateConversationChatContentAction?.didPinMessageShow(sender: sender, viewModel: viewModel)
+        }
     }
 }
 

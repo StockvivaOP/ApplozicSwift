@@ -430,7 +430,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func shareGroupButtonClicked(chatView:UIViewController, button:UIButton)
     func searchMessageButtonClicked()
     //pin message
-//func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
+    func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
     func didPinMessageBarClicked()
     //join our group
     func joinOurGroupButtonClicked(viewModel:ALKMessageViewModel?)

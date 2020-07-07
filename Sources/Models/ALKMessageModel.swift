@@ -282,7 +282,7 @@ extension ALKMessageViewModel {
         return _resultJsonUtf8Str
     }
     
-    public static func convertToPinMessageModel(pinMessageJson:String?) -> (uuid:String?, userName:String?, userIconUrl:String?, message:ALKMessageViewModel?)? {
+    public static func convertToPinMessageModel(pinMessageJson:String?) -> SVALKPinMessageItem? {
         guard let _jsonStr = pinMessageJson else { return nil }
         
         var _decodeJsonDict:[String:AnyObject?]? = nil
@@ -295,17 +295,17 @@ extension ALKMessageViewModel {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.error, message: "chatgroup - pin message decode(convertToPinMessageModel) with error:\(error.localizedDescription)")
         }
         
-        var _result:(uuid:String?, userName:String?, userIconUrl:String?, message:ALKMessageViewModel?) = (uuid:nil, userName:nil, userIconUrl:nil, message:nil)
+        var _result:SVALKPinMessageItem = SVALKPinMessageItem()
         if let _jsonDict = _decodeJsonDict {
             _result.uuid = _jsonDict["uuid"] as? String
             _result.userName = _jsonDict["userName"] as? String
             _result.userIconUrl = _jsonDict["userIconUrl"] as? String
             if let _messageDict = _jsonDict["message"] as? [AnyHashable : Any] {
-                _result.message = ALMessage(dictonary: _messageDict)?.messageModel
+                _result.messageModel = ALMessage(dictonary: _messageDict)?.messageModel
             }
         }
         
-        if _result.uuid == nil || _result.message == nil {
+        if _result.uuid == nil || _result.messageModel == nil {
             return nil
         }
         return _result
