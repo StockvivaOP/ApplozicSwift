@@ -8,11 +8,11 @@
 import Foundation
 
 public struct SVALKPinMessageItem {
-    var uuid:String?
-    var userName:String?
-    var userIconUrl:String?
-    var messageModel:ALKMessageViewModel?
-    var createTime:NSNumber?
+    public var uuid:String?
+    public var userName:String?
+    public var userIconUrl:String?
+    public var messageModel:ALKMessageViewModel?
+    public var createTime:NSNumber?
 }
 
 public struct ALKConfiguration {
