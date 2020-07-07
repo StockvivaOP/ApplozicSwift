@@ -17,7 +17,7 @@ open class SVALKBaseMessageListViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    public func refreshTableCell(message: ALKMessageViewModel){
+    open func refreshTableCell(message: ALKMessageViewModel){
         //for override
     }
 }
