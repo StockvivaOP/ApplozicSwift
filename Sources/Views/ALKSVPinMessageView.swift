@@ -41,6 +41,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
         _view.backgroundColor = UIColor.ALKSVStockColorRed()
         _view.textAlignment = .center
         _view.layer.cornerRadius = 4.0
+        _view.clipsToBounds = true
         return _view
     }()
     
@@ -144,7 +145,6 @@ open class ALKSVPinMessageView: UIView, Localizable {
     func isHiddenNewMessageIndecator(_ isHidde:Bool){
         let _padding = PaddingSetting()
         self.labNewMsgIndecator.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_new_message") ?? ""
-        self.labNewMsgIndecator.layer.cornerRadius = 4.0
         if isHidde || self.labNewMsgIndecator.text?.count == 0 {
             self.newMsgIndecatorLabelLeftConst?.constant = 0
             self.newMsgIndecatorLabelWidthConst?.constant = 0
