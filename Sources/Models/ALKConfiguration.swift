@@ -12,6 +12,7 @@ public struct SVALKPinMessageItem {
     public var userName:String?
     public var userIconUrl:String?
     public var messageModel:ALKMessageViewModel?
+    public var isCollapseContent:Bool = true
     public var createTime:NSNumber?
 }
 
