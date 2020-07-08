@@ -95,13 +95,12 @@ open class ALKSVPinMessageView: UIView, Localizable {
         
         self.labNewMsgIndecator.centerYAnchor.constraint(equalTo: self.labTitle.centerYAnchor, constant: 0).isActive = true
         
-        self.labNewMsgIndecator.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -_padding.newMsgIndecator.right).isActive = true
+        self.labNewMsgIndecator.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -_padding.newMsgIndecator.right).isActive = true
         self.labNewMsgIndecator.heightAnchor.constraint(equalToConstant: _padding.newMsgIndecator.height).isActive = true
         self.newMsgIndecatorLabelLeftConst = self.labNewMsgIndecator.leadingAnchor.constraint(equalTo: self.labTitle.trailingAnchor, constant: _padding.newMsgIndecator.left)
         self.newMsgIndecatorLabelLeftConst?.isActive = true
         self.newMsgIndecatorLabelWidthConst = self.labNewMsgIndecator.widthAnchor.constraint(equalToConstant: _padding.newMsgIndecator.width)
         self.newMsgIndecatorLabelWidthConst?.isActive = true
-        
         
         self.labMessage.topAnchor.constraint(equalTo: self.labTitle.bottomAnchor).isActive = true
         self.labMessage.leadingAnchor.constraint(equalTo: self.labTitle.leadingAnchor ).isActive = true
