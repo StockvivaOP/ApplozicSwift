@@ -2325,12 +2325,16 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
             self.pinMessageView.isHidden = isHidden
             let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-            self.pinMessageView.updateContent(isHiddenNewMsgIndecator: true, pinMsgItem: _pinMsgItem, viewModel: _viewModel)
+            self.pinMessageView.updateContent(isHiddenNewMsgIndecator: isHiddenNewMsgIndecator, pinMsgItem: _pinMsgItem, viewModel: _viewModel)
         }else{
             self.pinMessageView.isHidden = true
             let height: CGFloat = 0
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
         }
+    }
+    
+    public func markReadedPinMessageInBarView(_ isReaded:Bool){
+        self.pinMessageView.isHiddenNewMessageIndecator(isReaded)
     }
     
     public func showPinMessageDialogManually(isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
