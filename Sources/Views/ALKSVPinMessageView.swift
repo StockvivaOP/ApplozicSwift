@@ -18,7 +18,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
         let indecator:(top:CGFloat, bottom:CGFloat, left:CGFloat, width:CGFloat) = (top:6, bottom:6, left:7, width:5)
         let title:(top:CGFloat, left:CGFloat, right:CGFloat, height:CGFloat) = (top:4, left:10, right:10, height:21)
         let newMsgIndecator:(left:CGFloat, right:CGFloat, width:CGFloat, height:CGFloat) =  (left:4, right:10, width:45, height:16.5)
-        let message:(bottom:CGFloat, height:CGFloat) = (bottom:3, height:21)
+        let message:(right:CGFloat, bottom:CGFloat, height:CGFloat) = (right:10, bottom:3, height:21)
     }
     
     private let viewIndecator:UIView = {
@@ -104,7 +104,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
         
         self.labMessage.topAnchor.constraint(equalTo: self.labTitle.bottomAnchor).isActive = true
         self.labMessage.leadingAnchor.constraint(equalTo: self.labTitle.leadingAnchor ).isActive = true
-        self.labMessage.trailingAnchor.constraint(equalTo: self.labTitle.trailingAnchor ).isActive = true
+        self.labMessage.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: _padding.message.right).isActive = true
         self.labMessage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -_padding.message.bottom).isActive = true
         self.labMessage.heightAnchor.constraint(equalToConstant: _padding.message.height).isActive = true
         
@@ -144,6 +144,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
     func isHiddenNewMessageIndecator(_ isHidde:Bool){
         let _padding = PaddingSetting()
         self.labNewMsgIndecator.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_new_message") ?? ""
+        self.labNewMsgIndecator.layer.cornerRadius = 4.0
         if isHidde || self.labNewMsgIndecator.text?.count == 0 {
             self.newMsgIndecatorLabelLeftConst?.constant = 0
             self.newMsgIndecatorLabelWidthConst?.constant = 0
