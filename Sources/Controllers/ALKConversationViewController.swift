@@ -2518,7 +2518,6 @@ extension ALKConversationViewController {
         }
         let _maxYForVisableContent = self.tableView.contentOffset.y + self.tableView.bounds.size.height
         for _cellIndex in self.tableView.indexPathsForVisibleRows?.reversed() ?? [] {
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections)")
             let _cellPos = self.tableView.rectForRow(at: _cellIndex)
             let _cellMinHeightOffset = _cellPos.height / 2.5
             if (_cellPos.maxY - _cellMinHeightOffset) <= _maxYForVisableContent {
@@ -2528,6 +2527,7 @@ extension ALKConversationViewController {
                     let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
                     (_cellItem.isSent == true || _cellItem.isMyMessage == false)  {
                     ALKSVUserDefaultsControl.shared.saveLastReadMessageInfo(chatGroupId: _chatGroupId, messageId: _cellItem.identifier, createTime: _createDate.intValue)
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections), chatgroup:\(_chatGroupId), msgId:\(_cellItem.identifier)")
                     break
                 }
             }
@@ -2543,7 +2543,6 @@ extension ALKConversationViewController {
             let _chKey = self.viewModel.channelKey,
             let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
             (_cellItem.isSent == true || _cellItem.isMyMessage == false) {
-            debugPrint("PL**** - \(_cellItem.message ?? "nil")")
             ALKSVUserDefaultsControl.shared.saveLastReadMessageInfo(chatGroupId: _chatGroupId, messageId: _cellItem.identifier, createTime: _createDate.intValue)
         }
     }
