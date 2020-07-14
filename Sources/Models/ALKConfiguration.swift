@@ -7,6 +7,15 @@
 
 import Foundation
 
+public struct SVALKPinMessageItem {
+    public var uuid:String?
+    public var userName:String?
+    public var userIconUrl:String?
+    public var messageModel:ALKMessageViewModel?
+    public var isCollapseContent:Bool = true
+    public var createTime:NSNumber?
+}
+
 public struct ALKConfiguration {
 
     /// If enabled then tapping on navigation bar in
@@ -422,9 +431,8 @@ public protocol ConversationChatContentActionDelegate: class{
     func shareGroupButtonClicked(chatView:UIViewController, button:UIButton)
     func searchMessageButtonClicked()
     //pin message
-    func didPinMessageCloseButtonClicked(pinMsgUuid:String?, viewModel:ALKMessageViewModel)
     func didPinMessageShow(sender:UIViewController, viewModel:ALKMessageViewModel)
-    func didPinMessageClicked()
+    func didPinMessageBarClicked()
     //join our group
     func joinOurGroupButtonClicked(viewModel:ALKMessageViewModel?)
     func isHiddenFullScreenLoading(_ isHidden:Bool)

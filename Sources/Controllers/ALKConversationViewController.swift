@@ -495,7 +495,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         //tag: on / off join group button
         self.enableJoinGroupButton(self.enableShowJoinGroupMode)
         self.enableBlockChatButton(self.enableShowBlockChatMode)
-        self.showPinMessageView(isHidden: true)
+        self.showPinMessageBarView(isHidden: true)
         self.hideReplyMessageView()
         //set marquee view
         self.svMarqueeView.delegate = self
@@ -2320,17 +2320,21 @@ extension ALKConversationViewController: SVALKConversationNavBarDelegate {
 
 //MARK: - stockviva (ALKSVPinMessageViewDelegate)
 extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
-    public func showPinMessageView(isHidden:Bool, pinMsgUuid:String? = nil, userName:String? = nil, userIconUrl:String? = nil, viewModel: ALKMessageViewModel? = nil){
-        if let _viewModel = viewModel, isHidden == false {
+    public func showPinMessageBarView(isHidden:Bool, isHiddenNewMsgIndecator:Bool = true, pinMsgItem: SVALKPinMessageItem? = nil){
+        if let _pinMsgItem = pinMsgItem, let _viewModel = _pinMsgItem.messageModel, isHidden == false {
             self.pinMessageView.isHidden = isHidden
             let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
-            self.pinMessageView.updateContent(pinMsgUuid:pinMsgUuid, userName: userName, userIconUrl: userIconUrl, viewModel: _viewModel)
+            self.pinMessageView.updateContent(isHiddenNewMsgIndecator: isHiddenNewMsgIndecator, pinMsgItem: _pinMsgItem, viewModel: _viewModel)
         }else{
             self.pinMessageView.isHidden = true
             let height: CGFloat = 0
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
         }
+    }
+    
+    public func markReadedPinMessageInBarView(_ isReaded:Bool){
+        self.pinMessageView.isHiddenNewMessageIndecator(isReaded)
     }
     
     public func showPinMessageDialogManually(isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
@@ -2339,21 +2343,16 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
             return
         }
         //show message
-        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.userName, userIconUrl:self.pinMessageView.userIconUrl, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
+        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.pinMsgItem.userName, userIconUrl:self.pinMessageView.pinMsgItem.userIconUrl, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
     }
     
-    func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel) {
-        self.delegateConversationChatContentAction?.didPinMessageClicked()
+    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel) {
         if self.isEnablePaidFeature() == false {
             self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
             return
         }
         //show message
-        self.presentMessageDetail(isPinMsg:true, userName:userName, userIconUrl:userIconUrl, viewModel: viewModel)
-    }
-    
-    func closeButtonClicked(pinMsgUuid:String?, viewModel: ALKMessageViewModel) {
-        self.delegateConversationChatContentAction?.didPinMessageCloseButtonClicked(pinMsgUuid:pinMsgUuid, viewModel:viewModel)
+        self.delegateConversationChatContentAction?.didPinMessageBarClicked()
     }
 }
 
@@ -2519,7 +2518,6 @@ extension ALKConversationViewController {
         }
         let _maxYForVisableContent = self.tableView.contentOffset.y + self.tableView.bounds.size.height
         for _cellIndex in self.tableView.indexPathsForVisibleRows?.reversed() ?? [] {
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections)")
             let _cellPos = self.tableView.rectForRow(at: _cellIndex)
             let _cellMinHeightOffset = _cellPos.height / 2.5
             if (_cellPos.maxY - _cellMinHeightOffset) <= _maxYForVisableContent {
@@ -2529,6 +2527,7 @@ extension ALKConversationViewController {
                     let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
                     (_cellItem.isSent == true || _cellItem.isMyMessage == false)  {
                     ALKSVUserDefaultsControl.shared.saveLastReadMessageInfo(chatGroupId: _chatGroupId, messageId: _cellItem.identifier, createTime: _createDate.intValue)
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - saveLastReadMessageIfNeeded - rectForRow _cellIndex:\(_cellIndex), total section:\(self.tableView.numberOfSections), chatgroup:\(_chatGroupId), msgId:\(_cellItem.identifier)")
                     break
                 }
             }
@@ -2544,7 +2543,6 @@ extension ALKConversationViewController {
             let _chKey = self.viewModel.channelKey,
             let _chatGroupId = ALChannelService().getChannelByKey(_chKey)?.clientChannelKey,
             (_cellItem.isSent == true || _cellItem.isMyMessage == false) {
-            debugPrint("PL**** - \(_cellItem.message ?? "nil")")
             ALKSVUserDefaultsControl.shared.saveLastReadMessageInfo(chatGroupId: _chatGroupId, messageId: _cellItem.identifier, createTime: _createDate.intValue)
         }
     }

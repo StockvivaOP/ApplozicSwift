@@ -282,7 +282,7 @@ extension ALKMessageViewModel {
         return _resultJsonUtf8Str
     }
     
-    public static func convertToPinMessageModel(pinMessageJson:String?) -> (uuid:String?, userName:String?, userIconUrl:String?, message:ALKMessageViewModel?)? {
+    public static func convertToPinMessageModel(pinMessageJson:String?) -> SVALKPinMessageItem? {
         guard let _jsonStr = pinMessageJson else { return nil }
         
         var _decodeJsonDict:[String:AnyObject?]? = nil
@@ -295,19 +295,89 @@ extension ALKMessageViewModel {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.error, message: "chatgroup - pin message decode(convertToPinMessageModel) with error:\(error.localizedDescription)")
         }
         
-        var _result:(uuid:String?, userName:String?, userIconUrl:String?, message:ALKMessageViewModel?) = (uuid:nil, userName:nil, userIconUrl:nil, message:nil)
+        var _result:SVALKPinMessageItem = SVALKPinMessageItem()
         if let _jsonDict = _decodeJsonDict {
             _result.uuid = _jsonDict["uuid"] as? String
             _result.userName = _jsonDict["userName"] as? String
             _result.userIconUrl = _jsonDict["userIconUrl"] as? String
             if let _messageDict = _jsonDict["message"] as? [AnyHashable : Any] {
-                _result.message = ALMessage(dictonary: _messageDict)?.messageModel
+                _result.messageModel = ALMessage(dictonary: _messageDict)?.messageModel
             }
         }
         
-        if _result.uuid == nil || _result.message == nil {
+        if _result.uuid == nil || _result.messageModel == nil {
             return nil
         }
+        return _result
+    }
+    
+    public static func convertValueToPinMessageModel(chatgroupId:NSNumber?,
+                                                     pinMsgAtTime:NSNumber?,
+                                                     userName:String,
+                                                     userIconUrl:String?,
+                                                     msgKey:String,
+                                                     message:String?,
+                                                     contactIds:String?,
+                                                     contentType:Int,
+                                                     createdAtTime:NSNumber,
+                                                     receiverId to:String?,
+                                                     metadata:[String:Any]?,
+                                                     fileMeta:(blobKey:String,thumbnailBlobKey:String?, name:String, url:String?, contentType:String, thumbnailUrl:String?, size:Int)? ) -> SVALKPinMessageItem? {
+        
+        let _uuid:String = msgKey + "_\(createdAtTime.int64Value)"
+        let _userName:String = userName
+        let _userIconUrl:String? = userIconUrl
+        
+        var _msgDict = [String:Any?]()
+        _msgDict["type"] = 0//inbox
+        _msgDict["message"] = message
+        _msgDict["contactIds"] = contactIds
+        _msgDict["contentType"] = contentType
+        _msgDict["createdAtTime"] = createdAtTime
+        _msgDict["delivered"] = true
+        _msgDict["groupId"] = chatgroupId
+        _msgDict["key"] = msgKey
+        _msgDict["sendToDevice"] = true
+        _msgDict["shared"] = true
+        _msgDict["status"] = 3//sent
+        _msgDict["storeOnDevice"] = true
+        _msgDict["to"] = to
+        _msgDict["metadata"] = metadata
+        _msgDict["source"] = Int16(SOURCE_IOS)
+        if let _metadata = metadata,
+            let _platform = _metadata[SVALKMessageMetaDataFieldName.devicePlatform.rawValue] as? String {
+            if _platform.lowercased() == "android" {
+                _msgDict["source"] = Int16(2)
+            }else if _platform.lowercased() == "web" {
+                _msgDict["source"] = Int16(1)
+            }
+        }
+        
+        //file meta
+        var _msgFileMeta = [String:Any?]()
+        if let _fileMeta = fileMeta {
+            _msgFileMeta["blobKey"] = _fileMeta.blobKey
+            _msgFileMeta["thumbnailBlobKey"] = _fileMeta.thumbnailBlobKey
+            _msgFileMeta["contentType"] = _fileMeta.contentType
+            _msgFileMeta["createdAtTime"] = String(Date().timeIntervalSince1970 * 1000)
+            _msgFileMeta["key"] = ""
+            _msgFileMeta["name"] = _fileMeta.name
+            _msgFileMeta["userKey"] = ""
+            _msgFileMeta["size"] = _fileMeta.size
+            _msgFileMeta["thumbnailUrl"] = _fileMeta.thumbnailUrl
+            _msgFileMeta["url"] = _fileMeta.url
+            _msgDict["fileMeta"] = _msgFileMeta
+        }else{
+            _msgDict["fileMeta"] = nil
+        }
+        
+        var _result:SVALKPinMessageItem = SVALKPinMessageItem()
+        _result.uuid = _uuid
+        _result.userName = _userName
+        _result.userIconUrl = _userIconUrl
+        _result.createTime = pinMsgAtTime ?? createdAtTime
+        _result.messageModel = ALMessage(dictonary: _msgDict as [AnyHashable : Any])?.messageModel
+        
         return _result
     }
     

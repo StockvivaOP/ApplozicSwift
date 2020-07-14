@@ -9,8 +9,7 @@
 import UIKit
 
 protocol ALKSVPinMessageViewDelegate : class {
-    func didPinMessageClicked(userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel)
-    func closeButtonClicked(pinMsgUuid:String?, viewModel: ALKMessageViewModel)
+    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel)
 }
 
 open class ALKSVPinMessageView: UIView, Localizable {
@@ -18,8 +17,8 @@ open class ALKSVPinMessageView: UIView, Localizable {
     private struct PaddingSetting {
         let indecator:(top:CGFloat, bottom:CGFloat, left:CGFloat, width:CGFloat) = (top:6, bottom:6, left:7, width:5)
         let title:(top:CGFloat, left:CGFloat, right:CGFloat, height:CGFloat) = (top:4, left:10, right:10, height:21)
-        let message:(bottom:CGFloat, height:CGFloat) = (bottom:3, height:21)
-        let closeButton:(top:CGFloat, bottom:CGFloat, right:CGFloat, width:CGFloat, height:CGFloat) = (top:13, bottom:13, right:14, width:24, height:24)
+        let newMsgIndecator:(left:CGFloat, right:CGFloat, width:CGFloat, height:CGFloat) =  (left:4, right:10, width:45, height:16.5)
+        let message:(right:CGFloat, bottom:CGFloat, height:CGFloat) = (right:10, bottom:3, height:21)
     }
     
     private let viewIndecator:UIView = {
@@ -32,6 +31,17 @@ open class ALKSVPinMessageView: UIView, Localizable {
         let _view = UILabel()
         _view.font = UIFont.systemFont(ofSize: 15.0, weight: .medium)
         _view.textColor = UIColor.ALKSVStockColorRed()
+        return _view
+    }()
+    
+    private let labNewMsgIndecator:UILabel = {
+        let _view = UILabel()
+        _view.font = UIFont.systemFont(ofSize: 11.0, weight: .medium)
+        _view.textColor = UIColor.white
+        _view.backgroundColor = UIColor.ALKSVStockColorRed()
+        _view.textAlignment = .center
+        _view.layer.cornerRadius = 4.0
+        _view.clipsToBounds = true
         return _view
     }()
     
@@ -48,21 +58,15 @@ open class ALKSVPinMessageView: UIView, Localizable {
         return button
     }()
     
-    private let btnClose: UIButton = {
-        let button = UIButton(type: .custom)
-        let image = UIImage(named: "sv_button_close_blackgray", in: Bundle.applozic, compatibleWith: nil)
-        button.setImage(image, for: .normal)
-        return button
-    }()
-    
     //object
-    var pinMsgUuid:String?
-    var userName:String?
-    var userIconUrl:String?
     var delegate:ALKSVPinMessageViewDelegate?
     var conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?
     var configuration: ALKConfiguration!
     var viewModel: ALKMessageViewModel!
+    var pinMsgItem: SVALKPinMessageItem!
+    
+    private var newMsgIndecatorLabelWidthConst:NSLayoutConstraint?
+    private var newMsgIndecatorLabelLeftConst:NSLayoutConstraint?
     
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -76,10 +80,9 @@ open class ALKSVPinMessageView: UIView, Localizable {
 
     func setUpViews(){
         let _padding = PaddingSetting()
-        self.addViewsForAutolayout(views: [self.viewIndecator, self.labTitle, self.labMessage, self.btnClickView, self.btnClose])
+        self.addViewsForAutolayout(views: [self.viewIndecator, self.labTitle, self.labNewMsgIndecator, self.labMessage, self.btnClickView])
         
         self.btnClickView.addTarget(self, action: #selector(self.clickViewButtonTouchUpInside(_:)), for: UIControl.Event.touchUpInside)
-        self.btnClose.addTarget(self, action: #selector(self.closeButtonTouchUpInside(_:)), for: UIControl.Event.touchUpInside)
         
         self.backgroundColor = UIColor.white
         self.viewIndecator.topAnchor.constraint(equalTo: self.topAnchor, constant: _padding.indecator.top).isActive = true
@@ -89,12 +92,20 @@ open class ALKSVPinMessageView: UIView, Localizable {
         
         self.labTitle.topAnchor.constraint(equalTo: self.topAnchor, constant: _padding.title.top).isActive = true
         self.labTitle.leadingAnchor.constraint(equalTo: self.viewIndecator.trailingAnchor, constant: _padding.title.left).isActive = true
-        self.labTitle.trailingAnchor.constraint(equalTo: self.btnClose.leadingAnchor, constant: -_padding.title.right).isActive = true
         self.labTitle.heightAnchor.constraint(equalToConstant: _padding.title.height).isActive = true
+        
+        self.labNewMsgIndecator.centerYAnchor.constraint(equalTo: self.labTitle.centerYAnchor, constant: 0).isActive = true
+        
+        self.labNewMsgIndecator.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -_padding.newMsgIndecator.right).isActive = true
+        self.labNewMsgIndecator.heightAnchor.constraint(equalToConstant: _padding.newMsgIndecator.height).isActive = true
+        self.newMsgIndecatorLabelLeftConst = self.labNewMsgIndecator.leadingAnchor.constraint(equalTo: self.labTitle.trailingAnchor, constant: _padding.newMsgIndecator.left)
+        self.newMsgIndecatorLabelLeftConst?.isActive = true
+        self.newMsgIndecatorLabelWidthConst = self.labNewMsgIndecator.widthAnchor.constraint(equalToConstant: _padding.newMsgIndecator.width)
+        self.newMsgIndecatorLabelWidthConst?.isActive = true
         
         self.labMessage.topAnchor.constraint(equalTo: self.labTitle.bottomAnchor).isActive = true
         self.labMessage.leadingAnchor.constraint(equalTo: self.labTitle.leadingAnchor ).isActive = true
-        self.labMessage.trailingAnchor.constraint(equalTo: self.labTitle.trailingAnchor ).isActive = true
+        self.labMessage.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: _padding.message.right).isActive = true
         self.labMessage.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -_padding.message.bottom).isActive = true
         self.labMessage.heightAnchor.constraint(equalToConstant: _padding.message.height).isActive = true
         
@@ -103,22 +114,17 @@ open class ALKSVPinMessageView: UIView, Localizable {
         self.btnClickView.trailingAnchor.constraint(equalTo: self.trailingAnchor ).isActive = true
         self.btnClickView.bottomAnchor.constraint(equalTo: self.bottomAnchor ).isActive = true
         
-        self.btnClose.topAnchor.constraint(equalTo: self.topAnchor, constant: _padding.closeButton.top).isActive = true
-        self.btnClose.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -_padding.closeButton.right).isActive = true
-        self.btnClose.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -_padding.closeButton.bottom).isActive = true
-        self.btnClose.widthAnchor.constraint(equalToConstant: _padding.closeButton.width).isActive = true
-        self.btnClose.heightAnchor.constraint(equalToConstant: _padding.closeButton.height).isActive = true
     }
     
-    func updateContent(pinMsgUuid:String?, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel){
+    func updateContent(isHiddenNewMsgIndecator:Bool, pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel){
         self.viewModel = viewModel
-        self.pinMsgUuid = pinMsgUuid
-        self.userName = userName
-        self.userIconUrl = userIconUrl
+        self.pinMsgItem = pinMsgItem
         let _date:Date = viewModel.date
         let _message:String = viewModel.message ?? ""
         
         self.labTitle.text = (ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_pin_message") ?? "") + " " + _date.toHHmmMMMddFormat()
+        
+        self.isHiddenNewMessageIndecator(isHiddenNewMsgIndecator)
         
         if self.conversationRequestInfoDelegate?.isEnablePaidFeature() == false {
             self.labMessage.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_group_open_pin_msg_required_paid_user") ?? ""
@@ -136,12 +142,20 @@ open class ALKSVPinMessageView: UIView, Localizable {
         }
     }
     
-    //MARK: - button
-    @objc private func clickViewButtonTouchUpInside(_ sender: UIButton) {
-        self.delegate?.didPinMessageClicked(userName:self.userName, userIconUrl:self.userIconUrl, viewModel:self.viewModel)
+    func isHiddenNewMessageIndecator(_ isHidde:Bool){
+        let _padding = PaddingSetting()
+        self.labNewMsgIndecator.text = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "chat_common_new_message") ?? ""
+        if isHidde || self.labNewMsgIndecator.text?.count == 0 {
+            self.newMsgIndecatorLabelLeftConst?.constant = 0
+            self.newMsgIndecatorLabelWidthConst?.constant = 0
+        }else{
+            self.newMsgIndecatorLabelLeftConst?.constant = _padding.newMsgIndecator.left
+            self.newMsgIndecatorLabelWidthConst?.constant = _padding.newMsgIndecator.width
+        }
     }
     
-    @objc private func closeButtonTouchUpInside(_ sender: UIButton) {
-        self.delegate?.closeButtonClicked(pinMsgUuid: self.pinMsgUuid, viewModel:self.viewModel)
+    //MARK: - button
+    @objc private func clickViewButtonTouchUpInside(_ sender: UIButton) {
+        self.delegate?.didPinMessageBarClicked(pinMsgItem:self.pinMsgItem, viewModel:self.viewModel)
     }
 }

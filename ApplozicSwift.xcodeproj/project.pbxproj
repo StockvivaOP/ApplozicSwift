@@ -141,6 +141,8 @@
 		C43F9D00238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */; };
 		C47844F4246A95AD0031F586 /* ALKSVMessagePhotoDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C47844F3246A95AD0031F586 /* ALKSVMessagePhotoDownloader.swift */; };
 		C4863F23239F3DD100C99BE3 /* ALKSVMessageAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4863F22239F3DD100C99BE3 /* ALKSVMessageAPI.swift */; };
+		C48799F524B2C35300B905E8 /* SVALKMessageAttachmentDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48799F424B2C35300B905E8 /* SVALKMessageAttachmentDownloader.swift */; };
+		C4879A0824B4019A00B905E8 /* SVALKBaseMessageListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4879A0724B4019A00B905E8 /* SVALKBaseMessageListViewController.swift */; };
 		C49F762523FFF7B200726EBA /* SVALKMarqueeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49F762423FFF7B200726EBA /* SVALKMarqueeView.swift */; };
 		C4B36BB12345DA5D00913FE6 /* ALKSVPinMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B36BB02345DA5D00913FE6 /* ALKSVPinMessageView.swift */; };
 		C4B36BB32345DA7300913FE6 /* SVMessageView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C4B36BB22345DA7300913FE6 /* SVMessageView.storyboard */; };
@@ -302,6 +304,8 @@
 		C43F9CFE238CB93700811901 /* ALKChatBarTagUserListCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ALKChatBarTagUserListCollectionViewCell.xib; sourceTree = "<group>"; };
 		C47844F3246A95AD0031F586 /* ALKSVMessagePhotoDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessagePhotoDownloader.swift; sourceTree = "<group>"; };
 		C4863F22239F3DD100C99BE3 /* ALKSVMessageAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVMessageAPI.swift; sourceTree = "<group>"; };
+		C48799F424B2C35300B905E8 /* SVALKMessageAttachmentDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVALKMessageAttachmentDownloader.swift; sourceTree = "<group>"; };
+		C4879A0724B4019A00B905E8 /* SVALKBaseMessageListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVALKBaseMessageListViewController.swift; sourceTree = "<group>"; };
 		C49F762423FFF7B200726EBA /* SVALKMarqueeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SVALKMarqueeView.swift; sourceTree = "<group>"; };
 		C4B36BB02345DA5D00913FE6 /* ALKSVPinMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ALKSVPinMessageView.swift; sourceTree = "<group>"; };
 		C4B36BB22345DA7300913FE6 /* SVMessageView.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = SVMessageView.storyboard; sourceTree = "<group>"; };
@@ -380,6 +384,7 @@
 				C4CE0900234C3FDB00D1191C /* ALKSVMessageDetailHeaderViewController.swift */,
 				C4B36BB62345DAD800913FE6 /* ALKSVImageMessageDetailViewController.swift */,
 				C4B36BBA2345DAFD00913FE6 /* ALKSVDocumentMessageDetailViewController.swift */,
+				C4879A0724B4019A00B905E8 /* SVALKBaseMessageListViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -587,6 +592,7 @@
 			children = (
 				C41AAC2D235D49A600AFF4D9 /* ALKSVMessageListRequest.swift */,
 				C47844F3246A95AD0031F586 /* ALKSVMessagePhotoDownloader.swift */,
+				C48799F424B2C35300B905E8 /* SVALKMessageAttachmentDownloader.swift */,
 			);
 			path = SVCustomAPI;
 			sourceTree = "<group>";
@@ -858,6 +864,7 @@
 				8BB533971F69463B0008C1CF /* ALKConversationViewController.swift in Sources */,
 				8BB533D01F69463C0008C1CF /* AVCaptureVideoOrientation+Extension.swift in Sources */,
 				8BB533A21F69463C0008C1CF /* ALKDownloadManager.swift in Sources */,
+				C4879A0824B4019A00B905E8 /* SVALKBaseMessageListViewController.swift in Sources */,
 				8BB533CA1F69463C0008C1CF /* ALKShareLocationViewController.swift in Sources */,
 				8BB533AC1F69463C0008C1CF /* ALKFriendViewModel.swift in Sources */,
 				8BB533C61F69463C0008C1CF /* ALKPreviewPhotoViewController.swift in Sources */,
@@ -865,6 +872,7 @@
 				8BB533F31F69463C0008C1CF /* UIColor+Extension.swift in Sources */,
 				C4FA8A6E235955B9002D1AA5 /* ALKSVUserDefaultsControl.swift in Sources */,
 				8BB533921F69463B0008C1CF /* ALKChatBaseCell.swift in Sources */,
+				C48799F524B2C35300B905E8 /* SVALKMessageAttachmentDownloader.swift in Sources */,
 				8BB533FA1F69463C0008C1CF /* UIView+Extension.swift in Sources */,
 				8BB533F41F69463C0008C1CF /* UIImage+Extension.swift in Sources */,
 				8BB5339E1F69463B0008C1CF /* ALKCustomPickerViewController.swift in Sources */,
