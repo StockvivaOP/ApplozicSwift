@@ -285,7 +285,7 @@ extension ALMessage {
     }
 
     var size: Int64 {
-        guard let fileMeta = fileMeta, let size = Int64(fileMeta.size) else {
+        guard let fileMeta = fileMeta, let _fSize = fileMeta.size, let size = Int64(_fSize) else {
             return 0
         }
         return size

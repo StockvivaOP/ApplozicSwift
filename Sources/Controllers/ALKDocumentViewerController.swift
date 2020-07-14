@@ -111,6 +111,7 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
             _shareBtn.heightAnchor.constraint(equalToConstant: _btnSize.height),
             _shareBtn.widthAnchor.constraint(equalToConstant: _btnSize.width)
         ])
+        _shareBtn.tintColor = .white
         _svRightBtnGroup.addArrangedSubview(_shareBtn)
         
         //refresh button
@@ -121,6 +122,7 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
             _refreshBtn.heightAnchor.constraint(equalToConstant: _btnSize.height),
             _refreshBtn.widthAnchor.constraint(equalToConstant: _btnSize.width)
         ])
+        _refreshBtn.tintColor = .white
         _svRightBtnGroup.addArrangedSubview(_refreshBtn)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: _svRightBtnGroup)

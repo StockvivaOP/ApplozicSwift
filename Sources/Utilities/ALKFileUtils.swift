@@ -9,9 +9,9 @@ import Foundation
 import Applozic
 import Photos
 
-class ALKFileUtils: NSObject {
+open class ALKFileUtils: NSObject {
 
-    func getFileName(filePath:String?,fileMeta: ALFileMetaInfo?) -> String {
+    public func getFileName(filePath:String?,fileMeta: ALFileMetaInfo?) -> String {
         guard let fileMetaInfo = fileMeta, let fileName = fileMetaInfo.name else {
             guard let localPathName = filePath else {
                 return ""
@@ -21,7 +21,7 @@ class ALKFileUtils: NSObject {
         return fileName
     }
 
-    func getFileSize(filePath: String?,fileMetaInfo:ALFileMetaInfo?) -> String? {
+    public func getFileSize(filePath: String?,fileMetaInfo:ALFileMetaInfo?) -> String? {
 
         guard  let fileName = filePath else {
             return fileMetaInfo?.getTheSize()
@@ -47,7 +47,7 @@ class ALKFileUtils: NSObject {
         return String(format: "%.1fGB", floatSize)
     }
 
-    func getFileExtenion(filePath: String?, fileMeta:ALFileMetaInfo?) -> String {
+    public func getFileExtenion(filePath: String?, fileMeta:ALFileMetaInfo?) -> String {
         guard let localPathName = filePath else {
             guard let fileMetaInfo = fileMeta, let name =  fileMetaInfo.name,let pathExtension = URL(string: name)?.pathExtension else {
                 return ""

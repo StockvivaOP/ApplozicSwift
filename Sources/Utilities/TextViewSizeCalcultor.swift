@@ -9,9 +9,9 @@ import UIKit
 
 /// This is used since boundingRect method doesn't give accurate size for TextView.
 /// Here we use sizeThatFits of textView.
-struct TextViewSizeCalculator {
+public struct TextViewSizeCalculator {
 
-    static func height(_ textView: UITextView,
+    public static func height(_ textView: UITextView,
                      text: String,
                      maxWidth: CGFloat) -> CGFloat {
         textView.text = text
@@ -19,7 +19,7 @@ struct TextViewSizeCalculator {
         return ceil(size.height)
     }
 
-    static func height(_ textView: UITextView,
+    public static func height(_ textView: UITextView,
                      attributedText: NSAttributedString,
                      maxWidth: CGFloat) -> CGFloat {
         textView.attributedText = attributedText
@@ -27,7 +27,7 @@ struct TextViewSizeCalculator {
         return ceil(size.height)
     }
     
-    static func height(_ textView: UITextView,
+    public static func height(_ textView: UITextView,
                          maxWidth: CGFloat) -> CGFloat {
         let size = textView.sizeThatFits(CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude))
 //        let size = textView.attributedText.boundingRect(with: CGSize(width: maxWidth, height: CGFloat.greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil).size
