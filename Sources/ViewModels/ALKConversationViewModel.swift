@@ -1724,15 +1724,15 @@ extension ALKConversationViewModel {
         //start process
         startProcess()
         //reload
-        var _lastReadMsgTimeNumber:NSNumber? = nil
-        var _dateComponent = DateComponents()
-        _dateComponent.year = 10
-        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
-            _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
-        }
+//        var _lastReadMsgTimeNumber:NSNumber? = nil
+//        var _dateComponent = DateComponents()
+//        _dateComponent.year = 10
+//        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
+//            _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
+//        }
         //call before record
         self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: false, isFirstLoad: isFirstLoad)
-        self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber) { (results) in
+        self.getSearchTimeBeforeOpenGroupMessage(/*time: _lastReadMsgTimeNumber*/) { (results) in
             self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isFirstLoad: isFirstLoad)
             var _resultSet:[ALMessage] = []
             if let _results = results {
@@ -1840,13 +1840,13 @@ extension ALKConversationViewModel {
         
         self.delegateChatGroupLifeCycle?.didMessageLoadStart(isEarlierMessage: false, isFirstLoad: isFirstLoad)
         if _lastReadMsgTimeNumber == nil {
-            var _dateComponent = DateComponents()
-            _dateComponent.year = 10
-            if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
-                _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
-            }
+//            var _dateComponent = DateComponents()
+//            _dateComponent.year = 10
+//            if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: Date()) {
+//                _lastReadMsgTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
+//            }
             //call record
-            self.getSearchTimeBeforeOpenGroupMessage(time: _lastReadMsgTimeNumber) { (resultsOfBefore) in
+            self.getSearchTimeBeforeOpenGroupMessage(/*time: _lastReadMsgTimeNumber*/) { (resultsOfBefore) in
                 self.delegateChatGroupLifeCycle?.didMessageLoadCompleted(isEarlierMessage: false, isFirstLoad: isFirstLoad)
                 _completedBlock(resultsOfBefore, nil)
             }
@@ -1969,25 +1969,16 @@ extension ALKConversationViewModel {
             completed(downloadedMessageList)
             return
         }
-        var _startDate:Date = Date()
         var searchTime: NSNumber? = nil
         if time != nil {
             searchTime = NSNumber(value: (time!.intValue + 1) )
-            _startDate = Date(timeIntervalSince1970: TimeInterval( (time!.intValue/1000) + 1))
         }
         
         //end time
-        var _endTimeNumber:NSNumber? = nil
-        var _dateComponent = DateComponents()
-        _dateComponent.year = 10
-        if let _finalDate = Calendar.current.date(byAdding: _dateComponent, to: _startDate) {
-            _endTimeNumber = NSNumber(value: ( Int(_finalDate.timeIntervalSince1970 * 1000) + 1))
-        }
-        
         let _defaultPageSize = pageSize ?? self.defaultValue_requestMessagePageSize
         let _defaultMinMessageRequired = minMessageRequired ?? self.defaultValue_minMessageRequired
         //call before record
-        self.fetchOpenGroupMessages(startFromTime: searchTime, time: _endTimeNumber, contactId: self.contactId, channelKey: _chKey, maxRecord:"\(_defaultPageSize)", isOrderByAsc:true) { (messageList, firstItemCreateTime, lastItemCreateTime) in
+        self.fetchOpenGroupMessages(startFromTime: searchTime, contactId: self.contactId, channelKey: _chKey, maxRecord:"\(_defaultPageSize)", isOrderByAsc:true) { (messageList, firstItemCreateTime, lastItemCreateTime) in
             guard let newMessages = messageList, newMessages.count > 0 else {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - getSearchTimeAfterOpenGroupMessage - no message list")
                 //if no any record, system will try to get next 50 item, untill no any message get or any message get
