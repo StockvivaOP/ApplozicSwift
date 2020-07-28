@@ -1371,6 +1371,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 if _nsError.code == URLError.Code.timedOut.rawValue ||
                     _nsError.code == URLError.Code.notConnectedToInternet.rawValue {//retry
                     if self.isLeaveChatGroup || retryCount == 5 {
+                        completion(nil, nil, nil)
                         return
                     }
                     DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.0) {
@@ -1378,6 +1379,8 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     }
                     return
                 }
+                completion(nil, nil, nil)
+                return
             }
             
             guard let alMessages = messages as? [ALMessage], alMessages.count > 0 else {

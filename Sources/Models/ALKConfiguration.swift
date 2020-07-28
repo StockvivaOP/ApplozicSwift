@@ -16,6 +16,48 @@ public struct SVALKPinMessageItem {
     public var createTime:NSNumber?
 }
 
+//in-app custom error
+//domain
+public enum SVALKInternalAppError : Int {
+    case SVERROR_NETWORK = 8800000
+    case SVERROR_VALUE_MISSING = 8800001
+    case SVERROR_EMPTY_RESULT = 8800002
+    case SVERROR_UNKNOWN = 8800003
+    case SVERROR_JSON_ERROR = 8800004
+    case SVERROR_DATA_DOWNLOAD_FAILURE = 8800005
+    
+    func getCode() -> Int {
+        return self.rawValue
+    }
+    
+    func getDescription() -> String {
+        var _description = ""
+        switch self {
+        case .SVERROR_NETWORK:
+            _description = "network problem"
+        case .SVERROR_VALUE_MISSING:
+            _description = "stockviva custom error - passed value missing"
+        case .SVERROR_EMPTY_RESULT:
+            _description = "stockviva custom error - empty result returned"
+        case .SVERROR_UNKNOWN:
+            _description = "stockviva custom error - unknown error"
+        case .SVERROR_JSON_ERROR:
+            _description = "stockviva custom error - json problem"
+        case .SVERROR_DATA_DOWNLOAD_FAILURE:
+            _description = "stockviva custom error - data download failure"
+        }
+        return _description
+    }
+    
+    func getError() -> Error {
+        return NSError(domain: "ApplozicSwift", code: self.rawValue, userInfo: [NSLocalizedDescriptionKey : self.getDescription()])
+    }
+    
+    func toDescriptionString() -> String {
+        return "error:\(self.getCode()), description:\(self.getDescription())"
+    }
+}
+
 public struct ALKConfiguration {
 
     /// If enabled then tapping on navigation bar in
