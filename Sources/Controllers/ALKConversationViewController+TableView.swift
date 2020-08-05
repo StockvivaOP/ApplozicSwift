@@ -840,7 +840,7 @@ extension ALKConversationViewController: UICollectionViewDataSource,UICollection
         let card = template[indexPath.row]
         cell.update(card: card)
         cell.buttonSelected = {[weak self] tag, title, card in
-            print("\(title, tag) button selected in generic card \(card)")
+            print("\(title) \(tag) button selected in generic card \(card)")
             guard let strongSelf = self else {return}
             strongSelf.cardTemplateSelected(tag: tag, title: title, template: card, message: message)
         }

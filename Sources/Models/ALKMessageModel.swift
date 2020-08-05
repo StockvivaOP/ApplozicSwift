@@ -343,7 +343,7 @@ extension ALKMessageViewModel {
         _msgDict["storeOnDevice"] = true
         _msgDict["to"] = to
         _msgDict["metadata"] = metadata
-        _msgDict["source"] = Int16(SOURCE_IOS)
+        _msgDict["source"] = Int16(AL_SOURCE_IOS)
         if let _metadata = metadata,
             let _platform = _metadata[SVALKMessageMetaDataFieldName.devicePlatform.rawValue] as? String {
             if _platform.lowercased() == "android" {
