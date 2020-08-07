@@ -988,12 +988,12 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             } else {
                 self.alMqttConversationService.subscribe(toOpenChannel: groupId)
             }
-        } else {
+        } else if !viewModel.isGroup {
             self.alMqttConversationService.subscribe(toChannelConversation: nil)
         }
-//        if viewModel.isGroup, ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() {
-//            self.alMqttConversationService.unSubscribe(toChannelConversation: nil)
-//        }
+        if viewModel.isGroup, ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() {
+            self.alMqttConversationService.unSubscribe(toChannelConversation: nil)
+        }
     }
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
@@ -1887,7 +1887,7 @@ extension ALKConversationViewController: ALKAudioPlayerProtocol, ALKVoiceCellPro
 extension ALKConversationViewController: ALMQTTConversationDelegate {
 
     public func mqttDidConnected() {
-        //subscribeChannelToMqtt()
+        subscribeChannelToMqtt()
         self.mqttConnectStatus = .connected
         //auto refresh after
         if self.mqttConnectRequestFrom == .appForeground {//if request from app foreground
