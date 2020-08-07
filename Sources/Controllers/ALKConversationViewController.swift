@@ -2330,7 +2330,7 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
             self.pinMessageView.updateContent(isHiddenNewMsgIndecator: isHiddenNewMsgIndecator, pinMsgItem: _pinMsgItem, viewModel: _viewModel)
             if (self.tableView.contentOffset.y + height + self.tableView.bounds.size.height) > self.tableView.contentSize.height {
-                let _newPosY = self.tableView.contentSize.height - self.tableView.bounds.size.height
+                let _newPosY = self.tableView.contentSize.height - (self.tableView.bounds.size.height - height)
                 if _newPosY > 0 {
                     self.tableView.contentOffset.y = _newPosY
                 }
