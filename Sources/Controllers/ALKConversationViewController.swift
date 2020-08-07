@@ -980,10 +980,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     }
 
     fileprivate func subscribeChannelToMqtt() {
-        if self.mqttConnectStatus == .connecting {//is connected
-            return
-        }
-        self.mqttConnectStatus = .connecting
         let channelService = ALChannelService()
         self.alMqttConversationService.subscribeToConversation()
         if viewModel.isGroup, let groupId = viewModel.channelKey, !channelService.isChannelLeft(groupId) && !ALChannelService.isChannelDeleted(groupId) {
@@ -998,7 +994,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
 //        if viewModel.isGroup, ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() {
 //            self.alMqttConversationService.unSubscribe(toChannelConversation: nil)
 //        }
-
     }
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
@@ -1892,6 +1887,7 @@ extension ALKConversationViewController: ALKAudioPlayerProtocol, ALKVoiceCellPro
 extension ALKConversationViewController: ALMQTTConversationDelegate {
 
     public func mqttDidConnected() {
+        //subscribeChannelToMqtt()
         self.mqttConnectStatus = .connected
         //auto refresh after
         if self.mqttConnectRequestFrom == .appForeground {//if request from app foreground
