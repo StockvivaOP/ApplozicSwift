@@ -2321,17 +2321,19 @@ extension ALKConversationViewController: SVALKConversationNavBarDelegate {
 extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     public func showPinMessageBarView(isHidden:Bool, isHiddenNewMsgIndecator:Bool = true, pinMsgItem: SVALKPinMessageItem? = nil){
         if let _pinMsgItem = pinMsgItem, let _viewModel = _pinMsgItem.messageModel, isHidden == false {
+            let _currentPinMsgBar:Bool = self.pinMessageView.isHidden
             self.pinMessageView.isHidden = isHidden
             let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
             self.pinMessageView.updateContent(isHiddenNewMsgIndecator: isHiddenNewMsgIndecator, pinMsgItem: _pinMsgItem, viewModel: _viewModel)
-            if (self.tableView.contentOffset.y + height + self.tableView.bounds.size.height) > self.tableView.contentSize.height {
-                let _newPosY = self.tableView.contentSize.height - (self.tableView.bounds.size.height - height)
-                if _newPosY > 0 {
-                    self.tableView.contentOffset.y = _newPosY
+            if _currentPinMsgBar != isHidden {
+                var _newPosY = self.tableView.contentOffset.y + height
+                if (self.tableView.contentOffset.y + (self.tableView.bounds.size.height - height)) > self.tableView.contentSize.height {
+                    _newPosY = self.tableView.contentSize.height - (self.tableView.bounds.size.height - height)
                 }
-            }else{
-                self.tableView.contentOffset.y = self.tableView.contentOffset.y + height
+                if _newPosY > 0 {
+                    self.tableView.setContentOffset(CGPoint(x: self.tableView.contentOffset.x, y: _newPosY ), animated: false)
+                }
             }
         }else{
             self.pinMessageView.isHidden = true
