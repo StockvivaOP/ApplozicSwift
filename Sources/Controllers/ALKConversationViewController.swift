@@ -481,6 +481,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             self.refreshViewController()
             self.setupNavigation()
         }else{
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: true)
             configureView()
         }
         self.prepareAllCustomView()
