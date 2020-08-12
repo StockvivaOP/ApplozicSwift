@@ -135,6 +135,20 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     var contentOffsetDictionary: Dictionary<AnyHashable,AnyObject>!
     
     //tag: stockviva start
+    fileprivate enum MqttConnectStatus: String {
+        case none = "none"
+        case connecting = "connecting"
+        case connected = "connected"
+        case disConnected = "disConnected"
+    }
+    
+    fileprivate enum MqttConnectRequestFrom: String {
+        case none = "none"
+        case appForeground = "appForeground"
+        case viewRefresh = "viewRefresh"
+        case mqttDisConnected = "mqttDisConnected"
+    }
+    
     public var navigationBar = SVALKConversationNavBar()
     
     public enum ALKConversationType : CaseIterable {
@@ -172,9 +186,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     private var discrimationViewHeightConstraint: NSLayoutConstraint?
     private var isViewFirstLoad: Bool = true
     private var isViewFirstLoadingMessage: Bool = true
-    private var isAutoRefreshMessage: Bool = false
     private var isViewDisappear = false
+    private var isAppToBackground = false
     private var isLeaveView = false
+    fileprivate var mqttConnectStatus:MqttConnectStatus = .none
+    fileprivate var mqttConnectRequestFrom:MqttConnectRequestFrom = .none
     var scrollingState:ALKConversationViewScrollingState = .idle
     var lastScrollingPoint:CGPoint = CGPoint.zero
     lazy open var discrimationView: UIButton = {
@@ -415,27 +431,25 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         })
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
+            self?.isAppToBackground = false
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
-            let _ = weakSelf.viewModel.currentConversationProfile(completion: { (profile) in
-                guard let profile = profile else { return }
-                weakSelf.navigationBar.updateContent(profile: profile)
-            })
+//            let _ = weakSelf.viewModel.currentConversationProfile(completion: { (profile) in
+//                guard let profile = profile else { return }
+//                weakSelf.navigationBar.updateContent(profile: profile)
+//            })
             if self?.isViewFirstLoad == false {
-                self?.subscribeChannelToMqtt()
                 if self?.viewModel.isUnreadMessageMode == false &&
                     self?.viewModel.isFocusReplyMessageMode == false {
-                    if ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() == false {
-                        self?.isAutoRefreshMessage = true
-                    }else{
-                        self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: (self?.unreadScrollButton.isHidden ?? true) == false)
-                    }
+                    self?.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: true)
                 }
+                self?.mqttConnectRequestFrom = .appForeground
+                self?.subscribeChannelToMqtt()
             }
         }
 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_BACKGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
+            self?.isAppToBackground = true
             guard let weakSelf = self, weakSelf.viewModel != nil else { return }
-            self?.isAutoRefreshMessage = false
             if self?.isViewFirstLoad == false {
                 self?.unsubscribingChannel()
             }
@@ -467,6 +481,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             self.refreshViewController()
             self.setupNavigation()
         }else{
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel: true)
             configureView()
         }
         self.prepareAllCustomView()
@@ -536,13 +551,13 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         stopAudioPlayer()
         chatBar.stopRecording()
         chatBar.resignAllResponderFromTextView()
-        if let _ = alMqttConversationService {
-            alMqttConversationService.unsubscribeToConversation()
-        }
-        unsubscribingChannel()
         if self.isMovingFromParent {
             self.isLeaveView = true
             self.removeObserver()
+        }
+        unsubscribingChannel()
+        if let _ = alMqttConversationService {
+            alMqttConversationService.unsubscribeToConversation()
         }
     }
     
@@ -917,6 +932,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     func configureView() {
         configureChatBar()
         //Check for group left
+        self.mqttConnectRequestFrom = .viewRefresh
         subscribeChannelToMqtt()
     }
     
@@ -947,32 +963,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         guard self.viewModel.isUnreadMessageMode == false && self.viewModel.isFocusReplyMessageMode == false else {
             return
         }
-        guard !viewModel.isOpenGroup else {
-            viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
-            return
-        }
-        guard (message.conversationId == nil || message.conversationId != viewModel.conversationProxy?.id) else {
-            return
-        }
-        if let groupId = message.groupId, groupId != viewModel.channelKey {
-            let notificationView = ALNotificationView(alMessage: message, withAlertMessage: message.message)
-            notificationView?.showNativeNotificationWithcompletionHandler({
-                _ in
-                self.viewModel.contactId = nil
-                self.viewModel.channelKey = groupId
-                self.viewModel.isFirstTime = true
-                self.refreshViewController()
-            })
-        } else if message.groupId == nil, let contactId = message.contactId, contactId != viewModel.contactId {
-            let notificationView = ALNotificationView(alMessage: message, withAlertMessage: message.message)
-            notificationView?.showNativeNotificationWithcompletionHandler({
-                _ in
-                self.viewModel.contactId = contactId
-                self.viewModel.channelKey = nil
-                self.viewModel.isFirstTime = true
-                self.refreshViewController()
-            })
-        }
+        self.viewModel.syncOpenGroupOneMessage(message: message, isNeedOnUnreadMessageModel: self.unreadScrollButton.isHidden == false)
     }
 
     public func updateDeliveryReport(messageKey: String?, contactId: String?, status: Int32?) {
@@ -1004,7 +995,6 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         if viewModel.isGroup, ALUserDefaultsHandler.isUserLoggedInUserSubscribedMQTT() {
             self.alMqttConversationService.unSubscribe(toChannelConversation: nil)
         }
-
     }
 
     @objc func unreadScrollDownAction(_ sender: UIButton) {
@@ -1899,10 +1889,17 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
 
     public func mqttDidConnected() {
         subscribeChannelToMqtt()
+        self.mqttConnectStatus = .connected
         //auto refresh after
-        if self.isAutoRefreshMessage {
-            self.isAutoRefreshMessage = false
-            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:self.unreadScrollButton.isHidden == false)
+        if self.mqttConnectRequestFrom == .appForeground {//if request from app foreground
+            self.mqttConnectRequestFrom = .none
+            return
+        }
+        self.mqttConnectRequestFrom = .none
+        if self.isViewFirstLoadingMessage == false &&
+            self.viewModel.isUnreadMessageMode == false &&
+            self.viewModel.isFocusReplyMessageMode == false {
+            self.viewModel.syncOpenGroupMessage(isNeedOnUnreadMessageModel:false, isShowLoading:false)
         }
     }
 
@@ -1933,7 +1930,10 @@ extension ALKConversationViewController: ALMQTTConversationDelegate {
     }
 
     public func mqttConnectionClosed() {
-        if viewModel.isOpenGroup &&  mqttRetryCount < maxMqttRetryCount {
+        self.mqttConnectStatus = .disConnected
+        //reconnection
+        if self.isAppToBackground == false && self.isLeaveView == false {
+            self.mqttConnectRequestFrom = .mqttDisConnected
             subscribeChannelToMqtt()
         }
         NSLog("MQTT connection closed")
@@ -2322,11 +2322,20 @@ extension ALKConversationViewController: SVALKConversationNavBarDelegate {
 extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     public func showPinMessageBarView(isHidden:Bool, isHiddenNewMsgIndecator:Bool = true, pinMsgItem: SVALKPinMessageItem? = nil){
         if let _pinMsgItem = pinMsgItem, let _viewModel = _pinMsgItem.messageModel, isHidden == false {
+            let _currentPinMsgBar:Bool = self.pinMessageView.isHidden
             self.pinMessageView.isHidden = isHidden
             let height: CGFloat = isHidden ? 0 : Padding.PinMessageView.height
             self.pinMessageView.constraint(withIdentifier: ConstraintIdentifier.pinMessageView)?.constant = height
             self.pinMessageView.updateContent(isHiddenNewMsgIndecator: isHiddenNewMsgIndecator, pinMsgItem: _pinMsgItem, viewModel: _viewModel)
-            self.tableView.contentOffset.y = self.tableView.contentOffset.y + height
+            if _currentPinMsgBar != isHidden {
+                var _newPosY = self.tableView.contentOffset.y + height
+                if (self.tableView.contentOffset.y + (self.tableView.bounds.size.height - height)) > self.tableView.contentSize.height {
+                    _newPosY = self.tableView.contentSize.height - (self.tableView.bounds.size.height - height)
+                }
+                if _newPosY > 0 {
+                    self.tableView.setContentOffset(CGPoint(x: self.tableView.contentOffset.x, y: _newPosY ), animated: false)
+                }
+            }
         }else{
             self.pinMessageView.isHidden = true
             let height: CGFloat = 0

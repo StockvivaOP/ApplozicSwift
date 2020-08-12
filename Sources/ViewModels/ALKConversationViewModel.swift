@@ -1896,7 +1896,7 @@ extension ALKConversationViewModel {
         addMessagesToList([message],isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel)
     }
     
-    open func syncOpenGroupMessage(isNeedOnUnreadMessageModel:Bool) {
+    open func syncOpenGroupMessage(isNeedOnUnreadMessageModel:Bool, isShowLoading:Bool = true) {
         var time: NSNumber? = nil
         if let _lastMsgTime = self.alMessages.last?.createdAtTime {
             time = NSNumber(value: (_lastMsgTime.intValue) )
@@ -1906,7 +1906,9 @@ extension ALKConversationViewModel {
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - syncOpenGroupMessage - time: \(String(describing: time))")
         
         let _defaultPageSize = self.defaultValue_requestMessagePageSize
-        self.delegate?.loadingStarted()
+        if isShowLoading {
+            self.delegate?.loadingStarted()
+        }
         self.getSearchTimeAfterOpenGroupMessage(time: time, pageSize:_defaultPageSize, loopingStart: {
             self.delegate?.loadingStarted()
         }) { (messageList) in//completed
