@@ -1077,8 +1077,8 @@
                                         <color key="textColor" red="0.15294117647058825" green="0.15294117647058825" blue="0.15294117647058825" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y2h-z5-oLi">
-                                        <rect key="frame" x="15" y="1.5" width="45" height="20"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y2h-z5-oLi">
+                                        <rect key="frame" x="15" y="1.5" width="45" height="17"/>
                                         <color key="backgroundColor" red="0.97254901960784312" green="0.27450980392156865" blue="0.36078431372549019" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="45" id="s7a-JZ-kyK"/>
@@ -1088,7 +1088,7 @@
                                         <nil key="highlightedColor"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <real key="value" value="8.5"/>
+                                                <integer key="value" value="4"/>
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </label>
@@ -1109,7 +1109,7 @@
                                     <constraint firstItem="T9z-Nh-Mnf" firstAttribute="leading" secondItem="raf-Am-FiD" secondAttribute="leading" id="AQo-py-oxr"/>
                                     <constraint firstItem="y2h-z5-oLi" firstAttribute="top" secondItem="50X-UT-dkY" secondAttribute="top" constant="1.5" id="BQg-0m-LWi"/>
                                     <constraint firstItem="y2h-z5-oLi" firstAttribute="leading" secondItem="50X-UT-dkY" secondAttribute="trailing" constant="2" id="CFC-q6-pUZ"/>
-                                    <constraint firstItem="y2h-z5-oLi" firstAttribute="bottom" secondItem="50X-UT-dkY" secondAttribute="bottom" constant="1.5" id="Eue-AY-2eQ"/>
+                                    <constraint firstItem="y2h-z5-oLi" firstAttribute="bottom" secondItem="50X-UT-dkY" secondAttribute="bottom" constant="-1.5" id="Eue-AY-2eQ"/>
                                     <constraint firstItem="T9z-Nh-Mnf" firstAttribute="top" secondItem="50X-UT-dkY" secondAttribute="bottom" id="cp3-0X-6u5"/>
                                     <constraint firstAttribute="trailing" secondItem="T9z-Nh-Mnf" secondAttribute="trailing" id="ePm-HL-KBD"/>
                                     <constraint firstItem="50X-UT-dkY" firstAttribute="leading" secondItem="raf-Am-FiD" secondAttribute="leading" id="iCc-cS-1Wq"/>
@@ -1141,7 +1141,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="5WQ-V0-NTO"/>
+        <segue reference="FRe-pA-vna"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DownloadiOS" width="25" height="25"/>
