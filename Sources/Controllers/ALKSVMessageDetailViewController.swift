@@ -11,6 +11,8 @@ import UIKit
 class ALKSVMessageDetailViewController: ALKSVBaseMessageDetailViewController {
 
     @IBOutlet weak var tvMessageContent: UITextView!
+    @IBOutlet private weak var msgContentHeightConstraint: NSLayoutConstraint!
+    
     var messageViewLinkClicked:((_ url:URL, _ viewModel:ALKMessageViewModel?) -> Void)?
     
     override func viewDidLoad() {
@@ -24,6 +26,11 @@ class ALKSVMessageDetailViewController: ALKSVBaseMessageDetailViewController {
     }
     
     func updateContent(){
+        if self.isWelcomeUserJoinMode {
+            self.msgContentHeightConstraint.constant = 137.0
+        }else{
+            self.msgContentHeightConstraint.constant = 359.0
+        }
         //self.tvMessageContent.text = self.viewModel?.message ?? ""
 //        self.tvMessageContent.contentSize = self.tvMessageContent.sizeThatFits(CGSize(width: self.tvMessageContent.bounds.size.width, height: CGFloat(MAXFLOAT) ))
         self.tvMessageContent.addLink(message: self.viewModel?.message ?? "", font: self.tvMessageContent.font, matchInfo: ALKConfiguration.specialLinkList)

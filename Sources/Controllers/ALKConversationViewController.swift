@@ -2121,20 +2121,11 @@ extension ALKConversationViewController {
         }
     }
     
-    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, viewModel: ALKMessageViewModel, isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
+    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, isWelcomeUserJoinMode:Bool = false, bigTitle:String? = nil, subTitle:String? = nil, viewModel: ALKMessageViewModel, isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
         let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
         var _presentVC:ALKSVBaseMessageDetailViewController?
         let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
-        if _msgType == .text {
-            if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
-                _vc.messageViewLinkClicked = { (url, viewModel) in
-                    if self.configuration.enableOpenLinkInApp {
-                        self.delegateConversationChatContentAction?.openLink(url: url, viewModel:viewModel, sourceView: _vc, isPushFromSourceView:true)
-                    }
-                }
-                _presentVC = _vc
-            }
-        }else if _msgType == .photo {
+        if _msgType == .photo {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVImageMessageDetailViewController") as? ALKSVImageMessageDetailViewController {
                 _vc.downloadTapped = {[weak self] value in
                     self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
@@ -2150,6 +2141,17 @@ extension ALKConversationViewController {
                 _vc.documentFileUpdateDelegate = self
                 _presentVC = _vc
             }
+        }else{//default text
+            if _msgType == .text || isWelcomeUserJoinMode {
+                if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVMessageDetailViewController") as? ALKSVMessageDetailViewController {
+                    _vc.messageViewLinkClicked = { (url, viewModel) in
+                        if self.configuration.enableOpenLinkInApp {
+                            self.delegateConversationChatContentAction?.openLink(url: url, viewModel:viewModel, sourceView: _vc, isPushFromSourceView:true)
+                        }
+                    }
+                    _presentVC = _vc
+                }
+            }
         }
         
         if let _pVC = _presentVC {
@@ -2159,6 +2161,9 @@ extension ALKConversationViewController {
             _pVC.userIconUrl = userIconUrl
             _pVC.viewModel = viewModel
             _pVC.isShowPromotionImage = isShowPromotionImage
+            _pVC.isWelcomeUserJoinMode = isWelcomeUserJoinMode
+            _pVC.bigTitle = bigTitle
+            _pVC.subTitle = subTitle
             _pVC.delegate = self
             _pVC.modalPresentationStyle = .overCurrentContext
             _pVC.modalTransitionStyle = .crossDissolve
@@ -2347,13 +2352,13 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
         self.pinMessageView.isHiddenNewMessageIndecator(isReaded)
     }
     
-    public func showPinMessageDialogManually(isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
+    public func showPinMessageDialogManually(isShowPromotionImage:Bool = false, isWelcomeUserJoinMode:Bool = false, bigTitle:String? = nil, subTitle:String? = nil, completed:((_ isSuccessful:Bool)->())? = nil){
         if self.pinMessageView.isHidden {
             completed?(false)
             return
         }
         //show message
-        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.pinMsgItem.userName, userIconUrl:self.pinMessageView.pinMsgItem.userIconUrl, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
+        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.pinMsgItem.userName, userIconUrl:self.pinMessageView.pinMsgItem.userIconUrl, isWelcomeUserJoinMode:isWelcomeUserJoinMode, bigTitle:bigTitle, subTitle:subTitle, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
     }
     
     func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel) {

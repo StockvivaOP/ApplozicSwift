@@ -18,6 +18,7 @@ class ALKSVMessageDetailHeaderViewController: UIViewController {
     @IBOutlet weak var btnUserIcon: UIButton!
     @IBOutlet weak var labUserName: UILabel!
     @IBOutlet weak var labMessageDate: UILabel!
+    @IBOutlet weak var labNewPinIndicator: UILabel!
     
     var delegate:ALKSVMessageDetailHeaderViewControllerDelegate?
     var userName:String?
@@ -28,7 +29,7 @@ class ALKSVMessageDetailHeaderViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-    func setHeader(userName:String?, userIconUrl:String?, viewModel:ALKMessageViewModel){
+    func setHeader(userName:String?, userIconUrl:String?, isShowNewPinIndicator:Bool = false, viewModel:ALKMessageViewModel){
         let placeHolder = UIImage(named: "placeholder", in: Bundle.applozic, compatibleWith: nil)
         if let urlStr = userIconUrl, let url = URL(string: urlStr), urlStr.isEmpty == false {
             let resource = ImageResource(downloadURL: url, cacheKey: url.absoluteString)
@@ -46,6 +47,13 @@ class ALKSVMessageDetailHeaderViewController: UIViewController {
             self.labUserName.text = viewModel.displayName ?? ""
         }
         self.labMessageDate.text = viewModel.date.toHHmmMMMddFormat()
+        
+        if let _newPinStr = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "multi_pin_new_pin_badge"), isShowNewPinIndicator && _newPinStr.count > 0 {
+            self.labNewPinIndicator.isHidden = false
+            self.labNewPinIndicator.text = _newPinStr
+        }else{
+            self.labNewPinIndicator.isHidden = true
+        }
     }
     
 
