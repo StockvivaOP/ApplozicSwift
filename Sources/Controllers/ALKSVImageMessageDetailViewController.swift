@@ -44,10 +44,10 @@ class ALKSVImageMessageDetailViewController: ALKSVBaseMessageDetailViewControlle
         self.viewDLKGroup.isHidden = true
         
         self.viewDLKGroup.addViewsForAutolayout(views: [self.progressView])
-        self.progressView.topAnchor.constraint(equalTo: self.viewDLKGroup.topAnchor).isActive = true
-        self.progressView.leadingAnchor.constraint(equalTo: self.viewDLKGroup.leadingAnchor).isActive = true
-        self.progressView.trailingAnchor.constraint(equalTo: self.viewDLKGroup.trailingAnchor).isActive = true
-        self.progressView.bottomAnchor.constraint(equalTo: self.viewDLKGroup.bottomAnchor).isActive = true
+        self.progressView.topAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.topAnchor).isActive = true
+        self.progressView.leadingAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.leadingAnchor).isActive = true
+        self.progressView.trailingAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.trailingAnchor).isActive = true
+        self.progressView.bottomAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.bottomAnchor).isActive = true
     }
     
     func updateContent(){
