@@ -2121,14 +2121,16 @@ extension ALKConversationViewController {
         }
     }
     
-    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, isWelcomeUserJoinMode:Bool = false, bigTitle:String? = nil, subTitle:String? = nil, viewModel: ALKMessageViewModel, isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
+    private func presentMessageDetail(isPinMsg:Bool = false, userName:String?, userIconUrl:String?, isWelcomeUserJoinMode:Bool = false, bigTitle:String? = nil, subTitle:String? = nil, viewModel: ALKMessageViewModel?, isShowPromotionImage:Bool = false, completed:((_ isSuccessful:Bool)->())? = nil){
         let _storyboard = UIStoryboard.name(storyboard: UIStoryboard.Storyboard.svMessageDetailView, bundle: Bundle.applozic)
         var _presentVC:ALKSVBaseMessageDetailViewController?
-        let _msgType = isPinMsg ? viewModel.getContentTypeForPinMessage() : viewModel.messageType
+        let _msgType = isPinMsg ? viewModel?.getContentTypeForPinMessage() : viewModel?.messageType
         if _msgType == .photo {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVImageMessageDetailViewController") as? ALKSVImageMessageDetailViewController {
                 _vc.downloadTapped = {[weak self] value in
-                    self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
+                    if let _viewModel = viewModel {
+                        self?.viewModel.downloadAttachment(message: _viewModel, viewController: _vc)
+                    }
                 }
                 _vc.imageFileUpdateDelegate = self
                 _presentVC = _vc
@@ -2136,7 +2138,9 @@ extension ALKConversationViewController {
         }else if _msgType == .document {
             if let _vc = _storyboard.instantiateViewController(withIdentifier: "ALKSVDocumentMessageDetailViewController") as? ALKSVDocumentMessageDetailViewController {
                 _vc.downloadTapped = {[weak self] value in
-                    self?.viewModel.downloadAttachment(message: viewModel, viewController: _vc)
+                    if let _viewModel = viewModel {
+                        self?.viewModel.downloadAttachment(message: _viewModel, viewController: _vc)
+                    }
                 }
                 _vc.documentFileUpdateDelegate = self
                 _presentVC = _vc
@@ -2353,7 +2357,7 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
     }
     
     public func showPinMessageDialogManually(isShowPromotionImage:Bool = false, isWelcomeUserJoinMode:Bool = false, bigTitle:String? = nil, subTitle:String? = nil, completed:((_ isSuccessful:Bool)->())? = nil){
-        if self.pinMessageView.isHidden {
+        if self.pinMessageView.isHidden && isWelcomeUserJoinMode == false {
             completed?(false)
             return
         }
@@ -2361,7 +2365,7 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
         self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.pinMsgItem.userName, userIconUrl:self.pinMessageView.pinMsgItem.userIconUrl, isWelcomeUserJoinMode:isWelcomeUserJoinMode, bigTitle:bigTitle, subTitle:subTitle, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
     }
     
-    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel) {
+    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel?) {
         if self.isEnablePaidFeature() == false {
             self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
             return
