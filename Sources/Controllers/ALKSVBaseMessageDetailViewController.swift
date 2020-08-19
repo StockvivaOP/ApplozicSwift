@@ -56,9 +56,9 @@ class ALKSVBaseMessageDetailViewController: UIViewController {
         if isWelcomeUserJoinMode {
             self.vTitle.isHidden = true
             self.btnBgClose.isHidden = false
-            self.vBigTitle.isHidden = self.bigTitle?.count ?? 0 > 0
+            self.vBigTitle.isHidden = self.bigTitle?.count ?? 0 == 0
             self.labBigTitle.text = self.bigTitle
-            self.vSubTitle.isHidden = self.subTitle?.count ?? 0 > 0
+            self.vSubTitle.isHidden = self.subTitle?.count ?? 0 == 0
             self.labSubTitle.text = self.subTitle
             if let _goToCGStr = ALKConfiguration.delegateSystemInfoRequestDelegate?.getSystemTextLocalizable(key: "dialog_chatgroup_promotional_pin_dialog_view_group_btn") {
                 self.vBottomAction.isHidden = false
