@@ -321,7 +321,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hue-b4-0kO" userLabel="close button">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <connections>
-                                    <action selector="closeButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="ATF-ZG-x68"/>
+                                    <action selector="closeButtonTouchUpInside:" destination="tUc-Bc-Kl5" eventType="touchUpInside" id="qPc-Wf-DWA"/>
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="n2e-uF-64u">
@@ -571,7 +571,7 @@
                                                                     </userDefinedRuntimeAttribute>
                                                                 </userDefinedRuntimeAttributes>
                                                                 <connections>
-                                                                    <action selector="gotoChatGroupButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="oYY-vb-NEL"/>
+                                                                    <action selector="gotoChatGroupButtonTouchUpInside:" destination="tUc-Bc-Kl5" eventType="touchUpInside" id="VIn-0P-RrO"/>
                                                                 </connections>
                                                             </button>
                                                         </subviews>
@@ -670,7 +670,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="a9b-4r-h3F" userLabel="close button">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                                 <connections>
-                                    <action selector="closeButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="5GV-e4-kut"/>
+                                    <action selector="closeButtonTouchUpInside:" destination="XdQ-L5-x8E" eventType="touchUpInside" id="n1S-Fe-Doy"/>
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="JNN-Fe-fKZ">
@@ -938,7 +938,7 @@
                                                                     </userDefinedRuntimeAttribute>
                                                                 </userDefinedRuntimeAttributes>
                                                                 <connections>
-                                                                    <action selector="gotoChatGroupButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="TBG-iY-pUd"/>
+                                                                    <action selector="gotoChatGroupButtonTouchUpInside:" destination="XdQ-L5-x8E" eventType="touchUpInside" id="Rqe-ce-dNc"/>
                                                                 </connections>
                                                             </button>
                                                         </subviews>
