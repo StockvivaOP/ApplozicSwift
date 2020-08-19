@@ -2362,10 +2362,10 @@ extension ALKConversationViewController: ALKSVPinMessageViewDelegate {
             return
         }
         //show message
-        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.pinMsgItem.userName, userIconUrl:self.pinMessageView.pinMsgItem.userIconUrl, isWelcomeUserJoinMode:isWelcomeUserJoinMode, bigTitle:bigTitle, subTitle:subTitle, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
+        self.presentMessageDetail(isPinMsg:true, userName:self.pinMessageView.pinMsgItem?.userName, userIconUrl:self.pinMessageView.pinMsgItem?.userIconUrl, isWelcomeUserJoinMode:isWelcomeUserJoinMode, bigTitle:bigTitle, subTitle:subTitle, viewModel: self.pinMessageView.viewModel, isShowPromotionImage:isShowPromotionImage, completed:completed)
     }
     
-    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel?) {
+    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem?, viewModel: ALKMessageViewModel?) {
         if self.isEnablePaidFeature() == false {
             self.requestToShowAlert(type: .funcNeedPaidForPinMsg)
             return

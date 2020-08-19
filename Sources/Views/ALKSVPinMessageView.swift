@@ -9,7 +9,7 @@
 import UIKit
 
 protocol ALKSVPinMessageViewDelegate : class {
-    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem, viewModel: ALKMessageViewModel?)
+    func didPinMessageBarClicked(pinMsgItem: SVALKPinMessageItem?, viewModel: ALKMessageViewModel?)
 }
 
 open class ALKSVPinMessageView: UIView, Localizable {
@@ -63,7 +63,7 @@ open class ALKSVPinMessageView: UIView, Localizable {
     var conversationRequestInfoDelegate:ConversationCellRequestInfoDelegate?
     var configuration: ALKConfiguration!
     var viewModel: ALKMessageViewModel?
-    var pinMsgItem: SVALKPinMessageItem!
+    var pinMsgItem: SVALKPinMessageItem?
     
     private var newMsgIndecatorLabelWidthConst:NSLayoutConstraint?
     private var newMsgIndecatorLabelLeftConst:NSLayoutConstraint?

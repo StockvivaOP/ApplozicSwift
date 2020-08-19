@@ -202,7 +202,7 @@
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7RT-qj-QBW">
                                                         <rect key="frame" x="0.0" y="390" width="270" height="60"/>
                                                         <subviews>
-                                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="snt-o7-tDC">
+                                                            <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="snt-o7-tDC">
                                                                 <rect key="frame" x="10" y="14" width="250" height="1"/>
                                                                 <color key="backgroundColor" red="0.63137254901960782" green="0.63137254901960782" blue="0.63137254901960782" alpha="1" colorSpace="calibratedRGB"/>
                                                                 <constraints>
@@ -547,7 +547,7 @@
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ALU-St-W5D">
                                                         <rect key="frame" x="0.0" y="411" width="270" height="60"/>
                                                         <subviews>
-                                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cQh-n7-Stu">
+                                                            <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cQh-n7-Stu">
                                                                 <rect key="frame" x="10" y="14" width="250" height="1"/>
                                                                 <color key="backgroundColor" red="0.63137254899999995" green="0.63137254899999995" blue="0.63137254899999995" alpha="1" colorSpace="calibratedRGB"/>
                                                                 <constraints>
@@ -914,7 +914,7 @@
                                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NHp-Iw-Xdk">
                                                         <rect key="frame" x="0.0" y="297" width="270" height="60"/>
                                                         <subviews>
-                                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DnV-Ax-cdd">
+                                                            <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DnV-Ax-cdd">
                                                                 <rect key="frame" x="10" y="14" width="250" height="1"/>
                                                                 <color key="backgroundColor" red="0.63137254899999995" green="0.63137254899999995" blue="0.63137254899999995" alpha="1" colorSpace="calibratedRGB"/>
                                                                 <constraints>
@@ -1141,7 +1141,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="FRe-pA-vna"/>
+        <segue reference="5WQ-V0-NTO"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DownloadiOS" width="25" height="25"/>
