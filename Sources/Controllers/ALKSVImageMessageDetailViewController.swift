@@ -14,11 +14,12 @@ import Kingfisher
 class ALKSVImageMessageDetailViewController: ALKSVBaseMessageDetailViewController {
 
     @IBOutlet weak var imgMessageFile: UIImageView!
-    @IBOutlet weak var tvCaptionContent: ALKTextView!
     @IBOutlet weak var viewDLKGroup: UIView!
     @IBOutlet weak var viewDLKIndicatorGroup: UIView!
     @IBOutlet weak var btnDownload: UIButton!
     @IBOutlet weak var imgDownloadIndicator: UIImageView!
+    
+    @IBOutlet private weak var imageContentHeightConstraint: NSLayoutConstraint!
     
     var progressView: KDCircularProgress = {
         let view = KDCircularProgress(frame: .zero)
@@ -43,16 +44,13 @@ class ALKSVImageMessageDetailViewController: ALKSVBaseMessageDetailViewControlle
         self.viewDLKGroup.isHidden = true
         
         self.viewDLKGroup.addViewsForAutolayout(views: [self.progressView])
-        self.progressView.topAnchor.constraint(equalTo: self.viewDLKGroup.topAnchor)
-        self.progressView.leadingAnchor.constraint(equalTo: self.viewDLKGroup.leadingAnchor)
-        self.progressView.trailingAnchor.constraint(equalTo: self.viewDLKGroup.trailingAnchor)
-        self.progressView.bottomAnchor.constraint(equalTo: self.viewDLKGroup.bottomAnchor)
+        self.progressView.topAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.topAnchor).isActive = true
+        self.progressView.leadingAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.leadingAnchor).isActive = true
+        self.progressView.trailingAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.trailingAnchor).isActive = true
+        self.progressView.bottomAnchor.constraint(equalTo: self.viewDLKIndicatorGroup.bottomAnchor).isActive = true
     }
     
     func updateContent(){
-        self.tvCaptionContent.text = self.viewModel?.message ?? ""
-        self.tvCaptionContent.isHidden = self.tvCaptionContent.text.count > 0
-        
         guard let state = self.viewModel?.attachmentState() else {
             return
         }
