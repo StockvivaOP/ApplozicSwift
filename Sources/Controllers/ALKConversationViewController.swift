@@ -2621,6 +2621,7 @@ extension ALKConversationViewController {
         }
         self.hiddenFloatingShareButton(!self.configuration.isShowFloatingShareGroupButton)
         self.hiddenFloatingAffiliatePromotionButton(!self.configuration.isShowFloatingAffiliatePromotionButton)
+        self.hiddenLowerFloatingAffiliatePromotionButton(!self.configuration.isShowLowerFloatingAffiliatePromotionButton)
     }
     
     private func hiddenFloatingShareButton(_ hidden:Bool){
