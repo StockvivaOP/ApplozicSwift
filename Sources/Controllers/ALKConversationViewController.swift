@@ -294,6 +294,8 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
                 let keyboardSize = (keyboardFrameValue as? NSValue)?.cgRectValue else {
                     return
             }
+                self?.floatingAffiliatePromoButton.alpha = 0
+                self?.lowerfloatingAffiliatePromoButton.alpha = 0
 
             weakSelf.keyboardSize = keyboardSize
 
@@ -328,9 +330,10 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             using: {[weak self] (notification) in
                 guard let weakSelf = self else {return}
                 let view = weakSelf.view
-
+                
                 weakSelf.bottomConstraint?.constant = 0
-
+                self?.floatingAffiliatePromoButton.alpha = 1
+                self?.lowerfloatingAffiliatePromoButton.alpha = 1
                 let duration = (notification
                     .userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?
                     .doubleValue ?? 0.05
