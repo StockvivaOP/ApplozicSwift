@@ -407,6 +407,9 @@ public struct ALKConfiguration {
     /// chat view Right - show Affiliate Promotion button
     public var isShowFloatingAffiliatePromotionButton:Bool = false
     
+    /// chat view Right - show Lower Affiliate Promotion button
+    public var isShowLowerFloatingAffiliatePromotionButton:Bool = false
+    
     /// chat view Right - show share group
     public var isShowFloatingShareGroupButton:Bool = false
     
@@ -458,9 +461,11 @@ public protocol ConversationChatContentActionDelegate: class{
     func openLink(url:URL, viewModel:ALKMessageViewModel?, sourceView:UIViewController, isPushFromSourceView:Bool)
     func backPageButtonClicked(chatView:UIViewController)
     func loadingFloatingAffiliatePromotionButtonUrl() -> URL?
+    func loadingLowerFloatingAffiliatePromotionButtonUrl() -> URL?
     func loadingFloatingShareButton() -> UIImage?
     func loadingFloatingShareTip() -> (title:String, bgColor:UIColor, size:CGSize, titleEdgeInsets:UIEdgeInsets?, dismissSecond:Int)
     func didFloatingAffiliatePromotionButtonClicked(chatView:UIViewController, button:UIButton)
+    func didLowerFloatingAffiliatePromotionButtonClicked(chatView:UIViewController, button:UIButton)
     func didFloatingShareButtonClicked(chatView:UIViewController, button:UIButton)
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?

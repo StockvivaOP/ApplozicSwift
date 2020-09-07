@@ -218,6 +218,14 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         return view
     }()
     
+    lazy private var LowerfloatingAffiliatePromoButton: UIButton = {
+           let view = UIButton(type: UIButton.ButtonType.custom)
+           view.backgroundColor = .clear
+           view.isHidden = true
+           view.addTarget(self, action: #selector(ALKConversationViewController.didFloatingAffiliatePromotionButtonTouchUpInside), for: .touchUpInside)
+           return view
+       }()
+    
     lazy private var floatingShareButton: UIButton = {
         let view = UIButton(type: UIButton.ButtonType.custom)
         view.backgroundColor = .clear
@@ -604,7 +612,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
     
     private func setupConstraints() {
         
-        let allViews = [backgroundView, tableView, floatingAffiliatePromoButton, floatingShareButton, svMarqueeView, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
+        let allViews = [backgroundView, tableView, floatingAffiliatePromoButton, LowerfloatingAffiliatePromoButton, floatingShareButton, svMarqueeView, chatBar, unreadScrollButton, unReadMessageRemindIndicatorView, replyMessageView, pinMessageView, discrimationView, activityIndicator]
         
         view.addViewsForAutolayout(views: allViews)
 
@@ -637,6 +645,11 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
         floatingAffiliatePromoButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
         floatingAffiliatePromoButton.widthAnchor.constraint(equalToConstant: 75.0).isActive = true
         floatingAffiliatePromoButton.heightAnchor.constraint(equalToConstant: 75.0).isActive = true
+        
+        LowerfloatingAffiliatePromoButton.topAnchor.constraint(equalTo: floatingAffiliatePromoButton.topAnchor, constant: 25.0).isActive = true
+        LowerfloatingAffiliatePromoButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
+        LowerfloatingAffiliatePromoButton.widthAnchor.constraint(equalToConstant: 75.0).isActive = true
+        LowerfloatingAffiliatePromoButton.heightAnchor.constraint(equalToConstant: 75.0).isActive = true
         
         floatingShareButton.topAnchor.constraint(equalTo: tableView.topAnchor, constant: 25.0).isActive = true
         floatingShareButton.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -15.0).isActive = true
@@ -2603,6 +2616,9 @@ extension ALKConversationViewController {
         if self.configuration.isShowFloatingAffiliatePromotionButton {
             self.configuration.isShowFloatingShareGroupButton = false
         }
+        if self.configuration.isShowLowerFloatingAffiliatePromotionButton {
+            self.configuration.isShowLowerFloatingAffiliatePromotionButton = false
+        }
         self.hiddenFloatingShareButton(!self.configuration.isShowFloatingShareGroupButton)
         self.hiddenFloatingAffiliatePromotionButton(!self.configuration.isShowFloatingAffiliatePromotionButton)
     }
@@ -2628,6 +2644,18 @@ extension ALKConversationViewController {
         }else{
             self.floatingAffiliatePromoButton.isHidden = true
             self.configuration.isShowFloatingAffiliatePromotionButton = false
+        }
+    }
+    
+    private func hiddenLowerFloatingAffiliatePromotionButton(_ hidden:Bool){
+        self.LowerfloatingAffiliatePromoButton.isHidden = hidden
+        if let _imageUrl = self.delegateConversationChatContentAction?.loadingLowerFloatingAffiliatePromotionButtonUrl(),
+            self.LowerfloatingAffiliatePromoButton.isHidden == false {
+            self.configuration.isShowLowerFloatingAffiliatePromotionButton = true
+            self.LowerfloatingAffiliatePromoButton.kf.setImage(with: _imageUrl, for: .normal)
+        }else{
+            self.LowerfloatingAffiliatePromoButton.isHidden = true
+            self.configuration.isShowLowerFloatingAffiliatePromotionButton = false
         }
     }
     
@@ -2705,7 +2733,10 @@ extension ALKConversationViewController {
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatContentAction?.didFloatingAffiliatePromotionButtonClicked(chatView: self, button: sender)
     }
-    
+    @objc func didLowerFloatingAffiliatePromotionButtonTouchUpInside(_ sender: UIButton) {
+          self.chatBar.resignAllResponderFromTextView()
+          self.delegateConversationChatContentAction?.didLowerFloatingAffiliatePromotionButtonClicked(chatView: self, button: sender)
+      }
     @objc func didFloatingShareButtonTouchUpInside(_ sender: UIButton) {
         self.chatBar.resignAllResponderFromTextView()
         self.delegateConversationChatContentAction?.didFloatingShareButtonClicked(chatView: self, button: sender)
