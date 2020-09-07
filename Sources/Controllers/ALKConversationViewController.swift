@@ -2617,7 +2617,7 @@ extension ALKConversationViewController {
             self.configuration.isShowFloatingShareGroupButton = false
         }
         if self.configuration.isShowLowerFloatingAffiliatePromotionButton {
-            self.configuration.isShowLowerFloatingAffiliatePromotionButton = false
+            self.configuration.isShowFloatingShareGroupButton = false
         }
         self.hiddenFloatingShareButton(!self.configuration.isShowFloatingShareGroupButton)
         self.hiddenFloatingAffiliatePromotionButton(!self.configuration.isShowFloatingAffiliatePromotionButton)
