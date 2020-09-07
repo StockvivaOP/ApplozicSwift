@@ -222,7 +222,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
            let view = UIButton(type: UIButton.ButtonType.custom)
            view.backgroundColor = .clear
            view.isHidden = true
-           view.addTarget(self, action: #selector(ALKConversationViewController.didFloatingAffiliatePromotionButtonTouchUpInside), for: .touchUpInside)
+           view.addTarget(self, action: #selector(ALKConversationViewController.didLowerFloatingAffiliatePromotionButtonTouchUpInside), for: .touchUpInside)
            return view
        }()
     
