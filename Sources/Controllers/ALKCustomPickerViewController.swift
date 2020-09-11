@@ -254,7 +254,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                 if self.isOverUploadFileLimit(asset: asset) {
                     group.leave()
                     DispatchQueue.main.async {
-                        self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit)
+                        self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit, retryHandler: nil)
                         completion([], [], true, false)
                     }
                     return

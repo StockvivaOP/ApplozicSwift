@@ -564,7 +564,7 @@ extension ALKCustomCameraViewController: UICollectionViewDelegate, UICollectionV
         let asset = allPhotos.object(at: indexPath.item)
         //check file size
         if self.isOverUploadFileLimit(asset: asset) {
-            self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit)
+            self.conversationRequestInfoDelegate?.requestToShowAlert(type:.attachmentFileSizeOverLimit, retryHandler: nil)
             return
         }
         

@@ -1467,9 +1467,16 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         activityIndicator.stopAnimating()
     }
 
-    public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool, isFocusTargetAndHighlight:Bool) {
+    public func loadingFinished(error: Error?, targetFocusItemIndex:Int, isLoadNextPage:Bool, isFocusTargetAndHighlight:Bool, retryHandler:(()->())?) {
         self.loadingStop()
         let oldSectionCount = tableView.numberOfSections
+        //if have error
+        if error != nil {
+            //show alet for retry
+            self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.networkProblemAndRetry, retryHandler:retryHandler)
+            return
+        }
+        
         tableView.reloadData()
         print("loading finished")
         var _indexPathCell:IndexPath?
@@ -2514,8 +2521,8 @@ extension ALKConversationViewController: ConversationCellRequestInfoDelegate{
         return self.enableBookmarkMsgFeture
     }
     
-    public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType){
-        self.delegateConversationChatContentAction?.showAlert(type:type)
+    public func requestToShowAlert(type:ALKConfiguration.ConversationErrorType, retryHandler:(()->())? = nil){
+        self.delegateConversationChatContentAction?.showAlert(type:type, retryHandler: retryHandler)
     }
     
     public func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) {

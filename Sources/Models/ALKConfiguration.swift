@@ -270,6 +270,7 @@ public struct ALKConfiguration {
         case funcNeedPaid
         case funcNeedPaidForPinMsg
         case networkProblem
+        case networkProblemAndRetry
     }
     
     public enum ConversationMessageLinkType {
@@ -464,7 +465,7 @@ public protocol ConversationChatContentActionDelegate: class{
     func didFloatingShareButtonClicked(chatView:UIViewController, button:UIButton)
     func didShowAdminMessageOnlyStatusChanged(result:Bool)
     func getAdditionalSendMessageForAdmin() -> String?
-    func showAlert(type:ALKConfiguration.ConversationErrorType)
+    func showAlert(type:ALKConfiguration.ConversationErrorType, retryHandler:(()->())?)
     func isAdminUser(_ userHashId:String?) -> Bool
     func didUserProfileIconClicked(sender:UIViewController, viewModel:ALKMessageViewModel)
     //nav bar
@@ -536,7 +537,7 @@ public protocol ConversationCellRequestInfoDelegate: class{
     func isEnablePinMsgMenuItem() -> Bool
     func isEnablePaidFeature() -> Bool
     func isEnableBookmarkMenuItem() -> Bool
-    func requestToShowAlert(type:ALKConfiguration.ConversationErrorType) //response
+    func requestToShowAlert(type:ALKConfiguration.ConversationErrorType, retryHandler:(()->())?) //response
     func updateMessageModelData(messageModel:ALKMessageViewModel?, isUpdateView:Bool) //response
     func isAdminUserMessage(userHashId:String?) -> Bool
 }

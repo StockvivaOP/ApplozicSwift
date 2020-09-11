@@ -481,7 +481,7 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
 
     @objc private func downloadButtonAction(_ selector: UIButton) {
         if self.allowToShowPhoto() == false {//is not self message
-            self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid)
+            self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.funcNeedPaid, retryHandler: nil)
             return
         }
         downloadTapped?(true)
@@ -798,7 +798,7 @@ extension ALKPhotoCell: ALKHTTPManagerUploadDelegate {
             DispatchQueue.main.async {
                 self.updateView(for: .upload)
                 //show error
-                self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure)
+                self.delegateCellRequestInfo?.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.attachmentUploadFailure, retryHandler: nil)
             }
         }
     }
