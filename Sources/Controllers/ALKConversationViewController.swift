@@ -427,7 +427,7 @@ open class ALKConversationViewController: ALKBaseViewController, Localizable {
             guard let key = weakSelf.viewModel.channelKey, let channel = alChannelService.getChannelByKey(key), let _ = channel.name else { return }
             let profile = weakSelf.viewModel.conversationProfileFrom(contact: nil, channel: channel)
             weakSelf.navigationBar.updateContent(profile: profile)
-            weakSelf.newMessagesAdded()
+            weakSelf.newMessagesAdded(error: nil, isFromSyncMessage: false, retryHandler: nil)
         })
         
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "APP_ENTER_IN_FOREGROUND_CV"), object: nil, queue: nil) { [weak self] _ in
@@ -1642,7 +1642,13 @@ extension ALKConversationViewController: ALKConversationViewModelDelegate {
         tableView.endUpdates()
     }
 
-    @objc open func newMessagesAdded() {
+    @objc open func newMessagesAdded(error: Error?, isFromSyncMessage:Bool, retryHandler:(()->())?) {
+        guard error == nil else {
+            //show alet for retry
+            self.requestToShowAlert(type: ALKConfiguration.ConversationErrorType.networkProblemAndRetry, retryHandler:retryHandler)
+            return
+        }
+        
         updateTableView()
         //save for unread message as last message
         self.saveLastReadMessageAsLastMessge()

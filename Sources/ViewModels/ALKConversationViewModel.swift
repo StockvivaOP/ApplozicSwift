@@ -16,7 +16,7 @@ public protocol ALKConversationViewModelDelegate: class {
     func messageUpdated()
     func updateMessageAt(indexPath: IndexPath, needReloadTable:Bool)
     func removeMessagesAt(indexPath: IndexPath, closureBlock:()->Void)
-    func newMessagesAdded()
+    func newMessagesAdded(error: Error?, isFromSyncMessage:Bool, retryHandler:(()->())?)
     func messageSent(at: IndexPath)
     func messageCanSent(at: IndexPath, mentionUserList:[(hashID:String, name:String)]?)
     func updateDisplay(contact: ALContact?, channel: ALChannel?)
@@ -497,7 +497,12 @@ open class ALKConversationViewModel: NSObject, Localizable {
     }
 
     /// Received from notification and from network
-    open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false) {
+    open func addMessagesToList(_ messageList: [Any], isNeedOnUnreadMessageModel:Bool = false, isFromSyncMessage:Bool = false, error:Error? = nil, retryHandler:(()->())? = nil) {
+        guard error == nil else {
+            self.delegate?.newMessagesAdded(error: error, isFromSyncMessage: isFromSyncMessage, retryHandler: retryHandler)
+            return
+        }
+        
         guard let messages = messageList as? [ALMessage] else {
             return
         }
@@ -563,7 +568,17 @@ open class ALKConversationViewModel: NSObject, Localizable {
                 }
             }
         }
+        
+        let _retryAddMsgHandler:(()->()) = {
+            self.addMessagesToList(messageList, isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, isFromSyncMessage:isFromSyncMessage, error:error, retryHandler:retryHandler)
+        }
+        
         self.fetchChatGroupReplyMessage(messageKeys: replyMessageKeys) { (tempContactsNotPresent, error) in
+            guard error == nil else {
+                self.delegate?.newMessagesAdded(error: error, isFromSyncMessage: isFromSyncMessage, retryHandler: retryHandler ?? _retryAddMsgHandler)
+                return
+            }
+            
             contactsNotPresent.append(contentsOf: tempContactsNotPresent)
             self.fetchChatGroupMissingContactsPresent(contactsNotPresent, completed: {
                 //check duplicte
@@ -627,7 +642,7 @@ open class ALKConversationViewModel: NSObject, Localizable {
                     self.lastUnreadMessageKey = self.messageModels.last?.identifier ?? nil
                 }
                 
-                self.delegate?.newMessagesAdded()
+                self.delegate?.newMessagesAdded(error: nil, isFromSyncMessage: isFromSyncMessage, retryHandler: retryHandler)
             })
         }
     }
@@ -1743,6 +1758,10 @@ extension ALKConversationViewModel {
         NSLog("last record time: \(String(describing: time))")
         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - syncOpenGroupMessage - time: \(String(describing: time))")
         
+        
+        let _retryHandler:(()->()) = {
+            self.syncOpenGroupMessage(isNeedOnUnreadMessageModel: isNeedOnUnreadMessageModel, isShowLoading: isShowLoading)
+        }
         let _defaultPageSize = self.defaultValue_requestMessagePageSize
         if isShowLoading {
             self.delegate?.loadingStarted()
@@ -1751,12 +1770,23 @@ extension ALKConversationViewModel {
             self.delegate?.loadingStarted()
         }) { (messageList, error) in//completed
             self.delegate?.loadingStop()
-            guard let newMessages = messageList, newMessages.count > 0 else {
+            //have error
+            if let _error = error {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.error, message: "chatgroup - syncOpenGroupMessage - have error \(_error.localizedDescription) ")
+                self.addMessagesToList([], isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, isFromSyncMessage:true, error:_error, retryHandler:_retryHandler)
+                return
+            }
+            guard let newMessages = messageList else {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.error, message: "chatgroup - syncOpenGroupMessage - empty message list")
+                self.addMessagesToList([], isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, isFromSyncMessage:true, error:SVALKInternalAppError.SVERROR_EMPTY_RESULT.getError(), retryHandler:_retryHandler)
+                return
+            }
+            if newMessages.count == 0 {
                 ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type:.debug, message: "chatgroup - syncOpenGroupMessage - no message list")
                 return
             }
             //add to message list
-            self.addMessagesToList(newMessages, isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel)
+            self.addMessagesToList(newMessages, isNeedOnUnreadMessageModel:isNeedOnUnreadMessageModel, isFromSyncMessage:true, retryHandler:_retryHandler)
         }
     }
     
@@ -2717,8 +2747,8 @@ extension ALKConversationViewModel {
                 if let _tQuery = _cQuery {
                     loopingStart?()
                     self.fetchChatGroupMessages(query: _tQuery, totalMessageRecordInfo: _result, loopingStart:nil, completed: completed)
+                    return
                 }
-                return
             }
             
             //enough message record
