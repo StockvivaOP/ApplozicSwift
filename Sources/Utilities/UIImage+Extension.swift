@@ -30,6 +30,10 @@ extension UIImage {
         guard let cgImage = image?.cgImage else { return nil }
         self.init(cgImage: cgImage)
     }
+    
+    static func loadFromApplozic(named:String) -> UIImage? {
+        return UIImage(named: named, in: Bundle.applozic, compatibleWith: nil) ?? nil
+    }
 
     func resizeNotMoreThan(_ maximumSize: CGSize, aspectRatio: Bool) -> UIImage {
         let imageSize = self.size
