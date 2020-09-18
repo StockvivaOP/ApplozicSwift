@@ -111,8 +111,8 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
         self.btnShare.setImage(UIImage(named: "sv_button_share_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
         self.btnShare.addTarget(self, action: #selector(self.showShare(_:)), for: .touchUpInside)
         NSLayoutConstraint.activate([
-            _shareBtn.heightAnchor.constraint(equalToConstant: _btnSize.height),
-            _shareBtn.widthAnchor.constraint(equalToConstant: _btnSize.width)
+            self.btnShare.heightAnchor.constraint(equalToConstant: _btnSize.height),
+            self.btnShare.widthAnchor.constraint(equalToConstant: _btnSize.width)
         ])
         self.btnShare.tintColor = .white
         _svRightBtnGroup.addArrangedSubview(self.btnShare)
