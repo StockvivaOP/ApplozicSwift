@@ -23,6 +23,8 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
     var message: ALKMessageViewModel!
     var delegate:ALKDocumentViewerControllerDelegate?
     
+    private var btnShare:UIButton = UIButton(type: .custom)
+    
     let activityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.whiteLarge)
 
     override func viewDidLoad() {
@@ -61,6 +63,7 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
 
     @objc func showShare(_ sender: Any?) {
         let vc = UIActivityViewController(activityItems: [fileUrl], applicationActivities: [])
+        vc.popoverPresentationController?.sourceView = self.btnShare
         self.activityIndicator.startAnimating()
         self.present(vc, animated: true) {
             self.activityIndicator.stopAnimating()
@@ -104,15 +107,15 @@ class ALKDocumentViewerController : UIViewController,WKNavigationDelegate {
         
         let _btnSize = CGSize(width: 24.0, height: 24.0)
         //share button
-        let _shareBtn:UIButton = UIButton(type: .custom)
-        _shareBtn.setImage(UIImage(named: "sv_button_share_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
-        _shareBtn.addTarget(self, action: #selector(self.showShare(_:)), for: .touchUpInside)
+        self.btnShare = UIButton(type: .custom)
+        self.btnShare.setImage(UIImage(named: "sv_button_share_white", in: Bundle.applozic, compatibleWith: nil), for: .normal)
+        self.btnShare.addTarget(self, action: #selector(self.showShare(_:)), for: .touchUpInside)
         NSLayoutConstraint.activate([
             _shareBtn.heightAnchor.constraint(equalToConstant: _btnSize.height),
             _shareBtn.widthAnchor.constraint(equalToConstant: _btnSize.width)
         ])
-        _shareBtn.tintColor = .white
-        _svRightBtnGroup.addArrangedSubview(_shareBtn)
+        self.btnShare.tintColor = .white
+        _svRightBtnGroup.addArrangedSubview(self.btnShare)
         
         //refresh button
         let _refreshBtn:UIButton = UIButton(type: .custom)
