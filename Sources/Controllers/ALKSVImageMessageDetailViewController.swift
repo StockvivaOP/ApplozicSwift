@@ -211,8 +211,14 @@ extension ALKSVImageMessageDetailViewController : ALKHTTPManagerDownloadDelegate
         //check can open or not
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let path = documentsURL.appendingPathComponent(filePath).path
+        let originalPath = task.urlString ?? ""
         if UIImage(contentsOfFile: path) == nil {
-            ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier)")
+            if UIImage(contentsOfFile: originalPath) != nil {
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished with wrong file format,but web url work, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath)")
+            }else{
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath)")
+            }
+            
             try? FileManager.default.removeItem(atPath: path)
             //update view
             DispatchQueue.main.async {
