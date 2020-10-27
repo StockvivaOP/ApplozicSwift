@@ -585,6 +585,25 @@ class ALKPhotoCell: ALKChatBaseCell<ALKMessageViewModel>,
         guard let message = viewModel, let metadata = message.fileMetaInfo else {
             return
         }
+        let fileURL = URL(fileURLWithPath: NSHomeDirectory() as String)
+        do {
+            if #available(iOS 11.0, *) {
+            let values = try fileURL.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            
+                if let capacity = values.volumeAvailableCapacityForImportantUsage {
+                    debugPrint("Available capacity for important usage: \(capacity)")
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment check disk space:\(capacity.description)")
+                } else {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment check disk space: Capacity is unavailable")
+                    
+                }
+            } else {
+                // Fallback on earlier versions
+            }
+        } catch {
+             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment check disk space error retrieving capacity:  \(error.localizedDescription)")
+            
+        }
         guard (ALApplozicSettings.isS3StorageServiceEnabled() || ALApplozicSettings.isGoogleCloudServiceEnabled()) else {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - loadThumbnail not enable 'isS3StorageServiceEnabled' or 'isGoogleCloudServiceEnabled', url:\(metadata.thumbnailUrl ?? "nil"), msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             self.photoView.kf.setImage(with: message.thumbnailURL)

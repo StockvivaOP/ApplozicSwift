@@ -9,6 +9,7 @@
 import UIKit
 import Applozic
 import ApplozicSwift
+import Photos
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -35,6 +36,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ///       If you want to try this in our sample, then comment lines in ViewController's launchChatList method.
         ///       Finally, Uncomment below line
         /// PushNotificationHandler.shared.handleNotification(with: AppDelegate.config)
+        let imagePermission = PHPhotoLibrary.authorizationStatus()
+        var status = ""
+        switch imagePermission {
+        case .notDetermined:
+            status = "notDetermined"
+        case .authorized:
+            status = "authorized"
+        case .denied:
+            status = "denied"
+        case .restricted:
+            status = "restricted"
+        @unknown default:
+            status = "unknown default"
+        }
+        debugPrint("chatgroup - AppDelegate - check image library permission: \(status)")
+         ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - AppDelegate - check image library permission: \(status)")
+        
         ALKPushNotificationHandler.shared.dataConnectionNotificationHandlerWith(AppDelegate.config)
         let alApplocalNotificationHnadler : ALAppLocalNotifications =  ALAppLocalNotifications.appLocalNotificationHandler()
         alApplocalNotificationHnadler.dataConnectionNotificationHandler()

@@ -470,6 +470,26 @@ open class ALKConversationViewModel: NSObject, Localizable {
             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - downloadAttachment no data connection, msg_key:\(message.identifier), msg:\(message.rawModel?.dictionary() ?? ["nil":"nil"])")
             return
         }
+        let fileURL = URL(fileURLWithPath: NSHomeDirectory() as String)
+        do {
+            if #available(iOS 11.0, *) {
+            let values = try fileURL.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            
+                if let capacity = values.volumeAvailableCapacityForImportantUsage {
+                    //                print("Available capacity for important usage: \(capacity)")
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment check disk space:\(capacity.description)")
+                } else {
+                    ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment check disk space: Capacity is unavailable")
+                    
+                }
+            } else {
+                // Fallback on earlier versions
+            }
+        } catch {
+             ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .debug, message: "chatgroup - fileDownload - downloadAttachment check disk space error retrieving capacity:  \(error.localizedDescription)")
+            
+        }
+
         /// For email attachments url is to be used directly
         if message.source == emailSourceType, let url = message.fileMetaInfo?.url {
             let httpManager = ALKHTTPManager()
