@@ -46,7 +46,7 @@
                                                                 </constraints>
                                                                 <state key="normal" image="sv_button_close"/>
                                                                 <connections>
-                                                                    <action selector="closeButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="jpF-hp-u7p"/>
+                                                                    <action selector="closeButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="EEw-GT-InQ"/>
                                                                 </connections>
                                                             </button>
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lRK-Sf-sLc" userLabel="title label view">
@@ -344,7 +344,7 @@
                                                                 </constraints>
                                                                 <state key="normal" image="sv_button_close"/>
                                                                 <connections>
-                                                                    <action selector="closeButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="7cH-0a-kzm"/>
+                                                                    <action selector="closeButtonTouchUpInside:" destination="tUc-Bc-Kl5" eventType="touchUpInside" id="G3n-g5-MPu"/>
                                                                 </connections>
                                                             </button>
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0eq-cV-S7j" userLabel="title label view">
@@ -693,7 +693,7 @@
                                                                 </constraints>
                                                                 <state key="normal" image="sv_button_close"/>
                                                                 <connections>
-                                                                    <action selector="closeButtonTouchUpInside:" destination="jU9-e8-UNW" eventType="touchUpInside" id="fcB-rG-Eq7"/>
+                                                                    <action selector="closeButtonTouchUpInside:" destination="XdQ-L5-x8E" eventType="touchUpInside" id="YaV-cc-CWM"/>
                                                                 </connections>
                                                             </button>
                                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zYb-sB-mOV" userLabel="title label view">
@@ -1141,7 +1141,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="5WQ-V0-NTO"/>
+        <segue reference="FRe-pA-vna"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="DownloadiOS" width="25" height="25"/>
