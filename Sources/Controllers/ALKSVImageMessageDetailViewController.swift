@@ -12,7 +12,7 @@ import Applozic
 import Kingfisher
 
 class ALKSVImageMessageDetailViewController: ALKSVBaseMessageDetailViewController {
-
+    
     @IBOutlet weak var imgMessageFile: UIImageView!
     @IBOutlet weak var viewDLKGroup: UIView!
     @IBOutlet weak var viewDLKIndicatorGroup: UIView!
@@ -212,11 +212,22 @@ extension ALKSVImageMessageDetailViewController : ALKHTTPManagerDownloadDelegate
         let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let path = documentsURL.appendingPathComponent(filePath).path
         let originalPath = task.urlString ?? ""
+        var fileContentHead = ""
+        var webContentHead = ""
+        
+        do {
+            let fileUrl = URL.init(string: path)!
+            let webUrl = URL.init(string: originalPath)!
+            fileContentHead = try String(String(contentsOf: fileUrl, encoding: .utf8).prefix(100))
+            webContentHead = try String(String(contentsOf: webUrl, encoding: .utf8).prefix(100))
+            
+        }catch {/* error handling here */}
+        
         if UIImage(contentsOfFile: path) == nil {
             if UIImage(contentsOfFile: originalPath) != nil {
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished with wrong file format,but web url work, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath)")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - dataDownloadingFinished with wrong file format,but web url work, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath), fileHead:\(fileContentHead)")
             }else{
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVImageMessageDetailViewController - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath)")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath), fileHead:\(fileContentHead), webHead:\(webContentHead)")
             }
             
             try? FileManager.default.removeItem(atPath: path)
