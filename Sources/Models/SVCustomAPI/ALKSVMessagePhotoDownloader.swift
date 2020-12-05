@@ -165,9 +165,9 @@ extension ALKSVMessagePhotoDownloader : ALKHTTPManagerDownloadDelegate{
         
         if UIImage(contentsOfFile: path) == nil {
             if UIImage(contentsOfFile: originalPath) != nil {
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - dataDownloadingFinished with wrong file format,but web url work, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath), fileHead:\(fileContentHead)")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader - dataDownloadingFinished with wrong file format,but web url work, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath), fileHead:\(fileContentHead)")
             }else{
-                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKPhotoCell - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath), fileHead:\(fileContentHead), webHead:\(webContentHead)")
+                ALKConfiguration.delegateSystemInfoRequestDelegate?.logging(type: .error, message: "chatgroup - fileDownload - ALKSVMessagePhotoDownloader - dataDownloadingFinished with wrong file format, filePath:\(filePath ), msg_key:\(identifier), webPath:\(originalPath), fileHead:\(fileContentHead), webHead:\(webContentHead)")
             }
             
             try? FileManager.default.removeItem(atPath: path)
