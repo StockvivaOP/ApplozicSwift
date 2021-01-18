@@ -100,7 +100,7 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
     private func checkPhotoLibraryPermission() {
         let status = PHPhotoLibrary.authorizationStatus()
         switch status {
-        case .authorized:
+        case .authorized, .limited:
             self.getAllImage(completion: { [weak self] (isGrant) in
                 guard let weakSelf = self else {return}
                 weakSelf.createScrollGallery(isGrant:isGrant)
@@ -127,6 +127,8 @@ class ALKCustomPickerViewController: ALKBaseViewController, Localizable {
                     //whatever
                 }
             }
+        @unknown default:
+            break
         }
     }
 

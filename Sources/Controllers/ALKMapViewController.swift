@@ -82,14 +82,14 @@ class ALKMapViewController: UIViewController, Localizable {
         urlString = urlString?.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed)
 
         if let urlString = urlString, let url = URL(string: urlString) {
-
-            KingfisherManager.shared.retrieveImage(with: url, options: nil, progressBlock: nil) { (image: Image?, error: NSError?, _: CacheType, _: URL?) in
-
-                guard let image = image else {
+            KingfisherManager.shared.retrieveImage(with: ImageResource(downloadURL: url), options: nil, progressBlock: nil) { (result) in
+                switch result {
+                case .success(let result):
+                    success(result.image)
+                case .failure(let error):
                     failure(error)
-                    return
                 }
-                success(image)
+                
             }
         }
     }

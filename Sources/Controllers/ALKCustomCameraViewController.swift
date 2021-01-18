@@ -260,7 +260,7 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
     private func checkPhotoLibraryPermission() {
         let status = PHPhotoLibrary.authorizationStatus()
         switch status {
-        case .authorized:
+        case .authorized, .limited:
             self.getAllImage(completion: { [weak self] (isGrant) in
                 guard let weakSelf = self else { return }
                 weakSelf.createScrollGallery(isGrant: isGrant)
@@ -287,6 +287,8 @@ final class ALKCustomCameraViewController: ALKBaseViewController, AVCapturePhoto
                     //whatever
                 }
             }
+        @unknown default:
+            break
         }
     }
 
